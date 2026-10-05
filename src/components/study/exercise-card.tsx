@@ -11,6 +11,7 @@ import { ConfidencePicker } from "./confidence-picker";
 import { TYPE_MODULES, type SelfDraft } from "./exercise-types";
 import { ReportButton } from "./report-button";
 import { RichText } from "./rich-text";
+import { isTyping } from "@/lib/keyboard";
 
 /**
  * Un ejercicio de punta a punta (teclado primero, docs/02): responder → marcar confianza →
@@ -55,10 +56,6 @@ const TYPE_LABELS: Record<string, string> = {
 
 const CODE_TYPES = new Set(["codigo", "depurar", "parsons", "rastreo_memoria"]);
 
-function isTyping(target: EventTarget | null): boolean {
-  const el = target as HTMLElement | null;
-  return !!el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable || el.tagName === "MATH-FIELD");
-}
 
 export function ExerciseCard({
   exercise,

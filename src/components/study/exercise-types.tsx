@@ -10,6 +10,7 @@ import { createRng, seedFrom, shuffle } from "@/engine/rng";
 import { cn } from "@/lib/utils";
 import { MathField } from "./math-field";
 import { RichText } from "./rich-text";
+import { isTyping } from "@/lib/keyboard";
 
 /**
  * Un módulo por tipo de ejercicio: borrador inicial, componente de entrada y cómo se convierte
@@ -36,10 +37,6 @@ export interface TypeModule<D> {
 
 const inputClass = "h-11 w-full rounded-md border border-input bg-surface px-3 font-mono text-base";
 
-function isTyping(target: EventTarget | null): boolean {
-  const el = target as HTMLElement | null;
-  return !!el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable || el.tagName === "MATH-FIELD");
-}
 
 // ---------------------------------------------------------------- opción múltiple
 const LETTERS = "ABCDEFGH";

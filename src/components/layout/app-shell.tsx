@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { APP_NAME } from "@/lib/app";
+import { CommandPalette } from "./command-palette";
 import { BottomBar, DesktopNav } from "./main-nav";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -25,6 +26,7 @@ export function AppShell({ children, hud }: { children: ReactNode; hud?: ReactNo
           <DesktopNav />
           {/* El HUD va al final: la prueba de desborde mide el último elemento de esta fila. */}
           <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-3">
+            <CommandPalette />
             <ThemeToggle />
             {hud}
           </div>
