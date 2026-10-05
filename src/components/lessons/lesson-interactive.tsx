@@ -39,7 +39,7 @@ export function PredictInteractive({ reveal }: { reveal: ReactNode | null }) {
             <button
               type="button"
               onClick={() => setShown(true)}
-              className="tactile rounded-md border-2 border-[var(--shadow-color)] bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground"
+              className="tactile rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:brightness-110"
             >
               {text.trim() ? "Comparar con la idea" : "No sé: muéstrame la idea"}
             </button>
@@ -117,7 +117,7 @@ export function FadedInteractive({
             <button
               type="button"
               onClick={() => setChecked(true)}
-              className="tactile rounded-md border-2 border-[var(--shadow-color)] bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground"
+              className="tactile rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:brightness-110"
             >
               Comprobar
             </button>

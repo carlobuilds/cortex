@@ -180,7 +180,7 @@ function DebugInput({ exercise, draft, setDraft, disabled, onEnter }: InputProps
   if (draft.picked === null) {
     return (
       <div className="grid gap-2">
-        <p className="console-label">Paso 1 · ¿En qué línea está el error? Haz clic en ella.</p>
+        <p className="eyebrow">Paso 1 · ¿En qué línea está el error? Haz clic en ella.</p>
         <ol className="code-view grid !whitespace-normal p-1" aria-label="Código con un error">
           {lines.map((l, i) => (
             <li key={i}>
@@ -284,7 +284,7 @@ function ParsonsInput({ exercise, draft, setDraft, disabled }: InputProps<Parson
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <section aria-labelledby="parsons-pool">
-        <h3 id="parsons-pool" className="console-label mb-2">
+        <h3 id="parsons-pool" className="eyebrow mb-2">
           Líneas disponibles {ex.distractores?.length ? "(alguna sobra)" : ""}
         </h3>
         <ul className="grid gap-1.5">
@@ -304,7 +304,7 @@ function ParsonsInput({ exercise, draft, setDraft, disabled }: InputProps<Parson
         </ul>
       </section>
       <section aria-labelledby="parsons-program">
-        <h3 id="parsons-program" className="console-label mb-2">
+        <h3 id="parsons-program" className="eyebrow mb-2">
           Tu programa {python ? "· Alt+←/→ sangría, Alt+↑/↓ mover, Supr quitar" : "· Alt+↑/↓ mover, Supr quitar"}
         </h3>
         <ol className="code-view grid gap-1 !whitespace-normal p-2" aria-label="Tu programa">
@@ -415,7 +415,7 @@ interface TraceDraft {
 function Cells({ title, cells, hide }: { title: string; cells: readonly TraceCell[]; hide: boolean }) {
   return (
     <section aria-label={title}>
-      <h4 className="console-label mb-1">{title}</h4>
+      <h4 className="eyebrow mb-1">{title}</h4>
       {cells.length ? (
         <table className="w-full font-mono text-sm">
           <tbody>

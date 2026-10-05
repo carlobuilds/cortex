@@ -107,7 +107,7 @@ export function NbackGame({ level, onDone }: { level: number; onDone: (r: GymRou
       </p>
       <div className="grid grid-cols-3 gap-2" aria-hidden>
         {Array.from({ length: 9 }, (_, i) => (
-          <div key={i} className={cn("size-16 rounded-md border-2 border-border-strong sm:size-20", lit && pos === i ? "bg-brand" : "bg-surface-2")} />
+          <div key={i} className={cn("size-16 rounded-lg border border-border-strong sm:size-20", lit && pos === i ? "bg-brand" : "bg-surface-2")} />
         ))}
       </div>
       <p className="sr-only" aria-live="polite">

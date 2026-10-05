@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { APP_NAME } from "@/lib/app";
 
@@ -9,15 +10,19 @@ export const metadata: Metadata = { title: `Página no encontrada · ${APP_NAME}
 export default function NotFound() {
   return (
     <div className="max-w-2xl">
-      <p className="console-label">Error 404</p>
-      <h1 className="mt-2 text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl">No encontré esa página</h1>
-      <p className="mt-3 text-ink-2">
-        Puede que la dirección esté mal escrita o que esa materia todavía no tenga lecciones. Las que ya tienen contenido
-        están en el inicio.
-      </p>
-      <Button asChild className="mt-6">
-        <Link href="/">Volver al inicio</Link>
-      </Button>
+      <PageHeader
+        eyebrow="Error 404"
+        title="No encontré esa página"
+        description="Puede que la dirección esté mal escrita o que esa materia todavía no tenga lecciones. Las que ya tienen contenido están en Materias."
+      />
+      <div className="flex flex-wrap gap-3">
+        <Button asChild>
+          <Link href="/">Volver al inicio</Link>
+        </Button>
+        <Button asChild variant="secondary">
+          <Link href="/materias">Ver materias</Link>
+        </Button>
+      </div>
     </div>
   );
 }

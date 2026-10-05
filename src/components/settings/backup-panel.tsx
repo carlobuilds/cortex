@@ -238,7 +238,7 @@ export function BackupPanel() {
       ) : null}
 
       {pending ? (
-        <section aria-labelledby="resumen-respaldo" className="min-w-0 rounded-lg border-2 border-border-strong bg-surface-2 p-4">
+        <section aria-labelledby="resumen-respaldo" className="min-w-0 rounded-lg border bg-surface-2 p-4">
           <h3 id="resumen-respaldo" className="font-semibold">
             {pending.fileName}
           </h3>
@@ -249,7 +249,7 @@ export function BackupPanel() {
           <table className="w-full text-sm">
             <caption className="sr-only">Registros por tabla: ahora y en el respaldo</caption>
             <thead>
-              <tr className="text-left font-mono text-[0.6875rem] tracking-[0.12em] text-muted-foreground uppercase">
+              <tr className="text-left text-caption text-muted-foreground">
                 <th scope="col" className="py-1 font-medium">Tabla</th>
                 <th scope="col" className="py-1 pl-3 text-right font-medium">Ahora</th>
                 <th scope="col" className="py-1 pl-3 text-right font-medium">Respaldo</th>

@@ -67,7 +67,7 @@ function ChoiceInput({ exercise, draft, setDraft, disabled }: InputProps<number 
           disabled={disabled}
           onClick={() => setDraft(i)}
           className={cn(
-            "flex items-center gap-3 rounded-md border-2 bg-surface px-3 py-2.5 text-left hover:border-brand disabled:opacity-80",
+            "tactile flex items-center gap-3 rounded-md border bg-surface px-3 py-2.5 text-left hover:border-brand/60 disabled:opacity-80",
             draft === i ? "border-brand bg-surface-2" : "border-border-strong",
           )}
         >
@@ -133,7 +133,7 @@ function OutputInput({ exercise, draft, setDraft, disabled, onEnter }: InputProp
         {ex.codigo.replace(/\n$/, "")}
       </pre>
       <label className="grid gap-1.5">
-        <span className="console-label">Salida exacta (una línea por renglón)</span>
+        <span className="eyebrow">Salida exacta (una línea por renglón)</span>
         <textarea
           aria-label="Salida exacta"
           autoFocus
@@ -236,7 +236,7 @@ function OrderInput({ draft, setDraft, disabled }: InputProps<string[]>) {
                 move(i, 1);
               }
             }}
-            className="flex items-center gap-3 rounded-md border-2 border-border-strong bg-surface px-3 py-2"
+            className="flex items-center gap-3 rounded-md border bg-surface px-3 py-2"
           >
             <span className="font-mono text-sm text-xp-text tabular-nums">{i + 1}</span>
             <span className="min-w-0 flex-1">
@@ -280,7 +280,7 @@ export interface SelfDraft {
 function SelfInput({ draft, setDraft, disabled, onEnter }: InputProps<SelfDraft>) {
   return (
     <label className="grid gap-1.5">
-      <span className="console-label">Tu explicación (con tus palabras)</span>
+      <span className="eyebrow">Tu explicación (con tus palabras)</span>
       <textarea
         autoFocus
         disabled={disabled}

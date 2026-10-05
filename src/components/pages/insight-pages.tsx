@@ -22,18 +22,30 @@ import { visibleStreak } from "@/engine/streak";
 import { unitHref } from "@/lib/study";
 import { useToday } from "@/lib/use-clock";
 import { cn } from "@/lib/utils";
+import { EmptyState, LoadingState } from "@/components/ui/state";
 
 
 // ---------------------------------------------------------------- cuaderno de errores
 function Notebook({ db, catalog }: StudyContext) {
   const mistakes = useLiveQuery(() => db.mistakes.toArray(), [db]);
   const [sent, setSent] = useState<Set<string>>(new Set());
-  if (!mistakes) return <p className="text-muted-foreground">Abriendo tu cuaderno…</p>;
+  if (!mistakes) return <LoadingState label="Abriendo tu cuaderno…" rows={3} />;
   const list = mistakes
     .filter((m) => catalog.exercises[m.exerciseId])
     .sort((a, b) => Number(a.fixedAt !== null) - Number(b.fixedAt !== null) || Number(b.illusion) - Number(a.illusion) || b.lastAt - a.lastAt);
   if (!list.length) {
-    return <p className="text-ink-2">Todavía no hay errores anotados. Cuando falles un ejercicio aparecerá aquí, con tu respuesta y la explicación.</p>;
+    return (
+      <EmptyState
+        icon={NotebookPen}
+        title="Todavía no hay errores anotados."
+        description="Cuando falles un ejercicio aparecerá aquí, con tu respuesta y la explicación."
+        action={
+          <Button asChild>
+            <Link href="/sesion">Empezar la sesión de hoy</Link>
+          </Button>
+        }
+      />
+    );
   }
   return (
     <ul className="grid gap-4">
@@ -42,7 +54,7 @@ function Notebook({ db, catalog }: StudyContext) {
         const unit = ex ? findUnit(catalog, ex.unitKey) : undefined;
         if (!ex) return null;
         return (
-          <li key={m.exerciseId} className={cn("rounded-lg border-2 bg-surface p-5", m.fixedAt === null ? "border-border-strong" : "border-border opacity-80")}>
+          <li key={m.exerciseId} className={cn("raised rounded-lg border bg-surface p-5", m.fixedAt === null ? "border-border-strong" : "opacity-80")}>
             <div className="flex flex-wrap items-center gap-2">
               <span className="font-mono text-xs text-muted-foreground">{m.exerciseId}</span>
               {unit ? (
@@ -104,7 +116,7 @@ export function NotebookClient() {
 function Stat({ label, value, hint }: { label: string; value: React.ReactNode; hint?: string }) {
   return (
     <div className="rounded-lg border bg-surface p-4">
-      <p className="console-label">{label}</p>
+      <p className="eyebrow">{label}</p>
       <p className="mt-1 font-mono text-3xl font-semibold tabular-nums">{value}</p>
       {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
     </div>
@@ -113,7 +125,7 @@ function Stat({ label, value, hint }: { label: string; value: React.ReactNode; h
 
 function Progress({ db, catalog, profile, today }: StudyContext & { today: string }) {
   const data = useLiveQuery(() => Promise.all([db.days.toArray(), db.records.toArray(), db.achievements.toArray(), db.attempts.toArray(), db.unitProgress.toArray()]), [db]);
-  if (!data) return <p className="text-muted-foreground">Sumando tu progreso…</p>;
+  if (!data) return <LoadingState label="Sumando tu progreso…" />;
   const [days, records, achievements, attempts, progress] = data;
   const lvl = levelInfo(profile.xpTotal);
   const streak = visibleStreak({ current: profile.currentStreak, max: profile.maxStreak, freezes: profile.streakFreezes, lastDay: profile.lastStudyDay, repair: profile.streakRepair }, today);
@@ -131,7 +143,7 @@ function Progress({ db, catalog, profile, today }: StudyContext & { today: strin
   return (
     <div className="grid gap-10">
       <section aria-labelledby="nivel" className="grid gap-4">
-        <h2 id="nivel" className="console-label">
+        <h2 id="nivel" className="eyebrow">
           Nivel y racha
         </h2>
         <div className="flex flex-wrap items-center gap-4" data-frame={profile.cosmetics.frame ?? undefined}>
@@ -154,7 +166,7 @@ function Progress({ db, catalog, profile, today }: StudyContext & { today: strin
       </section>
 
       <section aria-labelledby="liga" className="grid gap-3">
-        <h2 id="liga" className="console-label">
+        <h2 id="liga" className="eyebrow">
           Liga personal · tú contra tu promedio
         </h2>
         <div className="grid gap-3 sm:grid-cols-3">
@@ -169,7 +181,7 @@ function Progress({ db, catalog, profile, today }: StudyContext & { today: strin
       </section>
 
       <section aria-labelledby="records" className="grid gap-3">
-        <h2 id="records" className="console-label">
+        <h2 id="records" className="eyebrow">
           Récords personales
         </h2>
         {recordRows.length ? (
@@ -198,7 +210,7 @@ function Progress({ db, catalog, profile, today }: StudyContext & { today: strin
       </section>
 
       <section aria-labelledby="calibracion" className="grid gap-3">
-        <h2 id="calibracion" className="console-label">
+        <h2 id="calibracion" className="eyebrow">
           Calibración · ¿sabes lo que sabes?
         </h2>
         <div className="grid gap-3 sm:grid-cols-3">
@@ -210,7 +222,7 @@ function Progress({ db, catalog, profile, today }: StudyContext & { today: strin
       </section>
 
       <section aria-labelledby="logros" className="grid gap-3">
-        <h2 id="logros" className="console-label">
+        <h2 id="logros" className="eyebrow">
           Logros · {unlocked.size}
         </h2>
         <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -218,12 +230,12 @@ function Progress({ db, catalog, profile, today }: StudyContext & { today: strin
             const at = unlocked.get(a.id);
             const hidden = a.secret && !at;
             return (
-              <li key={a.id} className={cn("flex items-start gap-3 rounded-md border-2 bg-surface p-3", at ? "border-xp" : "border-border opacity-70")}>
+              <li key={a.id} className={cn("flex items-start gap-3 rounded-lg border bg-surface p-3", at ? "glow glow-xp border-xp/60" : "opacity-70")}>
                 <Award aria-hidden className={cn("mt-0.5 size-5 shrink-0", at ? "text-xp-text" : "text-muted-foreground")} />
                 <span>
                   <span className="block font-semibold">{hidden ? "???" : a.name}</span>
                   <span className="block text-xs text-muted-foreground">{hidden ? "Logro secreto: sigue explorando." : a.description}</span>
-                  {at ? <span className="block font-mono text-[0.6875rem] text-muted-foreground">{new Date(at).toLocaleDateString("es-MX")}</span> : null}
+                  {at ? <span className="block font-mono text-caption text-muted-foreground">{new Date(at).toLocaleDateString("es-MX")}</span> : null}
                 </span>
               </li>
             );
@@ -232,7 +244,7 @@ function Progress({ db, catalog, profile, today }: StudyContext & { today: strin
       </section>
 
       <section aria-labelledby="cosmeticos" className="grid gap-3">
-        <h2 id="cosmeticos" className="console-label">
+        <h2 id="cosmeticos" className="eyebrow">
           Cosméticos (no dan ventajas)
         </h2>
         {profile.cosmetics.frames.length ? (

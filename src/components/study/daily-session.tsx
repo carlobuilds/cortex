@@ -21,6 +21,7 @@ import { BossRunner } from "./boss-runner";
 import { useCelebrate } from "./celebrations";
 import { RichText } from "./rich-text";
 import { LessonQuiz, PracticeRunner, ReviewRunner } from "./runners";
+import { LoadingState } from "@/components/ui/state";
 
 type Step = "warmup" | "mission" | "gym" | "close";
 const STEPS: readonly { id: Step; label: string }[] = [
@@ -66,7 +67,7 @@ export function DailySession({ db, catalog, profile }: { db: CortexDb; catalog: 
     };
   }, [refresh]);
 
-  if (!status || !step) return <p className="text-muted-foreground">Armando tu sesión de hoy…</p>;
+  if (!status || !step) return <LoadingState label="Armando tu sesión de hoy…" />;
   const missionUnit = status.mission ? findUnit(catalog, status.mission.unitKey) : undefined;
   const cont = (
     <Button onClick={() => void refresh()} autoFocus>

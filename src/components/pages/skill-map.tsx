@@ -247,7 +247,7 @@ function SkillMap({ db, catalog, subjectId }: StudyContext & { subjectId: string
             </div>
             <ol aria-label="Escalera de maestría" className="flex gap-1">
               {MASTERY_ORDER.map((m) => (
-                <li key={m} title={undefined} className="flex-1">
+                <li key={m} className="flex-1">
                   <span aria-hidden className={cn("block h-1.5 rounded-full", masteryRank(m) <= masteryRank(focused.state) ? "bg-brand" : "bg-surface-3")} />
                   <span className="sr-only">
                     {MASTERY_LABELS[m]}

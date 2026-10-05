@@ -35,7 +35,7 @@ export function ConfidencePicker({ onPick, onCancel }: { onPick: (c: Confidence)
 
   return (
     <fieldset className="rounded-lg border border-border-strong bg-surface p-4">
-      <legend className="console-label px-1">Antes de ver el resultado · ¿qué tan seguro estás?</legend>
+      <legend className="eyebrow px-1">Antes de ver el resultado · ¿qué tan seguro estás?</legend>
       <div className="mt-1 grid gap-2 sm:grid-cols-3">
         {LEVELS.map((l, i) => (
           <button
@@ -44,7 +44,7 @@ export function ConfidencePicker({ onPick, onCancel }: { onPick: (c: Confidence)
             type="button"
             onClick={() => onPick(l.value)}
             className={cn(
-              "tactile flex items-center gap-3 rounded-md border-2 border-border-strong bg-surface-2 px-3 py-2.5 text-left hover:border-brand",
+              "tactile flex items-center gap-3 rounded-md border bg-surface-2 px-3 py-2.5 text-left hover:border-brand/60",
             )}
           >
             <span className="kbd" aria-hidden>

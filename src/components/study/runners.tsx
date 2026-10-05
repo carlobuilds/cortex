@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, Sparkles } from "lucide-react";
+import { BookOpen, Layers, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import { useCelebrate } from "./celebrations";
 import { type AfterAnswer, ExerciseCard, type ExerciseResult } from "./exercise-card";
 import { isPlayable } from "./exercise-types";
 import { RichText } from "./rich-text";
+import { EmptyState, LoadingState } from "@/components/ui/state";
 
 const QUIZ_EXCLUDED = new Set(["codigo", "depurar", "parsons", "rastreo_memoria"]);
 
@@ -217,7 +218,7 @@ export function PracticeRunner({
     });
   }, [blockSize, onDone, pool]);
 
-  if (!state) return <p className="text-muted-foreground">Preparando tu práctica…</p>;
+  if (!state) return <LoadingState label="Preparando tu práctica…" />;
   if (state.done || !state.current) {
     return (
       <Summary tally={state.tally} title="Bloque de práctica terminado">
@@ -331,12 +332,15 @@ export function ReviewRunner({
     onDone?.(tally);
   }, [catalog, db, done, fromOutcome, onDone, queue, tally]);
 
-  if (!queue) return <p className="text-muted-foreground">Buscando tus repasos…</p>;
+  if (!queue) return <LoadingState label="Buscando tus repasos…" />;
   if (queue.length === 0) {
     return (
-      <Summary tally={tally} title="No tienes repasos pendientes">
-        {doneActions}
-      </Summary>
+      <EmptyState
+        icon={Layers}
+        title="No tienes repasos pendientes"
+        description="El repaso espaciado te trae cada tarjeta justo antes de olvidarla. Hoy no toca ninguna: practica una unidad o vuelve mañana."
+        action={<div className="flex flex-wrap justify-center gap-3">{doneActions}</div>}
+      />
     );
   }
   if (done) {

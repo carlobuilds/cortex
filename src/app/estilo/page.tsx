@@ -34,7 +34,7 @@ const SWATCHES = [
 function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
     <section aria-labelledby={id} className="mt-14 first:mt-0">
-      <h2 id={id} className="console-label mb-4">
+      <h2 id={id} className="eyebrow mb-4">
         {title}
       </h2>
       {children}
@@ -50,7 +50,7 @@ function Swatches() {
           <div className="h-12 border-b" style={{ background: `var(--${token})` }} />
           <div className="px-2.5 py-2">
             <p className="text-xs font-medium">{label}</p>
-            <p className="font-mono text-[0.6875rem] text-muted-foreground">--{token}</p>
+            <p className="font-mono text-caption text-muted-foreground">--{token}</p>
           </div>
         </li>
       ))}
@@ -83,7 +83,7 @@ export default function StylePage() {
   return (
     <div>
       <header className="mb-12">
-        <p className="console-label">Fase 0 · catálogo vivo</p>
+        <p className="eyebrow">Fase 0 · catálogo vivo</p>
         <h1 className="mt-2 text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl">Sistema visual</h1>
         <p className="mt-3 max-w-2xl text-ink-2">
           Consola de laboratorio para leer; física de arcade para lo que se toca o se gana. Los colores cumplen
@@ -117,7 +117,7 @@ export default function StylePage() {
             Texto de lección: 17 px con interlineado amplio y líneas de ~68 caracteres para leer 20 minutos sin cansarse.
           </p>
           <p className="text-sm text-muted-foreground">Texto secundario y ayudas.</p>
-          <p className="console-label">Etiqueta de consola</p>
+          <p className="eyebrow">Etiqueta de consola</p>
         </div>
       </Section>
 

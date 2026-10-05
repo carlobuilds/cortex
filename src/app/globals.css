@@ -201,9 +201,8 @@
 }
 
 @layer components {
-  /* Etiqueta sobre un título: sans, sentence-case, discreta. (`console-label` es un alias temporal.) */
-  .eyebrow,
-  .console-label {
+  /* Etiqueta sobre un título: sans, sentence-case, discreta. */
+  .eyebrow {
     font-size: var(--text-label);
     line-height: 1.4;
     font-weight: 500;

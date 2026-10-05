@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { getContentIndex } from "@/content/server";
 import { APP_NAME } from "@/lib/app";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { PageHeader } from "@/components/layout/page-header";
 
 // Solo las materias con contenido tienen página.
 export const dynamicParams = false;
@@ -31,31 +33,28 @@ export default async function SubjectPage({ params }: PageProps<"/materias/[mate
 
   return (
     <div>
-      <nav aria-label="Ruta" className="console-label">
-        <Link href="/" className="hover:text-ink">
-          Inicio
-        </Link>{" "}
-        / {subject.name}
-      </nav>
-      <header className="mt-4 max-w-3xl">
-        <h1 className="text-4xl font-extrabold tracking-[-0.03em] text-balance sm:text-5xl">{subject.name}</h1>
-        <div className="mt-4 flex flex-wrap gap-1.5">
-          {subject.semester !== null ? <Badge>Semestre {subject.semester}</Badge> : null}
-          {track ? <Badge>{track}</Badge> : null}
-          {subject.credits !== null ? <Badge>{subject.credits} créditos</Badge> : null}
-          <Badge variant="outline">{subject.cortexPhase === null ? "Backlog" : `Fase ${subject.cortexPhase}`}</Badge>
-        </div>
-        <p className="mt-4 text-ink-2">
-          {content.concepts?.conceptos.length ?? 0} conceptos en el mapa · {content.units.length}{" "}
-          {content.units.length === 1 ? "unidad" : "unidades"} ·{" "}
-          <Link href={`/materias/${materia}/mapa`} className="text-brand underline underline-offset-2">
-            ver mapa de maestría
-          </Link>
-        </p>
-      </header>
+      <Breadcrumbs items={[{ label: "Materias", href: "/materias" }, { label: subject.name }]} />
+      <PageHeader
+        className="mt-4 mb-6"
+        title={subject.name}
+        description={
+          <>
+            {content.concepts?.conceptos.length ?? 0} conceptos · {content.units.length} {content.units.length === 1 ? "unidad" : "unidades"} ·{" "}
+            <Link href={`/materias/${materia}/mapa`} className="text-brand underline underline-offset-2">
+              ver mapa de maestría
+            </Link>
+          </>
+        }
+      />
+      <div className="flex flex-wrap gap-1.5">
+        {subject.semester !== null ? <Badge>Semestre {subject.semester}</Badge> : null}
+        {track ? <Badge>{track}</Badge> : null}
+        {subject.credits !== null ? <Badge>{subject.credits} créditos</Badge> : null}
+        <Badge variant="outline">{subject.cortexPhase === null ? "Backlog" : `Fase ${subject.cortexPhase}`}</Badge>
+      </div>
 
       <section aria-labelledby="unidades" className="mt-10">
-        <h2 id="unidades" className="console-label mb-4">
+        <h2 id="unidades" className="mb-4 text-lg font-semibold">
           Unidades
         </h2>
         <ol className="grid gap-3">
@@ -63,7 +62,7 @@ export default async function SubjectPage({ params }: PageProps<"/materias/[mate
             <li key={u.key}>
               <Link
                 href={`/materias/${materia}/${u.slug}`}
-                className="tactile group flex items-center gap-5 rounded-lg border-2 border-border-strong bg-surface p-4 hover:border-brand"
+                className="tactile raised group flex items-center gap-5 rounded-lg border bg-surface p-4 hover:border-brand/50"
               >
                 <span className="font-mono text-4xl font-semibold text-xp tabular-nums">{String(u.number).padStart(2, "0")}</span>
                 <span className="min-w-0 flex-1">

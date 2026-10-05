@@ -42,10 +42,10 @@ export function GymHub({ db, catalog }: { db: CortexDb; catalog: StudyCatalog })
             <button
               type="button"
               onClick={() => setGame(g)}
-              className="tactile flex h-full w-full flex-col items-start gap-2 rounded-lg border-2 border-border-strong bg-surface p-5 text-left hover:border-brand"
+              className="tactile raised flex h-full w-full flex-col items-start gap-2 rounded-xl border bg-surface p-5 text-left hover:border-brand/50"
             >
               <Icon aria-hidden className="size-6 text-brand" />
-              <span className="console-label">{info.domain}</span>
+              <span className="eyebrow">{info.domain}</span>
               <span className="text-lg font-semibold">{info.name}</span>
               <span className="text-sm text-ink-2">{info.blurb}</span>
             </button>

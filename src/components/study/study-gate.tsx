@@ -7,6 +7,7 @@ import { type CortexDb, DbClosedError, FutureSchemaError } from "@/db/db";
 import { useCortexDb, useProfileRecord } from "@/db/use-profile";
 import type { ProfileRecord } from "@/db/types";
 import { useCatalog } from "@/lib/use-catalog";
+import { LoadingState } from "@/components/ui/state";
 
 export interface StudyContext {
   readonly db: CortexDb;
@@ -31,13 +32,7 @@ export function StudyGate({ children }: { children: (ctx: StudyContext) => React
     );
   }
   if (db.status !== "ready" || catalog.status !== "ready" || !profile) {
-    return (
-      <div aria-busy="true" className="grid gap-3">
-        <div className="h-8 w-1/3 animate-pulse rounded-md bg-surface-2" />
-        <div className="h-48 animate-pulse rounded-xl bg-surface-2" />
-        <span className="sr-only">Cargando…</span>
-      </div>
-    );
+    return <LoadingState />;
   }
   return <>{children({ db: db.db, catalog: catalog.catalog, profile })}</>;
 }

@@ -8,6 +8,7 @@ import { lastGymLevel, recordGym } from "@/db/progress";
 import type { GymGame } from "@/engine/session";
 import { missionContext } from "@/lib/study";
 import { GAME_INFO, GymGameView, type GymRoundResult } from "./games";
+import { LoadingState } from "@/components/ui/state";
 
 /** Una ronda de un minijuego: retoma el último nivel, juega y guarda el resultado. */
 export function GymSession({
@@ -49,15 +50,15 @@ export function GymSession({
 
   const Icon = info.icon;
   return (
-    <section className="rounded-xl border-2 border-border-strong bg-surface p-6">
-      <p className="console-label flex items-center gap-2">
+    <section className="raised rounded-xl border bg-surface p-6">
+      <p className="eyebrow flex items-center gap-2">
         <Icon aria-hidden className="size-4" /> Gimnasio · {info.domain}
       </p>
       <h2 className="mt-2 text-2xl font-bold">{info.name}</h2>
       <p className="mt-1 text-ink-2">{info.blurb}</p>
       <div className="mt-6">
         {level === null ? (
-          <p className="text-muted-foreground">Cargando tu nivel…</p>
+          <LoadingState label="Cargando tu nivel…" rows={1} />
         ) : result ? (
           <div aria-live="polite" className="grid gap-3">
             <p className="text-lg">{result.summary}</p>
