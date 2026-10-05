@@ -65,7 +65,7 @@ export function CelebrationProvider({ children }: { children: ReactNode }) {
   return (
     <Ctx.Provider value={api}>
       {children}
-      <div aria-live="polite" className="pointer-events-none fixed right-3 bottom-3 z-50 flex w-[min(22rem,calc(100vw-1.5rem))] flex-col gap-2">
+      <div aria-live="polite" className="pointer-events-none fixed right-3 bottom-[calc(var(--bottom-bar-h)+env(safe-area-inset-bottom)+0.75rem)] z-50 md:bottom-3 flex w-[min(22rem,calc(100vw-1.5rem))] flex-col gap-2">
         {toasts.map((t) => {
           const Icon = ICONS[t.tone];
           return (

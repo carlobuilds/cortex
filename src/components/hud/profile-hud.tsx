@@ -44,7 +44,7 @@ export function ProfileHud() {
   // La racha que se ve: si los días sin estudiar no caben en los congelamientos, se ve en 0 (sin culpa).
   const streak = visibleStreak({ current: p.currentStreak, max: p.maxStreak, freezes: p.streakFreezes, lastDay: p.lastStudyDay, repair: p.streakRepair }, today);
   return (
-    <Link href="/progreso" aria-label="Tu progreso" className="rounded-md" data-frame={p.cosmetics.frame ?? undefined}>
+    <Link href="/progreso" aria-label="Tu progreso" className="rounded-full" data-frame={p.cosmetics.frame ?? undefined}>
       <HudBar data={{ xpTotal: p.xpTotal, level: level.level, currentStreak: streak.current, levelProgress: level.progress }} />
     </Link>
   );

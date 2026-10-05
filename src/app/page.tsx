@@ -1,8 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { HomeToday } from "@/components/pages/home-today";
-import { SemesterSection } from "@/components/subjects/semester-section";
-import { Badge } from "@/components/ui/badge";
 import { buildHomeModel } from "@/content/core/home-model";
 import { getContentIndex } from "@/content/server";
 
@@ -67,31 +65,11 @@ export default function HomePage() {
         </ul>
       </section>
 
-      <section aria-labelledby="mapa" className="mt-16">
-        <h2 id="mapa" className="console-label mb-6">
-          Mapa del plan · {plan.semestres.length} semestres
-        </h2>
-        <div className="grid gap-8">
-          {home.semesters.map((g) => (
-            <SemesterSection key={g.n} group={g} tracks={plan.tracks} />
-          ))}
-        </div>
-      </section>
-
-      <section aria-labelledby="optativas" className="mt-16 border-t pt-6">
-        <h2 id="optativas" className="console-label mb-4">
-          Catálogo de optativas · {home.electives.length}
-        </h2>
-        <ul className="flex min-w-0 flex-wrap gap-2">
-          {home.electives.map((o) => (
-            <li key={o.id}>
-              <Badge variant={o.hasContent ? "brand" : "default"} className="max-w-full text-left whitespace-normal normal-case tracking-normal">
-                {o.name}
-              </Badge>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <p className="mt-10">
+        <Link href="/materias" className="inline-flex items-center gap-1.5 text-sm font-medium text-brand hover:underline">
+          Ver el plan completo ({home.totals.subjects} materias) <ArrowRight aria-hidden className="size-4" />
+        </Link>
+      </p>
     </div>
   );
 }

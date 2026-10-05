@@ -46,6 +46,7 @@ export function ThemeSegmented({ labelledBy }: { labelledBy: string }) {
   return (
     <ToggleGroup
       type="single"
+      className="w-full sm:w-auto"
       aria-labelledby={labelledBy}
       value={preference ?? ""}
       disabled={disabled}
@@ -55,7 +56,7 @@ export function ThemeSegmented({ labelledBy }: { labelledBy: string }) {
       {ORDER.map((t) => {
         const ItemIcon = ICONS[t];
         return (
-          <ToggleGroupItem key={t} value={t}>
+          <ToggleGroupItem key={t} value={t} className="flex-1 px-2 max-sm:[&_svg]:hidden sm:flex-none sm:px-3">
             <ItemIcon aria-hidden /> {THEME_LABELS[t]}
           </ToggleGroupItem>
         );
