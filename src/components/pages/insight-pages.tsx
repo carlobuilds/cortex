@@ -1,157 +1,28 @@
 "use client";
 
 import { useLiveQuery } from "dexie-react-hooks";
-import { Award, Flame, Lock, NotebookPen, Shield, Snowflake, Trophy } from "lucide-react";
+import { Award, Flame, NotebookPen, Shield, Snowflake, Trophy } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { HudBar } from "@/components/hud/hud-bar";
 import { RichText } from "@/components/study/rich-text";
 import { StudyGate, type StudyContext } from "@/components/study/study-gate";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { findSubject, findUnit, type StudyCatalog } from "@/content/core/study-catalog";
+import { findUnit } from "@/content/core/study-catalog";
 import type { CortexDb } from "@/db/db";
 import { saveMistakeNote, scheduleNow, setFrame } from "@/db/progress";
-import type { AttemptRecord, CardRecord, UnitProgressRecord } from "@/db/types";
 import { ACHIEVEMENTS } from "@/engine/achievements";
 import { CONFIG } from "@/engine/config";
 import { weekStart } from "@/engine/dates";
 import { baseline, divisionName, weekXp } from "@/engine/league";
 import { levelInfo, titleForLevel } from "@/engine/levels";
-import { conceptMastery, type Mastery, MASTERY_LABELS, missingPrerequisites } from "@/engine/mastery";
 import { RECORD_LABELS } from "@/engine/records";
 import { visibleStreak } from "@/engine/streak";
 import { unitHref } from "@/lib/study";
 import { useToday } from "@/lib/use-clock";
 import { cn } from "@/lib/utils";
 
-const MASTERY_STYLE: Record<Mastery, string> = {
-  new: "border-border text-muted-foreground",
-  seen: "border-border-strong",
-  practiced: "border-info text-info",
-  mastered: "border-brand text-brand",
-  expert: "border-xp bg-xp text-xp-ink glow glow-xp",
-};
-
-// ---------------------------------------------------------------- mapa de habilidades
-interface ConceptNode {
-  readonly id: string;
-  readonly name: string;
-  readonly prerequisites: readonly string[];
-  readonly depth: number;
-  readonly state: Mastery;
-  readonly missing: string[];
-}
-
-export function conceptStates(
-  catalog: StudyCatalog,
-  subjectId: string,
-  attempts: readonly AttemptRecord[],
-  progress: readonly UnitProgressRecord[],
-  cards: readonly CardRecord[],
-): ConceptNode[] {
-  const subject = findSubject(catalog, subjectId);
-  if (!subject) return [];
-  const done = new Set(progress.filter((p) => p.lessonDone).map((p) => p.unitKey));
-  const passed = new Set(progress.filter((p) => p.bossPassed).map((p) => p.unitKey));
-  const longOk = new Set(cards.filter((c) => c.longOk).map((c) => c.exerciseId));
-  const ev = new Map<string, { lessonDone: boolean; attempts: number; correct: number; bossPassed: boolean; longReviewOk: boolean }>();
-  const get = (id: string) => {
-    let e = ev.get(id);
-    if (!e) ev.set(id, (e = { lessonDone: false, attempts: 0, correct: 0, bossPassed: false, longReviewOk: false }));
-    return e;
-  };
-  for (const u of subject.units) {
-    for (const c of u.concepts) if (done.has(u.key)) get(c).lessonDone = true;
-    for (const id of u.exerciseIds) {
-      const ex = catalog.exercises[id];
-      if (!ex) continue;
-      for (const c of ex.conceptos) {
-        if (passed.has(u.key)) get(c).bossPassed = true;
-        if (longOk.has(id)) get(c).longReviewOk = true;
-      }
-    }
-  }
-  for (const a of attempts) {
-    const ex = catalog.exercises[a.exerciseId];
-    if (!ex || ex.subjectId !== subjectId) continue;
-    for (const c of ex.conceptos) {
-      const e = get(c);
-      e.attempts++;
-      if (a.correct) e.correct++;
-    }
-  }
-  const states: Record<string, Mastery> = {};
-  for (const c of subject.concepts) states[c.id] = conceptMastery(ev.get(c.id) ?? { lessonDone: false, attempts: 0, correct: 0, bossPassed: false, longReviewOk: false });
-  const depth = new Map<string, number>();
-  const depthOf = (id: string, seen: Set<string> = new Set()): number => {
-    if (depth.has(id)) return depth.get(id) ?? 0;
-    if (seen.has(id)) return 0;
-    seen.add(id);
-    const c = subject.concepts.find((x) => x.id === id);
-    const d = c && c.prerequisites.length ? 1 + Math.max(...c.prerequisites.filter((p) => !p.includes(":")).map((p) => depthOf(p, seen)), -1) : 0;
-    depth.set(id, d);
-    return d;
-  };
-  return subject.concepts.map((c) => ({
-    id: c.id,
-    name: c.name,
-    prerequisites: c.prerequisites,
-    depth: depthOf(c.id),
-    state: states[c.id] ?? "new",
-    missing: missingPrerequisites(c.prerequisites, states),
-  }));
-}
-
-function SkillMap({ db, catalog, subjectId }: StudyContext & { subjectId: string }) {
-  const data = useLiveQuery(() => Promise.all([db.attempts.toArray(), db.unitProgress.toArray(), db.cards.toArray()]), [db]);
-  const subject = findSubject(catalog, subjectId);
-  const nodes = useMemo(() => (data ? conceptStates(catalog, subjectId, data[0], data[1], data[2]) : []), [catalog, data, subjectId]);
-  if (!subject) return <p>Materia sin contenido.</p>;
-  if (!data) return <p className="text-muted-foreground">Calculando tu mapa…</p>;
-  const names = new Map(subject.concepts.map((c) => [c.id, c.name]));
-  const maxDepth = Math.max(0, ...nodes.map((n) => n.depth));
-  const counts = nodes.reduce<Record<Mastery, number>>((acc, n) => ({ ...acc, [n.state]: (acc[n.state] ?? 0) + 1 }), { new: 0, seen: 0, practiced: 0, mastered: 0, expert: 0 });
-  return (
-    <div className="grid gap-8">
-      <ul className="flex flex-wrap gap-2" aria-label="Leyenda y conteo">
-        {(Object.keys(MASTERY_LABELS) as Mastery[]).map((m) => (
-          <li key={m} className={cn("rounded-sm border-2 px-2 py-1 font-mono text-xs", MASTERY_STYLE[m])}>
-            {MASTERY_LABELS[m]} · {counts[m]}
-          </li>
-        ))}
-      </ul>
-      <div className="grid gap-6 lg:grid-flow-col lg:auto-cols-fr">
-        {Array.from({ length: maxDepth + 1 }, (_, d) => (
-          <section key={d} aria-label={`Nivel ${d + 1} del árbol`}>
-            <p className="console-label mb-2">Nivel {d + 1}</p>
-            <ul className="grid gap-2">
-              {nodes
-                .filter((n) => n.depth === d)
-                .map((n) => (
-                  <li key={n.id} className={cn("rounded-md border-2 bg-surface p-3", MASTERY_STYLE[n.state])}>
-                    <p className="font-semibold">{n.name}</p>
-                    <p className="font-mono text-xs opacity-80">{MASTERY_LABELS[n.state]}</p>
-                    {n.missing.length ? (
-                      <p className="mt-1 flex items-start gap-1 text-xs text-muted-foreground">
-                        <Lock aria-hidden className="mt-0.5 size-3 shrink-0" /> Falta ver: {n.missing.map((m) => names.get(m) ?? m).join(", ")}
-                      </p>
-                    ) : n.prerequisites.length ? (
-                      <p className="mt-1 text-xs text-muted-foreground">Requiere: {n.prerequisites.map((m) => names.get(m) ?? m).join(", ")}</p>
-                    ) : null}
-                  </li>
-                ))}
-            </ul>
-          </section>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export function SkillMapClient({ subjectId }: { subjectId: string }) {
-  return <StudyGate>{(ctx) => <SkillMap {...ctx} subjectId={subjectId} />}</StudyGate>;
-}
 
 // ---------------------------------------------------------------- cuaderno de errores
 function Notebook({ db, catalog }: StudyContext) {

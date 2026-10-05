@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { SkillMapClient } from "@/components/pages/insight-pages";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { PageHeader } from "@/components/layout/page-header";
+import { SkillMapClient } from "@/components/pages/skill-map";
 import { getContentIndex } from "@/content/server";
 import { APP_NAME } from "@/lib/app";
 
@@ -25,19 +26,12 @@ export default async function SkillMapPage({ params }: PageProps<"/materias/[mat
   if (!subject?.hasContent) notFound();
   return (
     <div>
-      <nav aria-label="Ruta" className="console-label">
-        <Link href="/" className="hover:text-ink">
-          Inicio
-        </Link>{" "}
-        /{" "}
-        <Link href={`/materias/${materia}`} className="hover:text-ink">
-          {subject.name}
-        </Link>
-      </nav>
-      <header className="mt-4 mb-8 max-w-3xl">
-        <h1 className="text-4xl font-extrabold tracking-[-0.03em]">Mapa de maestría</h1>
-        <p className="mt-2 text-ink-2">Cada concepto pasa de sin ver → vista → practicada → dominada → maestría. Un concepto muestra qué prerrequisito te falta ver.</p>
-      </header>
+      <Breadcrumbs items={[{ label: "Materias", href: "/materias" }, { label: subject.name, href: `/materias/${materia}` }, { label: "Mapa" }]} />
+      <PageHeader
+        className="mt-4"
+        title="Mapa de maestría"
+        description="Cada concepto pasa de sin ver → vista → practicada → dominada → maestría. Elige un concepto para ver qué necesita y qué desbloquea."
+      />
       <SkillMapClient subjectId={materia} />
     </div>
   );
