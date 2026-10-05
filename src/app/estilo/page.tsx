@@ -1,17 +1,22 @@
+import { Flame, Inbox, Layers, Sparkles } from "lucide-react";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { HudBar } from "@/components/hud/hud-bar";
+import { LifeBar } from "@/components/hud/life-bar";
 import { Lives } from "@/components/hud/lives";
 import { StreakChip } from "@/components/hud/streak-chip";
 import { XpBar } from "@/components/hud/xp-bar";
+import { PageHeader } from "@/components/layout/page-header";
 import { InlineMarkdown } from "@/components/lessons/inline-markdown";
 import { ConceptBox, FadedExample, Pitfall, PredictPrompt } from "@/components/lessons/lesson-blocks";
 import { FormulaDemo } from "@/components/study/formula-demo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState, Kbd, LoadingState, StatTile } from "@/components/ui/state";
 import { Switch } from "@/components/ui/switch";
 import { APP_NAME } from "@/lib/app";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: `Sistema visual · ${APP_NAME}` };
 
@@ -19,14 +24,17 @@ const SWATCHES = [
   ["bg", "fondo"],
   ["surface", "superficie"],
   ["surface-2", "superficie 2"],
+  ["surface-3", "superficie 3"],
   ["border-strong", "borde fuerte"],
   ["ink", "tinta"],
   ["ink-2", "tinta 2"],
   ["muted", "apagado"],
-  ["brand", "acento (menta)"],
+  ["brand", "acento (violeta)"],
+  ["brand-soft", "seleccionado"],
+  ["success", "correcto"],
   ["xp", "XP"],
   ["streak", "racha"],
-  ["life", "vida"],
+  ["life", "vida / jefe"],
   ["warning", "aviso"],
   ["info", "info"],
 ] as const;
@@ -34,7 +42,7 @@ const SWATCHES = [
 function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
     <section aria-labelledby={id} className="mt-14 first:mt-0">
-      <h2 id={id} className="eyebrow mb-4">
+      <h2 id={id} className="mb-4 text-lg font-semibold">
         {title}
       </h2>
       {children}
@@ -44,12 +52,12 @@ function Section({ id, title, children }: { id: string; title: string; children:
 
 function Swatches() {
   return (
-    <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+    <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
       {SWATCHES.map(([token, label]) => (
         <li key={token} className="overflow-hidden rounded-md border bg-surface">
-          <div className="h-12 border-b" style={{ background: `var(--${token})` }} />
-          <div className="px-2.5 py-2">
-            <p className="text-xs font-medium">{label}</p>
+          <div className="h-10 border-b" style={{ background: `var(--${token})` }} />
+          <div className="px-2.5 py-1.5">
+            <p className="text-caption font-medium">{label}</p>
             <p className="font-mono text-caption text-muted-foreground">--{token}</p>
           </div>
         </li>
@@ -61,20 +69,40 @@ function Swatches() {
 function Controls() {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <Button>Empezar sesión</Button>
+      <Button variant="cta">Empezar sesión de hoy</Button>
+      <Button>
+        Comprobar <Kbd className="border-current/40 text-current">⏎</Kbd>
+      </Button>
       <Button variant="secondary">Secundario</Button>
       <Button variant="outline">Contorno</Button>
       <Button variant="ghost">Fantasma</Button>
       <Button variant="destructive">Reemplazar datos</Button>
       <Button disabled>Deshabilitado</Button>
       <Badge>Backlog</Badge>
-      <Badge variant="brand">Con contenido</Badge>
+      <Badge variant="brand">Practicada</Badge>
+      <Badge variant="success">Correcto</Badge>
       <Badge variant="xp">+25 XP</Badge>
       <Badge variant="streak">Racha 4</Badge>
       <Badge variant="outline">Fase 3</Badge>
       <label className="flex items-center gap-2 text-sm">
-        <Switch aria-label="Sonido" /> Sonido
+        <Switch aria-label="Sonido (muestra)" /> Sonido
       </label>
+    </div>
+  );
+}
+
+/** Un tema completo en miniatura: los tokens cambian por clase, sin variantes `dark:`. */
+function ThemePanel({ theme, title }: { theme: "theme-dark" | "theme-light"; title: string }) {
+  return (
+    <div className={cn(theme, "grid gap-5 rounded-xl border bg-background p-4 text-foreground sm:p-5")}>
+      <p className="text-sm font-semibold">{title}</p>
+      <Swatches />
+      <Controls />
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className="raised rounded-lg border bg-surface p-3 text-caption">raised</div>
+        <div className="glow rounded-lg border bg-surface p-3 text-caption">glow</div>
+        <div className="glow glow-xp rounded-lg border bg-surface p-3 text-caption">glow-xp</div>
+      </div>
     </div>
   );
 }
@@ -82,47 +110,54 @@ function Controls() {
 export default function StylePage() {
   return (
     <div>
-      <header className="mb-12">
-        <p className="eyebrow">Fase 0 · catálogo vivo</p>
-        <h1 className="mt-2 text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl">Sistema visual</h1>
-        <p className="mt-3 max-w-2xl text-ink-2">
-          Consola de laboratorio para leer; física de arcade para lo que se toca o se gana. Los colores cumplen
-          contraste AA en ambos temas (lo revisa <code className="font-mono text-sm">src/styles/tokens.test.ts</code>) y
-          todo movimiento se apaga con «reducir movimiento».
-        </p>
-      </header>
+      <PageHeader
+        eyebrow="ADR-020 · catálogo vivo"
+        title="Sistema visual"
+        description="«Arcano»: 90 % consola pro para leer y decidir, 10 % juego premium en lo que se gana o se vive. Contraste AA en ambos temas (lo revisa src/styles/tokens.test.ts); todo movimiento se apaga con «reducir movimiento» y en claro no hay glow."
+      />
 
-      <Section id="tokens-oscuro" title="Tokens · tema oscuro (por defecto)">
-        <Swatches />
-      </Section>
-
-      <Section id="tokens-claro" title="Tokens · tema claro (el interruptor llega en la Fase 1)">
-        <div className="theme-light rounded-xl border bg-background p-4 text-foreground sm:p-6">
-          <Swatches />
-          <div className="mt-6">
-            <Controls />
-          </div>
+      <Section id="tokens" title="Tokens · oscuro y claro">
+        <div className="grid gap-4 xl:grid-cols-2">
+          <ThemePanel theme="theme-dark" title="Tema oscuro" />
+          <ThemePanel theme="theme-light" title="Tema claro" />
         </div>
       </Section>
 
       <Section id="tipografia" title="Tipografía · Geist Sans + Geist Mono">
         <div className="grid gap-5">
           <p className="font-mono text-6xl font-semibold tracking-tight tabular-nums">
-            1,240<span className="ml-2 align-top text-base text-xp">XP</span>
+            1,240<span className="ml-2 align-top text-base text-xp-text">XP</span>
           </p>
-          <p className="text-5xl font-extrabold tracking-[-0.03em]">Domina el límite</p>
-          <p className="text-2xl font-bold tracking-[-0.02em]">Encabezado de sección</p>
-          <p className="text-lg font-semibold">Encabezado menor</p>
-          <p className="max-w-[68ch] text-[1.0625rem] leading-[1.7]">
-            Texto de lección: 17 px con interlineado amplio y líneas de ~68 caracteres para leer 20 minutos sin cansarse.
-          </p>
-          <p className="text-sm text-muted-foreground">Texto secundario y ayudas.</p>
-          <p className="eyebrow">Etiqueta de consola</p>
+          <p className="text-4xl font-extrabold tracking-[-0.03em]">Título de página (h1)</p>
+          <p className="text-lg font-semibold">Título de sección (h2)</p>
+          <p className="lesson-prose">Texto de lección: 17 px con interlineado amplio y líneas de ~68 caracteres, una sección a la vez.</p>
+          <p className="text-sm text-ink-2">Texto secundario y ayudas (14 px).</p>
+          <p className="text-label">Etiqueta (13 px) · text-label</p>
+          <p className="text-caption text-muted-foreground">Nota pequeña (12 px, el mínimo) · text-caption</p>
+          <p className="eyebrow">Etiqueta sobre un título · eyebrow</p>
         </div>
       </Section>
 
-      <Section id="controles" title="Controles">
-        <Controls />
+      <Section id="forma" title="Radios · chip 6 · control 8 · panel 12 · hero 16">
+        <div className="flex flex-wrap gap-3">
+          {(["rounded-sm", "rounded-md", "rounded-lg", "rounded-xl"] as const).map((r) => (
+            <div key={r} className={cn(r, "raised grid size-20 place-items-center border bg-surface font-mono text-caption")}>
+              {r.replace("rounded-", "")}
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section id="estados" title="Estados · carga, vacío y cifras">
+        <div className="grid gap-4 lg:grid-cols-3">
+          <LoadingState label="Cargando (muestra)…" rows={3} />
+          <EmptyState icon={Inbox} title="Aún no hay nada aquí." description="Un estado vacío dice qué es, por qué está vacío y qué hacer." action={<Button size="sm">Hacer algo</Button>} />
+          <div className="grid gap-3">
+            <StatTile label="Racha" tone="streak" icon={Flame} value="4 días" hint="+1 hoy" />
+            <StatTile label="XP de hoy" tone="xp" icon={Sparkles} value={184} />
+            <StatTile label="Repasos pendientes" icon={Layers} value={12} />
+          </div>
+        </div>
       </Section>
 
       <Section id="hud" title="HUD · estados límite">
@@ -141,12 +176,11 @@ export default function StylePage() {
             </div>
           ))}
           <div className="flex flex-wrap items-center gap-6 rounded-lg border bg-surface px-4 py-3">
-            <span className="w-36 text-sm text-ink-2">Barra de XP</span>
-            <XpBar progress={0.62} className="h-4" />
+            <span className="w-36 text-sm text-ink-2">Piezas sueltas</span>
+            <XpBar progress={0.62} className="h-2" />
             <StreakChip days={1} />
-            <Lives current={3} max={3} />
-            <Lives current={1} max={3} />
-            <Lives current={0} max={3} />
+            <Lives current={2} max={3} />
+            <LifeBar current={2} max={3} className="w-40" />
           </div>
         </div>
       </Section>
@@ -155,17 +189,17 @@ export default function StylePage() {
         <div className="grid gap-4 sm:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle>Panel de consola</CardTitle>
-              <CardDescription>Para leer: borde de 1 px, sin sombra.</CardDescription>
+              <CardTitle>Panel</CardTitle>
+              <CardDescription>Para leer y decidir: borde de 1 px y capa elevada.</CardDescription>
             </CardHeader>
             <CardContent className="text-sm text-ink-2">El contenido respira; el acento aparece poco y con intención.</CardContent>
           </Card>
-          <Card className="tactile border-2 border-border-strong">
+          <Card className="glow glow-life border-life/40">
             <CardHeader>
-              <CardTitle>Objeto arcade</CardTitle>
-              <CardDescription>Para tocar: sombra sólida desplazada.</CardDescription>
+              <CardTitle>Momento de juego</CardTitle>
+              <CardDescription>Solo en lo que se gana o se vive: jefe, cofre, nivel, CTA.</CardDescription>
             </CardHeader>
-            <CardContent className="text-sm text-ink-2">Se usa en lo que tiene acción: materias con contenido, botones, el HUD.</CardContent>
+            <CardContent className="text-sm text-ink-2">El glow es estático y en el tema claro no existe.</CardContent>
           </Card>
         </div>
       </Section>
