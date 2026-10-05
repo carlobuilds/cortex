@@ -69,6 +69,14 @@ describe("exportar → importar (ida y vuelta)", () => {
     target.close();
   });
 
+  it("acepta el tema 'system' (predeterminado de los perfiles nuevos, ADR-020)", async () => {
+    const db = await openCortexDb(freshIdb());
+    expect((await db.profile.get(1))?.preferences.theme).toBe("system");
+    const parsed = parseBackup(serializeBackup(await exportBackup(db, "0.0.0", NOW)));
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) expect(parsed.backup.tables.profile[0]).toMatchObject({ preferences: { theme: "system" } });
+  });
+
   it("funciona con una base recién creada (solo el perfil)", async () => {
     const db = await openCortexDb(freshIdb());
     const backup = await exportBackup(db, "0.0.0", NOW);

@@ -13,7 +13,7 @@ export function defaultProfile(): ProfileRecord {
     streakRepair: null,
     league: { division: 0, weekKey: null },
     cosmetics: { frames: [], frame: null, badges: [] },
-    preferences: { sound: false, theme: "dark", healthyMode: false },
+    preferences: { sound: false, theme: "system", healthyMode: false },
     schemaVersion: SCHEMA_VERSION,
   };
 }

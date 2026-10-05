@@ -13,12 +13,13 @@ export interface MetaRecord {
   value: number | string;
 }
 
-export type ThemePreference = "dark" | "light";
+/** "system" sigue a la computadora (ADR-020); es el predeterminado de los perfiles nuevos. */
+export type ThemePreference = "system" | "light" | "dark";
 
 export interface Preferences {
   /** Sonido apagado por defecto (CLAUDE.md). */
   sound: boolean;
-  /** Tema oscuro por defecto (docs/03); el claro es opcional. */
+  /** Tema: sigue al sistema por defecto (docs/03, ADR-020). */
   theme: ThemePreference;
   /** Modo sano: tras 90 min en un día sugiere descanso y ya no da XP ni racha (docs/03). */
   healthyMode: boolean;

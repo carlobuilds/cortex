@@ -3,6 +3,7 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { Download } from "lucide-react";
 import { useId } from "react";
+import { ThemeSegmented } from "@/components/layout/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { setPreferences } from "@/db/progress";
@@ -34,15 +35,18 @@ export function StudyPreferences() {
   const ready = db.status === "ready" ? db.db : null;
   const profile = useProfileRecord(ready);
   const prefs = profile?.preferences;
+  const themeId = useId();
   return (
     <div className="grid gap-6">
-      <Toggle
-        label="Tema claro"
-        description="El tema oscuro es el de siempre; el claro sirve con mucha luz."
-        checked={prefs?.theme === "light"}
-        disabled={!ready || !prefs}
-        onChange={(v) => ready && void setPreferences(ready, { theme: v ? "light" : "dark" })}
-      />
+      <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3">
+        <div>
+          <p id={themeId} className="font-semibold">
+            Tema
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">«Sistema» sigue la preferencia de tu computadora. También lo cambias desde el header.</p>
+        </div>
+        <ThemeSegmented labelledBy={themeId} />
+      </div>
       <Toggle
         label="Modo sano"
         description={`Tras ${CONFIG.healthy.minutes} minutos de estudio en un día te sugiere descansar y ya no suma XP ni racha ese día.`}

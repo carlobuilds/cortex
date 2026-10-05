@@ -5,7 +5,7 @@
 | Capa | Elección | Nota |
 |---|---|---|
 | Framework | Next.js (App Router) + TypeScript estricto | Rutas de API locales para el runner de C |
-| UI | Tailwind + shadcn/ui | Teclado primero, tema oscuro por defecto |
+| UI | Tailwind + shadcn/ui | Teclado primero, el tema sigue al sistema (claro u oscuro; ADR-020) |
 | Estado | React (UI) + Dexie `liveQuery` (datos) | Zustand quedó fuera (ADR-017): no hizo falta |
 | Persistencia | Dexie sobre IndexedDB | Respaldo JSON exportable |
 | Contenido | MDX + YAML en `content/` | Validado con Zod |

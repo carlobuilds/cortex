@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { APP_NAME } from "@/lib/app";
+import { ThemeToggle } from "./theme-toggle";
 
 /** Marco de todas las páginas: salto al contenido, barra superior (con lugar para el HUD) y pie. */
 export function AppShell({ children, hud }: { children: ReactNode; hud?: ReactNode }) {
@@ -29,7 +30,10 @@ export function AppShell({ children, hud }: { children: ReactNode; hud?: ReactNo
               Ajustes
             </Link>
           </nav>
-          <div className="ml-auto">{hud}</div>
+          <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-3">
+            <ThemeToggle />
+            {hud}
+          </div>
         </div>
       </header>
       <main id="contenido" tabIndex={-1} className="mx-auto w-full max-w-6xl px-4 py-8 outline-none sm:px-6 sm:py-12">

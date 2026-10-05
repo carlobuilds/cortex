@@ -83,7 +83,7 @@ Ligados a hitos reales, no a tiempo perdido:
 - Respuesta correcta: animación corta (< 200 ms), sonido opcional, contador de XP que sube.
 - Respuesta incorrecta: sacudida sutil, la explicación aparece de inmediato, sin tono de regaño.
 - Teclado primero, sin clics innecesarios, transiciones rápidas.
-- Estética de HUD: barras, chips de estado, tipografía clara, tema oscuro con acento vivo. Modo claro disponible.
+- Estética de HUD: barras, chips de estado, tipografía clara, acento violeta y glow sutil solo en lo que se gana (ADR-020). El tema sigue al sistema; claro y oscuro se eligen desde el header.
 
 ## Calibración (metacognición)
 

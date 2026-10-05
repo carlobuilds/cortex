@@ -24,7 +24,7 @@ export const profileRecordSchema = z.strictObject({
   streakRepair: z.strictObject({ previous: z.number().int().nonnegative(), deadline: day }).nullable(),
   league: z.strictObject({ division: z.number().int().min(0).max(4), weekKey: day.nullable() }),
   cosmetics: z.strictObject({ frames: z.array(z.string()), frame: z.string().nullable(), badges: z.array(z.string()) }),
-  preferences: z.strictObject({ sound: z.boolean(), theme: z.enum(["dark", "light"]), healthyMode: z.boolean() }),
+  preferences: z.strictObject({ sound: z.boolean(), theme: z.enum(["system", "light", "dark"]), healthyMode: z.boolean() }),
   schemaVersion: version,
 });
 
