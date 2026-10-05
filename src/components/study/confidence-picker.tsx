@@ -44,7 +44,7 @@ export function ConfidencePicker({ onPick, onCancel }: { onPick: (c: Confidence)
             type="button"
             onClick={() => onPick(l.value)}
             className={cn(
-              "arcade flex items-center gap-3 rounded-md border-2 border-border-strong bg-surface-2 px-3 py-2.5 text-left hover:border-brand",
+              "tactile flex items-center gap-3 rounded-md border-2 border-border-strong bg-surface-2 px-3 py-2.5 text-left hover:border-brand",
             )}
           >
             <span className="kbd" aria-hidden>

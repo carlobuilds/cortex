@@ -145,7 +145,7 @@ export function BossRunner({
   if (outcome && run) {
     const missed = [...outcome.failed, ...outcome.unanswered];
     return (
-      <section aria-live="polite" className={cn("rounded-xl border-2 bg-surface p-6", outcome.passed ? "border-brand" : "border-danger")}>
+      <section aria-live="polite" className={cn("rounded-xl border-2 bg-surface p-6", outcome.passed ? "border-success" : "border-danger")}>
         <p className="console-label">Autopsia del jefe</p>
         <h2 className="mt-2 text-3xl font-extrabold">{outcome.passed ? `¡Derrotaste a «${boss.nombre}»!` : `«${boss.nombre}» ganó esta vez`}</h2>
         <p className="mt-2 text-ink-2">

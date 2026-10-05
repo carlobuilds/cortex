@@ -52,7 +52,7 @@ export default function HomePage() {
             <li key={l.unit.key}>
               <Link
                 href={`/materias/${l.subjectId}/${l.unit.slug}`}
-                className="arcade group flex h-full items-center gap-4 rounded-lg border-2 border-border-strong bg-surface p-4 hover:border-brand"
+                className="tactile group flex h-full items-center gap-4 rounded-lg border-2 border-border-strong bg-surface p-4 hover:border-brand"
               >
                 <span className="font-mono text-3xl font-semibold text-xp tabular-nums">{String(l.unit.number).padStart(2, "0")}</span>
                 <span className="min-w-0 flex-1">

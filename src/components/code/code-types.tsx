@@ -69,7 +69,7 @@ function Results({ run }: { run: TestRun | null }) {
   const g = run.grade;
   return (
     <div aria-live="polite" className="grid gap-2 rounded-md border p-3 text-sm">
-      <p className={cn("flex items-center gap-2 font-semibold", g.passed ? "text-brand" : "text-danger")}>
+      <p className={cn("flex items-center gap-2 font-semibold", g.passed ? "text-success" : "text-danger")}>
         {g.passed ? <CheckCircle2 aria-hidden className="size-4" /> : <CircleX aria-hidden className="size-4" />}
         {g.ok}/{g.total} pruebas
       </p>
@@ -208,7 +208,7 @@ function DebugInput({ exercise, draft, setDraft, disabled, onEnter }: InputProps
   };
   return (
     <div className="grid gap-3">
-      <p className={cn("text-sm", right ? "text-brand" : "text-warning")}>
+      <p className={cn("text-sm", right ? "text-success" : "text-warning")}>
         {right
           ? `Bien visto: el error está en la línea ${draft.picked}.`
           : `Elegiste la línea ${draft.picked}; el error está en la ${bugs.length > 1 ? "líneas" : "línea"} ${bugs.join(", ")}.`}{" "}

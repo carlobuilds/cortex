@@ -43,7 +43,7 @@ export function SubjectCard({ subject, trackName }: { subject: SubjectSummary; t
     <li data-has-content="true">
       <Link
         href={`/materias/${subject.id}`}
-        className="arcade block h-full rounded-lg border-2 border-border-strong bg-surface p-4 hover:border-brand"
+        className="tactile block h-full rounded-lg border-2 border-border-strong bg-surface p-4 hover:border-brand"
       >
         {body}
       </Link>

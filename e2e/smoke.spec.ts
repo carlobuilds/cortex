@@ -64,9 +64,9 @@ test("1 - el inicio: plan 2020, HUD del perfil, teclado y movimiento reducido", 
   await expect(skip).toBeFocused();
   expect(await skip.evaluate((el) => getComputedStyle(el).outlineStyle)).not.toBe("none");
 
-  // Movimiento reducido: los objetos arcade no animan.
+  // Movimiento reducido: lo táctil no anima.
   await page.emulateMedia({ reducedMotion: "reduce" });
-  const duration = await page.locator(".arcade").first().evaluate((el) => parseFloat(getComputedStyle(el).transitionDuration));
+  const duration = await page.locator(".tactile").first().evaluate((el) => parseFloat(getComputedStyle(el).transitionDuration));
   expect(duration).toBeLessThanOrEqual(0.001);
   await page.emulateMedia({ reducedMotion: "no-preference" });
 

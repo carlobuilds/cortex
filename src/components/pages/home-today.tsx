@@ -77,7 +77,7 @@ function Today({ db, catalog, profile, today }: StudyContext & { today: string }
               .sort((a, b) => a.key.localeCompare(b.key))
               .map((m) => (
                 <li key={m.key} className="flex items-center gap-3 text-sm">
-                  <Target aria-hidden className={cn("size-4 shrink-0", m.completed ? "text-brand" : "text-muted-foreground")} />
+                  <Target aria-hidden className={cn("size-4 shrink-0", m.completed ? "text-success" : "text-muted-foreground")} />
                   <span className={cn("flex-1", m.completed && "text-muted-foreground line-through")}>{missionLabel({ kind: m.kind as MissionKind, target: m.target })}</span>
                   <span className="font-mono text-xs tabular-nums">
                     {m.progress}/{m.target}

@@ -2,29 +2,33 @@
 @import "tw-animate-css";
 
 /*
- * Sistema visual de Cortex · "Consola arcade" (ADR-016)
- * - La lectura es consola: superficies tranquilas, bordes de 1 px, retícula de puntos, mono en datos.
- * - Lo que se toca o se gana es arcade: sombra sólida desplazada, botones que se hunden, chips sólidos.
+ * Sistema visual de Cortex · "Arcano" (ADR-020, reemplaza a ADR-016)
+ * - 90 % consola pro: superficies grafito con tinte violeta, bordes de 1 px, un acento, mucho aire.
+ * - 10 % juego premium, solo en lo que se gana o se vive (nivel, XP, racha, cofre, jefes, CTA):
+ *   capas con brillo interior y glow sutil (solo en oscuro; en claro, sombras teñidas).
  * Los tokens viven SOLO aquí (src/styles/tokens.test.ts revisa su contraste AA en ambos temas).
  */
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Tema claro (definido; el interruptor llega en la Fase 1) */
+/* Tema claro (sin glows: --glow-a en 0 %) */
 :root,
 .theme-light {
-  --bg: oklch(0.9570 0.0063 255.48); /* #EEF1F5 */
-  --surface: oklch(0.9906 0.0017 247.84); /* #FBFCFD */
-  --surface-2: oklch(0.9445 0.0080 253.85); /* #E9EDF2 */
-  --surface-3: oklch(0.9133 0.0115 252.09); /* #DDE3EA */
-  --border: oklch(0.8857 0.0145 254.61); /* #D3DAE3 */
-  --border-strong: oklch(0.7614 0.0260 251.96); /* #A6B3C2 */
-  --input: oklch(0.6164 0.0350 251.29); /* #76879A */
-  --ink: oklch(0.1840 0.0172 252.60); /* #0D131A */
-  --ink-2: oklch(0.3959 0.0291 250.47); /* #3B4856 */
-  --muted: oklch(0.4915 0.0317 255.21); /* #556273 */
-  --brand: oklch(0.5145 0.1063 164.32); /* #0B7A57 */
+  --bg: oklch(0.9726 0.0080 293.91); /* #F6F5FB */
+  --surface: oklch(1.0000 0.0000 0.00); /* #FFFFFF */
+  --surface-2: oklch(0.9505 0.0135 295.32); /* #EFEDF7 */
+  --surface-3: oklch(0.9195 0.0204 295.17); /* #E5E2F1 */
+  --border: oklch(0.8908 0.0248 296.07); /* #DCD8EA */
+  --border-strong: oklch(0.7639 0.0458 295.32); /* #B4ADCD */
+  --input: oklch(0.6127 0.0559 293.35); /* #857EA3 */
+  --ink: oklch(0.2081 0.0447 287.84); /* #17142B */
+  --ink-2: oklch(0.3830 0.0541 290.78); /* #433E5E */
+  --muted: oklch(0.4666 0.0500 291.73); /* #5A5574 */
+  --brand: oklch(0.5119 0.1958 283.92); /* #5F4BD0 */
   --brand-ink: oklch(1.0000 0.0000 0.00); /* #FFFFFF */
+  --brand-soft: oklch(0.9420 0.0256 293.15); /* #ECE9FC · fondo de lo seleccionado */
+  --success: oklch(0.5145 0.1063 164.32); /* #0B7A57 */
+  --success-ink: oklch(1.0000 0.0000 0.00); /* #FFFFFF */
   --xp: oklch(0.6078 0.1247 84.52); /* #A57B00 */
   --xp-ink: oklch(0.2170 0.0451 99.52); /* #1F1A00 */
   --xp-text: oklch(0.5305 0.1090 83.33); /* #8A6500 · XP como texto pequeño (AA) */
@@ -35,38 +39,54 @@
   --danger-ink: oklch(1.0000 0.0000 0.00); /* #FFFFFF */
   --warning: oklch(0.5078 0.1080 73.30); /* #8A5A00 */
   --info: oklch(0.5114 0.1644 257.34); /* #1A63C2 */
-  --ring: oklch(0.5145 0.1063 164.32); /* #0B7A57 */
-  --shadow-color: oklch(0.1840 0.0172 252.60); /* #0D131A */
+  --ring: oklch(0.5119 0.1958 283.92); /* #5F4BD0 */
+  --glow: oklch(0.6569 0.1758 286.11); /* #8B7CF6 */
+  --scrim: oklch(0.2081 0.0447 287.84); /* #17142B */
+  --shadow-color: oklch(0.2992 0.1072 284.37); /* #2A2160 · sombras teñidas de violeta */
+  /* Intensidades (no son colores; la prueba de contraste las ignora). */
+  --glow-a: 0%;
+  --bg-glow-a: 7%;
+  --shadow-a: 10%;
+  --highlight-a: 0%;
   color-scheme: light;
 }
 
-/* Tema oscuro (por defecto: <html class="dark">) */
+/* Tema oscuro */
 .dark,
 .theme-dark {
-  --bg: oklch(0.1665 0.0124 254.17); /* #0B0F14 */
-  --surface: oklch(0.2064 0.0209 254.93); /* #111821 */
-  --surface-2: oklch(0.2443 0.0248 253.76); /* #18212C */
-  --surface-3: oklch(0.2848 0.0285 252.96); /* #202B38 */
-  --border: oklch(0.3127 0.0338 253.95); /* #253242 */
-  --border-strong: oklch(0.4102 0.0421 252.67); /* #3A4C61 */
-  --input: oklch(0.5416 0.0447 253.22); /* #5D7189 */
-  --ink: oklch(0.9425 0.0111 243.66); /* #E6EDF3 */
-  --ink-2: oklch(0.7702 0.0236 248.13); /* #A9B6C3 */
-  --muted: oklch(0.6796 0.0292 249.97); /* #8B9AAA */
-  --brand: oklch(0.8913 0.1332 164.29); /* #7CF7C4 */
-  --brand-ink: oklch(0.2335 0.0423 168.42); /* #04241A */
-  --xp: oklch(0.8849 0.1805 94.78); /* #FFD60A */
-  --xp-ink: oklch(0.2170 0.0451 99.52); /* #1F1A00 */
-  --xp-text: oklch(0.8849 0.1805 94.78); /* #FFD60A */
-  --streak: oklch(0.7851 0.1540 60.69); /* #FF9F43 */
-  --streak-ink: oklch(0.2183 0.0499 62.75); /* #2A1400 */
-  --life: oklch(0.7162 0.1805 13.83); /* #FF6B81 */
-  --danger: oklch(0.7162 0.1805 13.83); /* #FF6B81 */
-  --danger-ink: oklch(0.1900 0.0500 15.00); /* casi negro rojizo */
+  --bg: oklch(0.1642 0.0271 290.14); /* #0E0C19 */
+  --surface: oklch(0.1914 0.0359 290.23); /* #141123 */
+  --surface-2: oklch(0.2191 0.0480 289.17); /* #1A162F */
+  --surface-3: oklch(0.2496 0.0574 288.95); /* #211C3B */
+  --border: oklch(0.2952 0.0759 287.20); /* #2B2550 */
+  --border-strong: oklch(0.3953 0.0733 289.92); /* #463F6B */
+  --input: oklch(0.5761 0.0673 292.49); /* #7A729E */
+  --ink: oklch(0.9394 0.0244 296.11); /* #ECE8FA */
+  --ink-2: oklch(0.7756 0.0541 293.54); /* #B7B0D6 */
+  --muted: oklch(0.6734 0.0618 291.19); /* #9690BA */
+  --brand: oklch(0.7072 0.1518 287.93); /* #9D8FF9 */
+  --brand-ink: oklch(0.1869 0.0601 286.44); /* #120D2C */
+  --brand-soft: oklch(0.2797 0.0848 285.21); /* #262050 */
+  --success: oklch(0.7968 0.1636 159.69); /* #3DDC97 */
+  --success-ink: oklch(0.2335 0.0423 168.42); /* #04241A */
+  --xp: oklch(0.8537 0.1572 84.13); /* #FFC53D */
+  --xp-ink: oklch(0.2238 0.0457 89.07); /* #241A00 */
+  --xp-text: oklch(0.8537 0.1572 84.13); /* #FFC53D */
+  --streak: oklch(0.7500 0.1668 50.54); /* #FF8A3D */
+  --streak-ink: oklch(0.2138 0.0511 58.17); /* #2A1200 */
+  --life: oklch(0.7192 0.1690 13.43); /* #FB7185 */
+  --danger: oklch(0.7192 0.1690 13.43); /* #FB7185 */
+  --danger-ink: oklch(0.1972 0.0588 8.47); /* #2A0710 */
   --warning: oklch(0.8480 0.1291 74.27); /* #FFC066 */
   --info: oklch(0.7769 0.1170 251.65); /* #7DBBFF */
-  --ring: oklch(0.8913 0.1332 164.29); /* #7CF7C4 */
-  --shadow-color: oklch(0.4200 0.0450 252.00); /* ≈ #3B4E66: visible sobre el fondo oscuro */
+  --ring: oklch(0.7072 0.1518 287.93); /* #9D8FF9 */
+  --glow: oklch(0.6569 0.1758 286.11); /* #8B7CF6 */
+  --scrim: oklch(0.1143 0.0197 291.48); /* #05040B */
+  --shadow-color: oklch(0.1143 0.0197 291.48); /* #05040B */
+  --glow-a: 38%;
+  --bg-glow-a: 14%;
+  --shadow-a: 55%;
+  --highlight-a: 5%;
   color-scheme: dark;
 }
 
@@ -74,6 +94,8 @@
   --dur-fast: 120ms;
   --dur-base: 180ms;
   --ease-snap: cubic-bezier(0.2, 0, 0, 1);
+  --header-h: 3.5rem;
+  --bottom-bar-h: 4rem;
 }
 
 @theme inline {
@@ -109,8 +131,12 @@
   --color-ink-2: var(--ink-2);
   --color-brand: var(--brand);
   --color-brand-ink: var(--brand-ink);
+  --color-brand-soft: var(--brand-soft);
+  --color-success: var(--success);
+  --color-success-ink: var(--success-ink);
   --color-xp: var(--xp);
   --color-xp-ink: var(--xp-ink);
+  --color-xp-text: var(--xp-text);
   --color-streak: var(--streak);
   --color-streak-ink: var(--streak-ink);
   --color-life: var(--life);
@@ -118,14 +144,25 @@
   --color-danger-ink: var(--danger-ink);
   --color-warning: var(--warning);
   --color-info: var(--info);
+  --color-scrim: var(--scrim);
 
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 10px;
-  --radius-xl: 14px;
+  /* Radios: chip 6 · control 8 · panel 12 · hero y diálogo 16 */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
 
-  --shadow-hard: 3px 3px 0 0 var(--shadow-color);
-  --shadow-hard-sm: 1px 1px 0 0 var(--shadow-color);
+  /* Escala de texto pequeño (nada por debajo de 12 px) */
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.4;
+  --text-label: 0.8125rem;
+  --text-label--line-height: 1.4;
+
+  /* Profundidad: capa con brillo interior + sombra teñida. */
+  --shadow-raised:
+    inset 0 1px 0 0 color-mix(in srgb, white var(--highlight-a), transparent),
+    0 1px 2px 0 color-mix(in srgb, var(--shadow-color) var(--shadow-a), transparent),
+    0 12px 32px -16px color-mix(in srgb, var(--shadow-color) var(--shadow-a), transparent);
 }
 
 @layer base {
@@ -138,8 +175,8 @@
   html {
     background-color: var(--bg);
     color: var(--ink);
-    /* El header fijo mide 56 px: al enfocar o saltar a un ancla, el elemento queda debajo de él. */
-    scroll-padding-top: 4.5rem;
+    /* Al enfocar o saltar a un ancla, el elemento queda debajo del header fijo. */
+    scroll-padding-top: calc(var(--header-h) + 1rem);
   }
 
   body {
@@ -147,9 +184,9 @@
     font-family: var(--font-sans);
     font-feature-settings: "ss01", "cv11";
     -webkit-font-smoothing: antialiased;
-    /* Textura: retícula de puntos de consola */
-    background-image: radial-gradient(color-mix(in srgb, var(--ink) 7%, transparent) 1px, transparent 1px);
-    background-size: 24px 24px;
+    /* Un halo violeta tenue arriba; sin retícula. */
+    background-image: radial-gradient(60rem 26rem at 50% -8rem, color-mix(in srgb, var(--glow) var(--bg-glow-a), transparent), transparent 70%);
+    background-repeat: no-repeat;
   }
 
   :focus-visible {
@@ -164,31 +201,48 @@
 }
 
 @layer components {
-  /* Etiqueta de consola: MAYÚSCULAS, mono, con prefijo // */
+  /* Etiqueta sobre un título: sans, sentence-case, discreta. (`console-label` es un alias temporal.) */
+  .eyebrow,
   .console-label {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
+    font-size: var(--text-label);
+    line-height: 1.4;
     font-weight: 500;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
     color: var(--muted);
   }
-  .console-label::before {
-    content: "// ";
-    opacity: 0.6;
-  }
 
-  /* Objeto arcade: sombra sólida desplazada; al presionarlo se hunde 2 px. */
-  .arcade {
-    box-shadow: var(--shadow-hard);
+  /* Lo que se toca: responde al presionar (1 px), sin sombras desplazadas. */
+  .tactile {
     transition:
       transform var(--dur-fast) var(--ease-snap),
       box-shadow var(--dur-fast) var(--ease-snap),
-      background-color var(--dur-fast) var(--ease-snap);
+      background-color var(--dur-fast) var(--ease-snap),
+      border-color var(--dur-fast) var(--ease-snap);
   }
-  .arcade:active:not(:disabled) {
-    transform: translate(2px, 2px);
-    box-shadow: var(--shadow-hard-sm);
+  .tactile:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  /* Capa elevada (paneles, tarjetas destacadas). */
+  .raised {
+    box-shadow: var(--shadow-raised);
+  }
+
+  /* Juego premium: halo estático del color semántico (en claro --glow-a es 0 %). */
+  .glow {
+    --glow-color: var(--glow);
+    box-shadow:
+      var(--shadow-raised),
+      0 0 0 1px color-mix(in srgb, var(--glow-color) var(--glow-a), transparent),
+      0 10px 36px -10px color-mix(in srgb, var(--glow-color) var(--glow-a), transparent);
+  }
+  .glow-xp {
+    --glow-color: var(--xp);
+  }
+  .glow-life {
+    --glow-color: var(--life);
+  }
+  .glow-success {
+    --glow-color: var(--success);
   }
 
   .skip-link {
@@ -301,7 +355,7 @@
     border: 1px solid var(--border);
     border-left: 3px solid var(--block);
     border-radius: var(--radius-lg);
-    background: var(--surface);
+    background: color-mix(in srgb, var(--block) 6%, var(--surface));
   }
   .lesson-block > .lesson-block-head {
     display: flex;
@@ -311,24 +365,9 @@
     margin-bottom: 0.5rem;
   }
   .lesson-block-label {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
+    font-size: var(--text-label);
     font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
     color: var(--block);
-  }
-  .lesson-block-label::before {
-    content: "// ";
-    opacity: 0.7;
-  }
-  /* El prefijo es decorativo: con texto alternativo vacío no entra en el nombre accesible.
-     Navegadores sin esa sintaxis (Safari < 17.4) se quedan con el `content` de cada regla. */
-  @supports (content: "" / "") {
-    .console-label::before,
-    .lesson-block-label::before {
-      content: "// " / "";
-    }
   }
   .lesson-block-title {
     font-weight: 650;
@@ -338,8 +377,8 @@
   }
   .lesson-block details > summary {
     cursor: pointer;
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
+    font-size: var(--text-label);
+    font-weight: 500;
     color: var(--block);
   }
   .lesson-block details[open] > summary {
@@ -459,7 +498,7 @@
     animation: cortex-pop 160ms var(--ease-snap);
   }
   /* Marcos cosméticos del HUD (cofre). */
-  [data-frame="fosforo"] { box-shadow: 0 0 0 2px var(--brand); }
+  [data-frame="fosforo"] { box-shadow: 0 0 0 2px var(--success); }
   [data-frame="ambar"] { box-shadow: 0 0 0 2px var(--xp); }
   [data-frame="coral"] { box-shadow: 0 0 0 2px var(--life); }
   [data-frame="cian"] { box-shadow: 0 0 0 2px var(--info); }
@@ -480,7 +519,7 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .arcade:active:not(:disabled) {
+  .tactile:active:not(:disabled) {
     transform: none;
   }
 }

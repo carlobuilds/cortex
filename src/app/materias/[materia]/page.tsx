@@ -63,7 +63,7 @@ export default async function SubjectPage({ params }: PageProps<"/materias/[mate
             <li key={u.key}>
               <Link
                 href={`/materias/${materia}/${u.slug}`}
-                className="arcade group flex items-center gap-5 rounded-lg border-2 border-border-strong bg-surface p-4 hover:border-brand"
+                className="tactile group flex items-center gap-5 rounded-lg border-2 border-border-strong bg-surface p-4 hover:border-brand"
               >
                 <span className="font-mono text-4xl font-semibold text-xp tabular-nums">{String(u.number).padStart(2, "0")}</span>
                 <span className="min-w-0 flex-1">

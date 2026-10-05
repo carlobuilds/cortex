@@ -82,7 +82,7 @@ export function DailySession({ db, catalog, profile }: { db: CortexDb; catalog: 
           const current = s.id === step;
           return (
             <li key={s.id} aria-current={current ? "step" : undefined} className={cn("rounded-md border-2 px-2 py-1.5 text-xs sm:text-sm", current ? "border-brand bg-surface-2" : done ? "border-border text-muted-foreground" : "border-border")}>
-              <span className="font-mono text-muted-foreground">{i + 1}</span> {done ? <Check aria-label="hecho" className="inline size-3.5 text-brand" /> : null} <span className="font-semibold">{s.label}</span>
+              <span className="font-mono text-muted-foreground">{i + 1}</span> {done ? <Check aria-label="hecho" className="inline size-3.5 text-success" /> : null} <span className="font-semibold">{s.label}</span>
             </li>
           );
         })}

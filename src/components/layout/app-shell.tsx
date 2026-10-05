@@ -12,7 +12,7 @@ export function AppShell({ children, hud }: { children: ReactNode; hud?: ReactNo
       <header className="sticky top-0 z-40 border-b bg-[color-mix(in_srgb,var(--bg)_88%,transparent)] backdrop-blur">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-4 sm:gap-5 sm:px-6">
           <Link href="/" className="flex items-center gap-2.5 rounded-sm font-mono text-sm font-semibold tracking-[0.2em] uppercase">
-            <span aria-hidden className="arcade grid size-7 place-items-center rounded-sm border-2 border-[var(--shadow-color)] bg-brand text-xs font-bold text-brand-ink">
+            <span aria-hidden className="tactile grid size-7 place-items-center rounded-sm border-2 border-[var(--shadow-color)] bg-brand text-xs font-bold text-brand-ink">
               C
             </span>
             <span className="sr-only sm:not-sr-only">{APP_NAME}</span>

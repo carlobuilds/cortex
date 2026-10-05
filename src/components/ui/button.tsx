@@ -10,9 +10,9 @@ const buttonVariants = cva(
     variants: {
       variant: {
         // Objetos arcade: sombra sólida, se hunden al presionar.
-        default: "arcade border-2 border-[var(--shadow-color)] bg-primary text-primary-foreground hover:brightness-110",
-        secondary: "arcade border-2 border-border-strong bg-surface-2 text-foreground hover:bg-surface-3",
-        destructive: "arcade border-2 border-[var(--shadow-color)] bg-danger text-danger-ink hover:brightness-110",
+        default: "tactile border-2 border-[var(--shadow-color)] bg-primary text-primary-foreground hover:brightness-110",
+        secondary: "tactile border-2 border-border-strong bg-surface-2 text-foreground hover:bg-surface-3",
+        destructive: "tactile border-2 border-[var(--shadow-color)] bg-danger text-danger-ink hover:brightness-110",
         // Controles de consola: planos.
         outline: "border border-border-strong bg-transparent text-foreground hover:bg-surface-2",
         ghost: "text-foreground hover:bg-surface-2",

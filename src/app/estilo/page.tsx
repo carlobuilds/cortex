@@ -160,7 +160,7 @@ export default function StylePage() {
             </CardHeader>
             <CardContent className="text-sm text-ink-2">El contenido respira; el acento aparece poco y con intención.</CardContent>
           </Card>
-          <Card className="arcade border-2 border-border-strong">
+          <Card className="tactile border-2 border-border-strong">
             <CardHeader>
               <CardTitle>Objeto arcade</CardTitle>
               <CardDescription>Para tocar: sombra sólida desplazada.</CardDescription>

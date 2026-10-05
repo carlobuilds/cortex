@@ -73,7 +73,7 @@ export function CelebrationProvider({ children }: { children: ReactNode }) {
               key={t.id}
               role="status"
               className={cn(
-                "fx-right pointer-events-auto flex items-start gap-3 rounded-lg border-2 bg-surface p-3 shadow-[var(--shadow-hard)]",
+                "fx-right pointer-events-auto flex items-start gap-3 rounded-lg border-2 bg-surface p-3 raised",
                 t.tone === "level" || t.tone === "achievement" ? "border-xp" : t.tone === "streak" ? "border-streak" : "border-brand",
               )}
             >

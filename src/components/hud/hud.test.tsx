@@ -105,7 +105,7 @@ describe("guardarraíles de docs/03", () => {
 
   it("toda animación queda detrás de motion-safe", () => {
     const classes = [...states.matchAll(/class="([^"]*)"/g)].flatMap((m) => (m[1] ?? "").split(/\s+/));
-    const animated = classes.filter((c) => /(^|:)(transition|animate-|duration-)/.test(c) && c !== "arcade");
+    const animated = classes.filter((c) => /(^|:)(transition|animate-|duration-)/.test(c) && c !== "tactile");
     expect(animated.filter((c) => !c.startsWith("motion-safe:"))).toEqual([]);
   });
 });

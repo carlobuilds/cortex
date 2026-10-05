@@ -39,7 +39,7 @@ export function PredictInteractive({ reveal }: { reveal: ReactNode | null }) {
             <button
               type="button"
               onClick={() => setShown(true)}
-              className="arcade rounded-md border-2 border-[var(--shadow-color)] bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground"
+              className="tactile rounded-md border-2 border-[var(--shadow-color)] bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground"
             >
               {text.trim() ? "Comparar con la idea" : "No sé: muéstrame la idea"}
             </button>
@@ -90,10 +90,10 @@ export function FadedInteractive({
                         style={{ width: `${Math.max(4, (values[k] ?? "").length + 2)}ch` }}
                         className={cn(
                           "mx-1 h-8 rounded-sm border-b-2 border-dashed bg-surface-2 px-1.5 font-mono text-sm",
-                          ok === null ? "border-xp" : ok ? "border-brand" : "border-danger",
+                          ok === null ? "border-xp" : ok ? "border-success" : "border-danger",
                         )}
                       />
-                      {ok === null ? null : ok ? <Check aria-label="correcto" className="size-4 text-brand" /> : <X aria-label="incorrecto" className="size-4 text-danger" />}
+                      {ok === null ? null : ok ? <Check aria-label="correcto" className="size-4 text-success" /> : <X aria-label="incorrecto" className="size-4 text-danger" />}
                     </span>
                   ) : null}
                 </Fragment>
@@ -117,7 +117,7 @@ export function FadedInteractive({
             <button
               type="button"
               onClick={() => setChecked(true)}
-              className="arcade rounded-md border-2 border-[var(--shadow-color)] bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground"
+              className="tactile rounded-md border-2 border-[var(--shadow-color)] bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground"
             >
               Comprobar
             </button>

@@ -297,7 +297,7 @@ export function SequencesGame({ level, onDone, items = 6 }: { level: number; onD
       />
       {feedback ? (
         <div aria-live="polite" className="grid justify-items-center gap-3">
-          <p className={feedback.ok ? "text-brand" : "text-danger"}>
+          <p className={feedback.ok ? "text-success" : "text-danger"}>
             {feedback.ok ? "¡Bien!" : `Era ${feedback.answer}.`} Regla: {feedback.rule}.
           </p>
           <Button ref={nextRef} onClick={next}>

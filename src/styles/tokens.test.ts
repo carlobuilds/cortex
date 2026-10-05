@@ -48,7 +48,9 @@ const PAIRS: [fg: string, bg: string, min: number][] = [
   ["ink", "bg", TEXT],
   ["ink", "surface", TEXT],
   ["ink", "surface-2", TEXT],
+  ["ink", "surface-3", TEXT],
   ["ink-2", "surface", TEXT],
+  ["ink-2", "surface-2", TEXT],
   ["muted", "bg", TEXT],
   ["muted", "surface", TEXT],
   ["muted", "surface-2", TEXT],
@@ -56,18 +58,27 @@ const PAIRS: [fg: string, bg: string, min: number][] = [
   ["xp-ink", "xp", TEXT],
   ["streak-ink", "streak", TEXT],
   ["danger-ink", "danger", TEXT],
+  ["success-ink", "success", TEXT],
   ["brand", "surface", TEXT],
+  // Lo seleccionado (nav activa, opción elegida) lleva fondo brand-soft.
+  ["brand", "brand-soft", TEXT],
+  ["ink", "brand-soft", TEXT],
+  ["success", "surface", TEXT],
   ["danger", "surface", TEXT],
+  ["danger", "surface-2", TEXT],
   ["warning", "surface", TEXT],
   ["info", "surface", TEXT],
+  ["info", "surface-2", TEXT],
   ["streak", "surface", TEXT],
   ["xp-text", "surface", TEXT],
+  ["xp-text", "surface-2", TEXT],
   ["xp-text", "bg", TEXT],
   ["life", "surface", UI],
   ["xp", "surface", UI],
   ["xp", "bg", UI],
   ["ring", "bg", UI],
   ["ring", "surface", UI],
+  ["ring", "surface-2", UI],
   ["input", "surface", UI],
 ];
 
@@ -91,6 +102,8 @@ describe("reglas globales", () => {
     expect(block).toContain("transition-duration: 0.01ms !important");
     expect(block).toContain("animation-duration: 0.01ms !important");
     expect(block).toContain("--dur-fast: 0ms");
+    // Lo táctil tampoco se desplaza al presionarlo.
+    expect(block).toMatch(/\.tactile:active:not\(:disabled\) \{\s*transform: none;/);
   });
 
   it("hay foco visible para todo lo enfocable", () => {

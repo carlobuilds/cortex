@@ -200,7 +200,7 @@ export function ExerciseCard({
       aria-label={`Ejercicio ${exercise.id}`}
       className={cn(
         "rounded-xl border-2 bg-surface p-5 sm:p-6",
-        phase.kind === "feedback" ? (phase.correct ? "fx-right border-brand" : "fx-wrong border-danger") : "border-border-strong",
+        phase.kind === "feedback" ? (phase.correct ? "fx-right border-success" : "fx-wrong border-danger") : "border-border-strong",
       )}
     >
       <header className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -274,7 +274,7 @@ export function ExerciseCard({
 
       {phase.kind === "feedback" ? (
         <section aria-live="polite" className="mt-6 border-t pt-5">
-          <p className={cn("flex items-center gap-2 text-lg font-semibold", phase.correct ? "text-brand" : "text-danger")}>
+          <p className={cn("flex items-center gap-2 text-lg font-semibold", phase.correct ? "text-success" : "text-danger")}>
             {phase.correct ? <CheckCircle2 aria-hidden /> : <XCircle aria-hidden />}
             {phase.correct ? "¡Correcto!" : "No es correcto."}
             {phase.after?.xp && phase.after.xp.total > 0 ? <span className="ml-1 font-mono text-base text-xp-text">+{phase.after.xp.total} XP</span> : null}

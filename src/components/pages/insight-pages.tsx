@@ -30,7 +30,7 @@ const MASTERY_STYLE: Record<Mastery, string> = {
   seen: "border-border-strong",
   practiced: "border-info text-info",
   mastered: "border-brand text-brand",
-  expert: "border-xp bg-xp text-xp-ink shadow-[var(--shadow-hard-sm)]",
+  expert: "border-xp bg-xp text-xp-ink glow glow-xp",
 };
 
 // ---------------------------------------------------------------- mapa de habilidades
