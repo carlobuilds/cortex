@@ -3,19 +3,19 @@ import { Slot } from "radix-ui";
 import type * as React from "react";
 import { cn } from "@/lib/utils";
 
-// Base: shadcn/ui (new-york v4), adaptado al sistema "consola arcade" (ADR-016).
+// Base: shadcn/ui (new-york v4), adaptado al sistema "Arcano" (ADR-020).
 const buttonVariants = cva(
   "inline-flex shrink-0 select-none items-center justify-center gap-2 rounded-md text-sm font-semibold whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        // Objetos arcade: sombra sólida, se hunden al presionar.
-        default: "tactile border-2 border-[var(--shadow-color)] bg-primary text-primary-foreground hover:brightness-110",
-        secondary: "tactile border-2 border-border-strong bg-surface-2 text-foreground hover:bg-surface-3",
-        destructive: "tactile border-2 border-[var(--shadow-color)] bg-danger text-danger-ink hover:brightness-110",
-        // Controles de consola: planos.
-        outline: "border border-border-strong bg-transparent text-foreground hover:bg-surface-2",
-        ghost: "text-foreground hover:bg-surface-2",
+        // Lo que se toca responde al presionar (.tactile). `cta` es la acción principal de una pantalla: lleva glow.
+        default: "tactile bg-primary text-primary-foreground hover:brightness-110",
+        cta: "tactile glow bg-primary text-primary-foreground hover:brightness-110",
+        secondary: "tactile border bg-surface-2 text-foreground hover:border-border-strong hover:bg-surface-3",
+        destructive: "tactile bg-danger text-danger-ink hover:brightness-110",
+        outline: "tactile border border-border-strong bg-transparent text-foreground hover:bg-surface-2",
+        ghost: "tactile text-foreground hover:bg-surface-2",
         link: "text-brand underline-offset-4 hover:underline",
       },
       size: {

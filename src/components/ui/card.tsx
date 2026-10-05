@@ -1,12 +1,12 @@
 import type * as React from "react";
 import { cn } from "@/lib/utils";
 
-// Base: shadcn/ui (new-york v4). Panel de consola: borde de 1 px, sin sombra.
+// Base: shadcn/ui (new-york v4). Panel Arcano: borde de 1 px y capa elevada (ADR-020).
 function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card"
-      className={cn("flex flex-col gap-4 rounded-lg border bg-card py-5 text-card-foreground", className)}
+      className={cn("raised flex flex-col gap-4 rounded-lg border bg-card py-5 text-card-foreground", className)}
       {...props}
     />
   );

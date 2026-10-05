@@ -2,14 +2,17 @@
 
 import type { ReactNode } from "react";
 import { CelebrationProvider } from "@/components/study/celebrations";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeSync } from "./theme-sync";
 
-/** Proveedores de cliente de toda la app: celebraciones y tema. */
+/** Proveedores de cliente de toda la app: celebraciones, tooltips y tema. */
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <CelebrationProvider>
-      <ThemeSync />
-      {children}
+      <TooltipProvider>
+        <ThemeSync />
+        {children}
+      </TooltipProvider>
     </CelebrationProvider>
   );
 }
