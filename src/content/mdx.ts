@@ -4,6 +4,7 @@ import rehypeKatex from "rehype-katex";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import { BLANK, type ComponentSpec } from "./core/lesson-api";
+import { rehypeLessonSteps } from "./lesson-steps";
 
 /**
  * Pipeline único de lecciones (ADR-012): MDX → remark-gfm (tablas) → remark-math → guardia de
@@ -285,6 +286,8 @@ interface CompileInput {
   readonly components: Readonly<Record<string, ComponentSpec>>;
   /** `md`: texto de un atributo (sin JSX); `mdx`: lección completa. */
   readonly format?: "md" | "mdx";
+  /** Agrupa la lección por sus `##` en <LessonSteps>/<LessonStep> (src/content/lesson-steps.ts). */
+  readonly steps?: boolean;
 }
 
 function compileOptions(input: CompileInput): CompileOptions {
@@ -293,7 +296,8 @@ function compileOptions(input: CompileInput): CompileOptions {
     outputFormat: "function-body",
     development: false,
     remarkPlugins: [remarkGfm, remarkMath, [remarkCortexGuard, { components: input.components }]],
-    rehypePlugins: [[rehypeKatex, KATEX_OPTIONS]],
+    // Los pasos se arman después de la guardia: un autor no puede escribir <LessonStep> a mano.
+    rehypePlugins: input.steps ? [[rehypeKatex, KATEX_OPTIONS], rehypeLessonSteps] : [[rehypeKatex, KATEX_OPTIONS]],
   };
 }
 
