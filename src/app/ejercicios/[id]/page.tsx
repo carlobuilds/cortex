@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { StudyFrame, unitCrumbs } from "@/components/layout/study-frame";
 import { SingleExerciseClient } from "@/components/pages/study-pages";
 import { getContentIndex } from "@/content/server";
 import { APP_NAME } from "@/lib/app";
@@ -22,9 +23,12 @@ export default async function ExercisePage({ params }: PageProps<"/ejercicios/[i
   const { id } = await params;
   const loc = getContentIndex().exercises[id];
   if (!loc || loc.retired) notFound();
+  const [subjectId = "", slug = ""] = loc.unitKey.split("/");
   return (
-    <div className="max-w-4xl">
-      <SingleExerciseClient exerciseId={id} />
-    </div>
+    <StudyFrame crumbs={unitCrumbs(subjectId, slug, `Ejercicio ${id}`)} exitHref="/cuaderno" exitLabel="Al cuaderno">
+      <div className="max-w-4xl">
+        <SingleExerciseClient exerciseId={id} />
+      </div>
+    </StudyFrame>
   );
 }

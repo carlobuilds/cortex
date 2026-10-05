@@ -128,3 +128,21 @@ test("20 - paleta de comandos: Ctrl+K, búsqueda sin acentos y Enter", async ({ 
   await expect(page.getByRole("heading", { level: 1, name: "Límites: acercarse sin llegar" })).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+test("21 - en estudio: migas del servidor y Esc sale sin recargar la página", async ({ page }) => {
+  const errors = collectErrors(page);
+  await page.goto("/materias/calculo/01-limites/practica");
+  const crumbs = page.getByRole("navigation", { name: "Ruta" });
+  await expect(crumbs.getByRole("link", { name: "Unidad 01" })).toHaveAttribute("href", "/materias/calculo/01-limites");
+  await expect(crumbs.locator("[aria-current=page]")).toHaveText("Práctica");
+  await expect(page.locator("article[aria-label^='Ejercicio ']")).toBeVisible();
+
+  // Un marcador en window solo sobrevive si la navegación es del lado del cliente (sin recargar).
+  await page.evaluate(() => ((window as unknown as { __cortex: number }).__cortex = 42));
+  await page.locator("h1, main").first().click({ position: { x: 2, y: 2 } });
+  await page.keyboard.press("Escape");
+  await expect(page).toHaveURL(/\/materias\/calculo\/01-limites$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Límites: acercarse sin llegar" })).toBeVisible();
+  expect(await page.evaluate(() => (window as unknown as { __cortex?: number }).__cortex)).toBe(42);
+  expect(errors).toEqual([]);
+});

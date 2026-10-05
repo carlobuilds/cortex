@@ -2,7 +2,9 @@
 
 import { CheckCircle2, CircleHelp, Lightbulb, XCircle } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Kbd } from "@/components/ui/state";
 import type { CatalogExercise } from "@/content/core/study-catalog";
 import { type Answer, checkAnswer, type CheckResult } from "@/engine/answers/check";
 import type { XpBreakdown, Confidence } from "@/engine/xp";
@@ -11,6 +13,7 @@ import { ConfidencePicker } from "./confidence-picker";
 import { TYPE_MODULES, type SelfDraft } from "./exercise-types";
 import { ReportButton } from "./report-button";
 import { RichText } from "./rich-text";
+import { CONFIG } from "@/engine/config";
 import { isTyping } from "@/lib/keyboard";
 
 /**
@@ -196,15 +199,20 @@ export function ExerciseCard({
     <article
       aria-label={`Ejercicio ${exercise.id}`}
       className={cn(
-        "rounded-xl border-2 bg-surface p-5 sm:p-6",
-        phase.kind === "feedback" ? (phase.correct ? "fx-right border-success" : "fx-wrong border-danger") : "border-border-strong",
+        "raised rounded-xl border bg-surface p-5 sm:p-7",
+        phase.kind === "feedback" ? (phase.correct ? "fx-right glow glow-success border-success/60" : "fx-wrong glow glow-life border-danger/60") : "",
       )}
     >
-      <header className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">
-        <span className="console-label">{TYPE_LABELS[exercise.tipo] ?? exercise.tipo}</span>
-        <span className="font-mono text-xs text-muted-foreground" aria-label={`Dificultad ${exercise.dificultad} de 5`}>
-          {"■".repeat(exercise.dificultad)}
-          <span className="opacity-30">{"■".repeat(5 - exercise.dificultad)}</span>
+      <header className="mb-5 flex flex-wrap items-center gap-2">
+        <Badge variant="brand">{TYPE_LABELS[exercise.tipo] ?? exercise.tipo}</Badge>
+        {"lenguaje" in exercise && exercise.lenguaje ? <Badge>{exercise.lenguaje === "c" ? "C" : "Python"}</Badge> : null}
+        <span role="img" aria-label={`Dificultad ${exercise.dificultad} de 5`} className="inline-flex items-center gap-1.5 rounded-sm border px-2 py-0.5 text-caption text-muted-foreground">
+          <span aria-hidden>Dificultad</span>
+          <span aria-hidden className="flex gap-0.5">
+            {Array.from({ length: 5 }, (_, i) => (
+              <span key={i} className={cn("size-1.5 rounded-full", i < exercise.dificultad ? "bg-brand" : "bg-surface-3")} />
+            ))}
+          </span>
         </span>
         <span className="ml-auto">{header}</span>
       </header>
@@ -229,12 +237,15 @@ export function ExerciseCard({
       {answering ? (
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <Button onClick={() => void submit()} disabled={busy}>
-            {busy ? "Ejecutando pruebas…" : "Comprobar"} <span className="kbd border-current/40 text-current">{CODE_TYPES.has(exercise.tipo) ? "Ctrl ⏎" : "⏎"}</span>
+            {busy ? "Ejecutando pruebas…" : "Comprobar"} <Kbd className="border-current/40 text-current">{CODE_TYPES.has(exercise.tipo) ? "Ctrl ⏎" : "⏎"}</Kbd>
           </Button>
           {allowHints && hints < pistas.length ? (
-            <Button variant="outline" onClick={() => setHints((h) => h + 1)}>
-              <Lightbulb aria-hidden /> Pista ({pistas.length - hints}) <span className="kbd">H</span>
-            </Button>
+            <>
+              <Button variant="outline" onClick={() => setHints((h) => h + 1)}>
+                <Lightbulb aria-hidden /> Pista ({pistas.length - hints}) <Kbd>H</Kbd>
+              </Button>
+              <span className="text-caption text-muted-foreground">cada pista resta {Math.round(CONFIG.xp.hintCost * 100)} % del XP</span>
+            </>
           ) : null}
           {phase.error ? (
             <p role="alert" className="text-sm text-warning">
@@ -297,8 +308,8 @@ export function ExerciseCard({
               {phase.error}
             </p>
           ) : null}
-          <div className="mt-4 rounded-md bg-surface-2 p-4">
-            <p className="console-label mb-1">Explicación</p>
+          <div className="mt-4 rounded-lg border bg-surface-2 p-4">
+            <p className="eyebrow mb-1">Explicación</p>
             <RichText text={exercise.explicacion} />
           </div>
           {exercise.tipo === "codigo" || exercise.tipo === "depurar" ? (
@@ -308,8 +319,8 @@ export function ExerciseCard({
             </details>
           ) : null}
           <div className="mt-5 flex flex-wrap items-center gap-3">
-            <Button ref={nextRef} onClick={onNext}>
-              {nextLabel} <span className="kbd border-current/40 text-current">N</span>
+            <Button ref={nextRef} variant="cta" onClick={onNext}>
+              {nextLabel} <Kbd className="border-current/40 text-current">N</Kbd>
             </Button>
             <ReportButton exerciseId={exercise.id} />
           </div>
@@ -334,13 +345,13 @@ function SelfGrade({
 }) {
   const [met, setMet] = useState<boolean[]>(() => exercise.rubrica.map((_, i) => draft.met[i] ?? false));
   return (
-    <section className="mt-5 grid gap-4 rounded-lg border border-border-strong p-4">
+    <section className="mt-5 grid gap-4 rounded-lg border bg-surface-2 p-4">
       <div>
-        <p className="console-label mb-1">Respuesta modelo</p>
+        <p className="eyebrow mb-1">Respuesta modelo</p>
         <RichText text={exercise.respuesta_modelo} />
       </div>
       <fieldset>
-        <legend className="console-label mb-2">Marca lo que tu explicación sí incluyó</legend>
+        <legend className="eyebrow mb-2">Marca lo que tu explicación sí incluyó</legend>
         <ul className="grid gap-2">
           {exercise.rubrica.map((r, i) => (
             <li key={i}>

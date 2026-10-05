@@ -76,13 +76,16 @@ export function DailySession({ db, catalog, profile }: { db: CortexDb; catalog: 
 
   return (
     <div className="grid gap-6">
-      <ol className="grid grid-cols-4 gap-1.5" aria-label="Pasos de la sesión">
+      <ol className="grid grid-cols-4 gap-2" aria-label="Pasos de la sesión">
         {STEPS.map((s, i) => {
           const done = (s.id === "warmup" && status.warmupDone) || (s.id === "mission" && status.missionDone) || (s.id === "gym" && status.gymDone) || (s.id === "close" && status.dayRecord.sessionDone);
           const current = s.id === step;
           return (
-            <li key={s.id} aria-current={current ? "step" : undefined} className={cn("rounded-md border-2 px-2 py-1.5 text-xs sm:text-sm", current ? "border-brand bg-surface-2" : done ? "border-border text-muted-foreground" : "border-border")}>
-              <span className="font-mono text-muted-foreground">{i + 1}</span> {done ? <Check aria-label="hecho" className="inline size-3.5 text-success" /> : null} <span className="font-semibold">{s.label}</span>
+            <li key={s.id} aria-current={current ? "step" : undefined} className={cn("grid gap-1.5 text-xs sm:text-sm", current ? "text-brand" : done ? "text-muted-foreground" : "text-ink-2")}>
+              <span aria-hidden className={cn("h-1.5 rounded-full", current ? "bg-brand" : done ? "bg-success/60" : "bg-surface-3")} />
+              <span className="truncate">
+                <span className="font-mono">{i + 1}</span> {done ? <Check aria-label="hecho" className="inline size-3.5 text-success" /> : null} <span className="font-semibold">{s.label}</span>
+              </span>
             </li>
           );
         })}
@@ -156,12 +159,12 @@ function LessonMission({ db, catalog, profile, unitKey, onDone }: { db: CortexDb
     return <LessonQuiz db={db} catalog={catalog} profile={profile} unit={unit} doneActions={<Button onClick={onDone}>Continuar</Button>} />;
   }
   return (
-    <div className="rounded-xl border-2 border-border-strong bg-surface p-6">
+    <div className="raised rounded-xl border bg-surface p-6">
       <p className="text-ink-2">
         Lee la lección (~{unit.minutes} min): abre con una pregunta para que intentes predecir antes de la teoría. Al terminar, un mini quiz de {CONFIG.xp.lessonQuizSize} preguntas la completa (+{CONFIG.xp.lesson} XP con 80 %).
       </p>
       <div className="mt-5 flex flex-wrap gap-3">
-        <Button asChild size="lg">
+        <Button asChild size="lg" variant="cta">
           <Link href={`${unitHref(unit)}?desde=sesion`}>
             <BookOpen aria-hidden /> Leer la lección
           </Link>
@@ -192,34 +195,35 @@ function CloseScreen({ db, catalog, profile, status }: { db: CortexDb; catalog: 
 
   return (
     <section className="grid gap-6">
-      <div className="rounded-xl border-2 border-brand bg-surface p-6">
-        <p className="console-label">Cierre del día</p>
-        <h2 className="mt-2 text-3xl font-extrabold">Buen trabajo hoy.</h2>
-        <dl className="mt-4 flex flex-wrap gap-x-8 gap-y-3 font-mono">
-          <div>
-            <dt className="console-label">XP de hoy</dt>
-            <dd className="text-3xl font-semibold text-xp-text tabular-nums">{d.xp}</dd>
+      <div className="text-center">
+        <p className="eyebrow">Cierre del día</p>
+        <h2 className="mt-2 text-3xl font-extrabold sm:text-4xl">Buen trabajo hoy.</h2>
+        <dl className="mt-6 grid grid-cols-3 gap-3 text-left">
+          <div className="raised rounded-lg border bg-surface p-4">
+            <dt className="eyebrow">XP de hoy</dt>
+            <dd className="mt-1 font-mono text-2xl font-semibold text-xp-text tabular-nums sm:text-3xl">{d.xp}</dd>
           </div>
-          <div>
-            <dt className="console-label">Aciertos</dt>
-            <dd className="text-3xl font-semibold tabular-nums">
+          <div className="raised rounded-lg border bg-surface p-4">
+            <dt className="eyebrow">Aciertos</dt>
+            <dd className="mt-1 font-mono text-2xl font-semibold text-success tabular-nums sm:text-3xl">
               {d.correct}/{d.answered}
             </dd>
           </div>
-          <div>
-            <dt className="console-label">Mejor racha de aciertos</dt>
-            <dd className="text-3xl font-semibold tabular-nums">{d.bestCombo}</dd>
+          <div className="raised rounded-lg border bg-surface p-4">
+            <dt className="eyebrow">Mejor racha de aciertos</dt>
+            <dd className="mt-1 font-mono text-2xl font-semibold text-streak tabular-nums sm:text-3xl">{d.bestCombo}</dd>
           </div>
         </dl>
-        <p className="mt-4 text-ink-2">
+        <p className="mt-5 text-ink-2">
           {d.minimumMet ? "Tu misión mínima de hoy ya cuenta para la racha. Puedes parar aquí, sin culpa." : "Para que hoy cuente en tu racha bastan 3 ejercicios bien o un repaso completo."}
         </p>
       </div>
 
-      <div className="rounded-xl border-2 border-xp bg-surface p-6">
-        <p className="console-label flex items-center gap-2">
-          <Gift aria-hidden className="size-4" /> Cofre del día
-        </p>
+      <div className="glow glow-xp grid justify-items-center gap-2 rounded-xl border border-xp/50 bg-surface p-6 text-center sm:p-8">
+        <span aria-hidden className="grid size-16 place-items-center rounded-xl border border-xp/40 bg-surface-2 text-xp-text">
+          <Gift className="size-8" />
+        </span>
+        <p className="text-lg font-semibold">Cofre del día</p>
         {chest?.opened ? (
           <div aria-live="polite" className="fx-right mt-3">
             <ChestReveal result={chest} />
@@ -227,8 +231,8 @@ function CloseScreen({ db, catalog, profile, status }: { db: CortexDb; catalog: 
         ) : opened ? (
           <p className="mt-3 text-ink-2">Ya abriste el cofre de hoy. Mañana hay otro.</p>
         ) : (
-          <div className="mt-3 grid justify-items-start gap-3">
-            <p className="text-ink-2">
+          <div className="grid justify-items-center gap-3">
+            <p className="max-w-md text-ink-2">
               Puede traer XP, un congelamiento de racha, un marco para tu HUD, una insignia rara o un dato curioso.{" "}
               <Link href="/ajustes#cofre" className="underline underline-offset-2">
                 Ver probabilidades
@@ -236,6 +240,7 @@ function CloseScreen({ db, catalog, profile, status }: { db: CortexDb; catalog: 
             </p>
             <Button
               size="lg"
+              variant="cta"
               onClick={async () => {
                 const r = await openDailyChest(db, Date.now(), createRng(seedFrom(`${status.day}/${crypto.getRandomValues(new Uint32Array(1))[0]}`)), factsFor(catalog.subjects.map((s) => s.id)));
                 setChest(r);
@@ -253,8 +258,8 @@ function CloseScreen({ db, catalog, profile, status }: { db: CortexDb; catalog: 
       </div>
 
       {tomorrow ? (
-        <div className="rounded-xl border bg-surface p-6">
-          <p className="console-label">Mañana te espera</p>
+        <div className="raised rounded-xl border bg-surface p-6">
+          <p className="eyebrow">Mañana te espera</p>
           <p className="mt-2 flex items-center gap-2 font-semibold">
             <Swords aria-hidden className="size-4" /> {missionTitle(tomorrow.m, catalog)}
           </p>

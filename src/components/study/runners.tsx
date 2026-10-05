@@ -93,22 +93,22 @@ function useSession(db: CortexDb, kind: SessionKind, unitKey?: string): number |
 function Summary({ tally, title, children }: { tally: Tally; title: string; children?: React.ReactNode }) {
   const pct = tally.answered ? Math.round((100 * tally.correct) / tally.answered) : 0;
   return (
-    <section aria-live="polite" className="rounded-xl border-2 border-brand bg-surface p-6">
+    <section aria-live="polite" className="glow glow-success raised rounded-xl border border-success/50 bg-surface p-6 sm:p-7">
       <h2 className="text-2xl font-bold">{title}</h2>
-      <dl className="mt-4 flex flex-wrap gap-x-8 gap-y-3 font-mono">
-        <div>
-          <dt className="console-label">Aciertos</dt>
-          <dd className="text-3xl font-semibold tabular-nums">
+      <dl className="mt-5 grid grid-cols-3 gap-3">
+        <div className="rounded-lg border bg-surface-2 p-3">
+          <dt className="eyebrow">Aciertos</dt>
+          <dd className="mt-1 font-mono text-2xl font-semibold text-success tabular-nums sm:text-3xl">
             {tally.correct}/{tally.answered}
           </dd>
         </div>
-        <div>
-          <dt className="console-label">Precisión</dt>
-          <dd className="text-3xl font-semibold tabular-nums">{pct}%</dd>
+        <div className="rounded-lg border bg-surface-2 p-3">
+          <dt className="eyebrow">Precisión</dt>
+          <dd className="mt-1 font-mono text-2xl font-semibold tabular-nums sm:text-3xl">{pct}%</dd>
         </div>
-        <div>
-          <dt className="console-label">XP</dt>
-          <dd className="text-3xl font-semibold text-xp-text tabular-nums">+{tally.xp}</dd>
+        <div className="rounded-lg border bg-surface-2 p-3">
+          <dt className="eyebrow">XP</dt>
+          <dd className="mt-1 font-mono text-2xl font-semibold text-xp-text tabular-nums sm:text-3xl">+{tally.xp}</dd>
         </div>
       </dl>
       {children ? <div className="mt-5 flex flex-wrap gap-3">{children}</div> : null}
@@ -257,8 +257,8 @@ function WorkedExample({ exercise, onClose }: { exercise: CatalogExercise; onClo
   const ref = useRef<HTMLButtonElement>(null);
   useEffect(() => ref.current?.focus(), []);
   return (
-    <section className="rounded-xl border-2 border-info bg-surface p-6">
-      <p className="console-label flex items-center gap-2">
+    <section className="raised rounded-xl border border-info/50 bg-surface p-6">
+      <p className="eyebrow flex items-center gap-2 text-info">
         <BookOpen aria-hidden className="size-4" /> Ejemplo resuelto · antes de seguir
       </p>
       <p className="mt-2 text-sm text-ink-2">Dos errores seguidos en el mismo tema: bajamos un nivel. Mira cómo se resuelve uno parecido.</p>
@@ -266,7 +266,7 @@ function WorkedExample({ exercise, onClose }: { exercise: CatalogExercise; onClo
         <RichText text={exercise.enunciado} className="text-lg" />
       </div>
       <div className="mt-4 rounded-md bg-surface-2 p-4">
-        <p className="console-label mb-1">Solución</p>
+        <p className="eyebrow mb-1">Solución</p>
         <RichText text={exercise.explicacion} />
       </div>
       <Button ref={ref} className="mt-5" onClick={onClose}>

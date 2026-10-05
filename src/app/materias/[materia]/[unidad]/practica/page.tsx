@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { StudyFrame, unitCrumbs } from "@/components/layout/study-frame";
 import { UnitStudyClient } from "@/components/pages/study-pages";
 import { getContentIndex, getUnit } from "@/content/server";
 import { APP_NAME } from "@/lib/app";
@@ -21,8 +22,10 @@ export default async function Page({ params }: PageProps<"/materias/[materia]/[u
   const unit = getUnit(materia, unidad);
   if (!unit) notFound();
   return (
-    <div className="max-w-3xl">
-      <UnitStudyClient unitKey={unit.key} kind="practice" />
-    </div>
+    <StudyFrame crumbs={unitCrumbs(materia, unidad, "Práctica")} exitHref={`/materias/${materia}/${unidad}`}>
+      <div className="max-w-3xl">
+        <UnitStudyClient unitKey={unit.key} kind="practice" />
+      </div>
+    </StudyFrame>
   );
 }

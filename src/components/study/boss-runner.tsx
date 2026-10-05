@@ -2,6 +2,7 @@
 
 import { Ghost, Skull, Swords, Timer } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { LifeBar } from "@/components/hud/life-bar";
 import { Lives } from "@/components/hud/lives";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -145,8 +146,8 @@ export function BossRunner({
   if (outcome && run) {
     const missed = [...outcome.failed, ...outcome.unanswered];
     return (
-      <section aria-live="polite" className={cn("rounded-xl border-2 bg-surface p-6", outcome.passed ? "border-success" : "border-danger")}>
-        <p className="console-label">Autopsia del jefe</p>
+      <section aria-live="polite" className={cn("raised rounded-xl border bg-surface p-6 sm:p-7", outcome.passed ? "glow glow-success border-success/60" : "border-danger/60")}>
+        <p className="eyebrow">Autopsia del jefe</p>
         <h2 className="mt-2 text-3xl font-extrabold">{outcome.passed ? `¡Derrotaste a «${boss.nombre}»!` : `«${boss.nombre}» ganó esta vez`}</h2>
         <p className="mt-2 text-ink-2">
           {Math.round(outcome.score * 100)}% de aciertos (se necesita {Math.round(boss.aprobado_minimo * 100)}%).
@@ -161,7 +162,7 @@ export function BossRunner({
                 const ex = catalog.exercises[id];
                 if (!ex) return null;
                 return (
-                  <li key={id} className="rounded-md border border-border-strong bg-surface-2 p-4 text-sm">
+                  <li key={id} className="rounded-lg border bg-surface-2 p-4 text-sm">
                     <p className="font-mono text-xs text-muted-foreground">
                       {id} · {outcome.unanswered.includes(id) ? "sin contestar" : "fallada"} · conceptos: {ex.conceptos.join(", ")}
                     </p>
@@ -205,11 +206,12 @@ export function BossRunner({
 
   if (!run) {
     return (
-      <section className="rounded-xl border-2 border-border-strong bg-surface p-6">
-        <p className="console-label flex items-center gap-2">
+      <section className="glow glow-life rounded-xl border border-life/40 bg-surface p-6 sm:p-7">
+        <p className="flex items-center gap-2 text-label font-medium text-danger">
           <Skull aria-hidden className="size-4" /> {isFinal ? "Jefe final de la materia" : "Jefe de la unidad"}
         </p>
         <h2 className="mt-2 text-3xl font-extrabold text-balance">{boss.nombre}</h2>
+        <LifeBar current={hardcore ? 1 : boss.vidas} max={hardcore ? 1 : boss.vidas} className="mt-4 h-2.5 max-w-sm" />
         <ul className="mt-4 grid gap-1 text-ink-2">
           <li>
             {total} preguntas en 3 oleadas (fácil → difícil){boss.preguntas.repaso_de?.length ? `, ${boss.preguntas.repaso_de.length} de unidades anteriores` : ""}.
@@ -217,7 +219,9 @@ export function BossRunner({
           <li>
             {hardcore ? 1 : boss.vidas} {hardcore || boss.vidas === 1 ? "vida" : "vidas"} · {fmt(boss.tiempo_segundos * 1000)} min en total · apruebas con {Math.round(boss.aprobado_minimo * 100)}%.
           </li>
-          <li>Recompensa: {boss.recompensa.xp} XP la primera vez e insignia «{boss.recompensa.insignia}».</li>
+          <li>
+            Recompensa: <span className="font-medium text-xp-text">{boss.recompensa.xp} XP</span> la primera vez e insignia «{boss.recompensa.insignia}».
+          </li>
           {ghost ? <li className="flex items-center gap-1.5"><Ghost aria-hidden className="size-4" /> Tu fantasma (mejor intento) correrá contigo.</li> : null}
         </ul>
         <label className="mt-5 flex items-center gap-3">
@@ -232,6 +236,7 @@ export function BossRunner({
         {cReady === false ? <p className="mt-4 text-sm text-warning">El runner de C no está disponible: las preguntas en C se omiten de esta pelea.</p> : null}
         <Button
           size="lg"
+          variant="cta"
           className="mt-6"
           disabled={cReady === null}
           onClick={() => {
@@ -257,13 +262,18 @@ export function BossRunner({
 
   return (
     <div className="grid gap-4">
-      <div className="sticky top-16 z-30 grid gap-2 rounded-lg border border-border-strong bg-surface/95 p-3 backdrop-blur sm:grid-cols-[auto_1fr_auto] sm:items-center sm:gap-5">
-        <Lives current={run.lives} max={run.plan.lives} />
+      <div className="glow glow-life sticky top-[calc(var(--header-h)+0.5rem)] z-30 grid gap-3 rounded-xl border border-life/40 bg-surface/95 p-3 backdrop-blur sm:grid-cols-[auto_1fr_auto] sm:items-center sm:gap-5 sm:p-4">
+        <div className="min-w-0">
+          <p className="flex items-center gap-1.5 truncate text-label font-semibold">
+            <Skull aria-hidden className="size-4 shrink-0 text-danger" /> {boss.nombre}
+          </p>
+          <Lives current={run.lives} max={run.plan.lives} />
+        </div>
         <div>
-          <p className="font-mono text-xs text-muted-foreground">
+          <p className="text-caption text-muted-foreground">
             Oleada {currentWave({ ...run, index: shownIndex })} de {run.plan.waves.length} · pregunta {Math.min(shownIndex + 1, run.queue.length)} de {run.queue.length}
           </p>
-          <div className="mt-1 h-2 overflow-hidden rounded-full bg-surface-3" role="progressbar" aria-label="Tus aciertos" aria-valuemin={0} aria-valuemax={run.queue.length} aria-valuenow={mine}>
+          <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-surface-3" role="progressbar" aria-label="Tus aciertos" aria-valuemin={0} aria-valuemax={run.queue.length} aria-valuenow={mine}>
             <div className="h-full bg-brand" style={{ width: `${(100 * mine) / run.queue.length}%` }} />
           </div>
           {ghostNow !== null ? (
@@ -283,7 +293,7 @@ export function BossRunner({
           exercise={ex}
           seed={shownIndex + 11}
           allowHints={!run.plan.hardcore}
-          header={q.review ? <span className="font-mono text-xs text-info">repaso de otra unidad</span> : null}
+          header={q.review ? <span className="text-caption text-info">repaso de otra unidad</span> : null}
           onAnswered={async (r) => {
             const t = Date.now();
             await recordAnswer(db, {

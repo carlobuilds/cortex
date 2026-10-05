@@ -1,8 +1,7 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
 import { GymHub } from "@/components/gym/gym-hub";
 import { BossRunner } from "@/components/study/boss-runner";
@@ -15,10 +14,12 @@ import { unitHref } from "@/lib/study";
 
 /**
  * Envoltorios de cliente de cada página de estudio: esperan base + catálogo (StudyGate) y montan
- * el runner que toca. `Esc` regresa a la unidad.
+ * el runner que toca. `Esc` regresa a la unidad. Las migas y "Salir" vienen del servidor (StudyFrame).
  */
 
+/** Esc regresa a `href` sin recargar la página (el worker de Pyodide y lo cargado sobreviven). */
 function useEscapeTo(href: string) {
+  const router = useRouter();
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape" || e.defaultPrevented) return;
@@ -26,21 +27,12 @@ function useEscapeTo(href: string) {
       const el = e.target as HTMLElement | null;
       if (el?.closest(".cm-editor") || el?.tagName === "INPUT" || el?.tagName === "TEXTAREA") return;
       if (document.querySelector("[role=alertdialog], [role=dialog]")) return;
-      window.location.assign(href);
+      e.preventDefault();
+      router.push(href);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [href]);
-}
-
-function Crumb({ href, children }: { href: string; children: React.ReactNode }) {
-  return (
-    <nav aria-label="Ruta" className="console-label mb-4">
-      <Link href={href} className="inline-flex items-center gap-1 hover:text-ink">
-        <ArrowLeft aria-hidden className="size-3.5" /> {children}
-      </Link>
-    </nav>
-  );
+  }, [href, router]);
 }
 
 export function SessionPageClient() {
@@ -99,7 +91,6 @@ function UnitStudy({ unitKey, kind }: { unitKey: string; kind: "practice" | "bos
         );
         return (
           <div>
-            <Crumb href={unitHref(unit)}>{unit.title}</Crumb>
             {kind === "practice" ? (
               <PracticeRunner db={ctx.db} catalog={ctx.catalog} profile={ctx.profile} unit={unit} doneActions={actions} />
             ) : kind === "boss" ? (
@@ -135,7 +126,6 @@ export function SingleExerciseClient({ exerciseId }: { exerciseId: string }) {
         if (!ex || !unit) return <p>Ejercicio no encontrado.</p>;
         return (
           <div>
-            <Crumb href={unitHref(unit)}>{unit.title}</Crumb>
             <SingleExercise db={ctx.db} catalog={ctx.catalog} profile={ctx.profile} exercise={ex} unit={unit} />
           </div>
         );
