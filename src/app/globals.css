@@ -270,6 +270,20 @@
   .lesson-prose > * + * {
     margin-top: 1.1em;
   }
+  /* Lección por pasos (ADR-020): cada paso es una <section> con el mismo ritmo de prosa. */
+  .lesson-step > * + * {
+    margin-top: 1.1em;
+  }
+  .lesson-step > h2:first-child {
+    margin-top: 0;
+  }
+  /* Al cambiar de paso el foco va al título (para lectores de pantalla); no es operable: sin anillo. */
+  .lesson-step > h2[tabindex="-1"]:focus {
+    outline: none;
+  }
+  .lesson-step:not([hidden]) ~ .lesson-step:not([hidden]) {
+    margin-top: 2.6em;
+  }
   .lesson-prose h2 {
     margin-top: 2.2em;
     font-size: 1.5rem;
@@ -503,6 +517,18 @@
   [data-frame="coral"] { box-shadow: 0 0 0 2px var(--life); }
   [data-frame="cian"] { box-shadow: 0 0 0 2px var(--info); }
   [data-frame="doble"] { box-shadow: 0 0 0 2px var(--brand), 0 0 0 4px var(--xp); }
+}
+
+/* Lección por pasos: con JS, antes de hidratar solo se ve el paso 1 (sin JS se ve todo). */
+@media (scripting: enabled) {
+  [data-lesson-steps]:not([data-ready]) > .lesson-step:not([data-step="0"]) {
+    display: none;
+  }
+}
+@media print {
+  .lesson-step[hidden] {
+    display: block !important;
+  }
 }
 
 /* Movimiento reducido: nada se anima ni se desplaza. */

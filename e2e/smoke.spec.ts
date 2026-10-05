@@ -97,7 +97,9 @@ test("2 - una lección carga con fórmulas y tablas", async ({ page }) => {
   expect(await page.locator(".katex").count()).toBeGreaterThan(10);
   await expect(page.locator(".katex-error")).toHaveCount(0);
   await expect(page.locator("article table")).toHaveCount(1);
-  // Desde la Fase 1, <Desvanecido> es interactivo: un campo por hueco.
+  // Desde la Fase 1, <Desvanecido> es interactivo: un campo por hueco. La lección va por pasos
+  // (ADR-020): con "Ver toda la lección" aparecen todos.
+  await page.getByRole("button", { name: /Ver toda la lección/ }).click();
   await expect(page.getByRole("textbox", { name: /^Hueco \d+$/ })).toHaveCount(2);
   await page.waitForLoadState("networkidle");
   expect(await page.evaluate(() => document.fonts.check("16px KaTeX_Main"))).toBe(true);
