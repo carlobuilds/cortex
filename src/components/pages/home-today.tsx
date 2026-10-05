@@ -9,7 +9,7 @@ import { LifeBar } from "@/components/hud/life-bar";
 import { missionTitle } from "@/components/study/daily-session";
 import { StudyGate, type StudyContext } from "@/components/study/study-gate";
 import { Button } from "@/components/ui/button";
-import { LoadingState, StatTile } from "@/components/ui/state";
+import { LoadingState, ProgressRing, StatTile } from "@/components/ui/state";
 import { findUnit } from "@/content/core/study-catalog";
 import { ensureToday } from "@/db/progress";
 import { CONFIG } from "@/engine/config";
@@ -31,33 +31,14 @@ const STEP_INFO: Record<RouteStepId, { label: string; icon: LucideIcon }> = {
 
 /** Anillo del día: pasos hechos de la sesión. */
 function SessionRing({ done, total }: { done: number; total: number }) {
-  const r = 52;
-  const c = 2 * Math.PI * r;
-  const p = total ? done / total : 0;
   return (
-    <div role="img" aria-label={`${done} de ${total} pasos de hoy hechos`} className="relative grid size-32 shrink-0 place-items-center sm:size-36">
-      <svg aria-hidden viewBox="0 0 120 120" className="absolute inset-0 -rotate-90">
-        <circle cx="60" cy="60" r={r} fill="none" strokeWidth="8" className="stroke-surface-3" />
-        <circle
-          cx="60"
-          cy="60"
-          r={r}
-          fill="none"
-          strokeWidth="8"
-          strokeLinecap="round"
-          strokeDasharray={c}
-          strokeDashoffset={c * (1 - p)}
-          className="stroke-brand motion-safe:transition-[stroke-dashoffset] motion-safe:duration-500"
-        />
-      </svg>
-      <div aria-hidden className="text-center">
-        <p className="font-mono text-3xl font-semibold tabular-nums">
-          {done}
-          <span className="text-muted-foreground">/{total}</span>
-        </p>
-        <p className="text-caption text-muted-foreground">pasos</p>
-      </div>
-    </div>
+    <ProgressRing value={total ? done / total : 0} label={`${done} de ${total} pasos de hoy hechos`} className="sm:size-36">
+      <p className="font-mono text-3xl font-semibold tabular-nums">
+        {done}
+        <span className="text-muted-foreground">/{total}</span>
+      </p>
+      <p className="text-caption text-muted-foreground">pasos</p>
+    </ProgressRing>
   );
 }
 

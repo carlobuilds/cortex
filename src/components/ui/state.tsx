@@ -105,3 +105,43 @@ export function StatTile({
 export function Kbd({ className, ...props }: React.ComponentProps<"kbd">) {
   return <kbd data-slot="kbd" className={cn("kbd [@media(pointer:coarse)]:hidden", className)} {...props} />;
 }
+
+/** Anillo de progreso (0–1) con contenido al centro. `label` es lo que oye el lector de pantalla. */
+export function ProgressRing({
+  value,
+  label,
+  tone = "brand",
+  className,
+  children,
+}: {
+  value: number;
+  label: string;
+  tone?: "brand" | "xp";
+  className?: string;
+  children?: React.ReactNode;
+}) {
+  const r = 52;
+  const c = 2 * Math.PI * r;
+  const p = Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 0;
+  return (
+    <div role="img" aria-label={label} className={cn("relative grid size-32 shrink-0 place-items-center", className)}>
+      <svg aria-hidden viewBox="0 0 120 120" className="absolute inset-0 -rotate-90">
+        <circle cx="60" cy="60" r={r} fill="none" strokeWidth="8" className="stroke-surface-3" />
+        <circle
+          cx="60"
+          cy="60"
+          r={r}
+          fill="none"
+          strokeWidth="8"
+          strokeLinecap="round"
+          strokeDasharray={c}
+          strokeDashoffset={c * (1 - p)}
+          className={cn(tone === "xp" ? "stroke-xp" : "stroke-brand", "motion-safe:transition-[stroke-dashoffset] motion-safe:duration-500")}
+        />
+      </svg>
+      <div aria-hidden className="text-center">
+        {children}
+      </div>
+    </div>
+  );
+}
