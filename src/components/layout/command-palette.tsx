@@ -114,11 +114,11 @@ export function CommandPalette() {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger className="tactile flex h-8 shrink-0 items-center gap-2 rounded-md border bg-surface-2 px-2 text-sm text-ink-2 hover:border-border-strong hover:text-ink sm:px-2.5">
+      <DialogTrigger className="tactile flex h-8 shrink-0 items-center gap-2 rounded-md border bg-surface-2 px-2 text-sm text-ink-2 hover:border-border-strong hover:text-ink xl:px-2.5">
         <Search aria-hidden className="size-4" />
-        <span className="hidden lg:inline">Buscar</span>
-        <span className="sr-only lg:hidden">Buscar</span>
-        <Kbd className="hidden lg:inline-grid">{shortcut}</Kbd>
+        <span className="hidden xl:inline">Buscar</span>
+        <span className="sr-only xl:hidden">Buscar</span>
+        <Kbd className="hidden xl:inline-grid">{shortcut}</Kbd>
       </DialogTrigger>
       <DialogContent showClose={false} aria-describedby={undefined} className="top-[12vh] translate-y-0 gap-0 overflow-hidden p-0 sm:max-w-xl">
         <DialogTitle className="sr-only">Buscar en Cortex</DialogTitle>

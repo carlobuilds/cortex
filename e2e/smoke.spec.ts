@@ -44,18 +44,19 @@ test("1 - el inicio: plan 2020, HUD del perfil, teclado y movimiento reducido", 
   const errors = collectErrors(page);
   await page.goto("/");
 
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Tu carrera");
-  await expect(page.locator("[data-has-content]")).toHaveCount(45);
-  await expect(page.locator('[data-has-content="true"]')).toHaveCount(2);
+  // El inicio es "Hoy" (ADR-020); el plan completo vive en /materias.
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Tu sesión de hoy");
+  await expect(page.locator("[data-has-content]")).toHaveCount(0);
 
   // El HUD lee el perfil de IndexedDB (recién creado: nivel 1, 0 XP, racha en 0).
   const hud = page.getByRole("banner");
   await expect(hud.getByRole("img", { name: "Nivel 1" })).toBeVisible();
   await expect(hud.getByText("0 XP")).toBeVisible();
   await expect(hud.getByRole("img", { name: "Racha: empieza hoy" })).toBeVisible();
-  // El prefijo decorativo "// " de las etiquetas no entra en los nombres accesibles.
-  await expect(page.getByRole("heading", { level: 2, name: /^Mapa del plan/ })).toBeVisible();
+  // Ninguna etiqueta arrastra el viejo prefijo "// " en los nombres accesibles.
   await expect(page.getByRole("heading", { name: /^\/\// })).toHaveCount(0);
+  // Navegación: la página actual se marca con aria-current.
+  await expect(page.getByRole("navigation", { name: "Principal" }).getByRole("link", { name: "Hoy" })).toHaveAttribute("aria-current", "page");
   expect(await page.evaluate(async () => (await indexedDB.databases()).map((d) => d.name))).toContain("cortex");
 
   // Teclado primero: el primer Tab va al salto al contenido y el foco se ve.
@@ -69,6 +70,13 @@ test("1 - el inicio: plan 2020, HUD del perfil, teclado y movimiento reducido", 
   const duration = await page.locator(".tactile").first().evaluate((el) => parseFloat(getComputedStyle(el).transitionDuration));
   expect(duration).toBeLessThanOrEqual(0.001);
   await page.emulateMedia({ reducedMotion: "no-preference" });
+
+  // El plan completo: 45 entradas, 2 con contenido.
+  await page.goto("/materias");
+  await expect(page.getByRole("heading", { level: 2, name: /^Mapa del plan/ })).toBeVisible();
+  await expect(page.locator("[data-has-content]")).toHaveCount(45);
+  await expect(page.locator('[data-has-content="true"]')).toHaveCount(2);
+  await expect(page.getByRole("navigation", { name: "Principal" }).getByRole("link", { name: "Materias" })).toHaveAttribute("aria-current", "page");
 
   // Recorrido solo con teclado: inicio → materia → lección.
   await page.goto("/");
@@ -132,7 +140,7 @@ const hudIntrusion = (page: Page) =>
 test("3 - en un celular no hay desborde horizontal (320 y 375 px)", async ({ page }) => {
   for (const width of [320, 375]) {
     await page.setViewportSize({ width, height: 800 });
-    for (const url of ["/", "/materias/calculo", "/materias/calculo/01-limites", "/materias/programacion/01-variables-y-tipos", "/ajustes", "/estilo"]) {
+    for (const url of ["/", "/materias", "/materias/calculo", "/materias/calculo/01-limites", "/materias/programacion/01-variables-y-tipos", "/ajustes", "/estilo"]) {
       await page.goto(url);
       expect(await noHorizontalOverflow(page), `${url} a ${width} px`).toBeLessThanOrEqual(0);
     }

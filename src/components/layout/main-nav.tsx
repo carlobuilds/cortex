@@ -14,19 +14,19 @@ function activeProps(pathname: string, href: string) {
   return { "aria-current": match === "page" ? ("page" as const) : undefined, "data-active": match ? "" : undefined };
 }
 
-/** Navegación de escritorio (md+). En las rutas de foco no se dibuja: ahí mandan las migas y Salir. */
+/** Navegación de escritorio (lg+; en tablets manda la barra inferior). En las rutas de foco no se dibuja: ahí mandan las migas y Salir. */
 export function DesktopNav() {
   const pathname = usePathname();
   if (isFocusRoute(pathname)) return null;
   const moreActive = MORE_NAV.some((i) => navMatch(pathname, i.href));
   return (
-    <nav aria-label="Principal" className="hidden items-center gap-0.5 text-sm md:flex">
+    <nav aria-label="Principal" className="hidden items-center gap-0.5 text-sm lg:flex">
       {PRIMARY_NAV.map((item) => (
         <Link
           key={item.href}
           href={item.href}
           {...activeProps(pathname, item.href)}
-          className="rounded-md px-3 py-1.5 font-medium text-ink-2 hover:bg-surface-2 hover:text-ink data-[active]:bg-brand-soft data-[active]:text-brand"
+          className="rounded-md px-2.5 py-1.5 font-medium text-ink-2 hover:bg-surface-2 hover:text-ink data-[active]:bg-brand-soft data-[active]:text-brand"
         >
           {item.label}
         </Link>
@@ -34,7 +34,7 @@ export function DesktopNav() {
       <DropdownMenu>
         <DropdownMenuTrigger
           data-active={moreActive ? "" : undefined}
-          className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 font-medium text-ink-2 hover:bg-surface-2 hover:text-ink data-[active]:bg-brand-soft data-[active]:text-brand"
+          className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 font-medium text-ink-2 hover:bg-surface-2 hover:text-ink data-[active]:bg-brand-soft data-[active]:text-brand"
         >
           Más <ChevronDown aria-hidden className="size-3.5" />
         </DropdownMenuTrigger>
@@ -68,7 +68,7 @@ function BottomTab({ item, pathname }: { item: NavItem; pathname: string }) {
 }
 
 /**
- * Barra inferior del celular (< md): 4 destinos al alcance del pulgar + "Más" en una hoja.
+ * Barra inferior del celular y la tablet (< lg): 4 destinos al alcance del pulgar + "Más" en una hoja.
  * Deja su propio espacio al final de la página para no tapar el contenido.
  */
 export function BottomBar() {
@@ -77,10 +77,10 @@ export function BottomBar() {
   const moreActive = BOTTOM_MORE.some((i) => navMatch(pathname, i.href));
   return (
     <>
-      <div aria-hidden className="h-[calc(var(--bottom-bar-h)+env(safe-area-inset-bottom))] md:hidden" />
+      <div aria-hidden className="h-[calc(var(--bottom-bar-h)+env(safe-area-inset-bottom))] lg:hidden" />
       <nav
         aria-label="Principal"
-        className="fixed inset-x-0 bottom-0 z-40 border-t bg-[color-mix(in_srgb,var(--surface)_92%,transparent)] pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 border-t bg-[color-mix(in_srgb,var(--surface)_92%,transparent)] pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
       >
         <div className="mx-auto flex h-[var(--bottom-bar-h)] max-w-md items-stretch px-2 py-1.5">
           {BOTTOM_NAV.map((item) => (
