@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
-import { VisualStage } from "@/components/visuals/function-visuals";
+import { FunctionStage } from "@/components/visuals/function-visuals";
+import { GraphVisual } from "@/components/visuals/graph-visual";
+import { TruthTableVisual } from "@/components/visuals/truth-table-visual";
 import { splitBlanks } from "@/content/core/blanks";
-import { describeVisual, resolveVisual, type VisualProps, VISUALS } from "@/content/core/visuals";
+import { describeVisual, type ResolvedVisual, resolveVisual, type VisualProps, VISUALS } from "@/content/core/visuals";
 import { InlineMarkdown } from "./inline-markdown";
 import { FadedInteractive, PredictInteractive } from "./lesson-interactive";
 
@@ -101,9 +103,16 @@ export function FeynmanChallenge({ children }: { children?: ReactNode }) {
   );
 }
 
+/** El componente de cliente de cada visual. Se elige aquí, en el servidor, y solo recibe textos y números. */
+function VisualStage({ visual }: { visual: ResolvedVisual }) {
+  if (visual.id === "tabla-verdad") return <TruthTableVisual initial={visual.formula} />;
+  if (visual.id === "grafo") return <GraphVisual graph={visual.graph} />;
+  return <FunctionStage visual={visual} />;
+}
+
 /**
  * `<Visual id … />`: el servidor valida los parámetros y escribe la descripción en texto (se lee
- * aunque la gráfica aún no cargue); el dibujo y sus controles viven en `components/visuals`.
+ * aunque el dibujo aún no cargue); el dibujo y sus controles viven en `components/visuals`.
  */
 export function VisualBlock(props: VisualProps) {
   const resolved = resolveVisual(props);

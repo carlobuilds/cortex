@@ -444,8 +444,11 @@
     text-align: right;
     color: var(--ink);
   }
+  /* Si las opciones no caben en una línea (celular), bajan a la siguiente en vez de desbordar. */
   .visual-control > [data-slot="toggle-group"] {
     justify-self: start;
+    flex-wrap: wrap;
+    max-width: 100%;
   }
   .visual-control > input[type="range"] {
     width: 100%;

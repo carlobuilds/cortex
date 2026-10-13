@@ -20,7 +20,7 @@ export interface ComponentSpec {
  * Parámetros de `<Visual>` además de `id` (docs/05). Todos son texto: qué usa cada visual y cómo se
  * interpretan lo decide `visuals.ts`. Viven aquí, sin imports, porque este archivo llega al navegador.
  */
-export const VISUAL_PARAMS = ["f", "dominio", "rango", "a", "n", "titulo"] as const;
+export const VISUAL_PARAMS = ["f", "dominio", "rango", "a", "n", "formula", "vertices", "aristas", "dirigido", "titulo"] as const;
 export type VisualParam = (typeof VISUAL_PARAMS)[number];
 
 const VISUAL_PROPS = Object.fromEntries(VISUAL_PARAMS.map((p) => [p, { type: "string" }])) as Record<VisualParam, PropSpec>;

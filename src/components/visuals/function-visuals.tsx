@@ -2,7 +2,7 @@
 
 import { type ReactNode, useId, useMemo, useState } from "react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { formatNumber, RIEMANN_DEFAULT_N, RIEMANN_MAX_N, type ResolvedVisual } from "@/content/core/visuals";
+import { formatNumber, type FunctionVisual, RIEMANN_DEFAULT_N, RIEMANN_MAX_N } from "@/content/core/visuals";
 import { compileExpression } from "@/engine/answers/math";
 import {
   clampPieces,
@@ -38,7 +38,7 @@ interface Scene {
   readonly y: Interval;
 }
 
-function useScene(visual: ResolvedVisual): Scene | null {
+function useScene(visual: FunctionVisual): Scene | null {
   return useMemo(() => {
     try {
       const compiled = compileExpression(visual.f, ["x"]);
@@ -264,8 +264,8 @@ function RiemannVisual({ scene, initial }: { scene: Scene; initial: number }) {
   );
 }
 
-/** Dibuja el visual que pide la lección. El servidor le pasa el visual resuelto (solo textos y números). */
-export function VisualStage({ visual }: { visual: ResolvedVisual }) {
+/** Dibuja un visual de función. El servidor le pasa el visual resuelto (solo textos y números). */
+export function FunctionStage({ visual }: { visual: FunctionVisual }) {
   const scene = useScene(visual);
   if (!scene) return <Unavailable />;
   switch (visual.id) {

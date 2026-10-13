@@ -4,10 +4,17 @@ import { toTex } from "@/engine/answers/math";
 import { LESSON_API, VISUAL_PARAMS } from "./lesson-api";
 import { describeVisual, formatNumber, resolveVisual, validateVisual, VISUAL_IDS, VISUALS } from "./visuals";
 
-const ok = (props: Parameters<typeof resolveVisual>[0]) => {
+const resolved = (props: Parameters<typeof resolveVisual>[0]) => {
   const r = resolveVisual(props);
   if (!r.ok) throw new Error(r.problems.join("; "));
   return r.visual;
+};
+
+/** Un visual de función ya resuelto (los de lógica y grafos tienen otra forma). */
+const ok = (props: Parameters<typeof resolveVisual>[0]) => {
+  const v = resolved(props);
+  if (v.id === "tabla-verdad" || v.id === "grafo") throw new Error(`«${v.id}» no es un visual de función`);
+  return v;
 };
 
 describe("especificación de los visuales", () => {
@@ -46,7 +53,20 @@ describe("especificación de los visuales", () => {
   });
 
   it.each([
-    [{ id: "grafico", f: "x", dominio: "0, 1" }, /no existe el visual «grafico» \(usa: grafica, limite, secante-tangente, riemann\)/],
+    [{ id: "grafico", f: "x", dominio: "0, 1" }, /no existe el visual «grafico» \(usa: grafica, limite, secante-tangente, riemann, tabla-verdad, grafo\)/],
+    [{ id: "tabla-verdad" }, /necesita 'formula'/],
+    [{ id: "tabla-verdad", formula: "p ∧", f: "x" }, /no usa 'f'/],
+    [{ id: "tabla-verdad", formula: "p ∧" }, /formula: La fórmula termina antes de tiempo/],
+    [{ id: "tabla-verdad", formula: "p q" }, /formula: Falta un conector antes de «q»/],
+    [{ id: "grafo", vertices: "a, b" }, /necesita 'aristas'/],
+    [{ id: "grafo", vertices: "a", aristas: "" }, /vertices: deben ser de 2 a 12/],
+    [{ id: "grafo", vertices: "a, b, a", aristas: "a-b" }, /vertices: hay nombres repetidos/],
+    [{ id: "grafo", vertices: "a, nodo, c", aristas: "a-c" }, /vertices: «nodo» no es un nombre válido/],
+    [{ id: "grafo", vertices: "a, b", aristas: "a-z" }, /aristas: «a-z» usa el vértice «z»/],
+    [{ id: "grafo", vertices: "a, b", aristas: "a-a" }, /une un vértice consigo mismo/],
+    [{ id: "grafo", vertices: "a, b", aristas: "ab" }, /aristas: «ab» debe ser dos vértices unidos por un guion/],
+    [{ id: "grafo", vertices: "a, b", aristas: "a-b, b-a" }, /aristas: «b-a» está repetida/],
+    [{ id: "grafo", vertices: "a, b", aristas: "a-b", dirigido: "quizá" }, /dirigido debe ser "si" o "no"/],
     [{ id: "grafica", f: "x" }, /necesita 'dominio'/],
     [{ id: "limite", f: "x", dominio: "0, 2" }, /necesita 'a'/],
     [{ id: "grafica", f: "x", dominio: "0, 1", n: "3" }, /no usa 'n'/],
@@ -70,6 +90,23 @@ describe("especificación de los visuales", () => {
     [{ id: "riemann", f: "1/x", dominio: "0, 2" }, /definida en todo el dominio/],
   ] as const)("rechaza %j", (props, reason) => {
     expect(validateVisual(props).join("; ")).toMatch(reason);
+  });
+
+  it("tabla de verdad: la fórmula se guarda ya escrita con símbolos", () => {
+    expect(resolved({ id: "tabla-verdad", formula: "(p -> q) & ~q" })).toEqual({ id: "tabla-verdad", formula: "(p → q) ∧ ¬q", title: null });
+    expect(resolved({ id: "tabla-verdad", formula: "p v q", titulo: "Disyunción" })).toEqual({ id: "tabla-verdad", formula: "p ∨ q", title: "Disyunción" });
+  });
+
+  it("grafo: vértices, aristas y si es dirigido", () => {
+    expect(resolved({ id: "grafo", vertices: "a, b, c", aristas: "a-b, b-c" })).toEqual({
+      id: "grafo",
+      graph: { vertices: ["a", "b", "c"], edges: [["a", "b"], ["b", "c"]], directed: false },
+      title: null,
+    });
+    // En un grafo dirigido, a→b y b→a son aristas distintas.
+    const directed = resolved({ id: "grafo", vertices: "a, b", aristas: "a-b, b-a", dirigido: "sí" });
+    expect(directed).toMatchObject({ graph: { directed: true, edges: [["a", "b"], ["b", "a"]] } });
+    expect(resolved({ id: "grafo", vertices: "v1, v2", aristas: "" })).toMatchObject({ graph: { edges: [] } });
   });
 
   it("en un límite la función puede no existir en `a` (es el caso interesante)", () => {
@@ -97,6 +134,24 @@ describe("texto de los visuales", () => {
     expect(describeVisual(ok({ id: "limite", f: "(x^2-9)/(x-3)", a: "3", dominio: "0, 6" }))).toContain("cuando $x$ se acerca a $3$");
     expect(describeVisual(ok({ id: "secante-tangente", f: "x^2", a: "1", dominio: "-1, 3" }))).toContain("entre $x = 1$ y $x = 1 + h$");
     expect(describeVisual(ok({ id: "riemann", f: "x^2", dominio: "0, 2" }))).toContain("entre $x = 0$ y $x = 2$");
+  });
+
+  it("la descripción de lógica y de grafos se dibuja en KaTeX estricto", () => {
+    const texts = [
+      describeVisual(resolved({ id: "tabla-verdad", formula: "(p -> q) & ~q" })),
+      describeVisual(resolved({ id: "grafo", vertices: "a, b, c", aristas: "a-b, b-c" })),
+      describeVisual(resolved({ id: "grafo", vertices: "a, b", aristas: "a-b", dirigido: "si" })),
+      describeVisual(resolved({ id: "grafo", vertices: "a, b", aristas: "" })),
+    ];
+    expect(texts[0]).toBe("Tabla de verdad de $(p \\to q) \\land \\neg q$. Puedes cambiar la fórmula y ver cómo cambia la tabla.");
+    expect(texts[1]).toBe("Grafo con vértices $a$, $b$, $c$ y aristas $\\{a, b\\}$, $\\{b, c\\}$.");
+    expect(texts[2]).toBe("Grafo dirigido con vértices $a$, $b$ y aristas $(a, b)$.");
+    expect(texts[3]).toBe("Grafo con vértices $a$, $b$ y sin aristas.");
+    for (const text of texts) {
+      for (const [, formula] of text.matchAll(/\$([^$]+)\$/g)) {
+        expect(() => katex.renderToString(formula ?? "", { throwOnError: true, strict: "error" }), formula).not.toThrow();
+      }
+    }
   });
 
   it.each([

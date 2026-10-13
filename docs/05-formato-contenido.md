@@ -66,7 +66,7 @@ Matemáticas con `$...$` y `$$...$$` (KaTeX). Una fórmula que KaTeX no puede di
 
 ### Visuales
 
-Desde la Fase 3 `<Visual>` dibuja una gráfica interactiva (Mafs, ADR-021). Todos los parámetros son **texto**:
+Desde la Fase 3 `<Visual>` dibuja un visual interactivo: gráficas de funciones (con Mafs, ADR-021), tablas de verdad y grafos. Todos los parámetros son **texto**:
 
 ```mdx
 <Visual id="limite" f="(x^2-9)/(x-3)" a="3" dominio="0, 6" />
@@ -78,17 +78,22 @@ Desde la Fase 3 `<Visual>` dibuja una gráfica interactiva (Mafs, ADR-021). Todo
 | `limite` | `f`, `a`, `dominio` | `rango`, `titulo` | Dos puntos se acercan a `a` por cada lado; al llegar cerca dice a qué valor tiende cada uno |
 | `secante-tangente` | `f`, `a`, `dominio` | `rango`, `titulo` | La secante entre `a` y `a + h`; al encoger `h` aparece la tangente y su pendiente |
 | `riemann` | `f`, `dominio` | `n`, `rango`, `titulo` | Rectángulos bajo la curva; se elige `n` y dónde se toma la altura, y compara la suma con la integral |
+| `tabla-verdad` | `formula` | `titulo` | La tabla de verdad de la fórmula, con columnas intermedias; la fórmula se puede editar y dice si es tautología, contradicción o contingencia |
+| `grafo` | `vertices`, `aristas` | `dirigido`, `titulo` | El grafo dibujado en círculo; al elegir un vértice resalta sus aristas y lee su grado y sus vecinos |
 
 - **`f`**: la función, con `x` como única variable y la misma sintaxis que las respuestas simbólicas (`x^2`, `sqrt(x)`, `sin(x)`, `ln(x)`, `abs(x)`, `floor(x)`, `pi`, `e`).
 - **`dominio`** y **`rango`**: `"min, max"` con `min < max`. La coma separa, así que los decimales van con punto (`"-1.5, 1.5"`); se aceptan expresiones (`"0, 2*pi"`). Sin `rango`, la vista vertical se ajusta a la curva, incluye el eje x y recorta lo que se dispara junto a una asíntota.
 - **`a`**: un número dentro del dominio, sin tocar los extremos. En `limite` la función puede no existir en `a` (es el caso interesante); en `secante-tangente` debe existir.
 - **`n`** (solo `riemann`): entero de 1 a 100; por defecto 4. `f` debe estar definida en todo el dominio.
+- **`formula`** (solo `tabla-verdad`): variables de una letra minúscula y los conectores `¬ ∧ ∨ ⊕ → ↔`. También se aceptan `~ & | -> <->` y las palabras `no`, `y`, `o`. Precedencia: `¬`, luego `∧`, luego `∨` y `⊕`, luego `→`, luego `↔`; `→` asocia a la derecha. Máximo 6 variables. Las constantes son `V` y `F`. La app la muestra con paréntesis donde se mezclan conectores: `(p → q) ∧ ¬q`.
+- **`vertices`** y **`aristas`** (solo `grafo`): `vertices="a, b, c"` (de 2 a 12 nombres de 1 a 3 letras o cifras) y `aristas="a-b, b-c"`. Sin lazos ni aristas repetidas. Con `dirigido="si"`, `a-b` va de `a` a `b` y `b-a` es otra arista.
 - **`titulo`**: título opcional del bloque. La frase que describe el visual se escribe sola (función y dominio) y es lo que lee un lector de pantalla.
 
 Reglas de uso:
 - Un visual va donde **enseña algo** (docs/04: doble codificación, no decoración) y siempre **antes** del cierre (`<Conexion>`, `<Resumen>`, `<Feynman>`).
 - `limite` y `secante-tangente` muestran una conclusión numérica con "≈" (a qué valor se acerca, cuál es la pendiente). Sale de evaluar `f`, no de un texto escrito a mano: al agregar uno, ábrelo en la app y comprueba que la conclusión coincide con lo que afirma la lección.
-- `pnpm content:check` rechaza, con la línea: un `id` que no existe, parámetros que faltan o que ese visual no usa, una `f` que no se puede interpretar o que usa otra variable, y números fuera de rango.
+- En una tabla de verdad, el orden de las filas y los símbolos (V/F o 1/0) salen de `src/engine/logic/convention.ts`, no de la lección.
+- `pnpm content:check` rechaza, con la línea: un `id` que no existe, parámetros que faltan o que ese visual no usa, una `f` que no se puede interpretar o que usa otra variable, números fuera de rango, una fórmula mal escrita y un grafo con vértices o aristas inválidos.
 
 ### Cómo escribir dentro de MDX (escapes)
 

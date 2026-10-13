@@ -231,6 +231,15 @@ export default function StylePage() {
         <div className="lesson-prose">
           <VisualBlock id="grafica" f="1/x" dominio="-3, 3" rango="-6, 6" titulo="Una asíntota vertical" />
         </div>
+        <div className="grid gap-4 xl:grid-cols-2">
+          <div className="theme-dark lesson-prose rounded-xl border bg-background p-4 text-foreground sm:p-5">
+            <VisualBlock id="tabla-verdad" formula="(p → q) ∧ ¬q" />
+          </div>
+          <div className="theme-light lesson-prose rounded-xl border bg-background p-4 text-foreground sm:p-5">
+            <VisualBlock id="grafo" vertices="a, b, c, d, e" aristas="a-b, b-c, c-d, d-e, e-a, a-c" />
+            <VisualBlock id="grafo" vertices="a, b, c" aristas="a-b, b-c, c-a" dirigido="si" titulo="Un ciclo dirigido" />
+          </div>
+        </div>
       </Section>
 
       <Section id="formulas" title="Entrada de fórmulas (MathLive) y verificador simbólico">

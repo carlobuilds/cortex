@@ -38,7 +38,8 @@ cortex/
     content/rich-text.ts  texto de ejercicios (Markdown + KaTeX) · core/study-catalog.ts (catálogo del navegador)
     components/      ui (shadcn/ui) · hud · lessons · visuals · subjects · settings · layout · study · gym · pages
     engine/          config, xp, niveles, racha, fsrs, misiones, cofre, liga, récords, logros, jefes, flujo,
-                     maestría, sesión, answers/ (verificadores), plot (geometría de los visuales), gym/ (puro TS, sin React)
+                     maestría, sesión, answers/ (verificadores), plot (geometría de los visuales), logic/ (fórmulas y tablas
+                     de verdad), graph (grafos), gym/ (puro TS, sin React)
     db/              (además) migrations.ts (v1→v2) · progress.ts (reglas del motor en una transacción)
     runners/         python-worker.mjs + python-client.ts (Pyodide local), c-runner.ts (servidor) + c-client.ts
     app/api/run-c/   ruta local del runner de C (ADR-005)

@@ -1,11 +1,13 @@
 import { compileExpression, evaluateNumber, ExpressionError, toTex } from "@/engine/answers/math";
+import type { Edge, Graph } from "@/engine/graph";
+import { FormulaError, formatFormula, formulaToTex, parseFormula } from "@/engine/logic/formula";
 import { safeValue, type Interval } from "@/engine/plot";
 import { VISUAL_PARAMS, type VisualParam } from "./lesson-api";
 
 /**
  * Qué visuales existen y qué parámetros lleva cada uno (docs/05). Es dato puro: la guardia del
  * compilador valida con esto cada `<Visual>` (con su línea), y el componente recibe el visual ya
- * resuelto a números, así que en el navegador no queda nada por validar.
+ * resuelto, así que en el navegador no queda nada por validar.
  */
 
 interface VisualSpec {
@@ -20,6 +22,8 @@ export const VISUALS = {
   limite: { label: "Acércate al límite", required: ["f", "a", "dominio"], optional: ["rango", "titulo"] },
   "secante-tangente": { label: "De la secante a la tangente", required: ["f", "a", "dominio"], optional: ["rango", "titulo"] },
   riemann: { label: "Área con rectángulos", required: ["f", "dominio"], optional: ["n", "rango", "titulo"] },
+  "tabla-verdad": { label: "Tabla de verdad", required: ["formula"], optional: ["titulo"] },
+  grafo: { label: "Grafo", required: ["vertices", "aristas"], optional: ["dirigido", "titulo"] },
 } as const satisfies Record<string, VisualSpec>;
 
 export type VisualId = keyof typeof VISUALS;
@@ -28,9 +32,11 @@ export const VISUAL_IDS = Object.keys(VISUALS) as VisualId[];
 /** Lo que el autor escribe: `id` y parámetros, todos texto. */
 export type VisualProps = Readonly<Partial<Record<VisualParam | "id", string>>>;
 
-/** El visual listo para dibujar. Solo textos y números: cruza del servidor al navegador tal cual. */
-export interface ResolvedVisual {
-  readonly id: VisualId;
+export type FunctionVisualId = "grafica" | "limite" | "secante-tangente" | "riemann";
+
+/** Visual de una función de x, listo para dibujar. Solo textos y números: cruza del servidor al navegador tal cual. */
+export interface FunctionVisual {
+  readonly id: FunctionVisualId;
   readonly f: string;
   readonly domain: Interval;
   /** Rango vertical fijo, o `null` para ajustarlo a la curva. */
@@ -40,8 +46,24 @@ export interface ResolvedVisual {
   readonly title: string | null;
 }
 
+export interface TruthTableSpec {
+  readonly id: "tabla-verdad";
+  /** La fórmula ya leída y vuelta a escribir con símbolos (`(p → q) ∧ ¬q`). */
+  readonly formula: string;
+  readonly title: string | null;
+}
+
+export interface GraphSpec {
+  readonly id: "grafo";
+  readonly graph: Graph;
+  readonly title: string | null;
+}
+
+export type ResolvedVisual = FunctionVisual | TruthTableSpec | GraphSpec;
+
 export const RIEMANN_DEFAULT_N = 4;
 export const RIEMANN_MAX_N = 100;
+export const GRAPH_MAX_VERTICES = 12;
 
 const isVisualId = (id: string): id is VisualId => Object.hasOwn(VISUALS, id);
 
@@ -73,21 +95,11 @@ function parseInterval(text: string): Interval | null {
   return lo !== null && lo !== undefined && hi !== null && hi !== undefined && lo < hi ? [lo, hi] : null;
 }
 
-export type VisualResult = { readonly ok: true; readonly visual: ResolvedVisual } | { readonly ok: false; readonly problems: readonly string[] };
+type Resolved<T> = { readonly ok: true; readonly visual: T } | { readonly ok: false; readonly problems: readonly string[] };
+export type VisualResult = Resolved<ResolvedVisual>;
 
-/** Valida los parámetros de un `<Visual>` y los convierte a números. Los problemas van en español, para el autor. */
-export function resolveVisual(props: VisualProps): VisualResult {
-  const id = props.id ?? "";
-  if (!isVisualId(id)) return { ok: false, problems: [`no existe el visual «${id}» (usa: ${VISUAL_IDS.join(", ")})`] };
-  const spec: VisualSpec = VISUALS[id];
+function resolveFunction(id: FunctionVisualId, props: VisualProps): Resolved<FunctionVisual> {
   const problems: string[] = [];
-
-  for (const p of spec.required) if (props[p] === undefined) problems.push(`el visual «${id}» necesita '${p}'`);
-  for (const p of VISUAL_PARAMS) {
-    if (props[p] !== undefined && !spec.required.includes(p) && !spec.optional.includes(p)) problems.push(`el visual «${id}» no usa '${p}'`);
-  }
-  if (problems.length) return { ok: false, problems };
-
   const f = props.f ?? "";
   let evaluate: ((x: number) => number) | null = null;
   try {
@@ -135,6 +147,76 @@ export function resolveVisual(props: VisualProps): VisualResult {
   return { ok: true, visual: { id, f, domain, range, a, n: id === "riemann" ? (n ?? RIEMANN_DEFAULT_N) : n, title: props.titulo ?? null } };
 }
 
+function resolveTruthTable(props: VisualProps): Resolved<TruthTableSpec> {
+  try {
+    return { ok: true, visual: { id: "tabla-verdad", formula: formatFormula(parseFormula(props.formula ?? "")), title: props.titulo ?? null } };
+  } catch (e) {
+    return { ok: false, problems: [`formula: ${e instanceof FormulaError ? e.message : "no entendí la fórmula"}`] };
+  }
+}
+
+const VERTEX = /^[A-Za-z0-9]{1,3}$/;
+const items = (text: string) => text.split(",").map((s) => s.trim()).filter(Boolean);
+
+function resolveGraph(props: VisualProps): Resolved<GraphSpec> {
+  const problems: string[] = [];
+  const vertices = items(props.vertices ?? "");
+  const bad = vertices.find((v) => !VERTEX.test(v));
+  if (bad !== undefined) problems.push(`vertices: «${bad}» no es un nombre válido (de 1 a 3 letras o cifras, separados por comas)`);
+  if (new Set(vertices).size !== vertices.length) problems.push("vertices: hay nombres repetidos");
+  if (vertices.length < 2 || vertices.length > GRAPH_MAX_VERTICES) problems.push(`vertices: deben ser de 2 a ${GRAPH_MAX_VERTICES}`);
+
+  let directed = false;
+  if (props.dirigido !== undefined) {
+    const value = props.dirigido.trim().toLowerCase();
+    if (value === "si" || value === "sí") directed = true;
+    else if (value !== "no") problems.push(`dirigido debe ser "si" o "no"`);
+  }
+
+  const edges: Edge[] = [];
+  const seen = new Set<string>();
+  for (const text of items(props.aristas ?? "")) {
+    const ends = text.split("-").map((s) => s.trim());
+    const [from, to] = ends;
+    if (ends.length !== 2 || !from || !to) {
+      problems.push(`aristas: «${text}» debe ser dos vértices unidos por un guion (p. ej. "a-b")`);
+      continue;
+    }
+    const unknown = [from, to].find((v) => !vertices.includes(v));
+    if (unknown !== undefined) {
+      problems.push(`aristas: «${text}» usa el vértice «${unknown}», que no está en vertices`);
+      continue;
+    }
+    if (from === to) {
+      problems.push(`aristas: «${text}» une un vértice consigo mismo; los lazos no se dibujan`);
+      continue;
+    }
+    const key = directed ? `${from}>${to}` : [from, to].sort().join("-");
+    if (seen.has(key)) problems.push(`aristas: «${text}» está repetida`);
+    seen.add(key);
+    edges.push([from, to]);
+  }
+
+  if (problems.length) return { ok: false, problems };
+  return { ok: true, visual: { id: "grafo", graph: { vertices, edges, directed }, title: props.titulo ?? null } };
+}
+
+/** Valida los parámetros de un `<Visual>` y los deja listos para dibujar. Los problemas van en español, para el autor. */
+export function resolveVisual(props: VisualProps): VisualResult {
+  const id = props.id ?? "";
+  if (!isVisualId(id)) return { ok: false, problems: [`no existe el visual «${id}» (usa: ${VISUAL_IDS.join(", ")})`] };
+  const spec: VisualSpec = VISUALS[id];
+  const problems: string[] = [];
+  for (const p of spec.required) if (props[p] === undefined) problems.push(`el visual «${id}» necesita '${p}'`);
+  for (const p of VISUAL_PARAMS) {
+    if (props[p] !== undefined && !spec.required.includes(p) && !spec.optional.includes(p)) problems.push(`el visual «${id}» no usa '${p}'`);
+  }
+  if (problems.length) return { ok: false, problems };
+  if (id === "tabla-verdad") return resolveTruthTable(props);
+  if (id === "grafo") return resolveGraph(props);
+  return resolveFunction(id, props);
+}
+
 export function validateVisual(props: VisualProps): readonly string[] {
   const result = resolveVisual(props);
   return result.ok ? [] : result.problems;
@@ -152,9 +234,17 @@ const tex = (value: number) => formatNumber(value).replace("−", "-");
 
 /**
  * Descripción en una frase (Markdown con fórmulas), dibujada en el servidor: dice qué muestra el
- * visual aunque la gráfica todavía no haya cargado, y es lo que lee un lector de pantalla.
+ * visual aunque el dibujo todavía no haya cargado, y es lo que lee un lector de pantalla.
  */
 export function describeVisual(v: ResolvedVisual): string {
+  if (v.id === "tabla-verdad") return `Tabla de verdad de $${formulaToTex(parseFormula(v.formula))}$. Puedes cambiar la fórmula y ver cómo cambia la tabla.`;
+  if (v.id === "grafo") {
+    const { vertices, edges, directed } = v.graph;
+    const names = vertices.map((name) => `$${name}$`).join(", ");
+    // Notación de conjuntos: una arista sin dirección es un par sin orden, {a, b}; con dirección, un par ordenado, (a, b).
+    const lines = edges.map(([from, to]) => (directed ? `$(${from}, ${to})$` : `$\\{${from}, ${to}\\}$`)).join(", ");
+    return `Grafo ${directed ? "dirigido " : ""}con vértices ${names}${edges.length ? ` y aristas ${lines}` : " y sin aristas"}.`;
+  }
   const f = `$f(x) = ${toTex(v.f, ["x"])}$`;
   const [lo, hi] = v.domain;
   const between = `entre $x = ${tex(lo)}$ y $x = ${tex(hi)}$`;

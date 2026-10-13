@@ -195,6 +195,37 @@ describe("guardia de lecciones · casos de la revisión adversarial", () => {
     expect(html).toContain('role="status"');
   });
 
+  it("<Visual>: la tabla de verdad y el grafo llegan dibujados desde el servidor", () => {
+    const body = [
+      '<Visual id="tabla-verdad" formula="(p -> q) & ~q" />',
+      '<Visual id="grafo" vertices="a, b, c, d" aristas="a-b, b-c, c-d, d-a, a-c" />',
+      '<Visual id="grafo" vertices="a, b, c" aristas="a-b, b-c" dirigido="si" titulo="Con dirección" />',
+    ].join("\n\n");
+    expect(fail(`${body}\n`)).toBeNull();
+    const html = renderToStaticMarkup(<LessonBody file="f.mdx" source={`${FM}${body}\n`} />);
+    // Tabla: 2 variables + 3 columnas (p → q, ¬q y la fórmula), 4 filas, y la fórmula editable ya con símbolos.
+    expect(html).toContain('<table class="truth-table">');
+    expect(count(html, '<th scope="col"')).toBe(5);
+    expect(count(html, "<td ")).toBe(20);
+    expect(html).toContain('value="(p → q) ∧ ¬q"');
+    // Columna final en orden canónico (VV, VF, FV, FF): solo la última fila es verdadera.
+    expect([...html.matchAll(/<td data-true="(true|false)" data-final="true">/g)].map((m) => m[1])).toEqual(["false", "false", "false", "true"]);
+    expect(html).toContain("Es una contingencia");
+    // Grafos: SVG propio con su resumen como texto alternativo; solo el dirigido lleva puntas de flecha.
+    expect(html).toContain('aria-label="Grafo con 4 vértices y 5 aristas."');
+    expect(html).toContain('aria-label="Grafo dirigido con 3 vértices y 2 aristas."');
+    expect(count(html, 'class="graph-edge"')).toBe(7);
+    expect(count(html, "<marker")).toBe(1);
+    expect(html).toContain("Los grados suman 10 = 2 × 5");
+    expect(html).toContain("Con dirección");
+  });
+
+  it("<Visual>: una fórmula o un grafo mal escritos fallan con su motivo", () => {
+    expect(fail('<Visual id="tabla-verdad" formula="p ∧" />\n')?.message).toMatch(/<Visual>: formula: La fórmula termina antes de tiempo/);
+    expect(fail('<Visual id="tabla-verdad" formula="p <-> q" />\n')).toBeNull();
+    expect(fail('<Visual id="grafo" vertices="a, b" aristas="a-z" />\n')?.message).toMatch(/<Visual>: aristas: «a-z» usa el vértice «z»/);
+  });
+
   it("<Desvanecido>: los huecos ___ deben coincidir con las respuestas", () => {
     expect(fail('<Desvanecido pasos={["a ___ b ___"]} respuestas={["x"]} />\n')?.message).toMatch(/2 hueco\(s\) ___ en pasos y 1 respuesta/);
     expect(fail('<Desvanecido pasos={["a ___ b ___"]} respuestas={["x", "y"]} />\n')).toBeNull();
