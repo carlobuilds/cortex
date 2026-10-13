@@ -62,6 +62,53 @@ describe("pnpm content:check", () => {
     expect(r.out).toContain("[calc-01-091]: respuesta 5 pero la verificación da inf");
   });
 
+  describe("verify_content.py: reglas de la Fase 3", () => {
+    const head = (id: string, tipo: string) => `\n  - id: ${id}\n    tipo: ${tipo}\n    dificultad: 2\n    conceptos: [limite-infinito]\n    enunciado: 'x'\n    explicacion: 'x'\n`;
+    const add = (root: string, id: string, tipo: string, body: string) => edit(root, `${CALC}/ejercicios.yaml`, (t) => `${t}${head(id, tipo)}${body}`);
+
+    it("acepta: entero grande exacto, conteo por enumeración, antiderivada salvo constante, huecos y opciones verificados", () => {
+      const root = makeRoot();
+      // 13! = 6227020800 (más de 10⁹): se compara como entero exacto.
+      add(root, "calc-01-080", "numerico", '    respuesta: 6227020800\n    verificar: { sympy: "factorial(13)" }\n');
+      // Permutaciones de ABCDE que no empiezan con A, contadas una por una (no con la fórmula 4·4!).
+      add(root, "calc-01-081", "numerico", `    respuesta: 96\n    verificar: { python: "sum(1 for p in itertools.permutations('ABCDE') if p[0] != 'A')" }\n`);
+      add(root, "calc-01-082", "simbolico", '    respuesta: "x**3/3 + 5"\n    salvo_constante: true\n    verificar: { sympy: "integrate(x**2, x)" }\n');
+      add(root, "calc-01-083", "simbolico", '    respuesta: "2**n - 1"\n    muestreo: { desde: 0, hasta: 10, enteros: true }\n    verificar: { sympy: "summation(2**k, (k, 0, n - 1))" }\n');
+      // `completar` con verificación: un valor por hueco, en orden.
+      add(root, "calc-01-084", "completar", `    texto: "Crece en (___, ___)."\n    respuestas: ["-1", "1"]\n    verificar: { sympy: "sorted(solve(diff(3*x - x**3, x), x))" }\n`);
+      // Opciones con valores simbólicos y con `verificar.python`.
+      add(root, "calc-01-085", "opcion_multiple", `    opciones: ["$2x$", "$x^2$", "$2$"]\n    correcta: 0\n    valores: ["2*x", "x**2", 2]\n    verificar: { sympy: "diff(x**2, x)" }\n`);
+      add(root, "calc-01-086", "opcion_multiple", `    opciones: ["3", "4", "9"]\n    correcta: 1\n    valores: [3, 4, 9]\n    verificar: { python: "len(range(0, 10, 3))" }\n`);
+      const r = contentCheck(root, [CALC]);
+      expect(r.out).not.toMatch(/ERROR/);
+      expect(r.status).toBe(0);
+    });
+
+    it("rechaza cada caso mal escrito, con su motivo", () => {
+      const root = makeRoot();
+      add(root, "calc-01-080", "numerico", '    respuesta: 6227020801\n    verificar: { sympy: "factorial(13)" }\n');
+      add(root, "calc-01-082", "simbolico", '    respuesta: "x**3/3 + x"\n    salvo_constante: true\n    verificar: { sympy: "integrate(x**2, x)" }\n');
+      add(root, "calc-01-084", "completar", `    texto: "Crece en (___, ___)."\n    respuestas: ["-1", "2"]\n    verificar: { sympy: "sorted(solve(diff(3*x - x**3, x), x))" }\n`);
+      add(root, "calc-01-085", "opcion_multiple", `    opciones: ["$2x$", "$x^2$", "$x+x$"]\n    correcta: 0\n    valores: ["2*x", "x**2", "x+x"]\n    verificar: { sympy: "diff(x**2, x)" }\n`);
+      add(root, "calc-01-087", "completar", `    texto: "Vale ___."\n    respuestas: ["1"]\n    verificar: { sympy: "[1, 2]" }\n`);
+      const r = contentCheck(root, [CALC]);
+      expect(r.status).toBe(1);
+      expect(r.out).toContain("[calc-01-080]: respuesta 6227020801 pero la verificación da 6227020800");
+      expect(r.out).toContain("[calc-01-082]: no difieren en una constante: diferencia = x");
+      expect(r.out).toContain("[calc-01-084]: hueco 2: respuesta '2' pero la verificación da 1");
+      expect(r.out).toContain("[calc-01-085]: la opción 2 también es correcta");
+      expect(r.out).toContain("[calc-01-087]: la verificación da 2 valor(es) y hay 1 hueco(s)");
+    });
+
+    it("una verificación que no termina se corta y se reporta (no cuelga todo)", () => {
+      const root = makeRoot();
+      add(root, "calc-01-088", "numerico", '    respuesta: 1\n    verificar: { python: "sum(1 for _ in itertools.count())" }\n');
+      const r = contentCheck(root, [CALC], { ...process.env, CORTEX_MATH_TIMEOUT: "1" });
+      expect(r.status).toBe(1);
+      expect(r.out).toContain("[calc-01-088]: excepción al verificar: TimeoutError: tardó más de 1 s");
+    });
+  });
+
   it("un id duplicado falla en las capas 1 y 4", () => {
     const root = makeRoot();
     edit(root, `${PROG}/ejercicios.yaml`, (t) => t.replace("  - id: prog-01-002\n", "  - id: prog-01-001\n"));

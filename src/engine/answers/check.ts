@@ -47,13 +47,20 @@ export function checkAnswer(ex: Exercise, answer: Answer): CheckResult {
         return invalid(e instanceof ExpressionError ? e.message : "Escribe un número.");
       }
       if (Number.isNaN(got)) return invalid("Escribe un número.");
-      const expected = evaluateNumber(ex.respuesta);
+      let expected: number;
+      try {
+        expected = evaluateNumber(ex.respuesta);
+      } catch {
+        // No debería pasar: `real-answers.test.ts` exige que toda respuesta oficial se pueda leer.
+        return invalid("Este ejercicio tiene un error en su respuesta. Repórtalo con el botón de reporte.");
+      }
       return closeEnough(got, expected, ex.tolerancia ?? 0) ? { status: "correct" } : wrong(String(ex.respuesta));
     }
     case "simbolico": {
       if (answer.kind !== "text") return mismatch(answer, "text");
       try {
-        const r = symbolicMatch(answer.value, ex.respuesta, ex.variables);
+        const sampling = ex.muestreo ? { from: ex.muestreo.desde, to: ex.muestreo.hasta, integers: ex.muestreo.enteros ?? false } : undefined;
+        const r = symbolicMatch(answer.value, ex.respuesta, ex.variables, { uptoConstant: ex.salvo_constante ?? false, ...(sampling ? { sampling } : {}) });
         if (r === "equivalent") return { status: "correct" };
         if (r === "undetermined") return invalid("No pude evaluar tu expresión en suficientes puntos. ¿Está bien escrita?");
         return wrong(String(ex.respuesta));

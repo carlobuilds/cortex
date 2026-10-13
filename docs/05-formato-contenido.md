@@ -140,10 +140,10 @@ ejercicios:
 
 | tipo | Campos específicos | Cómo lo verifica `verify_content.py` |
 |---|---|---|
-| `opcion_multiple` | `opciones` (lista), `correcta` (índice), `valores` (opcional, lista paralela a `opciones` con números o textos que sympy evalúe, como `"1/3"`) | Si hay `verificar.sympy` y `valores`, comprueba que `valores[correcta]` coincida con el resultado |
-| `numerico` | `respuesta`, `tolerancia` | Evalúa `verificar.sympy` o `verificar.python` y compara |
-| `simbolico` | `respuesta` (expresión), `variables` (opcional) | Comprueba equivalencia con sympy entre `respuesta` y `verificar.sympy` |
-| `completar` | `texto` con `___` por hueco, `respuestas` (lista) | Número de huecos = número de respuestas |
+| `opcion_multiple` | `opciones` (lista), `correcta` (índice), `valores` (opcional, lista paralela a `opciones` con números o expresiones que sympy entienda, como `"1/3"` o `"2*x"`) | Si hay `valores` y `verificar.sympy` o `verificar.python`, comprueba que `valores[correcta]` coincida con el resultado y que ninguna otra opción coincida |
+| `numerico` | `respuesta`, `tolerancia` | Evalúa `verificar.sympy` o `verificar.python` y compara. Dos enteros se comparan exactos |
+| `simbolico` | `respuesta` (expresión), `variables` (opcional), `salvo_constante` (opcional), `muestreo` (opcional) | Comprueba equivalencia con sympy entre `respuesta` y `verificar.sympy`; con `salvo_constante`, que su diferencia sea una constante |
+| `completar` | `texto` con `___` por hueco, `respuestas` (lista) | Número de huecos = número de respuestas. Si hay `verificar.sympy` o `verificar.python`, debe devolver un valor por hueco, en orden, y se comparan uno a uno |
 | `ordenar` | `elementos` (en orden correcto) | Verifica que haya ≥ 3 elementos únicos; la app los baraja |
 | `codigo` | `lenguaje` (`python` o `c`), `plantilla`, `solucion`, `tests` | Ejecuta `solucion` contra `tests`; exige que la `plantilla` **no** los pase |
 | `predecir_salida` | `lenguaje` (`python`), `codigo`, `respuesta` (texto) | Ejecuta `codigo` y compara la salida |
@@ -165,9 +165,22 @@ ejercicios:
 
 Campos comunes: `id`, `tipo`, `dificultad`, `conceptos` (al menos uno), `enunciado`, `explicacion` (obligatoria), `pistas` (opcional, máx. 3), `tarjeta` (opcional), `tiempo_estimado_s` (opcional), `verificar` (opcional en general; obligatorio en `numerico` y `simbolico`), `retirado` (opcional). Un campo que no esté en esta lista ni en la de su tipo es error (atrapa errores de dedo como `tolerancai`).
 
+### Respuestas numéricas y simbólicas: qué entiende la app
+
+La `respuesta` oficial debe poder leerla el verificador de la app, no solo sympy: `src/content/real-answers.test.ts` pasa cada respuesta oficial por ese verificador y falla si alguna no sale correcta.
+
+- **Funciones:** `sqrt`, `cbrt`, `abs`, `exp`, `ln` y `log` (natural), `log(x, b)`, `log10`, `log2`, trigonométricas e inversas (`sin`/`sen`, `asin`/`arcsin`/`arcsen`…), hiperbólicas, `floor`, `ceil`, `round`, `sign`, `factorial` (o `n!`), y para conteo `binomial(n, k)` (también `C(n, k)`), `permutations(n, k)` (también `P(n, k)`), `mod`, `gcd`, `lcm`, `min`, `max`.
+- **Infinito:** `oo` en el YAML. El usuario puede escribir `oo`, `∞`, `inf` o `infinito`. "No existe" no es un número: usa `opcion_multiple`.
+- **Enteros:** con `tolerancia: 0` (o sin ella) y una respuesta entera, no pasa el entero de al lado, por grande que sea. Las respuestas enteras deben caber sin pérdida en un número de la app (menos de 9 × 10¹⁵).
+- **`salvo_constante: true`** (`simbolico`): para antiderivadas. Escribe la `respuesta` **sin** `+ C`; la app acepta cualquier expresión que difiera en una constante, con o sin `+ C`.
+- **`muestreo: { desde, hasta, enteros }`** (`simbolico`): la app compara evaluando en puntos al azar entre −3 y 6. Si la expresión no existe ahí (`ln(x - 7)`), indica otro intervalo; si solo tiene sentido en enteros (`(-1)**n`, una fórmula cerrada en `n`), agrega `enteros: true`.
+- La app compara **valor**, no forma: en un ejercicio de "factoriza" o "simplifica", la expresión sin simplificar también sale correcta. Para evaluar la forma usa `opcion_multiple` o `completar`.
+
 ### Sobre `verificar`
 - `sympy`: expresión que se evalúa con `from sympy import *` y símbolos `x, y, z, t, n, k` predefinidos. Debe producir el valor correcto **por una vía independiente** a la que usaste para escribir la respuesta (no copies el valor: calcúlalo con la función de sympy).
-- `python`: expresión de Python puro que produce el valor (para estadística, finanzas, etc.).
+- `python`: expresión de Python puro que produce el valor (para estadística, finanzas, conteo). Tiene `math`, `statistics`, `itertools`, `Fraction` y funciones sin efectos (`sum`, `len`, `range`, `sorted`, `set`, `all`, `any`…). En combinatoria, la vía independiente es **enumerar** los casos, no repetir la fórmula: `sum(1 for p in itertools.permutations('ABCDE') if p[0] != 'A')`.
+- En `completar`, `verificar` devuelve una lista con un valor por hueco, en orden: `verificar: { sympy: "sorted(solve(diff(3*x - x**3, x), x))" }`. Sin `verificar`, el ejercicio cuenta como revisión manual.
+- Cada expresión tiene un tope de 30 s; una que no termina se reporta como error en lugar de detener toda la verificación.
 - Si un ejercicio no se puede verificar por código (conceptual), se marca `verificar: { revision: "manual" }` y entra a la lista de revisión humana/adversarial (ver `07-calidad-y-verificacion.md`).
 
 ### YAML: cómo se lee

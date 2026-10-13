@@ -13,12 +13,36 @@ const math = create(all as FactoryFunctionMap, {});
 const FUNCTIONS = new Set([
   "sqrt", "cbrt", "abs", "exp", "log", "log10", "log2", "ln",
   "sin", "cos", "tan", "sec", "csc", "cot", "asin", "acos", "atan",
-  "sinh", "cosh", "tanh", "floor", "ceil", "round", "sign", "factorial", "nthRoot", "pow",
+  "sinh", "cosh", "tanh", "sech", "csch", "coth", "asinh", "acosh", "atanh",
+  "floor", "ceil", "round", "sign", "factorial", "nthRoot", "pow",
+  // Matemáticas discretas: conteo y aritmética entera.
+  "combinations", "permutations", "mod", "gcd", "lcm", "min", "max",
 ]);
 const CONSTANTS: Readonly<Record<string, number>> = { pi: Math.PI, e: Math.E, E: Math.E, Infinity, oo: Infinity };
 
-/** `sin x`, `sin^2 x`, `sin ^2(x+1)`, `ln x`... (la función va seguida de un argumento sin paréntesis propios). */
-const FN_NO_PARENS = /\b(sinh|cosh|tanh|asin|acos|atan|sin|cos|tan|sec|csc|cot|ln|log|exp)\s*(?:\^\s*(\d+|\([^()]*\)))?\s*(?=[a-zA-Z0-9.(])((?:\d+(?:\.\d+)?)?[a-zA-Z]\w*|\d+(?:\.\d+)?|\([^()]*\))/g;
+/**
+ * Otros nombres para lo mismo, como se escribe en clase: `sen` y las inversas con `arc`, y las
+ * combinaciones como `binomial(n, k)`. Se cambian al nombre que entiende mathjs antes de interpretar.
+ */
+const ALIASES: readonly (readonly [RegExp, string])[] = [
+  [/\barc(?:sen|sin)(h?)\b/g, "asin$1"],
+  [/\barccos(h?)\b/g, "acos$1"],
+  [/\barct(?:an|g)(h?)\b/g, "atan$1"],
+  [/\bsen(h?)\b/g, "sin$1"],
+  [/\btg\b/g, "tan"],
+  [/\bbinomial\(/g, "combinations("],
+  [/\b(?:inf|infinito)\b/gi, "Infinity"],
+];
+
+/** `C(n, k)` y `P(n, k)`: combinaciones y permutaciones. Con un solo argumento, `C(x+1)` sigue siendo `C·(x+1)`. */
+const COUNTING = /\b([CP])\(\s*([^(),]+?)\s*,\s*([^(),]+?)\s*\)/g;
+
+/**
+ * `sin x`, `sin^2 x`, `sin ^2(x+1)`, `ln x`... (la función va seguida de un argumento sin paréntesis propios).
+ * El orden importa: un nombre va antes que su prefijo (`log10` antes que `log`, `sech` antes que
+ * `sec`). Si no, `log10(100)` se leía como `log(10)·(100)` y daba 230.26 en vez de 2, sin avisar.
+ */
+const FN_NO_PARENS = /\b(log10|log2|sinh|cosh|tanh|sech|csch|coth|asinh|acosh|atanh|asin|acos|atan|sin|cos|tan|sec|csc|cot|ln|log|exp)\s*(?:\^\s*(\d+|\([^()]*\)))?\s*(?=[a-zA-Z0-9.(])((?:\d+(?:\.\d+)?)?[a-zA-Z]\w*|\d+(?:\.\d+)?|\([^()]*\))/g;
 
 export class ExpressionError extends Error {
   constructor(message: string) {
@@ -29,13 +53,15 @@ export class ExpressionError extends Error {
 
 /** Traduce la sintaxis de sympy y de la escritura común a la de mathjs. */
 export function normalizeExpression(input: string): string {
-  return input
-    .normalize("NFKC")
+  const aliased = ALIASES.reduce((text, [pattern, name]) => text.replace(pattern, name), input.normalize("NFKC"));
+  return aliased
+    .replace(COUNTING, (_m, kind: string, n: string, k: string) => `${kind === "C" ? "combinations" : "permutations"}(${n}, ${k})`)
     .replace(/\*\*/g, "^")
     .replace(/[−–]/g, "-")
     .replace(/[·×⋅]/g, "*")
     .replace(/÷/g, "/")
     .replace(/π/g, "pi")
+    .replace(/∞/g, "Infinity")
     .replace(/√\s*\(/g, "sqrt(")
     .replace(/√\s*([a-zA-Z0-9.]+)/g, "sqrt($1)")
     .replace(/\bAbs\(/g, "abs(")
@@ -114,8 +140,18 @@ export function evaluateNumber(input: string | number): number {
   return compiled.evaluate({});
 }
 
-/** Misma regla que `close()` de verify_content.py: tolerancia absoluta o relativa mínima de 1e-9. */
+/** Con un entero esperado y sin tolerancia, nunca se acepta un error de medio entero o más (ver `closeEnough`). */
+const INTEGER_SLACK = 0.49;
+
+/**
+ * Misma regla que `close()` de verify_content.py: tolerancia absoluta o relativa mínima de 1e-9.
+ * Excepción: si se espera un entero y la tolerancia es 0, el margen relativo se topa por debajo de
+ * 0.5. Sin el tope, con una respuesta de 10⁹ o más (un conteo, un factorial) el margen pasaría de 1
+ * y se daría por buena la respuesta de al lado.
+ */
 export function closeEnough(got: number, expected: number, tolerance: number): boolean {
   if (expected === Infinity || expected === -Infinity) return got === expected;
-  return Math.abs(got - expected) <= Math.max(tolerance, 1e-9 * Math.max(1, Math.abs(expected)));
+  const relative = 1e-9 * Math.max(1, Math.abs(expected));
+  const slack = tolerance === 0 && Number.isInteger(expected) ? Math.min(relative, INTEGER_SLACK) : Math.max(tolerance, relative);
+  return Math.abs(got - expected) <= slack;
 }

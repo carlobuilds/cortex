@@ -21,21 +21,44 @@ const RANGES: readonly (readonly [number, number])[] = [
   [1, 6],
 ];
 
-function samplePoint(rng: Rng, variables: readonly string[], trial: number): Record<string, number> {
-  const [lo, hi] = RANGES[trial % RANGES.length] ?? [-3, 3];
+/** Dónde se toman los puntos de prueba cuando los rangos de arriba no sirven (docs/05, `muestreo`). */
+export interface Sampling {
+  readonly from: number;
+  readonly to: number;
+  /** Solo enteros: para fórmulas en `n` como `(-1)^n` o `n!`, que entre enteros no existen. */
+  readonly integers?: boolean;
+}
+
+export interface MatchOptions {
+  /** Antiderivadas: vale cualquier expresión que difiera de la oficial en una constante. */
+  readonly uptoConstant?: boolean;
+  readonly sampling?: Sampling;
+}
+
+/** Nombre reservado para la constante de integración: `x^2 + C` se acepta donde la oficial es `x^2`. */
+export const INTEGRATION_CONSTANT = "C";
+
+function samplePoint(rng: Rng, variables: readonly string[], trial: number, sampling?: Sampling): Record<string, number> {
+  const [lo, hi] = sampling ? [sampling.from, sampling.to] : (RANGES[trial % RANGES.length] ?? [-3, 3]);
   const scope: Record<string, number> = {};
-  for (const v of variables) scope[v] = lo + (hi - lo) * rng();
+  for (const v of variables) {
+    scope[v] = sampling?.integers ? Math.floor(lo) + Math.floor(rng() * (Math.floor(hi) - Math.floor(lo) + 1)) : lo + (hi - lo) * rng();
+  }
   return scope;
 }
 
 export type Equivalence = "equivalent" | "different" | "undetermined";
 
-export function equivalent(a: CompiledExpression, b: CompiledExpression, seed = 12345): Equivalence {
-  const variables = [...new Set([...a.variables, ...b.variables])];
+export function equivalent(a: CompiledExpression, b: CompiledExpression, options: MatchOptions = {}, seed = 12345): Equivalence {
+  // La constante de integración no se muestrea: es el mismo número en todos los puntos.
+  const variables = [...new Set([...a.variables, ...b.variables])].filter((v) => !(options.uptoConstant && v === INTEGRATION_CONSTANT));
   const rng = createRng(seed);
   let valid = 0;
+  /** Diferencia en el primer punto válido; con `uptoConstant`, las demás deben ser iguales a ella. */
+  let offset: number | null = null;
   for (let trial = 0; trial < MAX_TRIALS && valid < REQUIRED_POINTS; trial++) {
-    const scope = samplePoint(rng, variables, trial);
+    const scope = samplePoint(rng, variables, trial, options.sampling);
+    if (options.uptoConstant) scope[INTEGRATION_CONSTANT] = 0;
     let va: number;
     let vb: number;
     try {
@@ -45,6 +68,10 @@ export function equivalent(a: CompiledExpression, b: CompiledExpression, seed = 
       continue;
     }
     if (!Number.isFinite(va) || !Number.isFinite(vb) || Math.abs(va) > 1e9) continue;
+    if (options.uptoConstant) {
+      offset ??= va - vb;
+      vb += offset;
+    }
     if (Math.abs(va - vb) > Math.max(ABS_TOL, REL_TOL * Math.max(Math.abs(va), Math.abs(vb)))) return "different";
     valid++;
     // Sin variables basta un punto.
@@ -54,9 +81,10 @@ export function equivalent(a: CompiledExpression, b: CompiledExpression, seed = 
 }
 
 /** Compara la expresión del usuario con la oficial. Lanza `ExpressionError` si la del usuario no se entiende. */
-export function symbolicMatch(user: string, expected: string | number, variables?: readonly string[]): Equivalence {
+export function symbolicMatch(user: string, expected: string | number, variables?: readonly string[], options: MatchOptions = {}): Equivalence {
   const exp = compileExpression(String(expected));
-  const allowed = variables && variables.length ? [...new Set([...variables, ...exp.variables])] : exp.variables.length ? null : [];
+  const extra = options.uptoConstant ? [INTEGRATION_CONSTANT] : [];
+  const allowed = variables && variables.length ? [...new Set([...variables, ...exp.variables, ...extra])] : exp.variables.length ? null : extra;
   const usr = compileExpression(user, allowed);
-  return equivalent(usr, exp);
+  return equivalent(usr, exp, options);
 }

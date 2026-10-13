@@ -79,11 +79,24 @@ const numeric = z.strictObject({
   verificar: verifySchema,
 });
 
+/** Dónde toma la app sus puntos de prueba al comparar una respuesta simbólica (docs/05). */
+const sampling = z
+  .strictObject({
+    desde: z.number(),
+    hasta: z.number(),
+    /** Solo valores enteros: para fórmulas en `n` como `(-1)^n` o `n!`. */
+    enteros: z.boolean().optional(),
+  })
+  .refine((m) => m.desde < m.hasta, { path: ["hasta"], message: "'desde' debe ser menor que 'hasta'" });
+
 const symbolic = z.strictObject({
   ...common,
   tipo: z.literal("simbolico"),
   respuesta: z.union([nonEmptyText, z.number()]),
   variables: z.array(nonEmptyText).optional(),
+  /** Antiderivadas: se acepta cualquier expresión que difiera de `respuesta` en una constante. */
+  salvo_constante: z.boolean().optional(),
+  muestreo: sampling.optional(),
   verificar: z.strictObject({ sympy: nonEmptyText }),
 });
 

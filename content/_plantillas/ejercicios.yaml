@@ -21,6 +21,8 @@ ejercicios:
     conceptos: [concepto-uno]
     enunciado: 'Simplifica ...'
     respuesta: "x+3"
+    # salvo_constante: true                # antiderivadas: escribe la respuesta SIN "+ C"
+    # muestreo: { desde: 8, hasta: 20 }    # si la expresión no existe entre -3 y 6; agrega enteros: true para fórmulas en n
     verificar: { sympy: "expresion_equivalente" }
     explicacion: '...'
 
@@ -44,6 +46,7 @@ ejercicios:
     enunciado: 'Completa.'
     texto: 'Un ___ y un ___.'
     respuestas: ["uno", "otro"]
+    # verificar: { sympy: "[valor_1, valor_2]" }   # opcional: un valor por hueco, en orden (sin esto es revisión manual)
     explicacion: '...'
 
   # --- ordenar ---

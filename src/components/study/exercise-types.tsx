@@ -107,7 +107,7 @@ function NumericInput({ draft, setDraft, disabled, onEnter }: InputProps<string>
         }
       }}
       className={inputClass}
-      placeholder="Número, fracción (1/3) o expresión (sqrt(2)/2)"
+      placeholder="Número, fracción (1/3), expresión (sqrt(2)/2) o infinito (oo)"
     />
   );
 }
@@ -119,8 +119,14 @@ const numeric: TypeModule<string> = {
   describe: (_ex, d) => d,
 };
 
-function SymbolicInput({ draft, setDraft, disabled, onEnter }: InputProps<string>) {
-  return <MathField label="Tu expresión" value={draft} onChange={setDraft} onEnter={onEnter} disabled={disabled} />;
+function SymbolicInput({ exercise, draft, setDraft, disabled, onEnter }: InputProps<string>) {
+  const ex = exercise as Extract<CatalogExercise, { tipo: "simbolico" }>;
+  return (
+    <div className="grid gap-1.5">
+      <MathField label="Tu expresión" value={draft} onChange={setDraft} onEnter={onEnter} disabled={disabled} />
+      {ex.salvo_constante ? <p className="text-caption text-muted-foreground">La constante de integración es opcional: puedes escribir + C o dejarla fuera.</p> : null}
+    </div>
+  );
 }
 
 const symbolic: TypeModule<string> = { ...numeric, Input: SymbolicInput };

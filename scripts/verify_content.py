@@ -14,13 +14,18 @@ Nota de seguridad: ejecuta código y evalúa expresiones escritas por nosotros
 """
 from __future__ import annotations
 
+import itertools
 import json
 import math
+import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
+import threading
+from contextlib import contextmanager
 from pathlib import Path
 
 import sympy as sp
@@ -41,6 +46,12 @@ ID_RE = re.compile(r"^[a-z]+-\d{2}-\d{3}$")
 KEBAB_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 PY_TIMEOUT = 10
 C_TIMEOUT = 10
+# Tope, en segundos, para evaluar una expresión de `verificar` (un `integrate` o un `simplify` que no
+# termina ya no detiene toda la verificación). `CORTEX_MATH_TIMEOUT` lo cambia; es solo para pruebas.
+MATH_TIMEOUT = float(os.environ.get("CORTEX_MATH_TIMEOUT", "30"))
+# Con un entero esperado y sin tolerancia nunca se acepta un error de medio entero o más.
+# Igual que INTEGER_SLACK de la app (src/engine/answers/math.ts).
+INTEGER_SLACK = 0.49
 
 errors: list[str] = []
 warnings: list[str] = []
@@ -56,29 +67,76 @@ def warn(where: str, msg: str) -> None:
 
 
 # ---------------------------------------------------------------- sympy
+@contextmanager
+def time_limit(seconds: float):
+    """Corta lo que tarde más de `seconds` (solo en Unix y en el hilo principal; si no, no hace nada)."""
+    if not hasattr(signal, "setitimer") or threading.current_thread() is not threading.main_thread():
+        yield
+        return
+
+    def _expired(_signum, _frame):
+        raise TimeoutError(f"tardó más de {seconds:g} s")
+
+    previous = signal.signal(signal.SIGALRM, _expired)
+    signal.setitimer(signal.ITIMER_REAL, seconds)
+    try:
+        yield
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        signal.signal(signal.SIGALRM, previous)
+
+
+# Funciones de Python sin efectos, útiles para armar listas y conjuntos y para verificar un
+# conteo ENUMERANDO los casos (la vía independiente de combinatoria: no repite la fórmula).
+_SAFE_BUILTINS = {
+    "abs": abs, "all": all, "any": any, "bool": bool, "dict": dict, "divmod": divmod,
+    "enumerate": enumerate, "filter": filter, "float": float, "frozenset": frozenset,
+    "int": int, "len": len, "list": list, "map": map, "max": max, "min": min, "pow": pow,
+    "range": range, "reversed": reversed, "round": round, "set": set, "sorted": sorted,
+    "str": str, "sum": sum, "tuple": tuple, "zip": zip,
+}
+
 _SYMS = sp.symbols("x y z t n k")
 _NS = {name: getattr(sp, name) for name in dir(sp) if not name.startswith("_")}
 _NS.update({s.name: s for s in _SYMS})
 _NS["pi"] = sp.pi
 _NS["E"] = sp.E
+# Sin pisar nada de sympy (que ya trae, por ejemplo, su propio `Sum`).
+for _name, _fn in _SAFE_BUILTINS.items():
+    _NS.setdefault(_name, _fn)
 
 
 def eval_sympy(expr: str):
-    return eval(expr, {"__builtins__": {}}, _NS)  # noqa: S307 (contenido de confianza)
+    # Como globales (no locales): así `limit`, `x`... también se ven dentro de comprensiones y
+    # lambdas (hasta Python 3.11 tienen su propio ámbito). Una copia por llamada: nada se filtra.
+    with time_limit(MATH_TIMEOUT):
+        return eval(expr, {"__builtins__": {}, **_NS})  # noqa: S307 (contenido de confianza)
 
 
 def eval_python(expr: str):
-    import math, statistics, fractions  # noqa: E401
-    env = {"math": math, "statistics": statistics, "Fraction": fractions.Fraction,
-           "sum": sum, "min": min, "max": max, "len": len, "range": range,
-           "round": round, "abs": abs, "sorted": sorted, "pow": pow}
+    import fractions, statistics  # noqa: E401
+    env = {"math": math, "statistics": statistics, "itertools": itertools,
+           "Fraction": fractions.Fraction, **_SAFE_BUILTINS}
     # Como globales (no locales): así `range`, `sum`... también se ven dentro de
     # comprensiones y lambdas (en Python 3.11 tienen su propio ámbito).
-    return eval(expr, {"__builtins__": {}, **env})  # noqa: S307
+    with time_limit(MATH_TIMEOUT):
+        return eval(expr, {"__builtins__": {}, **env})  # noqa: S307
 
 
 def to_float(v) -> float:
-    return float(sp.N(sp.sympify(v)))
+    with time_limit(MATH_TIMEOUT):
+        return float(sp.N(sp.sympify(v)))
+
+
+def as_int(v):
+    """El entero exacto si `v` lo es; `None` si no. No pasa por float, que pierde cifras arriba de 2**53."""
+    if isinstance(v, bool):
+        return None
+    try:
+        s = sp.sympify(v)
+    except Exception:  # noqa: BLE001
+        return None
+    return int(s) if getattr(s, "is_Integer", False) else None
 
 
 def close(a, b, tol: float) -> bool:
@@ -86,7 +144,39 @@ def close(a, b, tol: float) -> bool:
     # cualquier número "coincidiría": se exige igualdad exacta.
     if math.isinf(b) or math.isnan(b) or math.isinf(a) or math.isnan(a):
         return a == b
-    return abs(a - b) <= max(tol, 1e-9 * max(1.0, abs(b)))
+    rel = 1e-9 * max(1.0, abs(b))
+    # Entero esperado y sin tolerancia: el margen relativo se topa por debajo de 0.5 (con 10**9 o
+    # más pasaría de 1 y se aceptaría el entero de al lado). Misma regla que `closeEnough` de la app.
+    if tol == 0 and float(b).is_integer():
+        return abs(a - b) <= min(rel, INTEGER_SLACK)
+    return abs(a - b) <= max(tol, rel)
+
+
+def is_zero(expr) -> bool:
+    with time_limit(MATH_TIMEOUT):
+        return sp.simplify(expr) == 0
+
+
+def same_value(got, expected) -> bool:
+    """¿`got` (lo que dio `verificar`) vale lo mismo que `expected` (lo escrito en el YAML)?
+
+    Primero como números; si alguno no es un número, como expresiones; y si tampoco, como texto.
+    """
+    gi, ei = as_int(got), as_int(expected)
+    if gi is not None and ei is not None:
+        return gi == ei
+    try:
+        return close(to_float(got), to_float(expected), 0)
+    except TimeoutError:
+        raise
+    except Exception:  # noqa: BLE001
+        pass
+    try:
+        return is_zero(parse_expr(expected) - sp.sympify(got))
+    except TimeoutError:
+        raise
+    except Exception:  # noqa: BLE001
+        return str(got).strip() == str(expected).strip()
 
 
 def parse_expr(s: str):
@@ -288,15 +378,22 @@ def check_exercise(where: str, ex: dict, conceptos_ok: set[str] | None) -> None:
                 return err(w, "falta 'respuesta'")
             tol = float(ex.get("tolerancia", 0))
             if "sympy" in ver:
-                got = to_float(eval_sympy(ver["sympy"]))
+                raw = eval_sympy(ver["sympy"])
             elif "python" in ver:
-                got = to_float(eval_python(ver["python"]))
+                raw = eval_python(ver["python"])
             elif ver.get("revision") == "manual":
                 stats["manuales"] += 1
                 return
             else:
                 return err(w, "numerico sin 'verificar' (sympy|python|revision: manual)")
-            if not close(got, to_float(ex["respuesta"]), tol):
+            # Dos enteros se comparan exactos (sin pasar por float); lo demás, con tolerancia.
+            gi, ri = as_int(raw), as_int(ex["respuesta"])
+            if tol == 0 and gi is not None and ri is not None:
+                got, ok = gi, gi == ri
+            else:
+                got = to_float(raw)
+                ok = close(got, to_float(ex["respuesta"]), tol)
+            if not ok:
                 err(w, f"respuesta {ex['respuesta']} pero la verificación da {got}")
             else:
                 stats["verificados"] += 1
@@ -304,8 +401,16 @@ def check_exercise(where: str, ex: dict, conceptos_ok: set[str] | None) -> None:
         elif tipo == "simbolico":
             if "respuesta" not in ex or "sympy" not in ver:
                 return err(w, "simbolico requiere 'respuesta' y verificar.sympy")
-            diff = sp.simplify(parse_expr(ex["respuesta"]) - eval_sympy(ver["sympy"]))
-            if diff != 0:
+            with time_limit(MATH_TIMEOUT):
+                diff = sp.simplify(parse_expr(ex["respuesta"]) - eval_sympy(ver["sympy"]))
+            if ex.get("salvo_constante"):
+                # Antiderivadas: basta con que la diferencia no dependa de ninguna variable.
+                libres = sorted(getattr(diff, "free_symbols", ()), key=str)
+                if any(not is_zero(sp.diff(diff, v)) for v in libres):
+                    err(w, f"no difieren en una constante: diferencia = {diff}")
+                else:
+                    stats["verificados"] += 1
+            elif diff != 0:
                 err(w, f"no equivalente: diferencia = {diff}")
             else:
                 stats["verificados"] += 1
@@ -318,26 +423,45 @@ def check_exercise(where: str, ex: dict, conceptos_ok: set[str] | None) -> None:
                 return err(w, "'correcta' fuera de rango")
             if len(set(map(str, ops))) != len(ops):
                 err(w, "opciones repetidas")
-            if "valores" in ex and "sympy" in ver:
+            if "valores" in ex and ("sympy" in ver or "python" in ver):
                 if len(ex["valores"]) != len(ops):
                     return err(w, "'valores' debe tener la misma longitud que 'opciones'")
-                got = to_float(eval_sympy(ver["sympy"]))
-                if not close(got, to_float(ex["valores"][cor]), 0):
-                    err(w, f"valores[correcta]={ex['valores'][cor]} pero la verificación da {got}")
+                got = eval_sympy(ver["sympy"]) if "sympy" in ver else eval_python(ver["python"])
+                try:
+                    shown = to_float(got)
+                except TimeoutError:
+                    raise
+                except Exception:  # noqa: BLE001 (un valor simbólico no es un número)
+                    shown = got
+                if not same_value(got, ex["valores"][cor]):
+                    err(w, f"valores[correcta]={ex['valores'][cor]} pero la verificación da {shown}")
                 else:
                     # ninguna otra opción debe igualar el valor correcto
                     for i, v in enumerate(ex["valores"]):
-                        if i != cor and close(got, to_float(v), 0):
+                        if i != cor and same_value(got, v):
                             err(w, f"la opción {i} también es correcta")
                     stats["verificados"] += 1
             else:
                 stats["manuales"] += 1
 
         elif tipo == "completar":
+            resp = ex.get("respuestas", [])
             huecos = str(ex.get("texto", "")).count("___")
-            if huecos == 0 or huecos != len(ex.get("respuestas", [])):
-                err(w, f"huecos ({huecos}) != respuestas ({len(ex.get('respuestas', []))})")
-            stats["manuales"] += 1
+            if huecos == 0 or huecos != len(resp):
+                err(w, f"huecos ({huecos}) != respuestas ({len(resp)})")
+            elif "sympy" in ver or "python" in ver:
+                # `verificar` devuelve un valor por hueco, en orden (o uno solo si hay un hueco).
+                got = eval_sympy(ver["sympy"]) if "sympy" in ver else eval_python(ver["python"])
+                got = list(got) if isinstance(got, (list, tuple)) else [got]
+                if len(got) != len(resp):
+                    return err(w, f"la verificación da {len(got)} valor(es) y hay {len(resp)} hueco(s)")
+                malos = [i for i, (g, r) in enumerate(zip(got, resp)) if not same_value(g, r)]
+                for i in malos:
+                    err(w, f"hueco {i + 1}: respuesta {resp[i]!r} pero la verificación da {got[i]}")
+                if not malos:
+                    stats["verificados"] += 1
+            else:
+                stats["manuales"] += 1
 
         elif tipo == "ordenar":
             el = ex.get("elementos", [])
