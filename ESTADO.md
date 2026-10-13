@@ -1,7 +1,7 @@
 # ESTADO · Tablero vivo de Cortex
 
-**Fase actual:** 2 · Fundamentos de programación, implementada y verificada (igual que las Fases 0 y 1). Falta el cierre formal de las tres: sesión real de Carlo de ~20 min por fase, `/cerrar-fase` y etiquetas `fase-0`, `fase-1`, `fase-2`. Siguiente: Fase 3 (Cálculo + Matemáticas discretas), cuando Carlo lo apruebe.
-**Última actualización:** 2026-10-10 · Rediseño de interfaz "Arcano" (ADR-020) fusionado en `fase-2-programacion` y subido a GitHub (2026-10-08); la rama `rediseno-ui` ya no existe. Quedan los tres aportes opcionales de Carlo marcados `TODO(Carlo)`.
+**Fase actual:** 3 · Cálculo + Matemáticas discretas, en curso en la rama `fase-3-calculo-discretas` (plan aprobado por Carlo el 2026-10-13). Las Fases 0, 1 y 2 están implementadas y verificadas; sigue pendiente su cierre formal: sesión real de Carlo de ~20 min por fase, `/cerrar-fase` y etiquetas `fase-0`, `fase-1`, `fase-2` (no bloquea la Fase 3).
+**Última actualización:** 2026-10-13 · Arranca la Fase 3: primero la plataforma (visuales, tablas de verdad, tipos de respuesta, simulacro), después el contenido. Quedan los tres aportes opcionales de Carlo del rediseño marcados `TODO(Carlo)`.
 
 ## Decisiones tomadas (Carlo, 2026-10-01)
 - Plataforma: **web app** (Next.js).
@@ -57,8 +57,14 @@ Carlo pidió mejorar la UI/UX con Stitch (proyecto "Cortex — Rediseño", `proj
 - **Paleta de comandos ⌘K** sin dependencias nuevas.
 - Los textos de los mockups de Stitch son solo referencia: en la app todo texto sale de los datos reales.
 
+## Decisiones tomadas (Carlo, 2026-10-13 · plan de la Fase 3)
+Carlo aprobó el plan de la Fase 3 con estas tres decisiones, que el plan proponía por defecto:
+- **Programas oficiales como puerta:** la plataforma (pasos 1–6) va primero porque no depende del temario. Antes de escribir Cálculo debe existir `curriculum/programas/calculo.pdf`, y antes de Discretas, `matematicas-discretas.pdf`; si no están, Claude se detiene y pregunta. Motivo: los números de unidad son permanentes (el id `calc-03-007` lleva el `03` de su carpeta), así que el temario no se puede corregir renumerando.
+- **Orden:** Cálculo primero (ya tiene piloto y la Fase 4 depende de él), luego Matemáticas discretas.
+- **Ritmo:** un solo plan con tres puntos de control de Carlo: CP1 plataforma, CP2 Cálculo, CP3 Discretas.
+
 ## Decisiones pendientes (preguntar a Carlo)
-- [ ] Programas sintéticos oficiales: Carlo debe colocarlos en `curriculum/programas/` (prioridad: programacion, calculo, matematicas-discretas, mecanica-electromagnetismo, fundamentos-economicos).
+- [ ] Programas sintéticos oficiales: Carlo debe colocarlos en `curriculum/programas/` (prioridad: **calculo y matematicas-discretas, que son la puerta de los pasos 7 y 9 de la Fase 3**; después programacion, mecanica-electromagnetismo, fundamentos-economicos).
 - [ ] Confirmar el semestre actual (se asumió 1º).
 
 ## Prefijos de ids de ejercicio
@@ -109,9 +115,16 @@ Plan (2026-10-02, rama `fase-2-programacion`): 1) CodeMirror 6 y Pyodide local (
 - [ ] Cierre formal: sesión real de ~20 min de Carlo y etiqueta `fase-2` (pendiente de Carlo)
 
 ### Fase 3 · Cálculo + Matemáticas discretas
-- [ ] Visuales Mafs y simulador de tablas de verdad
+Plan (2026-10-13, rama `fase-3-calculo-discretas`): 0) rama y registro · 1) prueba de Mafs con criterios y ADR-021 · 2) `<Visual>` real con parámetros de texto y visuales de Cálculo (`grafica`, `limite`, `secante-tangente`, `riemann`) · 3) motor de lógica y simulador de tablas de verdad; dibujo de grafos · 4) respuestas: funciones nuevas en el evaluador, ∞, enteros exactos, `salvo_constante`, `muestreo`, `completar` verificable, `verificar.python` con enumeración, límite de tiempo en sympy y prueba de ida y vuelta de las respuestas oficiales · 5) tipos `tabla_verdad`, `conjunto`, `seleccion_multiple` y campo `visual` en ejercicios · 6) simulacro de examen · **CP1** · 7) puerta de temario de Cálculo · 8) Cálculo 02 en adelante · **CP2** · 9) Matemáticas discretas · **CP3** · 10) e2e, docs, ADR y cierre.
+- [ ] Prueba de Mafs y ADR-021
+- [ ] `<Visual>` real y visuales de Cálculo
+- [ ] Motor de lógica, simulador de tablas de verdad y dibujo de grafos
+- [ ] Respuestas ampliadas y prueba de ida y vuelta
+- [ ] Tipos `tabla_verdad`, `conjunto`, `seleccion_multiple` y `visual` en ejercicios
+- [ ] Simulacro de examen
 - [ ] Cálculo (la unidad 1, `01-limites`, ya está completa como piloto de la Fase 1)
 - [ ] Matemáticas discretas
+- [ ] Cierre formal: sesión real de ~20 min de Carlo y etiqueta `fase-3`
 
 ### Fase 4 · Mecánica y electromagnetismo
 ### Fase 5 · Fundamentos económicos
