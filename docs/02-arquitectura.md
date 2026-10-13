@@ -10,7 +10,7 @@
 | Persistencia | Dexie sobre IndexedDB | Respaldo JSON exportable |
 | Contenido | MDX + YAML en `content/` | Validado con Zod |
 | Matemáticas | KaTeX (render), MathLive (entrada), mathjs (evaluación) | |
-| Gráficas | Mafs (matemáticas interactivas), Recharts (estadísticas de progreso) | |
+| Gráficas | Mafs (matemáticas interactivas; ADR-021), Recharts (estadísticas de progreso, aún sin instalar) | Mafs solo se importa en `components/visuals/plot-frame.tsx` |
 | Repaso espaciado | `ts-fsrs` | |
 | Código | CodeMirror 6, Pyodide en Web Worker, `gcc` local para C | |
 | Pruebas | Vitest (motores), Playwright (flujos clave) | |
@@ -32,13 +32,13 @@ cortex/
                      /materias/[materia] (+ /mapa) · /materias/[materia]/[unidad] (+ /quiz, /practica, /jefe)
     content/
       schema/        esquemas Zod de docs/05 (puro)
-      core/          índice, reglas cruzadas, lector YAML, API de componentes de lección (puro)
+      core/          índice, reglas cruzadas, lector YAML, API de componentes de lección y de visuales (puro)
       loader.ts      lee content/ del disco · server.ts (solo servidor) · mdx.ts (MDX + KaTeX + guardia)
     db/              esquema Dexie y guarda de versión, respaldo, hooks de React
     content/rich-text.ts  texto de ejercicios (Markdown + KaTeX) · core/study-catalog.ts (catálogo del navegador)
-    components/      ui (shadcn/ui) · hud · lessons · subjects · settings · layout · study · gym · pages
+    components/      ui (shadcn/ui) · hud · lessons · visuals · subjects · settings · layout · study · gym · pages
     engine/          config, xp, niveles, racha, fsrs, misiones, cofre, liga, récords, logros, jefes, flujo,
-                     maestría, sesión, answers/ (verificadores), gym/ (puro TS, sin React)
+                     maestría, sesión, answers/ (verificadores), plot (geometría de los visuales), gym/ (puro TS, sin React)
     db/              (además) migrations.ts (v1→v2) · progress.ts (reglas del motor en una transacción)
     runners/         python-worker.mjs + python-client.ts (Pyodide local), c-runner.ts (servidor) + c-client.ts
     app/api/run-c/   ruta local del runner de C (ADR-005)

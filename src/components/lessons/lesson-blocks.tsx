@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+import { VisualStage } from "@/components/visuals/function-visuals";
 import { splitBlanks } from "@/content/core/blanks";
+import { describeVisual, resolveVisual, type VisualProps, VISUALS } from "@/content/core/visuals";
 import { InlineMarkdown } from "./inline-markdown";
 import { FadedInteractive, PredictInteractive } from "./lesson-interactive";
 
@@ -99,10 +101,19 @@ export function FeynmanChallenge({ children }: { children?: ReactNode }) {
   );
 }
 
-export function VisualPlaceholder({ id }: { id: string }) {
+/**
+ * `<Visual id … />`: el servidor valida los parámetros y escribe la descripción en texto (se lee
+ * aunque la gráfica aún no cargue); el dibujo y sus controles viven en `components/visuals`.
+ */
+export function VisualBlock(props: VisualProps) {
+  const resolved = resolveVisual(props);
+  // `content:check` ya reporta esto con la línea del archivo; aquí solo evita dibujar algo inválido.
+  if (!resolved.ok) throw new Error(`<Visual>: ${resolved.problems[0] ?? "parámetros inválidos"}`);
+  const { visual } = resolved;
   return (
-    <Block kind="visual" label="Visual interactivo">
-      <p>El visual «{id}» llega en una fase posterior.</p>
+    <Block kind="visual" label={VISUALS[visual.id].label} title={visual.title ?? undefined}>
+      <InlineMarkdown text={describeVisual(visual)} />
+      <VisualStage visual={visual} />
     </Block>
   );
 }

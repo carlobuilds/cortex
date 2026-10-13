@@ -4,6 +4,7 @@ import rehypeKatex from "rehype-katex";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import { BLANK, type ComponentSpec } from "./core/lesson-api";
+import { describeVisual, resolveVisual } from "./core/visuals";
 import { rehypeLessonSteps } from "./lesson-steps";
 
 /**
@@ -244,6 +245,16 @@ function remarkCortexGuard(options: { components: Readonly<Record<string, Compon
           if (blanks !== respuestas.length) {
             fail(node.position, `<Desvanecido>: hay ${blanks} hueco(s) ${BLANK} en pasos y ${respuestas.length} respuesta(s)`);
           }
+        }
+      }
+      if (name === "Visual" && typeof values.get("id") === "string") {
+        // Los parámetros son texto; `visuals.ts` dice cuáles usa cada visual y si los números tienen sentido.
+        const props = Object.fromEntries([...values].filter((entry): entry is [string, string] => typeof entry[1] === "string"));
+        const resolved = resolveVisual(props);
+        if (!resolved.ok) for (const problem of resolved.problems) fail(node.position, `<Visual>: ${problem}`);
+        else {
+          const problem = attributeTextProblem(describeVisual(resolved.visual));
+          if (problem) fail(node.position, `<Visual>: la descripción no se puede dibujar. ${problem}`);
         }
       }
     };

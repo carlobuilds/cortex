@@ -8,6 +8,8 @@ import { THEME_BOOT } from "@/lib/theme";
 import { APP_NAME } from "@/lib/app";
 // KaTeX: CSS y fuentes locales (desde node_modules; ninguna red).
 import "katex/dist/katex.min.css";
+// Mafs (ADR-021): solo su CSS base, que no pide nada a la red. `mafs/font.css` no se usa (la fuente es Geist).
+import "mafs/core.css";
 import "./globals.css";
 
 export const metadata: Metadata = {

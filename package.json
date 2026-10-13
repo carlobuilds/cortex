@@ -40,6 +40,7 @@
     "hast-util-to-html": "9.0.5",
     "katex": "0.16.47",
     "lucide-react": "1.49.0",
+    "mafs": "0.21.0",
     "mathjs": "15.2.0",
     "mathlive": "0.111.0",
     "next": "16.3.8",

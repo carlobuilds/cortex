@@ -414,6 +414,156 @@
   .lesson-block[data-kind="feynman"] {
     --block: var(--streak);
   }
+  .lesson-block[data-kind="visual"] {
+    --block: var(--success);
+  }
+
+  /* Visuales interactivos (Fase 3): gráfica, controles y lectura, de arriba abajo. */
+  .plot-frame {
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+  .visual-control {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    font-size: var(--text-label);
+    color: var(--ink-2);
+  }
+  .visual-control > label,
+  .visual-control > span {
+    font-weight: 500;
+  }
+  .visual-control > output {
+    min-width: 4.5em;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    color: var(--ink);
+  }
+  .visual-control > [data-slot="toggle-group"] {
+    justify-self: start;
+  }
+  .visual-control > input[type="range"] {
+    width: 100%;
+    min-width: 0;
+    height: 1.5rem;
+    accent-color: var(--brand);
+    cursor: pointer;
+  }
+  /* En pantallas angostas el control ocupa su propia fila, bajo la etiqueta y el valor. */
+  @media (max-width: 30rem) {
+    .visual-control {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .visual-control > input[type="range"],
+    .visual-control > [data-slot="toggle-group"] {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+  }
+  /* Tabla de verdad: se desplaza dentro de su marco; la columna final (la fórmula) va resaltada. */
+  .truth-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+  .truth-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 0.9375rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .lesson-prose .truth-table {
+    display: table;
+  }
+  .truth-table th,
+  .truth-table td {
+    padding: 0.35rem 0.75rem;
+    border: 1px solid var(--border);
+    text-align: center;
+    white-space: nowrap;
+  }
+  .truth-table th {
+    background: var(--surface-2);
+    font-weight: 600;
+    color: var(--ink);
+  }
+  /* Verdadero y falso se distinguen por el símbolo; el color solo acompaña. */
+  .truth-table td[data-true="true"] {
+    color: var(--success);
+    font-weight: 600;
+  }
+  .truth-table td[data-true="false"] {
+    color: var(--ink-2);
+  }
+  .truth-table [data-final="true"] {
+    background: var(--brand-soft);
+  }
+  /* Sobre brand-soft el texto va en tinta: es el par con contraste AA comprobado en tokens.test.ts. */
+  .truth-table td[data-final="true"] {
+    color: var(--ink);
+  }
+  .truth-table th[data-final="true"] {
+    color: var(--brand);
+  }
+
+  /* Grafo: aristas y vértices con tokens; lo elegido toma el acento. */
+  .graph-svg {
+    display: block;
+    width: 100%;
+    max-width: 24rem;
+    height: auto;
+    margin-inline: auto;
+  }
+  .graph-edge {
+    stroke: var(--ink-2);
+    stroke-width: 1.5;
+  }
+  .graph-edge[data-active="true"] {
+    stroke: var(--brand);
+    stroke-width: 2.5;
+  }
+  .graph-arrow {
+    fill: var(--ink-2);
+  }
+  .graph-node circle {
+    fill: var(--surface-2);
+    stroke: var(--border-strong);
+    stroke-width: 1.5;
+  }
+  .graph-node text {
+    fill: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+  .graph-node[data-active="true"] circle {
+    fill: var(--brand-soft);
+    stroke: var(--brand);
+    stroke-width: 2.5;
+  }
+  .graph-node[data-active="true"] text {
+    fill: var(--brand);
+  }
+
+  .visual-readout {
+    font-size: var(--text-label);
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-2);
+  }
+  .visual-readout > * + * {
+    margin-top: 0.25rem;
+  }
+  .visual-conclusion {
+    font-weight: 600;
+    color: var(--ink);
+  }
   .lesson-steps {
     list-style: decimal;
     padding-left: 1.4em;
@@ -516,6 +666,33 @@
   [data-frame="coral"] { box-shadow: 0 0 0 2px var(--life); }
   [data-frame="cian"] { box-shadow: 0 0 0 2px var(--info); }
   [data-frame="doble"] { box-shadow: 0 0 0 2px var(--brand), 0 0 0 4px var(--xp); }
+}
+
+/*
+ * Mafs (ADR-021): sus variables apuntan a los tokens, así sigue al tema (también dentro de
+ * `.theme-light` / `.theme-dark`). Va SIN capa: el CSS de Mafs tampoco la tiene, y una regla sin
+ * capa le gana a cualquiera dentro de `@layer`, sin importar la especificidad.
+ */
+.MafsView {
+  --mafs-bg: var(--surface);
+  --mafs-fg: var(--ink-2);
+  --mafs-origin-color: var(--ink-2);
+  --mafs-line-color: var(--border-strong);
+  --grid-line-subdivision-color: var(--border);
+  --mafs-red: var(--danger);
+  --mafs-orange: var(--streak);
+  --mafs-yellow: var(--xp);
+  --mafs-green: var(--success);
+  --mafs-blue: var(--info);
+  --mafs-indigo: var(--brand);
+  --mafs-violet: var(--brand);
+  --mafs-pink: var(--life);
+  font-size: var(--text-caption);
+  touch-action: auto;
+}
+.MafsView:focus-visible {
+  border-radius: var(--radius-md);
+  outline: 2px solid var(--ring);
 }
 
 /* Lección por pasos: con JS, antes de hidratar solo se ve el paso 1 (sin JS se ve todo). */

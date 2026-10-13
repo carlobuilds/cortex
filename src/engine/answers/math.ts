@@ -42,7 +42,8 @@ export function normalizeExpression(input: string): string {
     // Valor absoluto con barras: |x| → abs(x) (MathLive y la escritura a mano lo usan).
     .replace(/\|([^|]+)\|/g, "abs($1)")
     // Funciones sin paréntesis o con potencia antes del argumento: `sin x`, `sin ^2x`, `ln x`.
-    .replace(FN_NO_PARENS, (_m, fn: string, pow: string | undefined, arg: string) => `${fn}(${arg})${pow ? `^${pow}` : ""}`)
+    // Si el argumento ya trae paréntesis se deja igual: envolverlo otra vez rompería `log(x, 2)`.
+    .replace(FN_NO_PARENS, (_m, fn: string, pow: string | undefined, arg: string) => `${fn}${arg.startsWith("(") ? arg : `(${arg})`}${pow ? `^${pow}` : ""}`)
     .replace(/\bln\(/g, "log(")
     // `x(x+1)` es multiplicación implícita, no una llamada (mathjs lo leería como función `x`).
     .replace(/([a-zA-Z_][a-zA-Z_0-9]*)\s*\(/g, (m, id: string) => (FUNCTIONS.has(id) ? m : `${id}*(`))
@@ -86,6 +87,21 @@ export function compileExpression(input: string, allowed: readonly string[] | nu
       return typeof value === "number" ? value : Number.NaN;
     },
   };
+}
+
+/**
+ * La expresión en LaTeX, para mostrarla con KaTeX (`"(x^2-1)/(x-1)"` → `\frac{x^{2}-1}{x-1}`).
+ * Lanza `ExpressionError` con las mismas reglas que `compileExpression`.
+ */
+export function toTex(input: string, allowed: readonly string[] | null = null): string {
+  compileExpression(input, allowed);
+  return math
+    .parse(normalizeExpression(input))
+    .toTex({ parenthesis: "auto", implicit: "hide" })
+    // Un número por algo se escribe pegado (`2x`, no `2·x` ni `2 x`); entre números el punto se queda.
+    .replace(/~/g, "")
+    .replace(/(\d)\\cdot\s*(?!\d)/g, "$1")
+    .trim();
 }
 
 /** Valor numérico de una expresión sin variables (`"1/3"`, `"sqrt(2)/2"`, `"0,5"`). */

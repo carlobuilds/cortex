@@ -21,6 +21,14 @@ describe("números", () => {
     expect(evaluateNumber(" −4 ")).toBe(-4);
   });
 
+  it("una función con dos argumentos conserva sus paréntesis (logaritmo con base)", () => {
+    // Antes el normalizador la reescribía como `log((8, 2))` y no se podía interpretar.
+    expect(evaluateNumber("log(8, 2)")).toBeCloseTo(3);
+    expect(compileExpression("log(x, 2)", ["x"]).evaluate({ x: 32 })).toBeCloseTo(5);
+    expect(evaluateNumber("sin^2(pi/2)")).toBeCloseTo(1);
+    expect(evaluateNumber("ln 1")).toBe(0);
+  });
+
   it("rechaza variables y funciones desconocidas con mensaje", () => {
     expect(() => evaluateNumber("x+1")).toThrow(ExpressionError);
     expect(() => evaluateNumber("import(1)")).toThrow(ExpressionError);

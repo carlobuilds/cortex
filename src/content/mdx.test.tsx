@@ -162,6 +162,39 @@ describe("guardia de lecciones · casos de la revisión adversarial", () => {
     expect(fail(`<Visual id="a" ${prop}={["x"]} />\n`)?.message).toMatch(new RegExp(`no tiene la prop '${prop}'`));
   });
 
+  it("<Visual>: valida el visual y sus parámetros, con la línea del componente", () => {
+    expect(fail('<Visual id="grafico" f="x" dominio="0, 1" />\n')?.message).toMatch(/<Visual>: no existe el visual «grafico» \(usa: grafica/);
+    expect(fail('<Visual id="limite" f="x^2" dominio="0, 2" />\n')?.message).toMatch(/<Visual>: el visual «limite» necesita 'a'/);
+    expect(fail('<Visual id="grafica" f="x*t" dominio="0, 1" />\n')?.message).toMatch(/<Visual>: f: No esperaba la variable «t»/);
+    expect(fail('<Visual id="grafica" f="x" dominio="0, 1" n="3" />\n')?.message).toMatch(/<Visual>: el visual «grafica» no usa 'n'/);
+    const r = fail('Texto.\n\n<Visual id="grafica" f="x^2" dominio="3, -3" />\n');
+    expect(r?.message).toMatch(/<Visual>: dominio debe ser "min, max"/);
+    expect(r?.line).toBe(12);
+  });
+
+  it("<Visual>: los cuatro visuales de Cálculo compilan y se dibujan con su descripción", () => {
+    const body = [
+      '<Visual id="grafica" f="1/x" dominio="-3, 3" rango="-6, 6" titulo="Una asíntota" />',
+      '<Visual id="limite" f="(x^2-9)/(x-3)" a="3" dominio="0, 6" />',
+      '<Visual id="secante-tangente" f="x^2" a="1" dominio="-1, 3.5" />',
+      '<Visual id="riemann" f="x^2" dominio="0, 2" n="8" />',
+    ].join("\n\n");
+    expect(fail(`${body}\n`)).toBeNull();
+    const html = renderToStaticMarkup(<LessonBody file="f.mdx" source={`${FM}${body}\n`} />);
+    expect(count(html, 'data-kind="visual"')).toBe(4);
+    expect(html).toContain("Una asíntota");
+    expect(html).toContain("Acércate al límite");
+    // La descripción llega dibujada desde el servidor (KaTeX); la gráfica se dibuja al montar (ADR-021).
+    expect(count(html, 'class="katex"')).toBeGreaterThanOrEqual(4);
+    expect(html).not.toMatch(/\$f\(x\)/);
+    expect(count(html, 'class="MafsView"')).toBe(4);
+    expect(html).not.toContain("<svg");
+    // Cada control tiene su etiqueta y el valor que anuncia el lector de pantalla.
+    expect(count(html, 'type="range"')).toBe(3);
+    expect(html).toContain('aria-valuetext="8 rectángulos"');
+    expect(html).toContain('role="status"');
+  });
+
   it("<Desvanecido>: los huecos ___ deben coincidir con las respuestas", () => {
     expect(fail('<Desvanecido pasos={["a ___ b ___"]} respuestas={["x"]} />\n')?.message).toMatch(/2 hueco\(s\) ___ en pasos y 1 respuesta/);
     expect(fail('<Desvanecido pasos={["a ___ b ___"]} respuestas={["x", "y"]} />\n')).toBeNull();

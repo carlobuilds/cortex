@@ -60,9 +60,35 @@ Componentes MDX disponibles. Desde la Fase 1, `<Predice>` (escribes tu predicci�
 | `<Conexion materia="...">` | Vínculo con otra materia o con IA |
 | `<Resumen>` | Tres líneas finales |
 | `<Feynman>` | Reto de explicar con tus palabras |
-| `<Visual id="...">` | Visual interactivo registrado en el código (Mafs, simulaciones) |
+| `<Visual id="..." ...>` | Visual interactivo. El `id` elige cuál y los demás atributos son sus parámetros (ver "Visuales") |
 
 Matemáticas con `$...$` y `$$...$$` (KaTeX). Una fórmula que KaTeX no puede dibujar es error (no se muestra roja en silencio).
+
+### Visuales
+
+Desde la Fase 3 `<Visual>` dibuja una gráfica interactiva (Mafs, ADR-021). Todos los parámetros son **texto**:
+
+```mdx
+<Visual id="limite" f="(x^2-9)/(x-3)" a="3" dominio="0, 6" />
+```
+
+| `id` | Obligatorios | Opcionales | Qué hace |
+|---|---|---|---|
+| `grafica` | `f`, `dominio` | `rango`, `titulo` | La gráfica de `f`, con huecos, saltos y asíntotas marcados |
+| `limite` | `f`, `a`, `dominio` | `rango`, `titulo` | Dos puntos se acercan a `a` por cada lado; al llegar cerca dice a qué valor tiende cada uno |
+| `secante-tangente` | `f`, `a`, `dominio` | `rango`, `titulo` | La secante entre `a` y `a + h`; al encoger `h` aparece la tangente y su pendiente |
+| `riemann` | `f`, `dominio` | `n`, `rango`, `titulo` | Rectángulos bajo la curva; se elige `n` y dónde se toma la altura, y compara la suma con la integral |
+
+- **`f`**: la función, con `x` como única variable y la misma sintaxis que las respuestas simbólicas (`x^2`, `sqrt(x)`, `sin(x)`, `ln(x)`, `abs(x)`, `floor(x)`, `pi`, `e`).
+- **`dominio`** y **`rango`**: `"min, max"` con `min < max`. La coma separa, así que los decimales van con punto (`"-1.5, 1.5"`); se aceptan expresiones (`"0, 2*pi"`). Sin `rango`, la vista vertical se ajusta a la curva, incluye el eje x y recorta lo que se dispara junto a una asíntota.
+- **`a`**: un número dentro del dominio, sin tocar los extremos. En `limite` la función puede no existir en `a` (es el caso interesante); en `secante-tangente` debe existir.
+- **`n`** (solo `riemann`): entero de 1 a 100; por defecto 4. `f` debe estar definida en todo el dominio.
+- **`titulo`**: título opcional del bloque. La frase que describe el visual se escribe sola (función y dominio) y es lo que lee un lector de pantalla.
+
+Reglas de uso:
+- Un visual va donde **enseña algo** (docs/04: doble codificación, no decoración) y siempre **antes** del cierre (`<Conexion>`, `<Resumen>`, `<Feynman>`).
+- `limite` y `secante-tangente` muestran una conclusión numérica con "≈" (a qué valor se acerca, cuál es la pendiente). Sale de evaluar `f`, no de un texto escrito a mano: al agregar uno, ábrelo en la app y comprueba que la conclusión coincide con lo que afirma la lección.
+- `pnpm content:check` rechaza, con la línea: un `id` que no existe, parámetros que faltan o que ese visual no usa, una `f` que no se puede interpretar o que usa otra variable, y números fuera de rango.
 
 ### Cómo escribir dentro de MDX (escapes)
 
@@ -83,7 +109,7 @@ Además, `pnpm content:check` (y `next build`) rechazan:
 - Un `$` sin cerrar (la fórmula quedaría como texto crudo).
 - HTML dentro de un atributo (`vector<int>` se perdería): escríbelo entre backticks.
 - Comandos de KaTeX que cargan cosas externas (`\href`, `\url`, `\includegraphics`).
-- Imágenes Markdown (`![alt](url)` o `![alt][ref]`), en el texto o en un atributo: el navegador las pediría a la red. Los visuales van con `<Visual id>`. Los enlaces `[texto](url)` sí se permiten (no cargan nada solos).
+- Imágenes Markdown (`![alt](url)` o `![alt][ref]`), en el texto o en un atributo: el navegador las pediría a la red. Los visuales van con `<Visual id>` (ver "Visuales"). Los enlaces `[texto](url)` sí se permiten (no cargan nada solos).
 - Etiquetas HTML con atributos; solo se permiten `<br> <sub> <sup> <kbd> <mark> <small> <abbr title> <u> <s>`.
 - Archivos `.mdx` guardados con BOM (guárdalos como UTF-8 sin BOM).
 

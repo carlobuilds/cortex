@@ -8,7 +8,7 @@ import { StreakChip } from "@/components/hud/streak-chip";
 import { XpBar } from "@/components/hud/xp-bar";
 import { PageHeader } from "@/components/layout/page-header";
 import { InlineMarkdown } from "@/components/lessons/inline-markdown";
-import { ConceptBox, FadedExample, Pitfall, PredictPrompt } from "@/components/lessons/lesson-blocks";
+import { ConceptBox, FadedExample, Pitfall, PredictPrompt, VisualBlock } from "@/components/lessons/lesson-blocks";
 import { FormulaDemo } from "@/components/study/formula-demo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -214,6 +214,22 @@ export default function StylePage() {
           <Pitfall>
             <InlineMarkdown text="$0/0$ no es un número: es una señal de que hay que trabajar más." />
           </Pitfall>
+        </div>
+      </Section>
+
+      <Section id="visuales" title="Visuales de lección · en ambos temas">
+        <div className="grid gap-4 xl:grid-cols-2">
+          <div className="theme-dark lesson-prose rounded-xl border bg-background p-4 text-foreground sm:p-5">
+            <VisualBlock id="limite" f="(x^2-1)/(x-1)" a="1" dominio="-2, 4" />
+            <VisualBlock id="secante-tangente" f="x^2" a="1" dominio="-1, 3.5" />
+          </div>
+          <div className="theme-light lesson-prose rounded-xl border bg-background p-4 text-foreground sm:p-5">
+            <VisualBlock id="riemann" f="x^2" dominio="0, 2" n="4" />
+            <VisualBlock id="grafica" f="floor(x)" dominio="-2.5, 3.5" titulo="Una función con saltos" />
+          </div>
+        </div>
+        <div className="lesson-prose">
+          <VisualBlock id="grafica" f="1/x" dominio="-3, 3" rango="-6, 6" titulo="Una asíntota vertical" />
         </div>
       </Section>
 

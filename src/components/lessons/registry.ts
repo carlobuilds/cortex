@@ -8,7 +8,7 @@ import {
   Pitfall,
   PredictPrompt,
   Summary,
-  VisualPlaceholder,
+  VisualBlock,
   WorkedExample,
 } from "./lesson-blocks";
 
@@ -25,7 +25,7 @@ export const LESSON_COMPONENTS = {
   Conexion: Connection,
   Resumen: Summary,
   Feynman: FeynmanChallenge,
-  Visual: VisualPlaceholder,
+  Visual: VisualBlock,
 } satisfies Record<LessonComponentName, ComponentType<never>>;
 
 export { LESSON_API };
