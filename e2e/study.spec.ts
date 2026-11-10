@@ -1,6 +1,7 @@
 import { expect, type Page, test } from "@playwright/test";
 import type { CatalogExercise, StudyCatalog } from "../src/content/core/study-catalog";
 import { addDays } from "../src/engine/dates";
+import { displayOrder } from "../src/engine/logic/convention";
 import { gymGameFor } from "../src/engine/session";
 
 /**
@@ -74,6 +75,36 @@ async function answerCurrent(page: Page, cat: StudyCatalog, { correct = true }: 
         for (let k = from; k > target; k--) await page.getByRole("button", { name: `Subir paso ${k + 1}` }).click();
       }
       await page.getByRole("button", { name: /Comprobar/ }).click();
+      break;
+    }
+    case "seleccion_multiple": {
+      // Correcta: exactamente las marcadas. Incorrecta: una opción que no lo es, o (si todas lo son)
+      // solo la primera, que deja fuera a las demás (hay al menos dos opciones).
+      const wrongPick = ex.opciones.findIndex((_, i) => !ex.correctas.includes(i));
+      const picks = correct ? ex.correctas : [wrongPick >= 0 ? wrongPick : 0];
+      for (const i of picks) await page.keyboard.press(LETTERS[i] ?? "A");
+      await page.keyboard.press("Enter");
+      break;
+    }
+    case "conjunto": {
+      const box = page.getByRole("textbox", { name: "Tu conjunto" });
+      await box.fill(correct ? `{${ex.respuesta.join(", ")}}` : "{123456}");
+      await box.press("Enter");
+      break;
+    }
+    case "tabla_verdad": {
+      // Fila por fila con el teclado (V/F y baja sola), en el orden en que se ve.
+      const groups = page.getByRole("radiogroup", { name: /^Fila \d+/ });
+      await expect(groups).toHaveCount(ex.respuesta.length);
+      await groups.first().getByRole("radio").first().focus();
+      // La fila que se ve en la posición `pos` es la canónica `displayOrder(n)[pos]` (convention.ts).
+      const order = displayOrder(ex.respuesta.length);
+      for (let pos = 0; pos < order.length; pos++) {
+        const value = ex.respuesta[order[pos] ?? 0] === "V";
+        // Para fallar basta con voltear la primera fila.
+        await page.keyboard.press((correct || pos > 0 ? value : !value) ? "1" : "0");
+      }
+      await page.keyboard.press("Enter");
       break;
     }
     default:

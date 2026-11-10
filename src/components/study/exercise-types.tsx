@@ -9,12 +9,14 @@ import type { Answer } from "@/engine/answers/check";
 import { createRng, seedFrom, shuffle } from "@/engine/rng";
 import { cn } from "@/lib/utils";
 import { MathField } from "./math-field";
+import { MATH_TYPE_MODULES } from "./math-types";
 import { RichText } from "./rich-text";
 import { isTyping } from "@/lib/keyboard";
 
 /**
  * Un módulo por tipo de ejercicio: borrador inicial, componente de entrada y cómo se convierte
- * el borrador en una `Answer` para el verificador. La Fase 2 agrega los de código aquí mismo.
+ * el borrador en una `Answer` para el verificador. Los de código (Fase 2) viven en `components/code`
+ * y los de matemáticas (Fase 3) en `math-types.tsx`.
  */
 
 export interface InputProps<D> {
@@ -328,6 +330,10 @@ export const TYPE_MODULES: Record<string, TypeModule<never>> = {
   ordenar: order as unknown as TypeModule<never>,
   predecir_salida: output as unknown as TypeModule<never>,
   autoevaluacion: self as unknown as TypeModule<never>,
+  // Fase 3 (`math-types.tsx`).
+  seleccion_multiple: MATH_TYPE_MODULES.seleccion_multiple as unknown as TypeModule<never>,
+  conjunto: MATH_TYPE_MODULES.conjunto as unknown as TypeModule<never>,
+  tabla_verdad: MATH_TYPE_MODULES.tabla_verdad as unknown as TypeModule<never>,
 };
 
 /** ¿La app ya sabe jugar este tipo de ejercicio? Los que no, se omiten de práctica, repaso y jefes. */

@@ -151,6 +151,9 @@ ejercicios:
 | `depurar` (Debug Dojo) | `lenguaje` (`python` o `c`), `codigo` (con el error), `linea_bug` (número o lista, 1-based), `solucion`, `tests` | La `solucion` pasa los tests; el `codigo` NO los pasa; la solución cambia exactamente las líneas de `linea_bug` (sin agregar líneas) |
 | `parsons` | `lenguaje`, `lineas` (orden correcto; en Python con sangría de 4 espacios), `distractores` (opcional), `tests` (opcional) | ≥ 3 líneas; ningún distractor igual a una línea; si hay `tests`, las líneas unidas en orden los pasan |
 | `rastreo_memoria` (solo C) | `lenguaje: c`, `codigo` (programa completo), `pasos`: lista de `{ linea, pila, heap?, nota?, pregunta?, respuesta?, expr?, formato?, vez? }`; cada celda `{ nombre, valor, expr?, formato? }` | Al menos una pregunta. Inserta `printf(formato, expr)` justo después de `linea` (en su `vez`-ésima ejecución), compila, ejecuta y compara con `respuesta`/`valor` |
+| `tabla_verdad` | `formula` (texto, gramática abajo), `respuesta`: lista de `V`/`F` con la columna final en **orden canónico** | Recalcula la tabla con `sympy.logic` (lee la fórmula con la misma gramática que la app) y compara fila por fila. La app la compara además con su propio intérprete |
+| `conjunto` | `respuesta`: lista de elementos sin orden (números, pares `"(1, 2)"` o texto), `verificar` obligatorio | `verificar` debe dar un conjunto finito (`set`, lista o `FiniteSet`); se comparan como conjuntos: `"1/2"` y `0.5` son el mismo elemento. Sin repetidos en `respuesta` |
+| `seleccion_multiple` | `opciones`, `correctas` (lista de índices, al menos uno) | Índices únicos y en rango. Con `verificar.sympy` o `.python`, debe dar una lista con **un booleano por opción** (`True` = correcta) y se compara con `correctas`: `[isprime(n) for n in [2, 4, 7, 9]]` |
 
 **Tests de `codigo` en Python:** lista de `{ expr: "f(2)", esperado: 4, tolerancia: 0 }`. `expr` se evalúa después de ejecutar la solución.
 **Tests de `codigo` en C:** lista de `{ entrada: "3 4\n", salida: "7\n" }`; `solucion` es un programa completo con `main`. Se compila con `gcc -Wall -O0` y se compara salida (sin espacios finales).
@@ -159,11 +162,26 @@ ejercicios:
 
 **Rastreo de memoria:** `linea` es la línea (1-based) que se acaba de ejecutar en ese paso. Las direcciones no se muestran: un apuntador se dibuja como `→ nombre`; un valor sin inicializar, como `basura`. Solo se permiten formatos deterministas (`%d %i %u %c %s %f %.2f %g %x %ld %lu %lf %zu`; nunca `%p`). Si la línea está dentro de un ciclo, `vez` dice cuál de sus ejecuciones se mira. No pongas `linea` en una línea `if`/`for` sin llaves (el `printf` quedaría como su cuerpo).
 
-**Texto de los ejercicios.** `enunciado`, `explicacion`, `pistas`, `opciones`, `elementos`, `rubrica`, `respuesta_modelo` y los tramos de `texto` (en `completar`) son Markdown con fórmulas `$...$`, sin HTML ni imágenes; `pnpm content:check` los dibuja con el mismo KaTeX estricto de las lecciones (capa 2). Un hueco `___` puede ir dentro de código (`` `7 ___ 2` ``) o de una fórmula.
+**Tabla de verdad.** El usuario llena la columna de la fórmula completa. Las filas tienen un **orden canónico** fijo: todas verdaderas primero y la primera variable (en orden alfabético) es la que cambia más despacio; para `p, q` es VV, VF, FV, FF. `respuesta` va siempre en ese orden, aunque la app las muestre en otro (`src/engine/logic/convention.ts` decide orden y símbolos en pantalla). Hasta 6 variables.
+- **Gramática de `formula`:** variables de una letra minúscula (`p`, `q`, `r`…); constantes `V`/`F` (también `⊤`/`⊥`, `1`/`0`); conectores `¬` (`~`, `!`, `no`, `not`), `∧` (`&`, `&&`, `^`, `y`, `and`), `∨` (`|`, `||`, `o`, `v`, `or`), `⊕` (`⊻`, `xor`), `→` (`->`, `=>`, `⇒`), `↔` (`<->`, `<=>`, `⇔`). `y`, `o` y `v` sueltas son conector solo donde se espera uno.
+- **Precedencia**, de más fuerte a más débil: `¬` · `∧` · `∨` y `⊕` · `→` · `↔`. `→` asocia a la derecha (`p → q → r` es `p → (q → r)`); los demás, a la izquierda. Ante la duda, usa paréntesis.
+- `tests/content/logic-parity.test.ts` comprueba que la app y `verify_content.py` lean igual un corpus de fórmulas; si cambias la gramática, cambia ambos y amplía el corpus.
+
+**Conjunto.** El usuario escribe `{1, 2, 3}` o `1, 2, 3`; el vacío es `∅` o `{}`; los pares van entre paréntesis. El orden no importa, los números se comparan por valor (`1/2` = `0.5`) y el texto sin espacios. Para el conjunto vacío, `respuesta: []`.
+
+**Visual en un ejercicio.** Cualquier ejercicio acepta `visual: { id, ... }` con los mismos parámetros de texto que `<Visual>` en una lección, para preguntas que se responden leyendo una gráfica o un grafo:
+
+```yaml
+    visual: { id: grafo, vertices: "a, b, c, d", aristas: "a-b, b-c, c-d, d-a, a-c" }
+```
+
+Solo se permiten `grafica` y `grafo`: los demás visuales anuncian su conclusión (el valor del límite, la clasificación de la fórmula) y regalarían la respuesta. En un ejercicio el grafo se dibuja fijo, sin elegir vértices (eso mostraría grados y vecinos). La frase que describe el visual se escribe sola y va debajo del dibujo.
+
+**Texto de los ejercicios.** `enunciado`, `explicacion`, `pistas`, `opciones` (también en `seleccion_multiple`), `elementos`, `rubrica`, `respuesta_modelo` y los tramos de `texto` (en `completar`) son Markdown con fórmulas `$...$`, sin HTML ni imágenes; `pnpm content:check` los dibuja con el mismo KaTeX estricto de las lecciones (capa 2). Un hueco `___` puede ir dentro de código (`` `7 ___ 2` ``) o de una fórmula.
 
 **Textos exactos van entre comillas.** `opciones`, `elementos`, `respuestas` (de `completar`), la `respuesta` de `predecir_salida` y la `salida` de los tests de C se muestran o se comparan tal cual: escríbelos entre comillas (`respuesta: "3.0"`). Sin comillas, YAML los lee como número y se pierde la forma (`3.0` → 3). Los enteros (`dificultad`, `correcta`, `vidas`, `tiempo_segundos`, `xp`, `duracion_min`) van sin decimales (`4`, no `4.0`).
 
-Campos comunes: `id`, `tipo`, `dificultad`, `conceptos` (al menos uno), `enunciado`, `explicacion` (obligatoria), `pistas` (opcional, máx. 3), `tarjeta` (opcional), `tiempo_estimado_s` (opcional), `verificar` (opcional en general; obligatorio en `numerico` y `simbolico`), `retirado` (opcional). Un campo que no esté en esta lista ni en la de su tipo es error (atrapa errores de dedo como `tolerancai`).
+Campos comunes: `id`, `tipo`, `dificultad`, `conceptos` (al menos uno), `enunciado`, `explicacion` (obligatoria), `pistas` (opcional, máx. 3), `tarjeta` (opcional), `tiempo_estimado_s` (opcional), `verificar` (opcional en general; obligatorio en `numerico`, `simbolico` y `conjunto`), `visual` (opcional, ver arriba), `retirado` (opcional). Un campo que no esté en esta lista ni en la de su tipo es error (atrapa errores de dedo como `tolerancai`).
 
 ### Respuestas numéricas y simbólicas: qué entiende la app
 

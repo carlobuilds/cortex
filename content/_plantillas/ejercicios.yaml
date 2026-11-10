@@ -199,3 +199,38 @@ ejercicios:
         expr: "*q"
         formato: "%d"
     explicacion: '...'
+
+  # --- tabla_verdad (Fase 3): el usuario llena la columna de la fórmula ---
+  # `respuesta` en orden canónico (todas verdaderas primero; la 1.ª variable cambia más despacio):
+  # para p, q las filas son VV, VF, FV, FF. Gramática y precedencia en docs/05.
+  - id: pref-NN-013
+    tipo: tabla_verdad
+    dificultad: 2
+    conceptos: [concepto-uno]
+    enunciado: 'Llena la tabla de verdad de $(p \to q) \land \lnot q$.'
+    formula: "(p → q) ∧ ¬q"
+    respuesta: [F, F, F, V]
+    explicacion: '...'
+
+  # --- conjunto (Fase 3): elementos sin orden; `verificar` obligatorio y por otra vía ---
+  - id: pref-NN-014
+    tipo: conjunto
+    dificultad: 2
+    conceptos: [concepto-uno]
+    enunciado: 'Escribe el conjunto de soluciones de $2x^2 + 3x - 2 = 0$.'
+    respuesta: ["-2", "1/2"]            # pares: "(1, 2)"; vacío: []
+    verificar: { sympy: "set(solve(2*x**2 + 3*x - 2, x))" }
+    explicacion: '...'
+
+  # --- seleccion_multiple (Fase 3): hay que marcar todas las correctas y solo esas ---
+  # `verificar` (opcional) da un booleano por opción, en orden. `visual` (opcional, cualquier tipo):
+  # una gráfica o un grafo fijo junto al enunciado.
+  - id: pref-NN-015
+    tipo: seleccion_multiple
+    dificultad: 2
+    conceptos: [concepto-uno]
+    enunciado: 'En el grafo, ¿qué vértices tienen grado $3$?'
+    visual: { id: grafo, vertices: "a, b, c, d, e", aristas: "a-b, b-c, c-d, d-e, e-a, a-c" }
+    opciones: ["$a$", "$b$", "$c$", "$d$", "$e$"]
+    correctas: [0, 2]
+    explicacion: '...'

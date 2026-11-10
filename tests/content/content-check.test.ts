@@ -79,6 +79,12 @@ describe("pnpm content:check", () => {
       // Opciones con valores simbólicos y con `verificar.python`.
       add(root, "calc-01-085", "opcion_multiple", `    opciones: ["$2x$", "$x^2$", "$2$"]\n    correcta: 0\n    valores: ["2*x", "x**2", 2]\n    verificar: { sympy: "diff(x**2, x)" }\n`);
       add(root, "calc-01-086", "opcion_multiple", `    opciones: ["3", "4", "9"]\n    correcta: 1\n    valores: [3, 4, 9]\n    verificar: { python: "len(range(0, 10, 3))" }\n`);
+      // Tipos nuevos: la tabla la recalcula sympy.logic; los conjuntos se comparan sin orden
+      // (1/2 y 0.5 son el mismo elemento); la selección múltiple, con un booleano por opción.
+      add(root, "calc-01-092", "tabla_verdad", '    formula: "(p → q) ∧ ¬q"\n    respuesta: [F, F, F, V]\n');
+      add(root, "calc-01-093", "conjunto", '    respuesta: ["0.5", "-2"]\n    verificar: { sympy: "set(solve(2*x**2 + 3*x - 2, x))" }\n');
+      add(root, "calc-01-094", "conjunto", '    respuesta: ["(2, 1)", "(1, 2)"]\n    verificar: { python: "{(a, b) for a in range(1, 4) for b in range(1, 4) if a + b == 3}" }\n');
+      add(root, "calc-01-095", "seleccion_multiple", '    opciones: ["2", "4", "7", "9"]\n    correctas: [2, 0]\n    verificar: { sympy: "[isprime(n) for n in [2, 4, 7, 9]]" }\n');
       const r = contentCheck(root, [CALC]);
       expect(r.out).not.toMatch(/ERROR/);
       expect(r.status).toBe(0);
@@ -91,6 +97,9 @@ describe("pnpm content:check", () => {
       add(root, "calc-01-084", "completar", `    texto: "Crece en (___, ___)."\n    respuestas: ["-1", "2"]\n    verificar: { sympy: "sorted(solve(diff(3*x - x**3, x), x))" }\n`);
       add(root, "calc-01-085", "opcion_multiple", `    opciones: ["$2x$", "$x^2$", "$x+x$"]\n    correcta: 0\n    valores: ["2*x", "x**2", "x+x"]\n    verificar: { sympy: "diff(x**2, x)" }\n`);
       add(root, "calc-01-087", "completar", `    texto: "Vale ___."\n    respuestas: ["1"]\n    verificar: { sympy: "[1, 2]" }\n`);
+      add(root, "calc-01-093", "conjunto", '    respuesta: ["-2", "2"]\n    verificar: { sympy: "set(solve(2*x**2 + 3*x - 2, x))" }\n');
+      add(root, "calc-01-095", "seleccion_multiple", '    opciones: ["2", "4", "7", "9"]\n    correctas: [0, 1]\n    verificar: { sympy: "[isprime(n) for n in [2, 4, 7, 9]]" }\n');
+      add(root, "calc-01-096", "seleccion_multiple", '    opciones: ["2", "4", "7", "9"]\n    correctas: [0]\n    verificar: { sympy: "[isprime(n) for n in [2, 4, 7]]" }\n');
       const r = contentCheck(root, [CALC]);
       expect(r.status).toBe(1);
       expect(r.out).toContain("[calc-01-080]: respuesta 6227020801 pero la verificación da 6227020800");
@@ -98,6 +107,9 @@ describe("pnpm content:check", () => {
       expect(r.out).toContain("[calc-01-084]: hueco 2: respuesta '2' pero la verificación da 1");
       expect(r.out).toContain("[calc-01-085]: la opción 2 también es correcta");
       expect(r.out).toContain("[calc-01-087]: la verificación da 2 valor(es) y hay 1 hueco(s)");
+      expect(r.out).toContain("[calc-01-093]: respuesta ['-2', '2'] pero la verificación da");
+      expect(r.out).toContain("[calc-01-095]: 'correctas' es [0, 1] pero la verificación da [0, 2]");
+      expect(r.out).toContain("[calc-01-096]: verificar debe dar una lista con un booleano por opción (4)");
     });
 
     it("una verificación que no termina se corta y se reporta (no cuelga todo)", () => {

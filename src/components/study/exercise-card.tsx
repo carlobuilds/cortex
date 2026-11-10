@@ -11,6 +11,7 @@ import type { XpBreakdown, Confidence } from "@/engine/xp";
 import { cn } from "@/lib/utils";
 import { ConfidencePicker } from "./confidence-picker";
 import { TYPE_MODULES, type SelfDraft } from "./exercise-types";
+import { ExerciseVisual } from "./math-types";
 import { ReportButton } from "./report-button";
 import { RichText } from "./rich-text";
 import { CONFIG } from "@/engine/config";
@@ -55,9 +56,14 @@ const TYPE_LABELS: Record<string, string> = {
   depurar: "Debug Dojo",
   parsons: "Parsons",
   rastreo_memoria: "Rastreo de memoria",
+  tabla_verdad: "Tabla de verdad",
+  conjunto: "Conjunto",
+  seleccion_multiple: "Selección múltiple",
 };
 
 const CODE_TYPES = new Set(["codigo", "depurar", "parsons", "rastreo_memoria"]);
+/** Tipos cuya respuesta esperada se muestra en monoespaciada (tal como se escribe). */
+const CODE_LIKE_EXPECTED = new Set(["simbolico", "numerico", "conjunto", "tabla_verdad"]);
 
 
 export function ExerciseCard({
@@ -218,6 +224,7 @@ export function ExerciseCard({
       </header>
 
       <RichText text={exercise.enunciado} className="text-lg" />
+      {exercise.visual ? <ExerciseVisual props={exercise.visual} /> : null}
 
       <div className="mt-5">
         <Input exercise={exercise} draft={draft} setDraft={setDraft} disabled={!answering} onEnter={() => void submit()} />
@@ -293,8 +300,9 @@ export function ExerciseCard({
               {exercise.tipo === "predecir_salida" || CODE_TYPES.has(exercise.tipo) ? (
                 <pre className="code-view mt-1">{phase.expected}</pre>
               ) : (
-                <RichText text={exercise.tipo === "simbolico" || exercise.tipo === "numerico" ? `\`${phase.expected}\`` : phase.expected} inline />
+                <RichText text={CODE_LIKE_EXPECTED.has(exercise.tipo) ? `\`${phase.expected}\`` : phase.expected} inline />
               )}
+              {exercise.tipo === "tabla_verdad" ? <span className="text-muted-foreground"> (de arriba abajo)</span> : null}
             </div>
           ) : null}
           {!phase.correct && phase.confidence === 3 ? (

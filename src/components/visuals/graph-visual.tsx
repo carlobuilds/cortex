@@ -17,7 +17,11 @@ const NODE = 16;
 
 const list = (items: readonly string[]) => (items.length ? items.join(", ") : "ninguno");
 
-export function GraphVisual({ graph }: { graph: Graph }) {
+/**
+ * `interactive={false}`: solo el dibujo y el resumen, sin elegir vértices. Es el modo de un
+ * ejercicio, donde ver el grado o los vecinos regalaría la respuesta.
+ */
+export function GraphVisual({ graph, interactive = true }: { graph: Graph; interactive?: boolean }) {
   const arrow = useId();
   const label = useId();
   const [selected, setSelected] = useState<string | null>(null);
@@ -87,20 +91,24 @@ export function GraphVisual({ graph }: { graph: Graph }) {
           ))}
         </svg>
       </div>
-      <div className="visual-control">
-        <span id={label}>Vértice</span>
-        <ToggleGroup type="single" value={selected ?? ""} aria-labelledby={label} onValueChange={(v) => setSelected(v || null)}>
-          {graph.vertices.map((v) => (
-            <ToggleGroupItem key={v} value={v} className="min-w-8 px-2 font-mono">
-              {v}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
-      </div>
-      <div className="visual-readout" role="status" aria-live="polite" aria-atomic="true">
-        <p>{summary}</p>
-        <p className="visual-conclusion">{detail}</p>
-      </div>
+      {interactive ? (
+        <>
+          <div className="visual-control">
+            <span id={label}>Vértice</span>
+            <ToggleGroup type="single" value={selected ?? ""} aria-labelledby={label} onValueChange={(v) => setSelected(v || null)}>
+              {graph.vertices.map((v) => (
+                <ToggleGroupItem key={v} value={v} className="min-w-8 px-2 font-mono">
+                  {v}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </div>
+          <div className="visual-readout" role="status" aria-live="polite" aria-atomic="true">
+            <p>{summary}</p>
+            <p className="visual-conclusion">{detail}</p>
+          </div>
+        </>
+      ) : null}
     </>
   );
 }
