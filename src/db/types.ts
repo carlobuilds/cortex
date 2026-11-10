@@ -79,7 +79,8 @@ export interface UnitProgressRecord extends Versioned {
   lastActivity: number | null;
 }
 
-export type AttemptMode = "practice" | "review" | "boss" | "lesson-quiz";
+/** `exam` desde la Fase 3 (simulacro). Es solo un valor más del texto: no requiere migración. */
+export type AttemptMode = "practice" | "review" | "boss" | "lesson-quiz" | "exam";
 
 export interface AttemptRecord extends Versioned {
   id?: number;

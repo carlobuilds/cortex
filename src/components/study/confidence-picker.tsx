@@ -34,7 +34,7 @@ export function ConfidencePicker({ onPick, onCancel }: { onPick: (c: Confidence)
   }, [onPick, onCancel]);
 
   return (
-    <fieldset className="rounded-lg border border-border-strong bg-surface p-4">
+    <fieldset data-confidence-picker className="rounded-lg border border-border-strong bg-surface p-4">
       <legend className="eyebrow px-1">Antes de ver el resultado · ¿qué tan seguro estás?</legend>
       <div className="mt-1 grid gap-2 sm:grid-cols-3">
         {LEVELS.map((l, i) => (

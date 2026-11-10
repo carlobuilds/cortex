@@ -6,6 +6,7 @@ import { Suspense, useEffect } from "react";
 import { GymHub } from "@/components/gym/gym-hub";
 import { BossRunner } from "@/components/study/boss-runner";
 import { DailySession } from "@/components/study/daily-session";
+import { ExamRunner } from "@/components/study/exam-runner";
 import { LessonQuiz, PracticeRunner, ReviewRunner, SingleExercise } from "@/components/study/runners";
 import { StudyGate } from "@/components/study/study-gate";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,8 @@ function useEscapeTo(href: string) {
       const el = e.target as HTMLElement | null;
       if (el?.closest(".cm-editor") || el?.tagName === "INPUT" || el?.tagName === "TEXTAREA") return;
       if (document.querySelector("[role=alertdialog], [role=dialog]")) return;
+      // A medio simulacro, Esc no saca (se perdería el examen); el botón "Salir" sí.
+      if (document.querySelector("[data-escape-guard]")) return;
       e.preventDefault();
       router.push(href);
     };
@@ -128,6 +131,31 @@ export function SingleExerciseClient({ exerciseId }: { exerciseId: string }) {
           <div>
             <SingleExercise db={ctx.db} catalog={ctx.catalog} profile={ctx.profile} exercise={ex} unit={unit} />
           </div>
+        );
+      }}
+    </StudyGate>
+  );
+}
+
+export function ExamPageClient({ subjectId }: { subjectId: string }) {
+  useEscapeTo(`/materias/${subjectId}`);
+  return (
+    <StudyGate>
+      {(ctx) => {
+        const subject = ctx.catalog.subjects.find((s) => s.id === subjectId);
+        if (!subject) return <p>Materia no encontrada.</p>;
+        return (
+          <ExamRunner
+            db={ctx.db}
+            catalog={ctx.catalog}
+            profile={ctx.profile}
+            subject={subject}
+            doneActions={
+              <Button asChild variant="secondary">
+                <Link href={`/materias/${subjectId}`}>Volver a la materia</Link>
+              </Button>
+            }
+          />
         );
       }}
     </StudyGate>

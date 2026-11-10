@@ -76,6 +76,7 @@ export function ExerciseCard({
   nextLabel = "Siguiente",
   seed = 1,
   onSkip,
+  reveal = true,
 }: {
   exercise: CatalogExercise;
   /** Guarda el resultado; lo que regresa se muestra en la retroalimentación. */
@@ -88,6 +89,11 @@ export function ExerciseCard({
   seed?: number;
   /** Si existe, se ofrece "Saltar" (p. ej. cuando el runner de C no está disponible). No cuenta como intento. */
   onSkip?: () => void;
+  /**
+   * `false` = examen: tras responder no se dice si fue correcto ni se muestra la explicación; se
+   * llama a `onAnswered` y de inmediato a `onNext`.
+   */
+  reveal?: boolean;
 }) {
   const mod = TYPE_MODULES[exercise.tipo];
   const [draft, setDraft] = useState<unknown>(() => mod?.initial(exercise, seed));
@@ -115,6 +121,10 @@ export function ExerciseCard({
       } catch (e) {
         error = e instanceof Error ? e.message : "No se pudo guardar tu respuesta.";
       }
+      if (!reveal && error === null) {
+        onNext();
+        return;
+      }
       setPhase({
         kind: "feedback",
         correct,
@@ -125,7 +135,7 @@ export function ExerciseCard({
       });
       void answer;
     },
-    [exercise, draft, hints, mod, onAnswered],
+    [exercise, draft, hints, mod, onAnswered, onNext, reveal],
   );
 
   const submit = useCallback(async () => {
@@ -244,7 +254,7 @@ export function ExerciseCard({
       {answering ? (
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <Button onClick={() => void submit()} disabled={busy}>
-            {busy ? "Ejecutando pruebas…" : "Comprobar"} <Kbd className="border-current/40 text-current">{CODE_TYPES.has(exercise.tipo) ? "Ctrl ⏎" : "⏎"}</Kbd>
+            {busy ? "Ejecutando pruebas…" : reveal ? "Comprobar" : "Responder"} <Kbd className="border-current/40 text-current">{CODE_TYPES.has(exercise.tipo) ? "Ctrl ⏎" : "⏎"}</Kbd>
           </Button>
           {allowHints && hints < pistas.length ? (
             <>

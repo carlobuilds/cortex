@@ -142,7 +142,7 @@ const hudIntrusion = (page: Page) =>
 test("3 - en un celular no hay desborde horizontal (320 y 375 px)", async ({ page }) => {
   for (const width of [320, 375]) {
     await page.setViewportSize({ width, height: 800 });
-    for (const url of ["/", "/materias", "/materias/calculo", "/materias/calculo/01-limites", "/materias/programacion/01-variables-y-tipos", "/ajustes", "/estilo"]) {
+    for (const url of ["/", "/materias", "/materias/calculo", "/materias/calculo/01-limites", "/materias/programacion/01-variables-y-tipos", "/materias/programacion/simulacro", "/ajustes", "/estilo"]) {
       await page.goto(url);
       expect(await noHorizontalOverflow(page), `${url} a ${width} px`).toBeLessThanOrEqual(0);
     }

@@ -19,6 +19,7 @@ describe("navegación", () => {
     ["/materias/programacion/02-condicionales/jefe", true, true],
     ["/materias/calculo/01-limites", false, true], // la lección trae su barra
     ["/materias/programacion/mapa", false, false], // el mapa es una página de la materia
+    ["/materias/calculo/simulacro", true, true], // el simulacro es de la materia y va con header de foco
     ["/materias/calculo", false, false],
     ["/materias", false, false],
     ["/", false, false],

@@ -29,7 +29,7 @@ cortex/
   scripts/           verify_content.py, content-check.ts, lib/ (Python multiplataforma, paridad YAML)
   src/
     app/             rutas: / · /sesion · /repaso · /gimnasio · /progreso · /cuaderno · /ajustes · /estilo · /catalogo.json
-                     /materias/[materia] (+ /mapa) · /materias/[materia]/[unidad] (+ /quiz, /practica, /jefe)
+                     /materias/[materia] (+ /mapa, /simulacro) · /materias/[materia]/[unidad] (+ /quiz, /practica, /jefe)
     content/
       schema/        esquemas Zod de docs/05 (puro)
       core/          índice, reglas cruzadas, lector YAML, API de componentes de lección y de visuales (puro)
@@ -37,7 +37,7 @@ cortex/
     db/              esquema Dexie y guarda de versión, respaldo, hooks de React
     content/rich-text.ts  texto de ejercicios (Markdown + KaTeX) · core/study-catalog.ts (catálogo del navegador)
     components/      ui (shadcn/ui) · hud · lessons · visuals · subjects · settings · layout · study · gym · pages
-    engine/          config, xp, niveles, racha, fsrs, misiones, cofre, liga, récords, logros, jefes, flujo,
+    engine/          config, xp, niveles, racha, fsrs, misiones, cofre, liga, récords, logros, jefes, simulacro (exam), flujo,
                      maestría, sesión, answers/ (verificadores), plot (geometría de los visuales), logic/ (fórmulas y tablas
                      de verdad), graph (grafos), gym/ (puro TS, sin React)
     db/              (además) migrations.ts (v1→v2) · progress.ts (reglas del motor en una transacción)

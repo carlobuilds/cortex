@@ -52,6 +52,14 @@ Cada unidad cierra con un jefe; cada materia, con un jefe final.
 - **Modo hardcore (opcional):** 1 vida, sin pistas. Da insignia exclusiva.
 - **Insignia de dominio:** pasar el jefe marca la unidad como "dominada"; la "maestría" exige además repasos exitosos a más de 21 días.
 
+## Simulacro de examen
+
+Cada materia tiene un simulacro (Fase 3): eliges unidades y contestas un examen cronometrado **sin retroalimentación hasta entregar**, como en el parcial.
+
+- **Armado:** preguntas repartidas por turnos entre las unidades elegidas y por dificultad (≈ 30 % fácil, 40 % medio, 30 % difícil), ordenadas de fácil a difícil; como mucho un ejercicio largo de código; sin autoevaluaciones. Número de preguntas, segundos por pregunta, mezcla y mínimo aprobatorio en `CONFIG.exam`.
+- **Durante:** sin vidas ni pistas. Puedes saltar una pregunta (vuelve al final de la fila) o entregar antes; lo no contestado cuenta como error.
+- **Al entregar:** se guarda todo de una vez. Cada respuesta da el mismo XP que en la práctica (con rendimientos decrecientes), sin bono por el simulacro: el premio es la evidencia. Resultado por unidad y por concepto (el más débil primero), mejor puntaje de la materia como récord personal y botón para mandar los errores al repaso de hoy.
+
 ## Competir contra ti mismo
 
 - **Fantasma:** en jefes y repasos cronometrados ves una barra "fantasma" con el ritmo de tu mejor intento (aciertos y tiempo). Ganarle al fantasma da bonus.

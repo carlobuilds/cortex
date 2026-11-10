@@ -1,6 +1,7 @@
 import { type AchievementDef, type AchievementStats, ACHIEVEMENTS, bossAchievementId, newAchievements } from "@/engine/achievements";
 import { autopsy, beatsGhost, type BossRun, bossScore, ghostSummary, type GhostEvent } from "@/engine/boss";
 import { type ChestReward, openChest as rollChest } from "@/engine/chest";
+import { type ExamAnswer, examResult, type ExamResult, type ExamRun } from "@/engine/exam";
 import { CONFIG, type Difficulty } from "@/engine/config";
 import { dayKey, localHour, weekStart } from "@/engine/dates";
 import { addAnswer } from "@/engine/day";
@@ -457,6 +458,82 @@ export async function finishBoss(db: CortexDb, input: BossFinishInput): Promise<
     const achievements = await unlockAchievements(db, state.profile, now, extra);
     const { failed, unanswered } = autopsy(run);
     return { ...change, recordsBroken: broken, xp, levelBefore: profile.level, levelAfter: state.profile.level, achievements, restSuggested: false, passed, score, firstPass, beatGhost, failed, unanswered };
+  });
+}
+
+export interface ExamAnswerInput {
+  readonly exercise: ExerciseRef;
+  readonly unit: UnitRef;
+  readonly answer: ExamAnswer;
+}
+
+export interface ExamFinishInput {
+  readonly subjectId: string;
+  readonly subjectName: string;
+  readonly run: ExamRun;
+  /** Las respuestas del examen ya resueltas a sus referencias, en el orden en que se contestaron. */
+  readonly answers: readonly ExamAnswerInput[];
+  readonly now: number;
+  readonly ctx: MissionContext;
+}
+
+export interface ExamOutcome extends Outcome {
+  readonly result: ExamResult;
+  /** Mejor puntaje anterior del simulacro de esta materia (0–100), o `null` si es el primero. */
+  readonly bestBefore: number | null;
+}
+
+/**
+ * Cierra un simulacro: hasta aquí no se guardó nada (no hubo retroalimentación). Ahora, en una
+ * sola transacción, cada respuesta pasa por `recordAnswer` con `mode: "exam"` (mismas reglas de XP
+ * que la práctica, rendimientos decrecientes incluidos, sin bono extra), los errores llegan al
+ * cuaderno, queda una sesión `exam` y el mejor puntaje de la materia en `best:exam:<materia>`.
+ */
+export async function finishExam(db: CortexDb, input: ExamFinishInput): Promise<ExamOutcome> {
+  const { run, now } = input;
+  return db.transaction("rw", tables(db), async () => {
+    const result = examResult(run);
+    const before = await getProfile(db);
+    const key = `best:exam:${input.subjectId}`;
+    const prevBest = await db.records.get(key);
+    const sessionId = await startSession(db, "exam", run.startedAt);
+    const outs: AnswerOutcome[] = [];
+    for (const a of input.answers) {
+      outs.push(
+        await recordAnswer(db, {
+          exercise: a.exercise,
+          unit: a.unit,
+          correct: a.answer.correct,
+          answer: a.answer.answer,
+          timeMs: a.answer.timeMs,
+          confidence: a.answer.confidence,
+          hintsUsed: 0,
+          mode: "exam",
+          sessionId,
+          now: a.answer.at,
+          ctx: input.ctx,
+        }),
+      );
+    }
+    const sessionRecords = await endSession(db, sessionId, now);
+    const best = result.total
+      ? await applyCandidates(db, [{ key, value: Math.round(result.score * 100), direction: "higher", label: `Mejor simulacro de ${input.subjectName}` }], now)
+      : [];
+    const after = await getProfile(db);
+    const xpTotal = outs.reduce((sum, o) => sum + o.xp.total, 0);
+    return {
+      streakEvents: outs.flatMap((o) => o.streakEvents),
+      missionsCompleted: outs.flatMap((o) => o.missionsCompleted),
+      missionXp: outs.reduce((sum, o) => sum + o.missionXp, 0),
+      recordsBroken: [...outs.flatMap((o) => o.recordsBroken), ...sessionRecords, ...best],
+      xp: xpTotal ? { total: xpTotal, parts: [{ label: "Aciertos del simulacro", xp: xpTotal }] } : NO_XP,
+      levelBefore: before.level,
+      levelAfter: after.level,
+      achievements: outs.flatMap((o) => o.achievements),
+      restSuggested: outs.some((o) => o.restSuggested),
+      result,
+      bestBefore: prevBest ? prevBest.value : null,
+    };
   });
 }
 

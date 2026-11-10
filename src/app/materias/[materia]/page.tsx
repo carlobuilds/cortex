@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ClipboardCheck } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -52,6 +52,18 @@ export default async function SubjectPage({ params }: PageProps<"/materias/[mate
         {subject.credits !== null ? <Badge>{subject.credits} créditos</Badge> : null}
         <Badge variant="outline">{subject.cortexPhase === null ? "Backlog" : `Fase ${subject.cortexPhase}`}</Badge>
       </div>
+
+      <Link
+        href={`/materias/${materia}/simulacro`}
+        className="tactile raised group mt-6 flex items-center gap-4 rounded-lg border bg-surface p-4 hover:border-brand/50"
+      >
+        <ClipboardCheck aria-hidden className="size-6 shrink-0 text-brand" />
+        <span className="min-w-0 flex-1">
+          <span className="block font-semibold">Simulacro de examen</span>
+          <span className="mt-0.5 block text-sm text-muted-foreground">Las unidades que elijas, con reloj y sin retroalimentación hasta que entregues.</span>
+        </span>
+        <ArrowRight aria-hidden className="size-5 text-ink-2 group-hover:text-brand" />
+      </Link>
 
       <section aria-labelledby="unidades" className="mt-10">
         <h2 id="unidades" className="mb-4 text-lg font-semibold">

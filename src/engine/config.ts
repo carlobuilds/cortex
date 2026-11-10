@@ -84,6 +84,27 @@ export const CONFIG = {
     expertCardShare: 0.5,
   },
 
+  /**
+   * Simulacro de examen (Fase 3): examen cronometrado de las unidades que elijas, sin
+   * retroalimentación hasta el final. `src/engine/exam.ts` lo arma con estas reglas.
+   *
+   * TODO(Carlo): ajústalas a cómo son tus parciales en la UPIIZ. Valores iniciales razonables:
+   *   - `questions`: cuántas preguntas trae (si las unidades elegidas tienen menos, trae todas).
+   *   - `secondsPerQuestion`: el tiempo total es preguntas × esto. 120 s deja holgura para las de
+   *     dificultad 4–5; si tus parciales son de pocos problemas largos, súbelo y baja `questions`.
+   *   - `mix`: reparto fácil (dificultad 1–2) / medio (3) / difícil (4–5). Debe sumar 1.
+   *   - `passRatio`: mínimo aprobatorio (0.6 = el 6 del IPN). Ponlo más alto si quieres que el
+   *     simulacro sea más exigente que el examen real.
+   *   - `maxLong`: ejercicios largos de código (`codigo`, `depurar`, `rastreo_memoria`) como máximo.
+   */
+  exam: {
+    questions: 12,
+    secondsPerQuestion: 120,
+    mix: [0.3, 0.4, 0.3] as readonly number[],
+    passRatio: 0.6,
+    maxLong: 1,
+  },
+
   flow: {
     /** Acierto esperado al que apunta la selección de ejercicios. */
     targetAccuracy: 0.82,

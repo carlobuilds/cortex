@@ -39,7 +39,14 @@ export interface QuestionInfo {
  * va a la oleada más difícil.
  */
 export function waveSizes(n: number): number[] {
-  const shares = CONFIG.boss.waves;
+  return apportion(n, CONFIG.boss.waves);
+}
+
+/**
+ * Reparte `n` en partes proporcionales a `shares` con el método del mayor residuo; en empate, el
+ * sobrante va a la parte de índice mayor (la más difícil). Lo usan los jefes y el simulacro.
+ */
+export function apportion(n: number, shares: readonly number[]): number[] {
   const exact = shares.map((s) => s * n);
   const sizes = exact.map(Math.floor);
   let left = n - sizes.reduce((a, b) => a + b, 0);

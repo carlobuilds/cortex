@@ -34,11 +34,13 @@ export function navMatch(pathname: string, href: string): "page" | "section" | n
 }
 
 const STUDY_ROUTE = /^\/materias\/[^/]+\/[^/]+\/(quiz|practica|jefe)\/?$/;
-const LESSON_ROUTE = /^\/materias\/[^/]+\/(?!mapa\/?$)[^/]+\/?$/;
+/** El simulacro de examen (Fase 3) es de la materia, no de una unidad. */
+const EXAM_ROUTE = /^\/materias\/[^/]+\/simulacro\/?$/;
+const LESSON_ROUTE = /^\/materias\/[^/]+\/(?!(?:mapa|simulacro)\/?$)[^/]+\/?$/;
 
 /** Rutas de estudio con "header de foco": sin navegación, solo migas y Salir (decisión de Carlo, 2026-10-03). */
 export function isFocusRoute(pathname: string): boolean {
-  return pathname === "/sesion" || pathname.startsWith("/ejercicios/") || STUDY_ROUTE.test(pathname);
+  return pathname === "/sesion" || pathname.startsWith("/ejercicios/") || STUDY_ROUTE.test(pathname) || EXAM_ROUTE.test(pathname);
 }
 
 /** La barra inferior se oculta en foco y en la lección (que trae su propia barra de acciones). */

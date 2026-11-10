@@ -70,6 +70,11 @@ describe("paleta de comandos", () => {
     expect(byId["tema:light"]).toMatchObject({ theme: "light" });
   });
 
+  it("cada materia tiene su simulacro en el grupo de jefes", () => {
+    const r = searchCommands(commands, "simulacro calculo");
+    expect(r.flatMap((g) => g.items.map((i) => [g.group, i.id, "href" in i ? i.href : null]))).toEqual([["Jefes", "simulacro:calculo", "/materias/calculo/simulacro"]]);
+  });
+
   it("limita los resultados por grupo", () => {
     const many = buildCommands(null, Array.from({ length: 12 }, (_, i) => ({ href: `/p${i}`, label: `Página ${i}` })));
     expect(searchCommands(many, "pagina", 5)[0]?.items).toHaveLength(5);

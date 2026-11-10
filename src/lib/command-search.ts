@@ -30,6 +30,7 @@ export function buildCommands(catalog: StudyCatalog | null, pages: readonly { hr
       out.push({ id: `unidad:${u.key}`, group: "Unidades", label: `${n} ${u.title}`, hint: s.name, href: unitHref(u) });
       out.push({ id: `jefe:${u.key}`, group: "Jefes", label: `Jefe · ${u.boss.nombre}`, hint: `${s.name} · unidad ${n}`, href: unitHref(u, "/jefe") });
     }
+    out.push({ id: `simulacro:${s.id}`, group: "Jefes", label: `Simulacro de examen · ${s.name}`, hint: "con reloj, sin retroalimentación", href: `/materias/${s.id}/simulacro` });
     for (const c of s.concepts) {
       out.push({ id: `concepto:${s.id}/${c.id}`, group: "Conceptos", label: c.name, hint: s.name, href: `/materias/${s.id}/mapa` });
     }

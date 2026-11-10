@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { planBoss, startBoss, answerBoss } from "@/engine/boss";
+import { answerExam, type ExamRules, handInExam, planExam, startExam } from "@/engine/exam";
 import { DAY_MS } from "@/engine/dates";
 import { createRng } from "@/engine/rng";
 import { type CortexDb, openCortexDb } from "./db";
@@ -11,6 +12,7 @@ import {
   type ExerciseRef,
   finishBoss,
   finishDailySession,
+  finishExam,
   illusionIds,
   openDailyChest,
   recordAnswer,
@@ -295,6 +297,62 @@ describe("gimnasio y liga", () => {
     const next = await ensureToday(db, new Date(2026, 9, 6, 12).getTime(), CTX);
     expect(next.leagueMoves).toEqual([{ week: "2026-09-28", delta: 1 }]);
     expect((await db.profile.get(1))?.league.division).toBe(1);
+    db.close();
+  });
+});
+
+describe("simulacro", () => {
+  const RULES: ExamRules = { questions: 4, secondsPerQuestion: 60, mix: [0.3, 0.4, 0.3], passRatio: 0.6, maxLong: 1 };
+  const candidates = [1, 2, 3, 4].map((n) => ({ id: ex(n).id, unitKey: unit.key, difficulty: 3, concepts: ["limite-polinomio"], long: false }));
+
+  /** Contesta en orden con `results`; si quedan pendientes, entrega antes. Nada se guarda hasta `finishExam`. */
+  async function exam(db: CortexDb, results: boolean[], now: number) {
+    let run = startExam(planExam(candidates, [unit.key], createRng(1), RULES), now);
+    results.forEach((ok, i) => {
+      run = answerExam(run, { correct: ok, answer: ok ? "3" : "4", timeMs: 30_000, confidence: 2 }, now + 1000 * (i + 1));
+    });
+    if (run.status === "playing") run = handInExam(run, now + 10_000);
+    const answers = run.answers.map((a) => ({ exercise: ex(Number(a.exerciseId.slice(-1))), unit, answer: a }));
+    return finishExam(db, { subjectId: "calculo", subjectName: "Cálculo", run, answers, now: now + 10_000, ctx: CTX });
+  }
+
+  it("al terminar guarda todo: intentos en modo exam, errores al cuaderno, sesión y mejor puntaje", async () => {
+    const db = await openCortexDb(freshIdb());
+    const out = await exam(db, [true, true, false], NOW);
+    expect(out.result).toMatchObject({ correct: 2, total: 4, score: 0.5, passed: false });
+    expect(out.result.unanswered).toHaveLength(1);
+
+    const attempts = await db.attempts.toArray();
+    expect(attempts).toHaveLength(3);
+    expect(attempts.every((a) => a.mode === "exam" && a.hintsUsed === 0)).toBe(true);
+    expect(await db.mistakes.count()).toBe(1);
+    const sessions = await db.sessions.toArray();
+    expect(sessions).toEqual([expect.objectContaining({ kind: "exam", answered: 3, correct: 2, startedAt: NOW })]);
+    expect(sessions[0]?.endedAt).toBe(NOW + 10_000);
+
+    // Mismo XP que la práctica: la suma de lo que pagó cada intento, sin bono por el simulacro.
+    expect(out.xp.total).toBeGreaterThan(0);
+    expect(out.xp.total).toBe(attempts.reduce((sum, a) => sum + (a.xp ?? 0), 0));
+    expect(out.bestBefore).toBeNull();
+    expect((await db.records.get("best:exam:calculo"))?.value).toBe(50);
+
+    const better = await exam(db, [true, true, true, true], NOW + 60_000);
+    expect(better.result.passed).toBe(true);
+    expect(better.bestBefore).toBe(50);
+    expect(better.recordsBroken.map((r) => r.key)).toContain("best:exam:calculo");
+    expect((await db.records.get("best:exam:calculo"))?.value).toBe(100);
+    // Rendimientos decrecientes: los ejercicios ya acertados hoy pagan menos que la primera vez.
+    expect(better.xp.total).toBeLessThan(4 * out.xp.total);
+    db.close();
+  });
+
+  it("entregar sin contestar nada: sin intentos ni XP, y cuenta como 0 %", async () => {
+    const db = await openCortexDb(freshIdb());
+    const out = await exam(db, [], NOW);
+    expect(out.result).toMatchObject({ correct: 0, total: 4, passed: false });
+    expect(await db.attempts.count()).toBe(0);
+    expect(out.xp.total).toBe(0);
+    expect((await db.records.get("best:exam:calculo"))?.value).toBe(0);
     db.close();
   });
 });

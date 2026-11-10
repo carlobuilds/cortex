@@ -8,7 +8,9 @@ async function ruleIds(code: string, filePath: string): Promise<string[]> {
   return (result?.messages ?? []).map((m) => m.ruleId ?? "fatal");
 }
 
-describe("fronteras de pureza (ESLint)", () => {
+// La primera prueba arranca ESLint en frío (config + parser de TS): con la suite en paralelo y la
+// máquina ocupada pasaba de los 5 s por defecto y fallaba sin que nada estuviera mal.
+describe("fronteras de pureza (ESLint)", { timeout: 30_000 }, () => {
   const pureFile = "src/engine/xp.ts";
 
   it("permite importar solo tipos de React en una zona pura", async () => {

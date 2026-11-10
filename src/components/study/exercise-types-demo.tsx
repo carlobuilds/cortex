@@ -19,8 +19,8 @@ export function ExerciseTypesDemo() {
   const [round, setRound] = useState(0);
   const exercise = DEMO_EXERCISES.find((e) => e.id === current) ?? DEMO_PRIMES;
   return (
-    <div className="grid gap-4">
-      <ToggleGroup type="single" value={current} aria-label="Tipo de ejercicio" onValueChange={(v) => v && setCurrent(v)}>
+    <div className="grid min-w-0 gap-4">
+      <ToggleGroup type="single" value={current} aria-label="Tipo de ejercicio" className="flex-wrap" onValueChange={(v) => v && setCurrent(v)}>
         {DEMO_EXERCISES.map((e) => (
           <ToggleGroupItem key={e.id} value={e.id}>
             {LABELS[e.id]}
