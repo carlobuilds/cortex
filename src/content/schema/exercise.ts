@@ -1,3 +1,8 @@
+import { VISUAL_PARAMS } from "@/content/core/lesson-api";
+import { resolveVisual } from "@/content/core/visuals";
+import { elementKey, SetError } from "@/engine/answers/sets";
+import { FormulaError, parseFormula } from "@/engine/logic/formula";
+import { finalColumn, truthTable } from "@/engine/logic/truth-table";
 import { exerciseId, kebab, nonEmptyText, numberOrExpr, unitKey, z } from "./common";
 
 export const EXERCISE_TYPES = [
@@ -12,6 +17,10 @@ export const EXERCISE_TYPES = [
   "depurar",
   "parsons",
   "rastreo_memoria",
+  // Fase 3
+  "tabla_verdad",
+  "conjunto",
+  "seleccion_multiple",
 ] as const;
 export type ExerciseType = (typeof EXERCISE_TYPES)[number];
 
@@ -26,6 +35,29 @@ export const verifySchema = z.union(
 );
 export type Verify = z.infer<typeof verifySchema>;
 
+/**
+ * Visuales que pueden acompañar a un enunciado: solo los que se dibujan fijos. Los demás (un
+ * límite, una tabla de verdad) dicen su conclusión y regalarían la respuesta.
+ */
+export const EXERCISE_VISUALS = ["grafica", "grafo"] as const;
+
+const VISUAL_KEYS: readonly string[] = ["id", ...VISUAL_PARAMS];
+
+/** `visual: { id, ... }` con los mismos parámetros de texto que `<Visual>` en una lección (docs/05). */
+const exerciseVisual = z.record(z.string(), z.string({ error: "los parámetros de un visual van entre comillas (son texto)" })).superRefine((props, ctx) => {
+  const unknown = Object.keys(props).filter((key) => !VISUAL_KEYS.includes(key));
+  if (unknown.length) {
+    ctx.addIssue({ code: "custom", message: `visual no tiene '${unknown[0]}' (usa: ${VISUAL_KEYS.join(", ")})` });
+    return;
+  }
+  if (!(EXERCISE_VISUALS as readonly string[]).includes(props.id ?? "")) {
+    ctx.addIssue({ code: "custom", path: ["id"], message: `en un ejercicio el visual debe ser ${EXERCISE_VISUALS.join(" o ")}` });
+    return;
+  }
+  const resolved = resolveVisual(props);
+  if (!resolved.ok) for (const problem of resolved.problems) ctx.addIssue({ code: "custom", message: problem });
+});
+
 /** Campos comunes a todos los tipos. */
 const common = {
   id: exerciseId,
@@ -37,6 +69,7 @@ const common = {
   tarjeta: z.boolean().optional(),
   tiempo_estimado_s: z.number().positive().optional(),
   verificar: verifySchema.optional(),
+  visual: exerciseVisual.optional(),
   retirado: z.literal(false).optional(),
 };
 
@@ -273,6 +306,74 @@ const selfAssessment = z.strictObject({
   respuesta_modelo: nonEmptyText,
 });
 
+const truthValue = z.enum(["V", "F"], { error: 'cada valor de la tabla es "V" o "F"' });
+
+/**
+ * Tabla de verdad (Fase 3): el usuario llena la columna de la fórmula. `respuesta` va en el orden
+ * canónico de `engine/logic/truth-table.ts` (para p y q: VV, VF, FV, FF), sea cual sea el orden en
+ * que la app la muestre. Aquí se comprueba contra el intérprete de la app; `verify_content.py` la
+ * vuelve a calcular con sympy.
+ */
+const truthTableExercise = z
+  .strictObject({
+    ...common,
+    tipo: z.literal("tabla_verdad"),
+    formula: nonEmptyText,
+    respuesta: z.array(truthValue).min(1),
+  })
+  .superRefine((ex, ctx) => {
+    let column: readonly boolean[];
+    try {
+      column = finalColumn(truthTable(parseFormula(ex.formula)));
+    } catch (e) {
+      ctx.addIssue({ code: "custom", path: ["formula"], message: e instanceof FormulaError ? e.message : "no entendí la fórmula" });
+      return;
+    }
+    if (ex.respuesta.length !== column.length) {
+      ctx.addIssue({ code: "custom", path: ["respuesta"], message: `la tabla tiene ${column.length} filas y la respuesta trae ${ex.respuesta.length}` });
+      return;
+    }
+    const wrong = column.findIndex((value, i) => (value ? "V" : "F") !== ex.respuesta[i]);
+    if (wrong >= 0) {
+      ctx.addIssue({ code: "custom", path: ["respuesta", wrong], message: `la fila ${wrong + 1} vale ${column[wrong] ? "V" : "F"} según la fórmula` });
+    }
+  });
+
+/** Conjunto (Fase 3): elementos sin orden; un elemento es un número, un par `(a, b)` o un texto. */
+const setExercise = z
+  .strictObject({
+    ...common,
+    tipo: z.literal("conjunto"),
+    respuesta: z.array(displayText),
+    verificar: verifySchema,
+  })
+  .superRefine((ex, ctx) => {
+    const keys = new Set<string>();
+    ex.respuesta.forEach((element, i) => {
+      try {
+        const key = elementKey(element);
+        if (keys.has(key)) ctx.addIssue({ code: "custom", path: ["respuesta", i], message: `el elemento «${element}» está repetido` });
+        keys.add(key);
+      } catch (e) {
+        ctx.addIssue({ code: "custom", path: ["respuesta", i], message: e instanceof SetError ? e.message : "elemento inválido" });
+      }
+    });
+  });
+
+/** Selección múltiple (Fase 3): varias opciones correctas; hay que marcarlas todas y solo esas. */
+const multipleSelect = z
+  .strictObject({
+    ...common,
+    tipo: z.literal("seleccion_multiple"),
+    opciones: z.array(displayText).min(2, "opciones inválidas: se necesitan al menos 2"),
+    correctas: z.array(z.number().int().nonnegative()).min(1, "'correctas' necesita al menos una opción"),
+  })
+  .superRefine((ex, ctx) => {
+    if (!uniqueAsText(ex.opciones)) ctx.addIssue({ code: "custom", path: ["opciones"], message: "opciones repetidas" });
+    if (new Set(ex.correctas).size !== ex.correctas.length) ctx.addIssue({ code: "custom", path: ["correctas"], message: "'correctas' tiene índices repetidos" });
+    if (ex.correctas.some((i) => i >= ex.opciones.length)) ctx.addIssue({ code: "custom", path: ["correctas"], message: "'correctas' fuera de rango" });
+  });
+
 /** Un esquema por tipo; `codigo` se despacha además por `lenguaje`. */
 export const exerciseSchemas = {
   opcion_multiple: multipleChoice,
@@ -286,6 +387,9 @@ export const exerciseSchemas = {
   depurar: z.discriminatedUnion("lenguaje", [debugPython, debugC], { error: "lenguaje debe ser 'python' o 'c'" }),
   parsons: z.discriminatedUnion("lenguaje", [parsonsPython, parsonsC], { error: "lenguaje debe ser 'python' o 'c'" }),
   rastreo_memoria: memoryTrace,
+  tabla_verdad: truthTableExercise,
+  conjunto: setExercise,
+  seleccion_multiple: multipleSelect,
 } as const satisfies Record<ExerciseType, z.ZodType>;
 
 /**
@@ -308,6 +412,9 @@ export type SelfAssessmentExercise = z.infer<typeof selfAssessment>;
 export type DebugExercise = z.infer<(typeof exerciseSchemas)["depurar"]>;
 export type ParsonsExercise = z.infer<(typeof exerciseSchemas)["parsons"]>;
 export type MemoryTraceExercise = z.infer<typeof memoryTrace>;
+export type TruthTableExercise = z.infer<typeof truthTableExercise>;
+export type SetExercise = z.infer<typeof setExercise>;
+export type MultipleSelectExercise = z.infer<typeof multipleSelect>;
 export type TraceStep = z.infer<typeof traceStep>;
 export type TraceCell = z.infer<typeof traceCell>;
 export type PythonTest = z.infer<typeof pythonTest>;
@@ -323,7 +430,10 @@ export type Exercise =
   | SelfAssessmentExercise
   | DebugExercise
   | ParsonsExercise
-  | MemoryTraceExercise;
+  | MemoryTraceExercise
+  | TruthTableExercise
+  | SetExercise
+  | MultipleSelectExercise;
 export type RetiredExercise = z.infer<typeof retiredExerciseSchema>;
 
 /** Encabezado de `ejercicios.yaml`; cada ejercicio se valida aparte con `parseExercise`. */

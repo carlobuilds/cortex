@@ -1,5 +1,6 @@
 import type { Exercise } from "../schema";
 import { splitBlanks } from "./blanks";
+import { describeVisual, resolveVisual } from "./visuals";
 
 /** Un texto de un ejercicio que la app dibuja como Markdown + KaTeX. */
 export interface TextField {
@@ -20,6 +21,7 @@ export function exerciseTextFields(ex: Exercise): TextField[] {
   ];
   switch (ex.tipo) {
     case "opcion_multiple":
+    case "seleccion_multiple":
       out.push(...ex.opciones.map((text, i) => ({ field: `opciones[${i}]`, text, inline: true })));
       break;
     case "completar":
@@ -40,6 +42,11 @@ export function exerciseTextFields(ex: Exercise): TextField[] {
       break;
     default:
       break;
+  }
+  // La frase que describe el visual también se dibuja (con KaTeX): es lo que lee un lector de pantalla.
+  if (ex.visual) {
+    const resolved = resolveVisual(ex.visual);
+    if (resolved.ok) out.push({ field: "visual", text: describeVisual(resolved.visual), inline: false });
   }
   return out.filter((f) => f.text.trim() !== "");
 }

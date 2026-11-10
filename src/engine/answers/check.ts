@@ -1,5 +1,6 @@
 import type { Exercise } from "@/content/schema";
 import { closeEnough, evaluateNumber, ExpressionError } from "./math";
+import { formatSet, sameSet, SetError } from "./sets";
 import { symbolicMatch } from "./symbolic";
 import { blankMatches, normalizeOutput } from "./text";
 
@@ -9,6 +10,10 @@ export type Answer =
   | { readonly kind: "text"; readonly value: string }
   | { readonly kind: "blanks"; readonly values: readonly string[] }
   | { readonly kind: "order"; readonly items: readonly string[] }
+  /** Selección múltiple: los índices marcados. */
+  | { readonly kind: "choices"; readonly indexes: readonly number[] }
+  /** Tabla de verdad: la columna en orden canónico; `null` = fila sin llenar. */
+  | { readonly kind: "truth"; readonly values: readonly (boolean | null)[] }
   | { readonly kind: "self"; readonly text: string; readonly met: readonly boolean[] }
   /** Código: el runner ya corrió los tests; aquí solo llega el veredicto. */
   | { readonly kind: "code"; readonly code: string; readonly passed: boolean; readonly summary: string }
@@ -89,6 +94,27 @@ export function checkAnswer(ex: Exercise, answer: Answer): CheckResult {
       if (!answer.text.trim()) return invalid("Escribe tu explicación antes de compararla.");
       const met = answer.met.filter(Boolean).length;
       return met >= Math.ceil(SELF_ASSESSMENT_SHARE * ex.rubrica.length) ? { status: "correct" } : wrong(ex.respuesta_modelo);
+    }
+    case "seleccion_multiple": {
+      if (answer.kind !== "choices") return mismatch(answer, "choices");
+      if (answer.indexes.length === 0) return invalid("Marca al menos una opción.");
+      const marked = new Set(answer.indexes);
+      const ok = marked.size === ex.correctas.length && ex.correctas.every((i) => marked.has(i));
+      return ok ? { status: "correct" } : wrong(ex.correctas.map((i) => ex.opciones[i] ?? "").join(" · "));
+    }
+    case "tabla_verdad": {
+      if (answer.kind !== "truth") return mismatch(answer, "truth");
+      if (answer.values.length !== ex.respuesta.length || answer.values.some((v) => v === null)) return invalid("Llena todas las filas de la tabla.");
+      const ok = ex.respuesta.every((v, i) => (v === "V") === answer.values[i]);
+      return ok ? { status: "correct" } : wrong(ex.respuesta.join(" "));
+    }
+    case "conjunto": {
+      if (answer.kind !== "text") return mismatch(answer, "text");
+      try {
+        return sameSet(answer.value, ex.respuesta) ? { status: "correct" } : wrong(formatSet(ex.respuesta));
+      } catch (e) {
+        return invalid(e instanceof SetError ? e.message : "No entendí el conjunto.");
+      }
     }
     case "codigo": {
       if (answer.kind !== "code") return mismatch(answer, "code");
