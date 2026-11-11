@@ -14,6 +14,8 @@ Revisa el contenido en `$ARGUMENTS` en tres pasos.
   - `enunciado`;
   - `opciones`, y `texto` o `formula` si los hay;
   - el `visual` si lo hay, porque sus parámetros son parte del enunciado;
+  - en `ordenar`, los `elementos` **barajados** y con letra (en el YAML ya vienen en el orden correcto, que es la respuesta; guarda tú la clave);
+  - en `predecir_salida`, el `lenguaje` y el `codigo` que hay que leer (es parte del enunciado);
   - en `codigo`, también el lenguaje y la firma pedida.
 - **Qué nunca le pasas:** `respuesta`, `correcta`, `correctas`, `valores`, `respuestas`, `explicacion`, `pistas`, `verificar`, `solucion` ni `tests`.
 - **Avisos que le das:**
