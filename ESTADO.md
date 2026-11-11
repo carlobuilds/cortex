@@ -102,7 +102,13 @@ Brainstorm con Claude en modo plan; plan aprobado el mismo día.
 ## Decisiones pendientes (preguntar a Carlo)
 - [ ] Programas sintéticos que faltan: programacion, mecanica-electromagnetismo, fundamentos-economicos (los de Cálculo y Discretas ya están; la carpeta oficial es `escom.ipn.mx/docs/oferta/uaIIA2020/`). Versionar o no los PDF: el `.gitignore` deja la decisión en Carlo; por ahora no se versionan.
 - [ ] Confirmar el semestre actual (se asumió 1º; Carlo cursa Cálculo este semestre).
-- [ ] Sprint del parcial: qué temas entran al próximo parcial de Cálculo y su fecha (el coach puede leerla en Calendar).
+- [ ] Sprint del parcial: qué temas entran al próximo parcial de Cálculo y su fecha (el coach puede leerla en Calendar). El `/consejo` de prueba del 2026-11-10 no pudo priorizar sin esto, y el orden de escritura quedó en conflicto (por peso del examen o por número de unidad; ver la bitácora).
+- [ ] Arreglos de `01-limites` que propuso `/revisar-contenido` el 2026-11-10 (ninguno cambia una respuesta):
+  - `calc-01-011` y el `<Desvanecido>` califican mal: `blankMatches` compara texto exacto, la lección dice «simplifica» y el hueco pide «cancela», y «x - 1» con espacios sale mal;
+  - `calc-01-007` es `simbolico` y acepta la expresión sin simplificar; pasarlo a `opcion_multiple`;
+  - frases imprecisas en la lección: «"0/0 no existe": falso» (`leccion.mdx:67`), la tabla «así que» demuestra (`:31`), «O es un límite al infinito disfrazado» (`:74`), la sustitución con f «bien portada» (`:41`);
+  - `\sin` donde la notación de la materia dice «sen» (`\operatorname{sen}`), y `calc-01-018` delata la correcta con su justificación;
+  - `limite-intuitivo` y `definicion-epsilon-delta` con menos de 3 ejercicios; 5 ejercicios repiten los ejemplos de la lección (2 en el jefe); ninguno es de 2.1 gráfico o numérico; ε–δ sin aviso de que está fuera del programa; laterales, límite notable y ε–δ sin ejemplo resuelto.
 - [ ] `weeklyVerdict` (aporte de Carlo): umbrales de semana «sólida», «para ajustar» y «de alerta».
 - [ ] Niveles de rigor formal R0–R4 (propuesta de `arquitecto-razonamiento`): aprobarlos o ajustarlos antes del recomendador de proyectos.
 - [ ] Ruta IA: módulos, prefijo de ids y ritmo (sesión de diseño con `/consejo`).
@@ -178,12 +184,14 @@ Plan (2026-10-13, rama `fase-3-calculo-discretas`): 0) rama y registro · 1) pru
 - [x] `.claude/launch.json` dentro de `cortex/`, para que las sesiones abiertas ahí levanten la vista previa (`cortex` en 3000 y `cortex-verificacion` en 3200)
 - [x] El mapa de maestría con `conceptEvidence` del motor, probado en el navegador (puerto 3200): sin datos, todo «Sin ver»; tras acertar `calc-01-001`, «Límites por sustitución directa» pasa a «Vista» y lo demás sigue igual; sin errores de consola
 - [x] Carlo decidió abrir sus sesiones en `cortex/` (no se enlazan los agentes a la carpeta de arriba)
-- [ ] Prueba con los agentes reales en una sesión nueva **abierta en `cortex/`**: aprobar el MCP `cortex`, correr `/revisar-contenido content/calculo/01-limites` con `resolutor-a-ciegas`, un `/consejo` de prueba y `/coach semana` con un respaldo real. Pendiente por tres razones:
-  - la sesión de v1 no carga agentes nuevos a media sesión;
-  - desde la carpeta de arriba (`0IPN/Cortex`) los agentes **no se encuentran** (verificado con `claude -p --agent resolutor-a-ciegas`: «not found»);
-  - el CLI sin interfaz de esta Mac sigue con la sesión de OAuth vencida (revisado otra vez el 2026-11-10); se arregla con `claude auth login` en una terminal.
-
-  Desde `cortex/`, `claude mcp list` ya muestra `cortex` pendiente de aprobación.
+- [x] Prueba con los agentes reales (2026-11-10, sesión del app movida a `cortex/`; detalle en la bitácora):
+  - **Descubrimiento:** abierta en `0IPN/Cortex`, Agent respondió `Agent type 'resolutor-a-ciegas' not found` y no había `mcp__cortex__*`. Al mover la sesión a `cortex/` aparecieron los 19 agentes y las 5 herramientas del MCP. En esa sesión movida, los comandos de `.claude/commands/` no quedaron como skills («Unknown skill: revisar-contenido»), así que se siguieron a mano; en una sesión abierta directo en `cortex/` deberían salir como `/revisar-contenido` y demás (sin verificar).
+  - **MCP:** a mano, `pnpm --silent mcp:cortex` respondió `initialize` (`cortex` 1.0.0) y `tools/list` con las 5 herramientas. Dentro de la sesión, `weekly_metrics` respondió «No hay respaldos en respaldos/. Exporta uno desde Ajustes de Cortex y guárdalo en esa carpeta.» No se llamó `record_institutional_result`.
+  - **Cercas:** `resolutor-a-ciegas` con `cat content/calculo/01-limites/ejercicios.yaml` → «cerca-ciega: bloqueado (carpetas del repo). Resuelve solo con el enunciado que recibiste; calcula con .venv/bin/python -I o en una carpeta de mktemp -d.» `coach` con Read de `ESTADO.md` → «cerca-coach: bloqueado (ruta fuera de diario/: …/cortex/ESTADO.md). Solo puedes leer y escribir en diario/; los datos de estudio llegan por las herramientas del MCP de Cortex.» En los dos se encontró el script (no salió el respaldo «no encontré el hook»), y el resolutor sí pudo usar `.venv/bin/python -I`.
+  - **`/revisar-contenido content/calculo/01-limites`:** `content:check` en verde (21 ejercicios: 15 por código, 6 manuales). Resolutor a ciegas: 20/20 (todos menos la autoevaluación 010), **0 discrepancias**. Checklist: `experto-matematicas`, `linguista` y `pedagogo` dieron **objeción** sin bloqueo; los arreglos esperan a Carlo en «Decisiones pendientes».
+  - **`/consejo` «¿qué temas del parcial de Cálculo priorizo con < 4 semanas?»:** `experto-matematicas`, `pedagogo` y `cientifico-memoria`, los tres con objeción condicional; la tabla de veredictos está en la bitácora.
+  - **Arreglo en `.claude/` (`5b58e8d`):** `/revisar-contenido` no decía qué pasarle al resolutor en `ordenar` (los `elementos` vienen en el orden correcto, que es la respuesta) ni en `predecir_salida` (el `codigo`). `agent-hooks.test.ts` sigue en 36/36.
+- [ ] `/coach semana` con un respaldo real: no hay `respaldos/` en `cortex/`. Carlo exporta uno desde Ajustes y lo guarda en `cortex/respaldos/`; luego `/coach semana` debe escribir su informe en `diario/`.
 - [ ] `weeklyVerdict` (aporte de Carlo)
 
 ### Fase 3.5 · v1.1 · iPad (PWA), Pizarra, Sync y coach vivo
@@ -272,6 +280,30 @@ Complementan los ADR-001 a 008 de `docs/02`. Cada uno se escribe en el commit de
 **ADR-013 · Nomenclatura** (paso 1, decisión D1). Código, tablas y campos de IndexedDB en inglés, con equivalencias en `docs/02`. Las claves de YAML y del front matter siguen en español (son el formato de contenido). Los componentes MDX conservan su nombre en español porque son la API del contenido (`Predice` se implementa como `PredictPrompt`). Las URL van en español porque son interfaz. `APP_ID = 'cortex'` es inmutable (nombre de la base y marca de los respaldos); renombrar la app solo cambia `APP_NAME`. *Descartado:* todo en español (contradice `CLAUDE.md`) o una capa de traducción.
 
 ## Bitácora
+- 2026-11-10 · **Prueba del equipo con agentes reales** (casilla de la v1). Sesión del app que arrancó en `0IPN/Cortex` y se movió a `cortex/`.
+  - **Pasos y evidencia:** en la casilla «Prueba con los agentes reales» de la v1. Pasaron descubrimiento, MCP, cercas, `/revisar-contenido` y `/consejo`. `/coach semana` queda pendiente porque no hay respaldo. El CLI sigue sin sesión (`claude auth status` → `"loggedIn": false`).
+  - **`/revisar-contenido`, checklist:**
+    - `experto-matematicas` recalculó las 21 respuestas por otra vía (Taylor, `cancel`, x = 1/t, `solveset`) y todas salen bien;
+    - los tres revisores coinciden en la calificación de `completar` y del `<Desvanecido>`, la notación «sen», la frase de 0/0 y los conceptos con menos de 3 ejercicios;
+    - `pedagogo` añade que la práctica y el jefe repiten los ejemplos de la lección;
+    - arreglos propuestos en «Decisiones pendientes»; no se tocó `content/`.
+  - **`/consejo`, veredictos:**
+
+    | Asesor | Veredicto | Punto clave | Recomendación |
+    |---|---|---|---|
+    | `experto-matematicas` | Objeción condicional | La Unidad III pesa más (21.5 de 81 h con docente; 3.5, optimización, 9 h); el tronco es 03 → 04 → 05; «00 a 07» no basta si entra la IV | Carlo dice qué secciones entran; si es solo la III: 03 → 04 → 05 → 07 → 06 |
+    | `pedagogo` | Objeción condicional | 06 y 07 son lo que pide la competencia de la III; el simulacro (12 × 120 s, solo respuesta final) no mide problemas de varios pasos | Sin temario, empezar por 02; diagnóstico de 5 problemas en papel antes de la III |
+    | `cientifico-memoria` | Objeción condicional | En el sprint caben 2–4 unidades nuevas; `currentUnits` manda a la primera unidad no dominada por número | Última unidad nueva en D−12, simulacro en D−6, `requestRetention` en 0.90 |
+
+    - *Coinciden:* sin saber qué entra y la fecha no se puede priorizar; «00 a 07» es una suposición.
+    - *Chocan:* matemáticas y pedagogo ordenan por peso del examen (07 antes que 06, y 00 al final o solo como diagnóstico); memoria pide escribir en orden de número, porque la sesión diaria manda a la primera unidad sin dominar y una 00 escrita se pondría antes que la 01.
+    - Decide Carlo con la cobertura del parcial.
+  - **Hallazgos técnicos:**
+    - sympy 1.14 da mal los límites laterales de `Piecewise` en el punto de corte: `limit(Piecewise((x**2, x<1), (3*x-1, True)), x, 1, '-')` devuelve 2 (es 1); con `x = 1 - h` y `h` positivo sale 1. Hay que evitarlo en los `verificar` de la unidad 02. El de `calc-01-017` no usa `Piecewise`.
+    - Propuestas para el motor, que decide Carlo:
+      - desempatar el calentamiento con un barajado por día (hoy se desempata por id y salen bloques por unidad, `srs.ts:124`);
+      - que `planExam` prefiera ejercicios nunca intentados;
+      - que `workedExampleFor` tome el ejemplo más cercano por debajo del nivel y no use autoevaluaciones (`flow.ts:90`).
 - 2026-11-10 · **v1 · Equipo y coach** (ADR-024 a ADR-026).
   - **Brainstorm y plan con Carlo:**
     - equipo de agentes;
