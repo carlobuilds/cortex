@@ -19,7 +19,11 @@ Estado: **Fases 1 y 2** implementadas (ver `ESTADO.md`). Botón "Empezar sesión
 | `scripts/content-check.ts` | `pnpm content:check`: esquemas, lecciones, paridad YAML y `verify_content.py` en un solo comando |
 | `src/` | La app (Next.js): rutas, contenido, base local, componentes |
 | `tests/`, `e2e/` | Pruebas con Python (`pnpm test:content`) y de navegador (`pnpm test:e2e`) |
-| `.claude/commands/` | Comandos `/fase`, `/nueva-unidad`, `/verificar`, `/revisar-contenido`, `/cerrar-fase` |
+| `.claude/agents/` | Equipo de 19 agentes de Claude Code: asesores, expertos, desarrolladores, resolutor a ciegas y coach (`docs/08`) |
+| `.claude/commands/` | Comandos `/fase`, `/consejo`, `/equipo`, `/nueva-unidad`, `/revisar-contenido`, `/verificar`, `/cerrar-fase`, `/coach` |
+| `.claude/hooks/` | Cercas de los agentes (resolutor a ciegas, coach, infraestructura) |
+| `mcp/cortex/`, `.mcp.json` | MCP del coach: métricas agregadas, perfil de habilidades y resultados institucionales (`pnpm mcp:cortex`) |
+| `respaldos/`, `diario/` | Tus respaldos y los informes del coach con tus calificaciones reales (fuera de git) |
 
 ## Arranque rápido
 
@@ -35,8 +39,8 @@ Estado: **Fases 1 y 2** implementadas (ver `ESTADO.md`). Botón "Empezar sesión
 5. Verificaciones: `pnpm content:check` (contenido) y `pnpm check` (lint, tipos y pruebas). Para las pruebas de navegador, una vez: `pnpm exec playwright install chromium` (en Linux/WSL2: `pnpm exec playwright install --with-deps chromium`); luego `pnpm test:e2e`.
 6. Tus datos: **Ajustes → Descargar respaldo** de vez en cuando. Importar un respaldo reemplaza todo, tras confirmar.
 
-Para trabajar con Claude Code, abre esta carpeta y usa `/fase` (o lee `PRIMER-PROMPT.md`).
+Para trabajar con Claude Code, abre **esta carpeta** (`cortex/`, no la de arriba: aquí viven los agentes, comandos y el MCP) y usa `/fase` (o lee `PRIMER-PROMPT.md`). Para el coach: exporta un respaldo desde Ajustes a `respaldos/` y usa `/coach semana`, `/coach parcial <materia>` o `/coach carrera`; la primera vez Claude Code te pide aprobar el MCP `cortex`.
 
 ## Idea central
 
-Todo el contenido está **pre-escrito** (sin IA en tiempo de ejecución). Como el riesgo número uno de un contenido así es que haya errores, cada respuesta numérica o simbólica se verifica con código antes de entrar al repo. Ver `docs/07-calidad-y-verificacion.md`.
+Todo el contenido está **pre-escrito** (sin IA en tiempo de ejecución en la app; la IA vive en el equipo de agentes de desarrollo y en el coach, que solo ve agregados). Como el riesgo número uno de un contenido así es que haya errores, cada respuesta numérica o simbólica se verifica con código antes de entrar al repo. Ver `docs/07-calidad-y-verificacion.md`.

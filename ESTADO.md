@@ -1,11 +1,11 @@
 # ESTADO · Tablero vivo de Cortex
 
-**Fase actual:** 3 · Cálculo + Matemáticas discretas, en curso en la rama `fase-3-calculo-discretas` (plan aprobado por Carlo el 2026-10-13). Las Fases 0, 1 y 2 están implementadas y verificadas; sigue pendiente su cierre formal: sesión real de Carlo de ~20 min por fase, `/cerrar-fase` y etiquetas `fase-0`, `fase-1`, `fase-2` (no bloquea la Fase 3).
-**Última actualización:** 2026-11-10 · Fase 3: la plataforma está completa (pasos 1 a 6: visuales, lógica y grafos, respuestas ampliadas, tipos nuevos y simulacro de examen). Toca el **CP1** de Carlo: probar `/estilo`, la lección de límites con su visual y un simulacro de Programación. Paso 7 cumplido: los programas oficiales de Cálculo y Discretas están en `curriculum/programas/` y Carlo aprobó el temario de Cálculo (12 unidades, con `00-funciones` antes del piloto); `content/calculo/conceptos.yaml` ya tiene el grafo completo. Sigue el paso 8, que empieza por `00-funciones`. Aportes de Carlo pendientes en esta fase: la convención de la tabla de verdad (`src/engine/logic/convention.ts`) y las reglas del simulacro (`src/engine/config.ts`, bloque `exam`). Quedan los tres aportes opcionales del rediseño marcados `TODO(Carlo)`.
+**Fase actual:** 3 · Cálculo + Matemáticas discretas, en curso en la rama `fase-3-calculo-discretas` (plan aprobado por Carlo el 2026-10-13). Las Fases 0, 1 y 2 están implementadas y verificadas; sigue pendiente su cierre formal: sesión real de Carlo de ~20 min por fase, `/cerrar-fase` y etiquetas `fase-0`, `fase-1`, `fase-2` (no bloquea la Fase 3). **Orden acordado el 2026-11-10:** v1 (equipo y coach, hecho) → CP1 → sprint del parcial de Cálculo → Fase 3.5 (v1.1: iPad PWA, pizarra, sync y coach vivo) → resto de Cálculo y Discretas.
+**Última actualización:** 2026-11-10 · **v1 · Equipo y coach** hecho: 19 agentes en `.claude/agents/` (`docs/08`), comandos `/consejo`, `/equipo` y `/coach`, cercas probadas en `.claude/hooks/` y el MCP de Cortex (`mcp/cortex/`) con métricas agregadas, perfil de habilidades, resultados institucionales y calibración (ADR-024 a ADR-026). Aporte de Carlo nuevo: `weeklyVerdict` en `src/engine/coach-metrics.ts`. Sigue el **CP1** de Carlo (probar `/estilo`, la lección de límites con su visual y un simulacro de Programación) y luego el **sprint del parcial**: Carlo tiene parcial de Cálculo en menos de 4 semanas. Siguen pendientes los aportes de la Fase 3 (convención de la tabla de verdad en `src/engine/logic/convention.ts` y reglas del simulacro en `CONFIG.exam`) y los tres opcionales del rediseño marcados `TODO(Carlo)`. Fase 3: la plataforma está completa (pasos 1 a 6: visuales, lógica y grafos, respuestas ampliadas, tipos nuevos y simulacro de examen).
 
 ## Decisiones tomadas (Carlo, 2026-10-01)
 - Plataforma: **web app** (Next.js).
-- Uso: **solo Carlo, local-first** (sin cuentas ni backend).
+- Uso: **solo Carlo, local-first** (sin cuentas ni backend). *Revisada por ADR-025 (2026-11-10): desde la v1.1 hay un relay de sync propio en el VPS de Carlo.*
 - Contenido: **todo pre-escrito**, sin IA en tiempo de ejecución.
 - Enganche: **rachas y XP, jefes y retos, repaso espaciado, competir contra sí mismo**.
 - Gimnasio cognitivo: **memoria y retención, razonamiento lógico, cálculo mental y velocidad, pensamiento sistémico y creativo**.
@@ -70,9 +70,44 @@ Carlo aprobó el temario alineado con `curriculum/programas/calculo.pdf` (IIA, p
 - Como en el programa, todas las técnicas de integración van antes de la integral definida.
 - **Logaritmos siempre con base:** en lo que ve y escribe el estudiante (enunciados, opciones, pistas, explicaciones, lecciones y respuestas oficiales) nunca va `log` solo: se escribe `ln`, `log10`, `log2` o `log(x, b)`, salvo en notación asintótica ($O(\log n)$), donde la base no importa. Motivo: la app y sympy leen `log` como logaritmo natural, pero en clase y en Stewart `log x` es base 10. No cambia código; la regla está en `docs/05` y en la `notacion` de Cálculo.
 
+## Decisiones tomadas (Carlo, 2026-11-10 · equipo, coach, KPIs, iPad y sync)
+Brainstorm con Claude en modo plan; plan aprobado el mismo día.
+- **Equipo de agentes** (ADR-024): subagentes de Claude Code que asesoran y desarrollan, **todos en Opus**, invocados solo por nombre, en **un solo worktree** (un escritor a la vez). La app sigue **sin IA en tiempo de ejecución**.
+- **Dominios del equipo:**
+  - pedagogía y entrenamientos;
+  - retención;
+  - esfuerzo y rendimiento cognitivo;
+  - recompensas;
+  - razonamiento y rigor formal;
+  - lenguaje: psico y neurolingüística con evidencia (no PNL), inglés técnico, redacción en español, comunicación técnica, lenguajes formales y NLP;
+  - interacción;
+  - matemáticas;
+  - IA;
+  - finanzas: Fundamentos económicos, finanzas personales como educación, IA en finanzas y economía de la IA;
+  - ciberseguridad: proteger Cortex, aprender ciberseguridad y seguridad de IA.
+- **Coach:**
+  - modos: revisión semanal, post-mortem de parciales reales y mentoría de carrera en IA, con proyectos según habilidades y rigor;
+  - se conecta por **MCP**;
+  - ve **solo agregados**, más Google Calendar en solo lectura. Sin Classroom: no hay conector y Carlo prefiere que no.
+- **KPIs institucionales:** calificaciones reales capturadas a mano (sin automatizar el SAES) y calibradas contra los simulacros.
+- **iPad + Apple Pencil:**
+  - el iPad es para todo lo escrito a mano y la Mac para el código; hay un solo progreso entre los dos;
+  - Pencil USB-C o 1.ª gen., sin presión ni hover;
+  - **pizarra primero**, sin reconocer la letra en la app;
+  - **v1.1 como PWA.** La vía nativa (Capacitor + PencilKit) queda fuera de v1.1 hasta que haya espacio para Xcode en la Mac.
+- **Sync:** relay propio en el **VPS de Hostinger** de Carlo, **HTTPS + token por dispositivo**, sin E2EE (el VPS ve el progreso en claro; riesgo aceptado).
+- **Alcance:** plan IPN **+ Ruta de ingeniero en IA en paralelo**, a ritmo menor.
+- **Orden:** v1 (equipo y coach) → CP1 → **sprint del parcial de Cálculo** (examen en menos de 4 semanas) → Fase 3.5 = v1.1, todo junto → lo demás.
+
 ## Decisiones pendientes (preguntar a Carlo)
 - [ ] Programas sintéticos que faltan: programacion, mecanica-electromagnetismo, fundamentos-economicos (los de Cálculo y Discretas ya están; la carpeta oficial es `escom.ipn.mx/docs/oferta/uaIIA2020/`). Versionar o no los PDF: el `.gitignore` deja la decisión en Carlo; por ahora no se versionan.
-- [ ] Confirmar el semestre actual (se asumió 1º).
+- [ ] Confirmar el semestre actual (se asumió 1º; Carlo cursa Cálculo este semestre).
+- [ ] Sprint del parcial: qué temas entran al próximo parcial de Cálculo y su fecha (el coach puede leerla en Calendar).
+- [ ] `weeklyVerdict` (aporte de Carlo): umbrales de semana «sólida», «para ajustar» y «de alerta».
+- [ ] Niveles de rigor formal R0–R4 (propuesta de `arquitecto-razonamiento`): aprobarlos o ajustarlos antes del recomendador de proyectos.
+- [ ] Ruta IA: módulos, prefijo de ids y ritmo (sesión de diseño con `/consejo`).
+- [ ] Para la Fase 3.5: dominio o subdominio del VPS; si `fase-3-calculo-discretas` se fusiona a `main` antes; si la pizarra se activa por defecto en la Mac; cuánto tiempo se guarda la tinta; regla del cofre cuando dos dispositivos lo abren sin conexión.
+- [ ] Vía nativa del iPad: espacio para Xcode y cuenta de Apple (gratis caduca cada 7 días; Developer Program 99 USD/año).
 
 ## Prefijos de ids de ejercicio
 | Materia | Prefijo |
@@ -135,6 +170,30 @@ Plan (2026-10-13, rama `fase-3-calculo-discretas`): 0) rama y registro · 1) pru
 - [ ] Matemáticas discretas
 - [ ] Cierre formal: sesión real de ~20 min de Carlo y etiqueta `fase-3`
 
+### v1 · Equipo y coach (2026-11-10)
+- [x] 19 agentes en `.claude/agents/` (todos en Opus, solo por nombre, sin `Agent`) y `docs/08`
+- [x] Cercas `cerca-ciega`, `cerca-coach` y `cerca-infra` (fallan cerradas; `tests/content/agent-hooks.test.ts`)
+- [x] Comandos nuevos `/consejo`, `/equipo`, `/coach`; actualizados `/nueva-unidad`, `/revisar-contenido`, `/fase`, `/cerrar-fase`
+- [x] MCP de Cortex (`mcp/cortex/`, `.mcp.json`) con 5 herramientas y prueba de privacidad con marcadores; `src/engine/coach-metrics.ts`, `skill-profile.ts`, `institutional.ts` con pruebas; el mapa de maestría usa `conceptEvidence` del motor
+- [x] `.claude/launch.json` dentro de `cortex/`, para que las sesiones abiertas ahí levanten la vista previa (`cortex` en 3000 y `cortex-verificacion` en 3200)
+- [ ] Prueba con los agentes reales en una sesión nueva **abierta en `cortex/`**: aprobar el MCP `cortex`, correr `/revisar-contenido content/calculo/01-limites` con `resolutor-a-ciegas`, un `/consejo` de prueba y `/coach semana` con un respaldo real. Pendiente por tres razones:
+  - la sesión de v1 no carga agentes nuevos a media sesión;
+  - desde la carpeta de arriba (`0IPN/Cortex`) los agentes **no se encuentran** (verificado con `claude -p --agent resolutor-a-ciegas`: «not found»);
+  - el CLI sin interfaz de esta Mac tenía la sesión de OAuth vencida.
+
+  Desde `cortex/`, `claude mcp list` ya muestra `cortex` pendiente de aprobación.
+- [ ] `weeklyVerdict` (aporte de Carlo)
+
+### Fase 3.5 · v1.1 · iPad (PWA), Pizarra, Sync y coach vivo
+Esqueleto en `docs/01`; plan detallado al arrancarla, después del sprint del parcial.
+- [ ] VPS base y `pnpm build:pwa` sin runner de C
+- [ ] Spikes A (tinta), B (respuesta) y C (PWA) en el iPad real → CP-A de Carlo
+- [ ] Eventos, Dexie v3 y respaldo formato 2
+- [ ] Pizarra web, UI para iPad, manifiesto y service worker; tinta en el cuaderno y la autopsia
+- [ ] Relay en el VPS y cliente de sync
+- [ ] Coach vivo: MCP sobre el relay, `ink_page`, KPIs en la app, recomendador con catálogo de la Ruta IA
+- [ ] Deploy, simulacro de restauración y cierre
+
 ### Fase 4 · Mecánica y electromagnetismo
 ### Fase 5 · Fundamentos económicos
 ### Fase 6 · Álgebra lineal
@@ -175,9 +234,63 @@ Complementan los ADR-001 a 008 de `docs/02`. Cada uno se escribe en el commit de
 
 **ADR-023 · Simulacro de examen** (F3, paso 6). Motor puro `src/engine/exam.ts` (`planExam`, avance, saltar, entregar, tiempo, `examResult`) con las reglas en `CONFIG.exam`; ruta `/materias/[materia]/simulacro` con header de foco. *Armado:* por turnos entre unidades (empieza en una al azar para no favorecer siempre a la primera) y, dentro de cada unidad, la banda de dificultad con más faltante respecto a la mezcla; orden final de fácil a difícil; reparto con `apportion` (el mayor residuo de los jefes, ahora compartido). *Sin retroalimentación:* `ExerciseCard` con `reveal={false}` (botón "Responder", sin pistas; sí pide confianza, que alimenta la "ilusión de saber"). *Persistencia al final y en una transacción* (`finishExam`): nada se escribe mientras dura el examen (salir a medias no deja rastro); al entregar, cada respuesta pasa por `recordAnswer` con `mode: "exam"` (mismo XP que la práctica, sin bono), queda una sesión `exam` y el récord `best:exam:<materia>`. `"exam"` es un valor nuevo de `AttemptMode`: solo texto, sin migración de Dexie ni cambio al respaldo (los intentos se validan sueltos). *Esc no sale a medio examen* (`data-escape-guard`; "Salir" sí), porque perder 24 min por una tecla es peor que una tecla que no responde. *Descartado:* guardar cada respuesta al momento (dejaría intentos de un examen sin terminar y XP sin "entregar"), navegar libremente entre preguntas (saltar al final de la fila cubre el caso real con mucho menos estado), vidas en el simulacro (un examen no termina por tres errores).
 
+**ADR-024 · Equipo de agentes y coach** (2026-11-10; decisión de Carlo).
+- **Agentes:** 19 subagentes de Claude Code en `.claude/agents/`, todos `model: opus`, invocados solo por nombre desde los comandos. Con muchas descripciones parecidas, la delegación automática fallaría. Ninguno lleva `Agent`, así que orquesta la sesión principal.
+- **Grupos:**
+  - ciencia del aprendizaje (7 asesores de solo lectura);
+  - expertos de dominio (4; `experto-ciberseguridad` es guardián con poder de bloqueo);
+  - desarrollo (6, cada uno con rutas propias, un escritor a la vez en un solo worktree);
+  - `resolutor-a-ciegas`;
+  - `coach`.
+- **Cercas:** `tools` no limita Bash por comando ni Read por ruta, así que tres agentes llevan hooks `PreToolUse` en Python (`.claude/hooks/`). Se lanzan con un `sh -c` que los busca en `$CLAUDE_PROJECT_DIR` y en `$CLAUDE_PROJECT_DIR/cortex`. Fallan cerradas (código 2 si falta el script, si la llamada no se entiende o ante cualquier error) y tienen 36 pruebas. Son barreras contra accidentes, no un sandbox.
+- **Reutilización:** la revisión de código usa `pr-review-toolkit` en lugar de agentes propios.
+- **Detalle:** `docs/08`. La app sigue sin IA en tiempo de ejecución.
+
+**ADR-025 · Alcance: iPad, relay propio, KPIs y Ruta IA** (2026-11-10; decisión de Carlo; revisa ADR-001).
+- **iPad:** Cortex llega al iPad en la v1.1 como **PWA** servida desde el VPS de Carlo con HTTPS, con pizarra para el Apple Pencil sin reconocimiento de letra (`docs/09`). La vía nativa (Capacitor + PencilKit) queda para después de la v1.1, cuando haya espacio para Xcode.
+- **Sync:** el progreso se une con un **relay propio** en el VPS de Hostinger, **sin E2EE**: HTTPS + token con hash, revocable y por dispositivo. Carlo acepta que el VPS vea su progreso en claro.
+- **Runner de C:** nunca se despliega (ADR-005).
+- **Alcance nuevo:** entran los KPIs institucionales y la Ruta de ingeniero en IA como pista paralela.
+- **Alternativas descartadas:**
+  - E2EE, más seguro pero con la fricción de una frase por dispositivo;
+  - nube de terceros, que rompe la regla de «sin terceros»;
+  - respaldo manual por AirDrop, que mete fricción y riesgo de pisar datos.
+
+**ADR-026 · MCP de Cortex para el coach** (2026-11-10).
+- **Servidor:** `mcp/cortex/` por stdio, con `@modelcontextprotocol/sdk` 1.32.2 en versión exacta (publicada el 2026-10-23, más de dos semanas antes). Lo registra `.mcp.json` como `cortex` y lo arranca `pnpm --silent mcp:cortex`, que corre `tsx mcp/cortex/main.ts`.
+- **Fuente en v1:** el respaldo más reciente de `respaldos/`; en v1.1 será el relay.
+- **Privacidad por construcción:**
+  - el motor puro calcula solo agregados: `coach-metrics.ts`, `skill-profile.ts` (`conceptEvidence` ahora también lo usa el mapa de maestría) e `institutional.ts`;
+  - la capa de datos copia campo por campo, nunca un registro entero;
+  - una prueba con cadenas marcadoras en respuestas, notas, reportes y fantasmas comprueba que ninguna salida las trae.
+- **Herramientas:** `weekly_metrics`, `skill_profile`, `institutional_results`, `record_institutional_result` (escritura atómica en `diario/resultados.yaml`, Zod, materia del plan y sin duplicados) y `calibration_report` (último simulacro de los 21 días previos contra la calificación real).
+- **Límite conocido:** el simulacro no guarda las preguntas sin contestar, así que su puntaje puede sobrestimar. Se corrige en la v1.1 con eventos.
+- **Datos fuera de git:** `diario/` y `respaldos/`.
+
 **ADR-013 · Nomenclatura** (paso 1, decisión D1). Código, tablas y campos de IndexedDB en inglés, con equivalencias en `docs/02`. Las claves de YAML y del front matter siguen en español (son el formato de contenido). Los componentes MDX conservan su nombre en español porque son la API del contenido (`Predice` se implementa como `PredictPrompt`). Las URL van en español porque son interfaz. `APP_ID = 'cortex'` es inmutable (nombre de la base y marca de los respaldos); renombrar la app solo cambia `APP_NAME`. *Descartado:* todo en español (contradice `CLAUDE.md`) o una capa de traducción.
 
 ## Bitácora
+- 2026-11-10 · **v1 · Equipo y coach** (ADR-024 a ADR-026).
+  - **Brainstorm y plan con Carlo:**
+    - equipo de agentes;
+    - coach por MCP;
+    - KPIs reales;
+    - iPad con Pencil como PWA en la v1.1 y nativa después;
+    - sync por relay propio en el VPS;
+    - Ruta IA en paralelo;
+    - sprint del parcial de Cálculo antes de la v1.1.
+  - **Hecho:**
+    - 19 agentes y `docs/08`;
+    - 3 cercas;
+    - 3 comandos nuevos y 4 actualizados;
+    - MCP con 5 herramientas;
+    - 3 módulos puros del motor;
+    - `docs/09` con la visión del iPad y el catálogo del brainstorm.
+  - **Evidencia:**
+    - `pnpm check` en verde (lint, tipos, 860 pruebas unitarias y 277 de contenido) antes de agregar la prueba de las cercas;
+    - 36 pruebas de las cercas;
+    - 25 pruebas nuevas de motor y MCP, incluida la de privacidad y una que arranca el servidor real por stdio con el comando de `.mcp.json`.
+  - **No verificado aún:** los agentes reales y el MCP dentro de una sesión de Claude Code, porque esta sesión no carga agentes nuevos a media sesión. Queda en la checklist de v1.
 - 2026-11-10 · Decisión de Carlo: logaritmos **siempre con base** en todo lo que ve y escribe el estudiante (regla en `docs/05`, sección de funciones del verificador). Sin cambios de código. Revisado en todo `content/`: los `log` sin base que hay son de notación asintótica (`$O(\log n)$` en Programación 11 y en la conexión de `01-limites`), la excepción de la regla porque ahí la base no importa; el único `log(` evaluable es `log(1024, 2)` en un `verificar` de Programación, que ya lleva base. La ayuda del campo de fórmulas no menciona logaritmos.
 - 2026-11-10 · F3 paso 7, cierre: Carlo aprobó el temario con `00-funciones` (ver «Decisiones tomadas · temario de Cálculo»). `content/calculo/conceptos.yaml` tiene ahora 76 conceptos agrupados por unidad, con un comentario que da la sección del programa oficial: 12 de funciones, los 7 del piloto, y 7, 6, 5, 6, 4, 7, 5, 4, 8 y 5 para las unidades 02 a 11. Los ids del piloto no cambian. Solo ganan prerrequisitos de funciones: `limite-intuitivo` ← `funcion-representaciones` y `limite-notable-seno` ← `funciones-trigonometricas`. La lección `01-limites` lleva esos dos en `prerrequisitos` y `programa_ref: "Cálculo, Unidad II (2.1 a 2.3)"`, que antes decía «pendiente». La `notacion` pide escribir la base de los logaritmos (ver decisión pendiente sobre `log`). No se crearon carpetas de unidad: una carpeta sin sus tres archivos no pasa `content:check`, así que cada una nace en el paso 8 con su lección. *Revisado al diseñar:* los prerrequisitos solo afectan al mapa, que los dibuja como nodos fantasma (no se pueden enfocar y no bloquean la práctica); en ⌘K el grupo «Unidades» va antes que «Conceptos», así que los conceptos nuevos con «límite» no le quitan el primer lugar a la lección piloto (e2e de la paleta). El logro del Teorema Fundamental depende del jefe de la unidad 10, no de un id de concepto. *Para el paso 8:* (1) con `00` delante, `fill-boss-review.py calculo` le pondrá repaso al jefe de `01`, y la e2e 9 (`e2e/study.spec.ts`, que cuenta 6 preguntas) tendrá que cambiar; (2) ningún título de unidad nueva debe llevar «límites». `pnpm content:check` en verde: 0 errores; los 12 avisos son los `programa_ref` pendientes de Programación. `pnpm check` en verde (835 pruebas unitarias y 277 de contenido) y las e2e afectadas (8, 9, 10, 16 y 20: sesión, jefe del piloto, mapa en celular, lección por pasos y paleta) en verde en el puerto 3100.
 - 2026-11-10 · F3 paso 7: puerta de temario de Cálculo; programas conseguidos y propuesta de temario. *Programas:* no estaban en la Mac (solo material de clase: Tareas 1 y 2 de Cálculo, cuadernillo 1 de Discretas). Con permiso de Carlo se descargaron de la biblioteca oficial de ESCOM (`escom.ipn.mx/docs/oferta/uaIIA2020/`) `calculo_IIA2020.pdf` (138 835 B, sha256 `eebb3ec8…294355`) y `matematicasDiscretas_IIA2020.pdf` (134 757 B, sha256 `a41a6a17…6c03db`): programa sintético y de estudios de IIA, semestre I, vigentes desde enero de 2020, firmados por ESCOM y UPIIC (Coahuila). Quedaron como `calculo.pdf` y `matematicas-discretas.pdf`, sin versionar. Las Tareas 1 y 2 de Carlo (funciones, Stewart, que está en la bibliografía) coinciden con la Unidad I. *Unidades oficiales de Cálculo:* I Funciones algebraicas y trascendentes (representaciones; monotonía, simetría y periodicidad; inversas; exponenciales, logarítmicas, trigonométricas e inversas, hiperbólicas e inversas; transformaciones) · II Límites y continuidad (gráfica y numérica, analítico, indeterminadas, unilaterales, trigonométricos, infinitos y en el infinito con asíntotas horizontales, verticales y oblicuas, continuidad en un punto y en un intervalo) · III Derivada y aplicaciones (razón de cambio, reglas para algebraicas y trascendentes, cadena, implícita, orden superior, razones relacionadas, diferencial, criterios de 1.ª y 2.ª derivada, gráficas, optimización) · IV Técnicas de integración (antiderivada, sustitución, partes, trigonométricas y sustitución trigonométrica, fracciones parciales) · V Integral definida y aplicaciones (propiedades, TFC, trapecio y Simpson, área entre curvas, volúmenes por discos, arandelas y capas, longitud de arco y área de superficie). *Diferencias con el temario propuesto:* (1) falta toda la Unidad I; (2) el programa pone todas las técnicas de integración antes de la integral definida; (3) temas que no estaban: asíntotas oblicuas, integración numérica, área de superficie, derivadas de hiperbólicas. El piloto `01-limites` cubre II.1 a II.3 sin asíntotas y trae ε–δ, que el programa no pide. *Propuesta a Carlo:* `00-funciones` antes del piloto (las expresiones regulares aceptan `00`; la interfaz diría «Unidad 00»; el repaso entrelazado le agregaría preguntas al jefe de `01` y la e2e 9, que cuenta 6, tendría que cambiar) · 02 continuidad y asíntotas · 03 la derivada · 04 reglas de derivación · 05 cadena, implícita y orden superior · 06 razones relacionadas y diferencial · 07 máximos, mínimos, gráficas y optimización · 08 antiderivadas, sustitución y por partes · 09 trigonométricas, sustitución trigonométrica y fracciones parciales · 10 integral definida, TFC e integración numérica · 11 aplicaciones de la integral (jefe final). *Discretas, para el paso 9:* I Lógica · II Conjuntos · III Números enteros (divisibilidad, Euclides, teorema fundamental de la aritmética, inducción, sistemas de numeración) · IV Estructuras discretas (álgebras booleanas y Karnaugh, relaciones, orden y equivalencia, enteros módulo n y teorema chino del residuo, grafos y árboles). No trae conteo ni recurrencias, que el temario propuesto sí; el sintético numera dos veces la III (el de estudios dice IV). *Leer PDFs en esta Mac:* no hay `poppler` ni `pypdf`, y `swift` falla por un error de las Command Line Tools; PDFKit desde `osascript -l JavaScript` sí extrae el texto.
