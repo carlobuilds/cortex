@@ -103,12 +103,8 @@ Brainstorm con Claude en modo plan; plan aprobado el mismo día.
 - [ ] Programas sintéticos que faltan: programacion, mecanica-electromagnetismo, fundamentos-economicos (los de Cálculo y Discretas ya están; la carpeta oficial es `escom.ipn.mx/docs/oferta/uaIIA2020/`). Versionar o no los PDF: el `.gitignore` deja la decisión en Carlo; por ahora no se versionan.
 - [ ] Confirmar el semestre actual (se asumió 1º; Carlo cursa Cálculo este semestre).
 - [ ] Sprint del parcial: qué temas entran al próximo parcial de Cálculo y su fecha (el coach puede leerla en Calendar). El `/consejo` de prueba del 2026-11-10 no pudo priorizar sin esto, y el orden de escritura quedó en conflicto (por peso del examen o por número de unidad; ver la bitácora).
-- [ ] Arreglos de `01-limites` que propuso `/revisar-contenido` el 2026-11-10 (ninguno cambia una respuesta):
-  - `calc-01-011` y el `<Desvanecido>` califican mal: `blankMatches` compara texto exacto, la lección dice «simplifica» y el hueco pide «cancela», y «x - 1» con espacios sale mal;
-  - `calc-01-007` es `simbolico` y acepta la expresión sin simplificar; pasarlo a `opcion_multiple`;
-  - frases imprecisas en la lección: «"0/0 no existe": falso» (`leccion.mdx:67`), la tabla «así que» demuestra (`:31`), «O es un límite al infinito disfrazado» (`:74`), la sustitución con f «bien portada» (`:41`);
-  - `\sin` donde la notación de la materia dice «sen» (`\operatorname{sen}`), y `calc-01-018` delata la correcta con su justificación;
-  - `limite-intuitivo` y `definicion-epsilon-delta` con menos de 3 ejercicios; 5 ejercicios repiten los ejemplos de la lección (2 en el jefe); ninguno es de 2.1 gráfico o numérico; ε–δ sin aviso de que está fuera del programa; laterales, límite notable y ε–δ sin ejemplo resuelto.
+- [x] Arreglos de `01-limites` que propuso `/revisar-contenido`: Carlo los aprobó y se aplicaron el 2026-11-10 (ver bitácora).
+- [ ] Pulido de `01-limites` que quedó fuera de esos arreglos: aceptar sinónimos en `completar` (p. ej. «divisor» por «factor» en 011) o dejar huecos de una sola respuesta; cerrar el gancho del auto con la velocidad de $s(t)=t^2$; la pista de 003, que casi regala la respuesta; 009 y 020 etiquetados como `0/0` aunque son $\infty-\infty$ e $\infty\cdot0$; `duracion_min: 25` con 4 ejemplos más.
 - [ ] `weeklyVerdict` (aporte de Carlo): umbrales de semana «sólida», «para ajustar» y «de alerta».
 - [ ] Niveles de rigor formal R0–R4 (propuesta de `arquitecto-razonamiento`): aprobarlos o ajustarlos antes del recomendador de proyectos.
 - [ ] Ruta IA: módulos, prefijo de ids y ritmo (sesión de diseño con `/consejo`).
@@ -280,6 +276,29 @@ Complementan los ADR-001 a 008 de `docs/02`. Cada uno se escribe en el commit de
 **ADR-013 · Nomenclatura** (paso 1, decisión D1). Código, tablas y campos de IndexedDB en inglés, con equivalencias en `docs/02`. Las claves de YAML y del front matter siguen en español (son el formato de contenido). Los componentes MDX conservan su nombre en español porque son la API del contenido (`Predice` se implementa como `PredictPrompt`). Las URL van en español porque son interfaz. `APP_ID = 'cortex'` es inmutable (nombre de la base y marca de los respaldos); renombrar la app solo cambia `APP_NAME`. *Descartado:* todo en español (contradice `CLAUDE.md`) o una capa de traducción.
 
 ## Bitácora
+- 2026-11-10 · **Arreglos de `01-limites`** (aprobados por Carlo tras `/revisar-contenido`). Los escribió `autor-contenido` con una especificación cuyos números se comprobaron antes con sympy.
+  - **Lección:**
+    - ejemplos nuevos: laterales, límite notable ($\operatorname{sen}5x/2x$) y encontrar δ;
+    - «Al infinito» y el `<Desvanecido>` usan otras funciones, para que dejen de ser copia de 004 y 006; los huecos ahora piden números (16 y 1/8);
+    - leyes de los límites y sustitución directa con sus hipótesis;
+    - corregidas las frases de 0/0, la tabla y la notación O;
+    - «Nivel experto» avisa que está fuera del programa y pasó antes del cierre;
+    - `programa_ref` precisa qué parte de 2.3 cubre;
+    - «sen» en vez de `\sin`.
+  - **Ejercicios:**
+    - 002 y 007 retirados;
+    - 010, 011, 012, 018 y 021 corregidos;
+    - `verificar` de 017 y 021 por una vía independiente (017 evita el error de `Piecewise`);
+    - nuevos 022 a 027: gráfica con hueco, `floor` con salto en `seleccion_multiple`, tabla de $(e^x-1)/x$, $x\to-\infty$ y dos de ε–δ.
+    - Quedan 25 activos: 14 numéricos, 6 de opción múltiple, 2 de completar y 1 de ordenar, 1 de autoevaluación y 1 de selección múltiple. Por dificultad 5/8/8/3/1, y todos los conceptos con 3 o más.
+  - **Jefe:** sale 004 y entra 018 (laterales); siguen 6 preguntas.
+  - **Evidencia:**
+    - `content:check` en verde (25 ejercicios: 17 por código, 8 manuales);
+    - `pnpm test:content` 313/313;
+    - resolutor a ciegas 13/13 en lo nuevo y lo cambiado, 0 discrepancias;
+    - e2e `smoke` y `study` 10/10 (la lección con 1 tabla y 2 huecos, el jefe con 6);
+    - 022 y 023 vistos en `localhost:3000/ejercicios/…` sin contestar: el hueco en (1, 2) y los saltos de `floor` se dibujan, sin errores de consola.
+  - **Fuera de estos arreglos:** el pulido en «Decisiones pendientes».
 - 2026-11-10 · **Prueba del equipo con agentes reales** (casilla de la v1). Sesión del app que arrancó en `0IPN/Cortex` y se movió a `cortex/`.
   - **Pasos y evidencia:** en la casilla «Prueba con los agentes reales» de la v1. Pasaron descubrimiento, MCP, cercas, `/revisar-contenido` y `/consejo`. `/coach semana` queda pendiente porque no hay respaldo. El CLI sigue sin sesión (`claude auth status` → `"loggedIn": false`).
   - **`/revisar-contenido`, checklist:**
