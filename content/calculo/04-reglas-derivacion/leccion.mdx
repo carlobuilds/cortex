@@ -1,0 +1,170 @@
+---
+titulo: "Reglas de derivación: la definición, una vez y para siempre"
+materia: calculo
+unidad: 04-reglas-derivacion
+duracion_min: 25
+prerrequisitos: [funcion-derivada, limite-notable-seno, derivabilidad-continuidad]
+conceptos: [reglas-basicas-derivacion, regla-producto-cociente, derivada-exponencial-logaritmica, derivada-trigonometrica, derivada-hiperbolica]
+programa_ref: "Cálculo, Unidad III, 3.2.1 (derivación de funciones algebraicas y trascendentes; sin regla de la cadena: las compuestas y las trigonométricas e hiperbólicas inversas van en la 05)"
+---
+
+## El problema
+
+En la unidad 03, derivar $f(x)=\dfrac{1}{\sqrt x}$ por definición pidió superar dos obstáculos seguidos: juntar fracciones y racionalizar. Con la regla de la potencia, en cambio, sale en una línea: $\left(x^{-1/2}\right)'=-\tfrac12x^{-3/2}$. En esta unidad cada regla se demuestra una vez con la definición (o se justifica en una o dos líneas) y después se usa como atajo, que es como se deriva en el examen.
+
+<Predice pregunta="¿Será cierto que $(fg)'=f'g'$? Pruébalo con $f(x)=g(x)=x$. Si recuerdas la regla del cociente, escríbela también." revela="Es falso: $(x\cdot x)'=(x^2)'=2x$, pero $f'g'=1\cdot1=1$. La regla correcta es $(fg)'=f'g+fg'$, y la del cociente, $\left(\frac fg\right)'=\frac{f'g-fg'}{g^2}$. Abajo se demuestran." />
+
+## Potencia, suma y constante
+
+<Concepto titulo="Constante, potencia, múltiplo y suma">
+Si $c$ es una constante y $f$ y $g$ son derivables:
+
+$$(c)'=0,\qquad (x^n)'=nx^{n-1},\qquad (cf)'=cf',\qquad (f\pm g)'=f'\pm g'.$$
+</Concepto>
+
+**Por qué.** Una constante tiene cociente de diferencias $\frac{c-c}{h}=0$. Para $n=1,2,3,\dots$, la factorización $x^n-a^n=(x-a)(x^{n-1}+x^{n-2}a+\dots+a^{n-1})$ generaliza la diferencia de cubos de $\frac{x^3-8}{x-2}$ (unidad 03). Para $x\neq a$,
+
+$$\frac{x^n-a^n}{x-a}=x^{n-1}+x^{n-2}a+\dots+a^{n-1}\;\longrightarrow\;n\,a^{n-1}\quad(x\to a),$$
+
+porque son $n$ términos y cada uno tiende a $a^{n-1}$. Para cualquier exponente real $n$, la regla vale en $x>0$. Con $n$ entero también vale en $x<0$, y lo mismo con las raíces impares: $(\sqrt[3]{x})'=\dfrac{1}{3\sqrt[3]{x^2}}$ vale en todo $x\neq0$. La prueba general llega en la unidad 05. El múltiplo y la suma salen de las leyes de los límites: el cociente de diferencias de $f+g$ es la suma de los de $f$ y $g$, y el de $cf$ es $c$ veces el de $f$.
+
+Revisa: las tres derivadas que en la 03 costaron un límite cada una salen ahora con $n=\tfrac12,-1,-\tfrac12$: $(\sqrt x)'=\tfrac12x^{-1/2}=\dfrac{1}{2\sqrt x}$, $\left(\dfrac1x\right)'=-x^{-2}=-\dfrac{1}{x^2}$ y $\left(\dfrac{1}{\sqrt x}\right)'=-\dfrac{1}{2x^{3/2}}$. Coinciden con las de la 03.
+
+## Producto y cociente
+
+Piensa en $f(x)\,g(x)$ como el área de un rectángulo de lados $f$ y $g$. Si $x$ crece en $h$, los lados crecen $\Delta f$ y $\Delta g$, y el área gana dos franjas, $g\,\Delta f$ y $f\,\Delta g$, más una esquinita $\Delta f\,\Delta g$. Al dividir entre $h$ y hacer $h\to0$, las franjas dan $f'g+fg'$ y la esquinita se va a 0, porque $\Delta f\cdot\frac{\Delta g}{h}\to0\cdot g'$. El producto $f'g'$ no aparece por ningún lado.
+
+<Concepto titulo="Reglas del producto y del cociente">
+Si $f$ y $g$ son derivables en $x$:
+
+$$(fg)'=f'g+fg',\qquad \left(\frac fg\right)'=\frac{f'g-fg'}{g^2}\quad\text{si }g(x)\neq0.$$
+
+Para el cociente: «la derivada de la de arriba por la de abajo, menos la de arriba por la derivada de la de abajo, entre la de abajo al cuadrado».
+</Concepto>
+
+<Ejemplo titulo="Demostración de la regla del producto">
+Sea $p=fg$, con $f$ y $g$ derivables en $x$. Para $h\neq0$, suma y resta $f(x+h)g(x)$ en el numerador del cociente de diferencias y agrupa:
+
+$$\frac{p(x+h)-p(x)}{h}=f(x+h)\cdot\frac{g(x+h)-g(x)}{h}+g(x)\cdot\frac{f(x+h)-f(x)}{h}.$$
+
+Cuando $h\to0$, los dos cocientes tienden a $g'(x)$ y a $f'(x)$ (son las hipótesis), $g(x)$ no depende de $h$, y $f(x+h)\to f(x)$ porque $f$ es derivable en $x$ y, por la unidad 03, continua ahí. Todos esos límites existen y son finitos, así que las leyes del producto y de la suma dan $p'(x)=f(x)g'(x)+g(x)f'(x)$.
+</Ejemplo>
+
+**Mini-ejemplo.** Para $(2x^2-1)(x^3+x)$: $f'=4x$ y $g'=3x^2+1$, así que la derivada es $4x(x^3+x)+(2x^2-1)(3x^2+1)=10x^4+3x^2-1$. Revisa: desarrolla, $(2x^2-1)(x^3+x)=2x^5+x^3-x$, y deriva con la potencia: $10x^4+3x^2-1$.
+
+**El cociente.** Primero $\frac1g$, como el $\frac1x$ de la 03. Con $g(x)\neq0$ (y $g(x+h)\neq0$ para $h$ chico, porque $g$ es continua en $x$):
+
+$$\frac{1}{h}\left(\frac{1}{g(x+h)}-\frac{1}{g(x)}\right)=-\frac{g(x+h)-g(x)}{h}\cdot\frac{1}{g(x+h)\,g(x)}\;\longrightarrow\;-\frac{g'(x)}{g(x)^2}.$$
+
+Luego $\frac fg=f\cdot\frac1g$, y el producto da $\frac{f'}{g}-\frac{fg'}{g^2}=\frac{f'g-fg'}{g^2}$.
+
+## Exponenciales y logaritmos
+
+**$(e^x)'=e^x$.** El cociente es $\dfrac{e^{x+h}-e^x}{h}=e^x\cdot\dfrac{e^h-1}{h}$. En la unidad 01 estimaste con una tabla que $\frac{e^h-1}{h}\to1$; aquí **se acepta** como la propiedad que define a $e$: es la base con la que la pendiente de $y=e^x$ en 0 vale exactamente 1. Entonces $(e^x)'=e^x\cdot1=e^x$. Del mismo modo, **$(a^x)'=a^x\ln a$**, con $a>0$ y $a\neq1$. Como $a^h=e^{h\ln a}$, con $u=h\ln a$ queda $\frac{a^h-1}{h}=\ln a\cdot\frac{e^u-1}{u}\to\ln a$.
+
+**$(\ln x)'=\dfrac1x$** para $x>0$. Con $u=\frac hx$:
+
+$$\frac{\ln(x+h)-\ln x}{h}=\frac1h\ln\!\left(1+\frac hx\right)=\frac1x\cdot\frac{\ln(1+u)}{u}.$$
+
+Si $v=\ln(1+u)$, entonces $u=e^v-1$; además, $v\neq0$ cuando $u\neq0$, y $v\to0$ cuando $u\to0$ porque $\ln$ es continua en su dominio (aquí se acepta, como $\frac{e^h-1}{h}\to1$). Así, $\frac{\ln(1+u)}{u}=\frac{v}{e^v-1}\to1$ y $(\ln x)'=\frac1x$. **Otras bases:** con $b>0$ y $b\neq1$, $\log_b x=\dfrac{\ln x}{\ln b}$ es una constante por $\ln x$, así que $(\log_b x)'=\dfrac{1}{x\ln b}$. **Mini-ejemplo.** $\left(4\ln x-3^x+e^2\right)'=\dfrac4x-3^x\ln3$: el $e^2$ no tiene $x$.
+
+## Trigonométricas e hiperbólicas
+
+Antes de probarlo, mira la gráfica del seno: su pendiente vale 1 en $x=0$, 0 en la cima $x=\frac\pi2$ y $-1$ en $x=\pi$, que son justo los valores de $\cos x$.
+
+<Ejemplo titulo="El seno, por definición y en radianes">
+Con la fórmula de la suma, $\operatorname{sen}(x+h)=\operatorname{sen}x\cos h+\cos x\operatorname{sen}h$, y agrupando:
+
+$$\frac{\operatorname{sen}(x+h)-\operatorname{sen}x}{h}=\operatorname{sen}x\cdot\frac{\cos h-1}{h}+\cos x\cdot\frac{\operatorname{sen}h}{h}.$$
+
+1. $\frac{\operatorname{sen}h}{h}\to1$: es el límite notable de la unidad 01, que vale **solo en radianes**. En grados no: si $h$ se mide en grados, $\frac{\operatorname{sen}h}{h}\to\frac{\pi}{180}$, y la derivada del seno arrastra ese factor: sería $\frac{\pi}{180}\cos x$.
+2. $\frac{\cos h-1}{h}=-h\cdot\frac{1-\cos h}{h^2}\to0\cdot\frac12=0$, con el límite $\frac{1-\cos h}{h^2}\to\frac12$ de la unidad 01.
+
+Entonces $(\operatorname{sen}x)'=\operatorname{sen}x\cdot0+\cos x\cdot1=\cos x$. Con $\cos(x+h)=\cos x\cos h-\operatorname{sen}x\operatorname{sen}h$ y los mismos dos límites sale $(\cos x)'=\cos x\cdot0-\operatorname{sen}x\cdot1=-\operatorname{sen}x$.
+</Ejemplo>
+<Ejemplo titulo="La tangente, por el cociente">
+$\tan x=\dfrac{\operatorname{sen}x}{\cos x}$ está definida donde $\cos x\neq0$, es decir, en $x\neq\frac\pi2+k\pi$ con $k$ entero. Ahí:
+
+$$(\tan x)'=\frac{\cos x\cdot\cos x-\operatorname{sen}x\cdot(-\operatorname{sen}x)}{\cos^2x}=\frac{\cos^2x+\operatorname{sen}^2x}{\cos^2x}=\frac{1}{\cos^2x}=\sec^2x.$$
+
+Revisa: en $x=0$ la pendiente es $\sec^20=1$, y el cociente de diferencias con $h=0.001$ vale $\frac{\tan0.001}{0.001}\approx1.0000003$.
+</Ejemplo>
+<Desvanecido titulo="Ahora tú: un cociente en π/2" pasos={[
+  "Calcula $q'\\left(\\frac{\\pi}{2}\\right)$ para $q(x)=\\dfrac{1-\\cos x}{2+\\cos x}$.", "Arriba, $f(x)=1-\\cos x$ y $f'(x)=\\operatorname{sen}x$; abajo, $g(x)=2+\\cos x$ y $g'(x)=-\\operatorname{sen}x$. Con $\\cos\\frac{\\pi}{2}=0$ y $\\operatorname{sen}\\frac{\\pi}{2}=1$, en $\\frac{\\pi}{2}$ se tiene $f=1$, $f'=1$, $g=2$ y $g'=-1$.",
+  "El numerador del cociente, $f'g-fg'$, vale ___ en $\\frac{\\pi}{2}$.", "El denominador, $g^2$, vale ___ , así que $q'\\left(\\frac{\\pi}{2}\\right)=$ ___ ."
+]} respuestas={["3", "4", "0.75"]} />
+
+**Hiperbólicas.** $\operatorname{senh}x=\dfrac{e^x-1/e^x}{2}$ y $\cosh x=\dfrac{e^x+1/e^x}{2}$. Por el cociente, $\left(\frac{1}{e^x}\right)'=\frac{0\cdot e^x-1\cdot e^x}{(e^x)^2}=-\frac{1}{e^x}$. Entonces
+
+$$(\operatorname{senh}x)'=\frac{e^x+1/e^x}{2}=\cosh x,\qquad(\cosh x)'=\frac{e^x-1/e^x}{2}=+\operatorname{senh}x.$$
+
+Ojo con el signo: $\cos'=-\operatorname{sen}$, pero $\cosh'=+\operatorname{senh}$.
+
+Para $\tanh=\frac{\operatorname{senh}}{\cosh}$ hace falta la identidad $\cosh^2x-\operatorname{senh}^2x=1$. Con $a=e^x$ y $b=\frac{1}{e^x}$: $\frac{(a+b)^2-(a-b)^2}{4}=\frac{4ab}{4}=1$. Por el cociente:
+
+$$(\tanh x)'=\frac{\cosh x\cdot\cosh x-\operatorname{senh}x\cdot\operatorname{senh}x}{\cosh^2x}=\frac{1}{\cosh^2x}=\operatorname{sech}^2x=1-\tanh^2x.$$
+
+La segunda igualdad usa la identidad, y la última sale de dividirla entre $\cosh^2x$.
+
+## Tabla y qué regla usar
+
+| $f(x)$ | $f'(x)$ | Dónde vale |
+|---|---|---|
+| $x^n$ | $nx^{n-1}$ | $x>0$ ($n$ real); $x\neq0$ ($n$ entero); todo $\mathbb{R}$ si $n=1,2,3,\dots$ |
+| $e^x$ | $e^x$ | $\mathbb{R}$ |
+| $a^x$ | $a^x\ln a$ | $\mathbb{R}$ ($a>0$, $a\neq1$) |
+| $\ln x$ | $\frac1x$ | $x>0$ |
+| $\log_b x$ | $\frac{1}{x\ln b}$ | $x>0$ ($b>0$, $b\neq1$) |
+| $\operatorname{sen}x$ | $\cos x$ | $\mathbb{R}$ |
+| $\cos x$ | $-\operatorname{sen}x$ | $\mathbb{R}$ |
+| $\tan x$ | $\sec^2x$ | $x\neq\frac\pi2+k\pi$ |
+| $\sec x$ † | $\sec x\tan x$ | $x\neq\frac\pi2+k\pi$ |
+| $\csc x$ † | $-\csc x\cot x$ | $x\neq k\pi$ |
+| $\cot x$ † | $-\csc^2x$ | $x\neq k\pi$ |
+| $\operatorname{senh}x$ | $\cosh x$ | $\mathbb{R}$ |
+| $\cosh x$ | $\operatorname{senh}x$ | $\mathbb{R}$ |
+| $\tanh x$ | $\operatorname{sech}^2x=1-\tanh^2x$ | $\mathbb{R}$ |
+| $\operatorname{sech}x$ † | $-\operatorname{sech}x\tanh x$ | $\mathbb{R}$ |
+| $\operatorname{csch}x$ † | $-\operatorname{csch}x\coth x$ | $x\neq0$ |
+| $\coth x$ † | $-\operatorname{csch}^2x$ | $x\neq0$ |
+
+† No se demostraron aquí. Salen con el cociente, igual que $\tan'$: las deduces tú, y en los ejercicios de esta unidad aparecen $\sec$ y $\csc$.
+
+**¿Qué regla uso?** Antes de derivar, pregúntate en este orden:
+1. ¿Se puede reescribir como suma de potencias? $\frac{5}{x^3}=5x^{-3}$ y $x\sqrt x=x^{3/2}$: basta la potencia, sin producto ni cociente.
+2. ¿Es una constante por una función? Basta el múltiplo: $(7\ln x)'=\frac7x$.
+3. ¿Es un producto de dos funciones de $x$? Producto.
+4. ¿Es un cociente con la variable abajo? Cociente. Si abajo solo hay una constante, es un múltiplo: $\frac{\operatorname{sen}x}{5}=\frac15\operatorname{sen}x$.
+
+Si hay una función **dentro** de otra ($e^{3x}$, $\operatorname{sen}(x^2)$, $\ln(x^2+1)$), hace falta la regla de la cadena, que es la unidad 05. Algunas se reescriben sin cadena: $\ln(3x)=\ln3+\ln x$, $e^{x+2}=e^2e^x$ y $\operatorname{sen}^2x=\operatorname{sen}x\cdot\operatorname{sen}x$.
+
+**Para comprobar en el examen:** con la calculadora en radianes, evalúa el cociente de diferencias $\frac{f(a+0.001)-f(a)}{0.001}$ y compáralo con tu $f'(a)$. Si es un producto de polinomios, también puedes desarrollar y derivar con la potencia.
+
+**Cómo se escribe en la app:**
+- $e^x$ es `exp(x)`, $\ln x$ es `ln(x)` y $\log_3x$ es `log(x, 3)`.
+- $\sec^2x$ es `sec(x)^2`; las demás son `csc(x)`, `cot(x)` y `senh(x)` (o `sinh(x)`).
+- Cada función lleva paréntesis, y entre un número y una función va `*`: `2*sen(x)`, no `2sen(x)`.
+
+## Errores comunes
+
+<Ojo>
+- **$(fg)'\neq f'g'$ y $\left(\frac fg\right)'\neq\frac{f'}{g'}$.** Con $f=g=x$ ya fallan: $(x^2)'=2x$, no $1$, y $\left(\frac xx\right)'=0$, no $1$.
+- **El orden del cociente.** Arriba va $f'g-fg'$ (el primer término lleva la derivada de la de arriba) y abajo, $g^2$. Al revés sale el signo contrario.
+- **¿La $x$ está en la base, en el exponente o en ningún lado?** $(x^\pi)'=\pi x^{\pi-1}$, pero $(\pi^x)'=\pi^x\ln\pi$ y $(\log_bx)'=\dfrac{1}{x\ln b}$ (no $\dfrac{1}{bx}$). Sin $x$ es una constante y deriva a 0, aunque se vea complicada: $\ln2$, $e^2$, $\pi^e$.
+- **Radianes.** $(\operatorname{sen}x)'=\cos x$ solo si $x$ está en radianes; pon la calculadora en RAD para revisar.
+- **Signos.** Las «co» llevan menos: $\cos'=-\operatorname{sen}$, $\cot'=-\csc^2$ y $\csc'=-\csc\cot$; pero $\cosh'=+\operatorname{senh}$. Y no confundas $\tan'=\sec^2$ con $\sec'=\sec\tan$.
+</Ojo>
+
+<Conexion materia="Inteligencia artificial">
+Dos funciones de activación clásicas de las redes neuronales tienen una derivada que sale de su propio valor: $\tanh'=1-\tanh^2$ y, para la sigmoide $\sigma(x)=\frac{e^x}{1+e^x}$, $\sigma'=\sigma(1-\sigma)$ (lo pruebas en los ejercicios de esta unidad). La **diferenciación automática**, con la que se calculan gradientes, aplica estas reglas (y la de la cadena, que verás en la 05) operación por operación; en su versión hacia adelante (en inglés, *forward-mode automatic differentiation*) lleva cada cantidad como un par (valor, derivada).
+
+En Mecánica, si un oscilador tiene posición $x(t)=A\cos t$, su velocidad es $-A\operatorname{sen}t$.
+</Conexion>
+<Resumen>
+- Potencia, múltiplo y suma resuelven polinomios y raíces en una línea; el producto es $f'g+fg'$ y el cociente, $\frac{f'g-fg'}{g^2}$ (nunca $f'g'$ ni $\frac{f'}{g'}$).
+- $(e^x)'=e^x$, $(a^x)'=a^x\ln a$, $(\ln x)'=\frac1x$ y $(\log_bx)'=\frac{1}{x\ln b}$; en radianes, $\operatorname{sen}'=\cos$ y $\cos'=-\operatorname{sen}$, y las demás trigonométricas salen con el cociente.
+- $\operatorname{senh}'=\cosh$ y $\cosh'=+\operatorname{senh}$; antes de derivar, reescribe (potencias, constantes) y elige la regla.
+</Resumen>
+<Feynman>
+Explícale a un amigo, con el rectángulo de lados $f$ y $g$, por qué $(fg)'\neq f'g'$. Luego dile cuándo conviene **no** usar la regla del cociente, con un ejemplo como $\frac{x^3+1}{x}$ o $\frac{\operatorname{sen}x}{5}$.
+</Feynman>

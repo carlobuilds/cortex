@@ -114,7 +114,13 @@ Brainstorm con Claude en modo plan; plan aprobado el mismo día.
 - [ ] Propuestas para el motor que salieron de la revisión de `03-derivada` (2026-11-11):
   - que un `simbolico` acepte el prefijo «y =» (hoy mathjs lo lee como asignación y la app responde con un mensaje confuso; la 03 lo esquiva en el enunciado);
   - que `asNumber` (`src/engine/answers/text.ts:20`) acepte el signo «−» tipográfico (U+2212), como ya hace `math.ts`: hoy un «−4» pegado en un hueco de `completar` se califica mal;
-  - `workedExampleFor` (`src/engine/flow.ts:88`): además del ejemplo más cercano por debajo del nivel, preferir el mismo `tipo` (ya estaba propuesto en la bitácora del 2026-11-10).
+  - `workedExampleFor` (`src/engine/flow.ts:88`): además del ejemplo más cercano por debajo del nivel, preferir el mismo `tipo` (ya estaba propuesto en la bitácora del 2026-11-10). Además, `runners.tsx:215` puede servir justo el ejercicio cuya solución se acaba de mostrar (FSRS anota un acierto falso), y el comentario «ya visto si se puede» de `flow.ts:85` no se cumple.
+- [ ] Propuestas de la revisión del esquema de `04-reglas-derivacion` (2026-11-11), para la entrada de respuestas:
+  - **Importante para la 05:** `math.ts` lee `2x cos x^2` y `sec x^2` como $\cos(x)^2$ y $\sec(x)^2$, así que una respuesta correcta de regla de la cadena escrita sin paréntesis se califica mal **en silencio**. Mientras no se arregle, los enunciados de la 05 piden paréntesis (`cos(x^2)`).
+  - `senx` y `senhx` son inválidos, aunque `sinx` y `cosx` pasan; faltan los alias `cosec`, `ctg` y `cotg`.
+  - Con `\b` en `ALIASES` y en `/\bln\(/` (`math.ts:28-31` y `:73`), una función pegada a un número no se traduce: `2sen(x)`, `2senh(x)`, `2arcsen(x)` y `6ln(x)` salen inválidos (no cuentan como intento, pero el mensaje no sugiere el `*`). El arreglo probable es `(?<![A-Za-z_])`. Mientras tanto, la 04 pide «`*` entre un número y una función».
+  - `workedExampleFor`: cuando hay empate de dificultad, preferir el ejercicio que contenga el primer concepto del fallado (propuesta de `pedagogo` en la revisión de la 04, con su prueba en `mechanics.test.ts`).
+  - `parse_expr` de `verify_content.py` no conoce `sen`, `senh`, `e` ni `log10`: la `respuesta` oficial va en sintaxis de sympy (`sin`, `exp(x)`, `log(x, 10)`). Conviene alinearlo con los alias de la app.
 - [ ] Mientras no exista la 02, el mapa de maestría muestra `derivabilidad-continuidad` como bloqueado por `continuidad-punto` (`src/engine/mastery.ts:59`). Solo es visual, pero confunde durante el sprint.
 - [x] Arreglos de `01-limites` que propuso `/revisar-contenido`: Carlo los aprobó y se aplicaron el 2026-11-10 (ver bitácora).
 - [ ] Pulido de `01-limites` que quedó fuera de esos arreglos: aceptar sinónimos en `completar` (p. ej. «divisor» por «factor» en 011) o dejar huecos de una sola respuesta; cerrar el gancho del auto con la velocidad de $s(t)=t^2$; la pista de 003, que casi regala la respuesta; 009 y 020 etiquetados como `0/0` aunque son $\infty-\infty$ e $\infty\cdot0$; `duracion_min: 25` con 4 ejemplos más.
@@ -183,7 +189,8 @@ Plan (2026-10-13, rama `fase-3-calculo-discretas`): 0) rama y registro · 1) pru
 - [x] Puerta de temario de Cálculo (paso 7): programa oficial en `curriculum/programas/calculo.pdf`, temario aprobado por Carlo y `conceptos.yaml` completo (76 conceptos en 12 unidades)
 - [ ] Cálculo: unidades 00 y 02 a 11 (la `01-limites` ya está completa como piloto de la Fase 1). Sprint del parcial, en orden 03 → 04 → 05 → 07 → 06 → 08 → 09 → 02:
   - [x] 03-derivada (2026-11-11)
-  - [ ] 04 · [ ] 05 · [ ] 07 · [ ] 06 · [ ] 08 · [ ] 09 · [ ] 02
+  - [x] 04-reglas-derivacion (2026-11-11)
+  - [ ] 05 · [ ] 07 · [ ] 06 · [ ] 08 · [ ] 09 · [ ] 02
 - [ ] Matemáticas discretas
 - [ ] Cierre formal: sesión real de ~20 min de Carlo y etiqueta `fase-3`
 
@@ -291,6 +298,37 @@ Complementan los ADR-001 a 008 de `docs/02`. Cada uno se escribe en el commit de
 **ADR-013 · Nomenclatura** (paso 1, decisión D1). Código, tablas y campos de IndexedDB en inglés, con equivalencias en `docs/02`. Las claves de YAML y del front matter siguen en español (son el formato de contenido). Los componentes MDX conservan su nombre en español porque son la API del contenido (`Predice` se implementa como `PredictPrompt`). Las URL van en español porque son interfaz. `APP_ID = 'cortex'` es inmutable (nombre de la base y marca de los respaldos); renombrar la app solo cambia `APP_NAME`. *Descartado:* todo en español (contradice `CLAUDE.md`) o una capa de traducción.
 
 ## Bitácora
+- 2026-11-11 · **Unidad `calculo/04-reglas-derivacion`** (sprint del parcial, 3.2.1 del programa, sin regla de la cadena).
+  - **Esquema:** objeción sin bloqueo de `experto-matematicas`, `pedagogo` y `arquitecto-razonamiento`. Lo que entró:
+    - demostraciones completas solo del producto, $e^x$ y sen;
+    - $\ln x$ por definición con $u=h/x$ y $v=\ln(1+u)$;
+    - cociente por el recíproco;
+    - respuestas en sintaxis de sympy y de la app;
+    - anclas por concepto para `workedExampleFor`;
+    - 4 tablas de valores, verificación con una secante, contraejemplos y diferenciación automática con pares;
+    - clásicos de libro evitados.
+  - **Unidad:** la escribió `autor-contenido`:
+    - lección de 25 min y 170 líneas;
+    - 25 ejercicios: 6 numéricos, 5 simbólicos, 5 de completar, 3 de opción múltiple, 3 de conjunto, 2 de selección múltiple y 1 autoevaluación. Por dificultad, 4/6/7/5/3;
+    - jefe con 8 propias y 3 de repaso (calc-03-009, calc-03-019 y calc-01-014), 1155 s.
+  - **`/revisar-contenido`:**
+    - a ciegas: 23 de 23 y, tras los arreglos, 16 de 16, sin discrepancias;
+    - checklist: matemáticas aprueba, pedagogo y lingüista dan objeción leve; sin errores de respuesta;
+    - con el sí de Carlo se aplicaron:
+      - «se ve en la 02» → «aquí se acepta»;
+      - «secante» → «cociente de diferencias» cuando no es la recta, porque choca con $\sec x$;
+      - 021 en positivo («marca las que fallan»);
+      - Ojo de 5 viñetas y bloque «Cómo se escribe en la app»;
+      - dominio de la potencia y de $\log_b$;
+      - formato de respuestas;
+      - en el jefe, $\ln x$ (013) y 01-014 en lugar de 01-005, que se respondía de memoria;
+      - el 025 nuevo, $5^x-4\log_2x$.
+    - La notación suma sech, csch y coth, `sec(x)^2` y `log(x, b)`.
+  - **Evidencia:**
+    - `content:check content/calculo` en verde (74 ejercicios, 55 por código y 19 manuales);
+    - `test:content` 313/313;
+    - `real-answers.test.ts` 175/175;
+    - lección y ejercicio 011 (tabla en `array`) vistos en `localhost:3000`, sin errores de KaTeX.
 - 2026-11-11 · **Unidad `calculo/03-derivada`** (sprint del parcial, 3.1 del programa: todo por definición).
   - **Esquema:** lo revisaron `experto-matematicas`, `pedagogo` y `arquitecto-razonamiento`. Los tres dieron objeción sin bloqueo y sus cambios se integraron:
     - pasos intermedios calificables (cociente simplificado con `variables: [x, h]`);

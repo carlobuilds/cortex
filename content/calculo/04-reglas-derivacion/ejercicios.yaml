@@ -1,0 +1,535 @@
+# Unidad 04 · Reglas de derivación (Unidad III, 3.2.1). Sprint del 3.er parcial.
+# Esquema revisado por experto-matematicas, pedagogo y arquitecto-razonamiento.
+# Sin regla de la cadena (es la 05): solo x^n, e^x, a^x, ln x, log_b x, trigonométricas e hiperbólicas,
+# combinadas con suma, múltiplo, producto y cociente. Ninguna función repite una de la lección ni de la 03.
+# Anclas (primer ejercicio de cada concepto, workedExampleFor): 001 RB, 002 PC, 003 EL, 004 TR, 007 HY.
+# Las respuestas simbólicas usan nombres que leen sympy y la app (sin, sinh, exp, ln); el texto dice sen y senh.
+# Las tablas van como \begin{array} de KaTeX: el texto de los ejercicios (.rich) no da estilo a las tablas GFM.
+# Los textos con apóstrofo (f') van en bloques `>-`: así no hay que escapar ni comillas ni barras.
+unidad: calculo/04-reglas-derivacion
+ejercicios:
+  # razonamiento: algorítmico (reescribir como potencias y aplicar) · R0
+  - id: calc-04-001
+    tipo: simbolico
+    dificultad: 1
+    conceptos: [reglas-basicas-derivacion]
+    enunciado: >-
+      Deriva $f(x)=6\sqrt[3]{x}-\dfrac{4}{x^2}+\ln 3$, con $x>0$. En la app, un exponente fraccionario va entre paréntesis, como en `x^(5/4)`.
+    respuesta: "2/x^(2/3) + 8/x^3"
+    variables: [x]
+    muestreo: { desde: 0.5, hasta: 6 }
+    verificar: { sympy: "diff(6*cbrt(x) - 4/x**2 + log(3), x)" }
+    pistas:
+      - >-
+        ¿Puedes escribir cada término como una constante por una potencia de $x$? ¿Cuál de los tres no cambia cuando cambia $x$?
+    explicacion: >-
+      Primero reescribe todo como potencias: $\sqrt[3]{x}=x^{1/3}$ y $\dfrac{4}{x^2}=4x^{-2}$, así que $f(x)=6x^{1/3}-4x^{-2}+\ln3$. Luego deriva término por término (regla de la suma) y deja cada constante multiplicando (regla del múltiplo). Con $(x^n)'=nx^{n-1}$: $\left(6x^{1/3}\right)'=6\cdot\tfrac13x^{-2/3}=2x^{-2/3}$ y $\left(-4x^{-2}\right)'=-4\cdot(-2)x^{-3}=8x^{-3}$. Por último, $\ln3\approx1.0986$ es un número fijo que no depende de $x$: su derivada es 0. Queda $f'(x)=\dfrac{2}{x^{2/3}}+\dfrac{8}{x^3}$. Revisa: en $x=1$ da $2+8=10$.
+    tiempo_estimado_s: 40
+
+  # razonamiento: algorítmico (sustituir en la regla) · R0
+  - id: calc-04-002
+    tipo: completar
+    dificultad: 1
+    conceptos: [regla-producto-cociente]
+    enunciado: >-
+      Se sabe que $f(3)=-2$, $f'(3)=5$, $g(3)=4$ y $g'(3)=-1$. Completa con números (decimal o fracción).
+    texto: >-
+      $(fg)'(3)=$ ___ y $\left(\dfrac{f}{g}\right)'(3)=$ ___
+    respuestas: ["22", "1.125"]
+    verificar: { sympy: "(lambda f, g: [diff(f*g, x).subs(x, 3), diff(f/g, x).subs(x, 3)])(-2 + 5*(x - 3), 4 - (x - 3))" }
+    pistas:
+      - >-
+        En el producto, ¿cuántos términos hay y qué función se deriva en cada uno? En el cociente, ¿qué va primero en el numerador y qué va abajo?
+    explicacion: >-
+      Producto: $(fg)'=f'g+fg'$, así que $(fg)'(3)=f'(3)g(3)+f(3)g'(3)=(5)(4)+(-2)(-1)=20+2=22$. Cociente: $\left(\frac fg\right)'=\frac{f'g-fg'}{g^2}$, así que $\left(\frac fg\right)'(3)=\dfrac{(5)(4)-(-2)(-1)}{4^2}=\dfrac{20-2}{16}=\dfrac{18}{16}=\dfrac98=1.125$. Los dos numeradores usan los mismos productos, $f'g=20$ y $fg'=2$: en el producto se suman y en el cociente se restan, en ese orden. Un error típico es multiplicar $f'(3)g'(3)=-5$, que no es ninguna de las dos.
+    tiempo_estimado_s: 40
+
+  # razonamiento: algorítmico · R0
+  - id: calc-04-003
+    tipo: numerico
+    dificultad: 1
+    conceptos: [derivada-exponencial-logaritmica]
+    enunciado: >-
+      Sea $f(x)=6\ln x+x^3$, con $x>0$. Calcula $f'(2)$.
+    respuesta: 15
+    tolerancia: 0
+    verificar: { sympy: "diff(6*log(x) + x**3, x).subs(x, 2)" }
+    pistas:
+      - >-
+        ¿Qué regla de la tabla le toca a $\ln x$, y qué haces con el 6 que lo multiplica?
+    explicacion: >-
+      Deriva término por término. Para $x>0$, $(\ln x)'=\dfrac1x$, y el 6 es un múltiplo que se queda: $(6\ln x)'=\dfrac6x$. Por la potencia, $(x^3)'=3x^2$. Entonces $f'(x)=\dfrac6x+3x^2$ y, en $x=2$, $f'(2)=\dfrac62+3(4)=3+12=15$. Primero se deriva y después se sustituye: por eso $\ln2$ no aparece en la respuesta.
+    tiempo_estimado_s: 30
+
+  # razonamiento: algorítmico (recuperar la tabla) · R0
+  - id: calc-04-004
+    tipo: completar
+    dificultad: 1
+    conceptos: [derivada-trigonometrica]
+    enunciado: >-
+      Ráfaga: completa las pendientes en $x=\pi$, con $x$ en radianes.
+    texto: >-
+      $(\operatorname{sen}x)'$ en $x=\pi$: ___ · $(\cos x)'$ en $x=\pi$: ___ · $(\tan x)'$ en $x=\pi$: ___
+    respuestas: ["-1", "0", "1"]
+    verificar: { sympy: "[diff(sin(x), x).subs(x, pi), diff(cos(x), x).subs(x, pi), diff(tan(x), x).subs(x, pi)]" }
+    pistas:
+      - >-
+        ¿Cuál es la derivada de cada una según la tabla? Ya con ella, ¿cuánto valen $\operatorname{sen}\pi$ y $\cos\pi$?
+    explicacion: >-
+      Primero la regla y después el punto. $(\operatorname{sen}x)'=\cos x$, y $\cos\pi=-1$. $(\cos x)'=-\operatorname{sen}x$, y $-\operatorname{sen}\pi=0$. $(\tan x)'=\sec^2x=\dfrac{1}{\cos^2x}$, y $\dfrac{1}{(-1)^2}=1$. Los errores típicos son olvidar el menos de $(\cos x)'$ y confundir el valor con la pendiente: $\cos\pi=-1$ es lo que vale el coseno en $\pi$, pero su pendiente ahí es 0, porque $\pi$ es el fondo de su valle.
+    tiempo_estimado_s: 35
+
+  # razonamiento: algorítmico (reescribir antes de derivar) · R1
+  # p y q salen de x·(ln u)', la derivada logarítmica de cada término, que da su exponente.
+  - id: calc-04-005
+    tipo: completar
+    dificultad: 2
+    conceptos: [reglas-basicas-derivacion]
+    enunciado: >-
+      Sea $f(x)=\dfrac{4x^3-\sqrt{x}}{x^2}$, con $x>0$. No hace falta la regla del cociente: primero reescribe $f$ como suma de potencias. Escribe cada número como entero, decimal o fracción.
+    texto: >-
+      $f(x)=4x^{p}-x^{q}$ con $p=$ ___ y $q=$ ___, así que $f'(1)=$ ___
+    respuestas: ["1", "-1.5", "5.5"]
+    verificar: { sympy: "[simplify(x*diff(log(4*x**3/x**2), x)), simplify(x*diff(log(sqrt(x)/x**2), x)), diff((4*x**3 - sqrt(x))/x**2, x).subs(x, 1)]" }
+    pistas:
+      - >-
+        ¿Qué pasa si divides entre $x^2$ cada término de arriba por separado? ¿Cómo se escribe $\sqrt{x}$ como potencia?
+    explicacion: >-
+      Divide cada término entre $x^2$: $\dfrac{4x^3}{x^2}=4x^{1}$ y $\dfrac{\sqrt x}{x^2}=\dfrac{x^{1/2}}{x^2}=x^{1/2-2}=x^{-3/2}$. Entonces $f(x)=4x-x^{-3/2}$, con $p=1$ y $q=-\tfrac32=-1.5$. Por la potencia, $f'(x)=4-\left(-\tfrac32\right)x^{-5/2}=4+\tfrac32x^{-5/2}$, y en $x=1$: $f'(1)=4+1.5=5.5$. Con el cociente también sale, pero con más cuentas y más lugares para equivocarse.
+    tiempo_estimado_s: 40
+
+  # razonamiento: algorítmico · R1
+  - id: calc-04-006
+    tipo: simbolico
+    dificultad: 2
+    conceptos: [regla-producto-cociente]
+    enunciado: >-
+      Deriva $f(x)=(x^2-4x)\sqrt{x}$, con $x>0$, usando la regla del producto. En la app, $\sqrt{x}$ se escribe `sqrt(x)`.
+    respuesta: "(2*x - 4)*sqrt(x) + (x^2 - 4*x)/(2*sqrt(x))"
+    variables: [x]
+    muestreo: { desde: 0.5, hasta: 6 }
+    verificar: { sympy: "diff((x**2 - 4*x)*sqrt(x), x)" }
+    pistas:
+      - >-
+        ¿Cuáles son los dos factores, y cuál es la derivada de cada uno por separado?
+    explicacion: >-
+      Con $u=x^2-4x$ y $v=\sqrt x$: $u'=2x-4$ y $v'=\dfrac{1}{2\sqrt x}$ (la potencia con $n=\tfrac12$). La regla del producto da $f'(x)=u'v+uv'=(2x-4)\sqrt x+\dfrac{x^2-4x}{2\sqrt x}$. Si quieres juntarlo: $\dfrac{2x(2x-4)+x^2-4x}{2\sqrt x}=\dfrac{5x^2-12x}{2\sqrt x}$. Revisa: desarrolla $f(x)=x^{5/2}-4x^{3/2}$ y deriva con la potencia, $\tfrac52x^{3/2}-6x^{1/2}$; en $x=4$ las dos formas dan $20-12=8$.
+    tiempo_estimado_s: 40
+
+  # razonamiento: deductivo (de la definición con e^x a la regla) · R1
+  - id: calc-04-007
+    tipo: simbolico
+    dificultad: 2
+    conceptos: [derivada-hiperbolica]
+    enunciado: >-
+      Deriva $f(x)=5\cosh x-3\operatorname{senh}x$. En la app escribe cada función con paréntesis y pon `*` entre el número y la función: `2*senh(x)` (o `2*sinh(x)`), no `2senh(x)`.
+    respuesta: "5*sinh(x) - 3*cosh(x)"
+    variables: [x]
+    verificar: { sympy: "diff(5*cosh(x) - 3*sinh(x), x)" }
+    pistas:
+      - >-
+        ¿Cómo se escriben $\operatorname{senh}x$ y $\cosh x$ con $e^x$ y $\dfrac{1}{e^x}$? Al derivar cada una, ¿qué signo sale?
+    explicacion: >-
+      Parte de las definiciones: $\operatorname{senh}x=\dfrac{e^x-1/e^x}{2}$ y $\cosh x=\dfrac{e^x+1/e^x}{2}$. Por el cociente, $\left(\dfrac{1}{e^x}\right)'=\dfrac{0\cdot e^x-1\cdot e^x}{(e^x)^2}=-\dfrac{1}{e^x}$. Entonces $(\operatorname{senh}x)'=\dfrac{e^x+1/e^x}{2}=\cosh x$ y $(\cosh x)'=\dfrac{e^x-1/e^x}{2}=\operatorname{senh}x$, **con signo +** (no como $\cos'=-\operatorname{sen}$). Con las reglas del múltiplo y de la suma: $f'(x)=5\operatorname{senh}x-3\cosh x$. Revisa: en $x=0$, $\operatorname{senh}0=0$ y $\cosh0=1$, así que $f'(0)=-3$; con exponenciales, $f(x)=e^x+\dfrac{4}{e^x}$ y también $f'(0)=1-4=-3$.
+    tiempo_estimado_s: 40
+
+  # razonamiento: deductivo (clasificar: ¿base o exponente?) · R0
+  - id: calc-04-008
+    tipo: opcion_multiple
+    dificultad: 2
+    conceptos: [derivada-exponencial-logaritmica, reglas-basicas-derivacion]
+    enunciado: >-
+      Si $f(x)=\pi^x$, ¿cuál es $f'(x)$?
+    opciones: ['$x\pi^{x-1}$', '$\pi^x\ln\pi$', '$\pi^x$', '$0$']
+    valores: ["x*pi**(x - 1)", "pi**x*log(pi)", "pi**x", "0"]
+    correcta: 1
+    verificar: { sympy: "diff(pi**x, x)" }
+    pistas:
+      - >-
+        ¿Dónde está la variable: en la base o en el exponente?
+    explicacion: >-
+      La variable está en el exponente y la base es la constante $\pi>0$: es una exponencial $a^x$ con $a=\pi$, así que $(\pi^x)'=\pi^x\ln\pi$. La opción $x\pi^{x-1}$ aplica la regla de la potencia, que es para $x^n$ (variable en la base, exponente fijo). $\pi^x$ sería correcta solo con base $e$, porque $\ln e=1$. Y 0 sería la derivada de una constante como $\pi^e$, pero $\pi^x$ cambia con $x$. Revisa: ¿y $x^x$, con la variable en los dos lugares? Ninguna de las dos reglas aplica tal cual; lo verás en la 05.
+    tiempo_estimado_s: 25
+
+  # razonamiento: algorítmico (interpretar el signo) · R1
+  - id: calc-04-009
+    tipo: numerico
+    dificultad: 2
+    conceptos: [derivada-trigonometrica]
+    enunciado: >-
+      Supón que una partícula se mueve sobre una recta y que su posición es $s(t)=3\cos t+2t$ metros a los $t$ segundos. ¿Cuál es su velocidad en $t=\dfrac{\pi}{2}$ s? Da el valor en m/s, con signo (no la rapidez).
+    respuesta: -1
+    tolerancia: 0
+    verificar: { sympy: "diff(3*cos(t) + 2*t, t).subs(t, pi/2)" }
+    pistas:
+      - >-
+        ¿Qué función da la velocidad a partir de la posición? ¿Qué signo lleva la derivada de $\cos t$?
+    explicacion: >-
+      La velocidad es la derivada de la posición: $v(t)=s'(t)=-3\operatorname{sen}t+2$. En $t=\frac\pi2$, $\operatorname{sen}\frac\pi2=1$, así que $v=-3+2=-1$ m/s: en ese instante la partícula se mueve en sentido negativo, con rapidez de 1 m/s. Si se te olvida el menos de $(\cos t)'$, sale $5$, con el sentido equivocado.
+    tiempo_estimado_s: 40
+
+  # razonamiento: algorítmico (cociente) y analógico (σ en términos de σ, para IA) · R1
+  - id: calc-04-010
+    tipo: simbolico
+    dificultad: 3
+    conceptos: [regla-producto-cociente, derivada-exponencial-logaritmica]
+    enunciado: >-
+      La sigmoide, una función de activación de las redes neuronales, es $\sigma(x)=\dfrac{e^x}{1+e^x}$. Calcula $\sigma'(x)$ con la regla del cociente y escribe el resultado en términos de $x$, sin usar $\sigma$. En la app, $e^x$ se escribe `exp(x)`.
+    respuesta: "exp(x)/(1 + exp(x))^2"
+    variables: [x]
+    verificar: { sympy: "diff(exp(x)/(1 + exp(x)), x)" }
+    pistas:
+      - >-
+        ¿Quién es la función de arriba y quién la de abajo? ¿Cuál es la derivada de cada una?
+      - >-
+        Al desarrollar el numerador $f'g-fg'$, ¿qué términos se cancelan?
+    explicacion: >-
+      Arriba $f=e^x$, con $f'=e^x$; abajo $g=1+e^x$, con $g'=e^x$. Por el cociente: $\sigma'(x)=\dfrac{e^x(1+e^x)-e^x\cdot e^x}{(1+e^x)^2}=\dfrac{e^x+(e^x)^2-(e^x)^2}{(1+e^x)^2}=\dfrac{e^x}{(1+e^x)^2}$. Además, como $1-\sigma=\dfrac{1}{1+e^x}$, se puede escribir $\sigma'=\dfrac{e^x}{1+e^x}\cdot\dfrac{1}{1+e^x}=\sigma(1-\sigma)$: la derivada sale del propio valor de $\sigma$, y por eso es barata de calcular en una red. Revisa: en $x=0$, $\sigma(0)=\tfrac12$ y $\sigma'(0)=\dfrac{1}{(1+1)^2}=\tfrac14=\tfrac12\cdot\tfrac12$.
+
+  # razonamiento: algorítmico (elegir la fila, la columna y la regla) · R1
+  # verificar: f y g se modelan con rectas en el punto, que tienen el mismo valor y la misma derivada.
+  - id: calc-04-011
+    tipo: completar
+    dificultad: 3
+    conceptos: [regla-producto-cociente]
+    enunciado: |-
+      De dos funciones derivables $f$ y $g$ solo conoces esta tabla:
+
+      $$
+      \begin{array}{c|cc|cc}
+      x & f(x) & f'(x) & g(x) & g'(x) \\ \hline
+      1 & 3 & -2 & 4 & -1 \\
+      2 & -1 & 4 & 2 & -3 \\
+      3 & 5 & 1 & -3 & 5
+      \end{array}
+      $$
+
+      Sean $m(x)=x^2f(x)$ y $k(x)=\dfrac{g(x)}{x}$. Completa con números.
+    texto: >-
+      $m'(2)=$ ___ y $k'(3)=$ ___
+    respuestas: ["12", "2"]
+    verificar: { sympy: "[diff(x**2*(-1 + 4*(x - 2)), x).subs(x, 2), diff((-3 + 5*(x - 3))/x, x).subs(x, 3)]" }
+    pistas:
+      - >-
+        ¿Qué regla pide cada función? ¿Qué derivada tiene la parte que sí conoces, $x^2$ o $x$?
+      - >-
+        ¿De qué fila sacas los valores para $m'(2)$, y de cuál los de $k'(3)$? ¿Usas $f$ y $f'$, o $g$ y $g'$?
+    explicacion: >-
+      $m$ es un producto: $m'(x)=2x\,f(x)+x^2f'(x)$. En $x=2$ (segunda fila): $m'(2)=2(2)(-1)+(4)(4)=-4+16=12$. $k$ es un cociente con $g$ arriba y $x$ abajo: $k'(x)=\dfrac{g'(x)\cdot x-g(x)\cdot1}{x^2}$. En $x=3$ (tercera fila): $k'(3)=\dfrac{(5)(3)-(-3)}{9}=\dfrac{18}{9}=2$. Los datos que no se usan ($g$ en $x=2$, $f$ en $x=3$ y toda la primera fila) sobran a propósito: parte del ejercicio es elegir la fila y las columnas. Revisa: si inviertes el numerador de $k'$ sale $-2$, y si olvidas el término $2x\,f(x)$ de $m'$ sale $16$.
+
+  # razonamiento: deductivo (usar la identidad en lugar de despejar a) · R1
+  - id: calc-04-012
+    tipo: numerico
+    dificultad: 3
+    conceptos: [derivada-hiperbolica]
+    enunciado: >-
+      Si $\tanh a=\tfrac35$, ¿cuánto vale la pendiente de la recta tangente a $y=\tanh x$ en $x=a$? Escribe la fracción o su decimal, sin redondear.
+    respuesta: 0.64
+    tolerancia: 0
+    verificar: { sympy: "diff(tanh(x), x).subs(x, atanh(Rational(3, 5)))" }
+    pistas:
+      - >-
+        ¿Cuál es la derivada de $\tanh x$? ¿Tiene una forma que use solo el valor de $\tanh x$?
+      - >-
+        ¿Hace falta encontrar $a$, o basta con sustituir el dato en esa forma?
+    explicacion: >-
+      La pendiente en $a$ es $(\tanh)'(a)$. De la lección, $(\tanh x)'=\operatorname{sech}^2x=1-\tanh^2x$, que solo depende del valor de $\tanh$. Con $\tanh a=\tfrac35$: $1-\left(\tfrac35\right)^2=1-\tfrac{9}{25}=\tfrac{16}{25}=0.64$. No hace falta despejar $a$. Revisa: la pendiente de $\tanh$ vale 1 en $x=0$ y baja hacia 0 cuando $\lvert x\rvert$ crece; como $\tanh a\neq0$, se tiene $a\neq0$ y la pendiente debe quedar entre 0 y 1. Lo está.
+
+  # razonamiento: deductivo (descartar por el dominio) · R1
+  - id: calc-04-013
+    tipo: numerico
+    dificultad: 3
+    conceptos: [derivada-exponencial-logaritmica, reglas-basicas-derivacion]
+    enunciado: >-
+      La función $f(x)=x^2-8\ln x$ solo está definida para $x>0$. ¿En qué abscisa $x$ es horizontal su recta tangente? Hay una sola.
+    respuesta: 2
+    tolerancia: 0
+    verificar: { sympy: "[s for s in solve(diff(x**2 - 8*log(x), x), x) if s > 0][0]" }
+    pistas:
+      - >-
+        ¿Qué pendiente tiene una recta horizontal, y qué ecuación te da eso con $f'(x)$?
+      - >-
+        Al resolver te pueden salir dos valores. ¿Los dos están en el dominio de $f$?
+    explicacion: >-
+      Una tangente horizontal tiene pendiente 0, así que hay que resolver $f'(x)=0$. Con la potencia y $(\ln x)'=\frac1x$: $f'(x)=2x-\dfrac8x$. Entonces $2x=\dfrac8x$, es decir, $x^2=4$ y $x=\pm2$. Pero $-2$ no está en el dominio ($\ln(-2)$ no existe en los reales), así que la única abscisa es $x=2$. Revisa: $f'(1)=2-8=-6<0$ y $f'(3)=6-\tfrac83\approx3.33>0$; la pendiente pasa de negativa a positiva en $x=2$, el fondo de un valle.
+
+  # razonamiento: deductivo (evaluar afirmaciones; equivalencia de formas) · R2
+  # verificar: diferencia simplificada tras rewrite(exp), la vía robusta con hiperbólicas (con simplify solo
+  # también da [0, 2, 4]; comprobado).
+  - id: calc-04-014
+    tipo: seleccion_multiple
+    dificultad: 3
+    conceptos: [regla-producto-cociente, derivada-hiperbolica, derivada-trigonometrica]
+    enunciado: >-
+      ¿Cuáles de estas derivadas son correctas? Una cuenta como correcta si la igualdad se cumple en todos los puntos donde está definida la función que se deriva, aunque el resultado esté escrito de otra forma (factorizado, o con otras funciones). Puede haber varias.
+    opciones:
+      - >-
+        $(x^3e^x)'=x^2e^x(x+3)$
+      - >-
+        $\left(\dfrac{\operatorname{sen}x}{x}\right)'=\dfrac{\operatorname{sen}x-x\cos x}{x^2}$
+      - >-
+        $(\log_{10}x)'=\dfrac{1}{x\ln10}$
+      - >-
+        $(e^\pi)'=\pi e^{\pi-1}$
+      - >-
+        $(\csc x)'=-\dfrac{\cos x}{\operatorname{sen}^2x}$
+      - >-
+        $(\cosh x)'=-\operatorname{senh}x$
+    correctas: [0, 2, 4]
+    verificar: { sympy: "[simplify((diff(F, x) - G).rewrite(exp)) == 0 for F, G in [(x**3*exp(x), x**2*exp(x)*(x + 3)), (sin(x)/x, (sin(x) - x*cos(x))/x**2), (log(x, 10), 1/(x*log(10))), (exp(pi), pi*exp(pi - 1)), (csc(x), -cos(x)/sin(x)**2), (cosh(x), -sinh(x))]]" }
+    pistas:
+      - >-
+        ¿Puedes calcular cada derivada tú, con la regla que le toca, y luego comparar? Si se ven distintas, ¿se puede reescribir una en la otra?
+      - >-
+        ¿Alguna de las funciones es en realidad una constante? En los cocientes, ¿qué va primero en el numerador? ¿Qué signo llevan $\cosh'$ y $\csc'$?
+    explicacion: >-
+      $(x^3e^x)'=3x^2e^x+x^3e^x=x^2e^x(3+x)$ por el producto: bien. En $\left(\frac{\operatorname{sen}x}{x}\right)'$ el numerador del cociente es $(\operatorname{sen}x)'\cdot x-\operatorname{sen}x\cdot1=x\cos x-\operatorname{sen}x$; la opción tiene la resta al revés y da el signo contrario: mal. $\log_{10}x=\frac{\ln x}{\ln10}$, así que su derivada es $\frac{1}{x\ln10}$: bien. $e^\pi\approx23.14$ es una constante y su derivada es 0; $\pi e^{\pi-1}$ aplica la potencia a algo que no tiene $x$: mal. $\csc x=\frac{1}{\operatorname{sen}x}$ y, por el cociente, $(\csc x)'=\frac{0\cdot\operatorname{sen}x-1\cdot\cos x}{\operatorname{sen}^2x}=-\frac{\cos x}{\operatorname{sen}^2x}$, que es $-\csc x\cot x$ escrito de otra forma: bien. $(\cosh x)'=+\operatorname{senh}x$: mal. Revisa: en $x=1$ la opción de $\frac{\operatorname{sen}x}{x}$ da $\operatorname{sen}1-\cos1\approx0.301$, pero el cociente de diferencias con $h=0.001$ da $\approx-0.301$.
+
+  # razonamiento: analógico (transferencia a IA: diferenciación automática hacia adelante) · R1
+  - id: calc-04-015
+    tipo: completar
+    dificultad: 3
+    conceptos: [regla-producto-cociente]
+    enunciado: >-
+      La diferenciación automática hacia adelante, que traen las bibliotecas de IA, no calcula límites: lleva cada cantidad como un par (valor, derivada) en un punto, y cada suma, producto o cociente combina los pares de sus entradas con las reglas de esta unidad. En $x=0$, $u=e^x$ lleva el par $(1,1)$ y $v=x^2+3x+2$ lleva el par $(2,3)$. Completa los pares de $u\cdot v$ y de $u/v$ en $x=0$ (decimal o fracción).
+    texto: >-
+      $u\cdot v$: valor ___ y derivada ___. $u/v$: valor ___ y derivada ___.
+    respuestas: ["2", "5", "0.5", "-0.25"]
+    verificar: { sympy: "(lambda u, v: [(u*v).subs(x, 0), diff(u*v, x).subs(x, 0), (u/v).subs(x, 0), diff(u/v, x).subs(x, 0)])(exp(x), x**2 + 3*x + 2)" }
+    pistas:
+      - >-
+        ¿Qué significan los pares que te dan: cuánto valen $u(0)$, $u'(0)$, $v(0)$ y $v'(0)$?
+      - >-
+        El valor de $u\cdot v$ es solo multiplicar. ¿Y su derivada: qué regla combina $u$, $u'$, $v$ y $v'$? ¿Cuál lo hace para $u/v$?
+    explicacion: >-
+      Los pares dicen $(u,u')=(1,1)$ y $(v,v')=(2,3)$ en $x=0$. Producto: valor $uv=1\cdot2=2$ y derivada $u'v+uv'=1\cdot2+1\cdot3=5$, así que su par es $(2,5)$. Cociente: valor $\frac uv=\frac12=0.5$ y derivada $\frac{u'v-uv'}{v^2}=\frac{1\cdot2-1\cdot3}{2^2}=-\frac14=-0.25$, así que su par es $(0.5,-0.25)$. Así trabaja la diferenciación automática: nunca escribe la fórmula completa de la derivada, solo propaga números con estas reglas. Revisa: el cociente de diferencias de $\frac{e^x}{x^2+3x+2}$ entre $0$ y $0.001$ vale $\approx-0.2496$, cerca de $-0.25$.
+
+  # razonamiento: abductivo y metacognitivo (detectar un error con una comprobación numérica) · R2
+  - id: calc-04-016
+    tipo: opcion_multiple
+    dificultad: 3
+    conceptos: [regla-producto-cociente, derivada-exponencial-logaritmica]
+    enunciado: >-
+      Para $q(x)=\dfrac{x}{e^x}$, Luis escribe $q'(x)=\dfrac{xe^x-e^x}{(e^x)^2}$. Para revisarlo, calcula la pendiente de la recta secante en $0$ con $h=0.01$: $\dfrac{q(0.01)-q(0)}{0.01}\approx0.99005$. ¿Qué es lo más razonable que concluya?
+    opciones:
+      - >-
+        Su fórmula está bien: la secante solo aproxima a la tangente, así que es normal que sus pendientes no coincidan.
+      - >-
+        Su fórmula tiene un error: en $x=0$ da $-1$ y la pendiente de la secante vale casi $1$, con el signo contrario.
+      - >-
+        Nada: una secante no sirve para revisar una derivada.
+      - >-
+        No se puede saber sin rehacer la derivada por definición.
+    correcta: 1
+    pistas:
+      - >-
+        ¿Cuánto da la fórmula de Luis en $x=0$? ¿Se parece a la pendiente de la secante?
+      - >-
+        Si $q$ es derivable, ¿qué tan lejos de $q'(0)$ esperas que quede la pendiente de la secante con $h=0.01$? ¿Un cambio de signo se explica por la $h$?
+    explicacion: >-
+      En $x=0$ la fórmula de Luis da $\frac{0\cdot1-1}{1}=-1$, y la pendiente de la secante vale casi $+1$. Es cierto que la secante solo aproxima a la tangente y que no demuestra cuánto vale la derivada, pero con $h$ chico y una función suave su pendiente suele quedar cerca de la derivada: una diferencia chica sería normal, un signo contrario no. Es una señal fuerte de error y vale la pena rehacer la cuenta. Con arriba $x$ y abajo $e^x$: $q'(x)=\dfrac{1\cdot e^x-x\cdot e^x}{(e^x)^2}=\dfrac{1-x}{e^x}$, y $q'(0)=1$. Luis invirtió el orden del numerador: escribió $fg'-f'g$. Revisa: $q'(0)=1$ y la pendiente de la secante, $0.99005$, difieren en $\approx0.01$, del tamaño de $h$.
+
+  # razonamiento: abductivo (encontrar el primer paso con error) · R2
+  - id: calc-04-017
+    tipo: opcion_multiple
+    dificultad: 4
+    conceptos: [derivada-trigonometrica]
+    enunciado: |-
+      Ana deriva $\sec x$ así:
+
+      1. $\sec x=\dfrac{1}{\cos x}$
+      2. $(\sec x)'=\dfrac{(1)'\cos x-1\cdot(\cos x)'}{\cos^2x}$
+      3. $(\sec x)'=\dfrac{0-\operatorname{sen}x}{\cos^2x}$
+      4. $(\sec x)'=-\sec x\tan x$
+
+      ¿Cuál es el **primer** paso con un error de cálculo? Los pasos siguientes pueden arrastrarlo.
+    opciones: ['El paso 1', 'El paso 2', 'El paso 3', 'El paso 4', 'Ninguno: los cuatro pasos están bien']
+    correcta: 2
+    pistas:
+      - >-
+        ¿Qué te piden: el primer paso donde algo deja de ser cierto? Revísalos en orden: ¿el paso 1 es una identidad, y el paso 2 es la regla del cociente bien armada?
+      - >-
+        ¿Cuánto vale $(\cos x)'$? Si lo sustituyes tú en la expresión del paso 2, ¿qué numerador te queda, y coincide con el de Ana?
+      - >-
+        Revisa con el signo: en $(0,\frac\pi2)$ el coseno baja hacia 0, así que $\sec x=\frac{1}{\cos x}$ crece. ¿Qué signo debería tener $(\sec x)'$ ahí, y qué signo tiene el resultado del paso 4?
+    explicacion: >-
+      Los pasos 1 y 2 están bien: $\sec x$ es $\frac{1}{\cos x}$, y el paso 2 es el cociente con arriba 1 y abajo $\cos x$. El error está en el paso 3: $(\cos x)'=-\operatorname{sen}x$, así que el numerador es $0-1\cdot(-\operatorname{sen}x)=+\operatorname{sen}x$, no $0-\operatorname{sen}x$. El paso 4 simplifica bien lo que traía el 3, porque $-\frac{\operatorname{sen}x}{\cos^2x}=-\frac{1}{\cos x}\cdot\frac{\operatorname{sen}x}{\cos x}$, pero arrastra el signo. Lo correcto es $(\sec x)'=\frac{\operatorname{sen}x}{\cos^2x}=\sec x\tan x$. Revisa: en $x=\frac\pi3$, $\sec x\tan x=2\sqrt3\approx3.46$, y el cociente de diferencias de $\sec x$ con $h=0.001$ da $\approx3.47$; el $-3.46$ de Ana tiene el signo equivocado.
+
+  # razonamiento: deductivo (de la tangente a los datos, al revés) · R2
+  - id: calc-04-018
+    tipo: numerico
+    dificultad: 4
+    conceptos: [regla-producto-cociente]
+    enunciado: >-
+      Sea $p(x)=f(x)\,g(x)$, con $f$ y $g$ derivables. Se sabe que $f(2)=3$, $f'(2)=-1$ y que la recta tangente a la gráfica de $p$ en $x=2$ es $y=11x-10$. ¿Cuánto vale $g'(2)$?
+    respuesta: 5
+    tolerancia: 0
+    verificar: { sympy: "(lambda G, Gp: (lambda p: solve([p.subs(x, 2) - (11*2 - 10), diff(p, x).subs(x, 2) - 11], [G, Gp], dict=True)[0][Gp])((3 - (x - 2))*(G + Gp*(x - 2))))(Symbol('G'), Symbol('Gp'))" }
+    pistas:
+      - >-
+        ¿Qué dos números sobre $p$ te da la recta tangente en $x=2$?
+      - >-
+        La regla del producto en $x=2$ tiene dos incógnitas, $g(2)$ y $g'(2)$. ¿Qué dato te deja encontrar $g(2)$ primero?
+      - >-
+        Ya con $g(2)$, ¿qué ecuación queda al igualar $p'(2)$ con la regla del producto? ¿Cómo compruebas al final que la tangente coincide?
+    explicacion: >-
+      La tangente en $x=2$ pasa por $(2,p(2))$ con pendiente $p'(2)$. De $y=11x-10$: $p(2)=22-10=12$ y $p'(2)=11$. Primero el valor: $p(2)=f(2)g(2)$, así que $12=3\,g(2)$ y $g(2)=4$. Luego la pendiente, con el producto: $p'(2)=f'(2)g(2)+f(2)g'(2)=(-1)(4)+3\,g'(2)$. Entonces $11=-4+3\,g'(2)$ y $g'(2)=5$. Revisa: con $g(2)=4$ y $g'(2)=5$ se tiene $p(2)=12$ y $p'(2)=-4+15=11$, y la tangente $y=12+11(x-2)=11x-10$ coincide.
+
+  # razonamiento: deductivo (factorizar y resolver en un intervalo) · R2
+  - id: calc-04-019
+    tipo: conjunto
+    dificultad: 4
+    conceptos: [derivada-trigonometrica, regla-producto-cociente]
+    enunciado: >-
+      ¿Para qué valores de $x$ en $[0,2\pi)$ es horizontal la recta tangente a $f(x)=e^x(\operatorname{sen}x+\cos x)$? Escribe el conjunto de esos $x$ en términos de π (por ejemplo, `pi/6` o `2*pi/3`).
+    respuesta: ["pi/2", "3*pi/2"]
+    verificar: { sympy: "solveset(diff(exp(x)*(sin(x) + cos(x)), x), x, Interval.Ropen(0, 2*pi))" }
+    pistas:
+      - >-
+        ¿Qué ecuación tienes que resolver, y qué regla pide $f$ para derivarla?
+      - >-
+        Al aplicar el producto y juntar términos, ¿qué se cancela? ¿Puedes sacar $e^x$ como factor común?
+      - >-
+        ¿Puede $e^x$ valer 0? Entonces, ¿qué tiene que valer el otro factor, y en qué ángulos de $[0,2\pi)$ pasa?
+    explicacion: >-
+      Hay que resolver $f'(x)=0$. Por el producto, con $u=e^x$ y $v=\operatorname{sen}x+\cos x$: $f'(x)=e^x(\operatorname{sen}x+\cos x)+e^x(\cos x-\operatorname{sen}x)=2e^x\cos x$. Como $e^x>0$ siempre, $f'(x)=0$ solo si $\cos x=0$, y en $[0,2\pi)$ eso pasa en $x=\frac\pi2$ y en $x=\frac{3\pi}{2}$. El conjunto es $\left\{\frac\pi2,\frac{3\pi}2\right\}$. Revisa: $f'(0)=2>0$ y $f'(\pi)=-2e^\pi<0$; la pendiente cambia de signo entre 0 y π, y el cero está en $\frac\pi2$.
+
+  # razonamiento: deductivo (demostración guiada) · R3
+  - id: calc-04-020
+    tipo: autoevaluacion
+    dificultad: 4
+    conceptos: [regla-producto-cociente]
+    enunciado: >-
+      Supón que $f$ y $g$ son derivables en $x$. Demuestra que $(fg)'(x)=f'(x)g(x)+f(x)g'(x)$: di qué límite tienes que calcular y justifica cada paso. Hazlo a mano, como en el examen.
+    rubrica:
+      - >-
+        Escribe el límite que hay que calcular, $\lim_{h\to0}\frac{f(x+h)g(x+h)-f(x)g(x)}{h}$, y las hipótesis: $f$ y $g$ son derivables en $x$.
+      - >-
+        Suma y resta un término mixto, $f(x+h)g(x)$ o $f(x)g(x+h)$ (cualquiera sirve), y agrupa el numerador en dos partes, cada una con la diferencia de una sola función.
+      - >-
+        Separa en dos cocientes y justifica cada límite: los cocientes de diferencias tienden a $f'(x)$ y a $g'(x)$, y el factor que quedó evaluado en $x+h$ tiende a su valor en $x$ porque esa función es derivable y, por lo tanto, continua en $x$ (unidad 03).
+      - >-
+        Concluye con las leyes de la suma y del producto de límites, diciendo que se pueden aplicar porque todos los límites existen y son finitos, y llega a $f'(x)g(x)+f(x)g'(x)$.
+    respuesta_modelo: >-
+      Hay que calcular $\lim_{h\to0}\frac{f(x+h)g(x+h)-f(x)g(x)}{h}$, sabiendo que $f$ y $g$ son derivables en $x$. Sumo y resto $f(x+h)g(x)$ en el numerador: $f(x+h)[g(x+h)-g(x)]+g(x)[f(x+h)-f(x)]$. Para $h\neq0$, el cociente es $f(x+h)\cdot\frac{g(x+h)-g(x)}{h}+g(x)\cdot\frac{f(x+h)-f(x)}{h}$. Cuando $h\to0$, los cocientes tienden a $g'(x)$ y a $f'(x)$ por hipótesis; $g(x)$ no depende de $h$; y $f(x+h)\to f(x)$ porque $f$ es derivable en $x$ y, por lo tanto, continua ahí. Como los cuatro límites existen y son finitos, las leyes del producto y de la suma dan $(fg)'(x)=f(x)g'(x)+g(x)f'(x)$. Si en cambio sumas y restas $f(x)g(x+h)$, el factor desplazado es $g(x+h)$ y lo que usas es la continuidad de $g$.
+    pistas:
+      - >-
+        ¿Qué límite tienes que calcular exactamente? Escríbelo con la definición de la unidad 03 aplicada a $p(x)=f(x)g(x)$.
+      - >-
+        En el numerador cambian las dos funciones a la vez. ¿Qué término podrías sumar y restar para que cada parte tenga el cambio de una sola función?
+      - >-
+        Al separar en dos cocientes queda un factor evaluado en $x+h$. ¿Qué teorema de la unidad 03 te dice a qué tiende?
+    explicacion: >-
+      El paso que más se omite es el límite de $f(x+h)$. No basta con «sustituir $h=0$»: vale porque $f$ es continua en $x$, y eso sale de que es derivable. Revisa: si sumaste y restaste $f(x+h)g(x)$, ¿en qué pasos usaste que $f$ es derivable? (Son dos: su cociente de diferencias y su continuidad.) ¿Y que $g$ lo es? (Uno.) Con el otro término mixto se invierten los papeles.
+    tarjeta: false
+
+  # razonamiento: deductivo (refutar con un contraejemplo, defender con una regla) · R2
+  # verificar: una opción es «no válida» si con f y g genéricas la igualdad no es una identidad
+  # y además f = g = x da un contraejemplo concreto (la diferencia no es idénticamente 0).
+  - id: calc-04-021
+    tipo: seleccion_multiple
+    dificultad: 4
+    conceptos: [regla-producto-cociente]
+    enunciado: >-
+      Marca las reglas que **fallan**. Una regla falla si tiene al menos un caso en contra: unas funciones derivables $f$ y $g$ (pueden ser la misma) y un valor de $x$ en el que ningún denominador vale 0 y la igualdad no se cumple. Puede haber varias.
+    opciones:
+      - >-
+        $(f+g)'=f'+g'$
+      - >-
+        $(fg)'=f'g'$
+      - >-
+        $\left(\dfrac{f}{g}\right)'=\dfrac{f'}{g'}$
+      - >-
+        $(f^2)'=2ff'$
+      - >-
+        $\left(\dfrac{1}{g}\right)'=-\dfrac{g'}{g^2}$
+      - >-
+        $(fg)'=f'g$
+    correctas: [1, 2, 5]
+    verificar: { sympy: "(lambda F, G: [bool(simplify(L - R) != 0) and bool(simplify((L - R).subs({F: x, G: x}).doit()) != 0) for L, R in [(diff(F + G, x), diff(F, x) + diff(G, x)), (diff(F*G, x), diff(F, x)*diff(G, x)), (diff(F/G, x), diff(F, x)/diff(G, x)), (diff(F**2, x), 2*F*diff(F, x)), (diff(1/G, x), -diff(G, x)/G**2), (diff(F*G, x), diff(F, x)*G)]])(Function('f')(x), Function('g')(x))" }
+    pistas:
+      - >-
+        ¿Qué basta para tumbar una regla, y qué haría falta para defenderla?
+      - >-
+        ¿Qué pasa si pruebas cada una con funciones muy sencillas, como $f(x)=g(x)=x$?
+      - >-
+        Para las que resistan la prueba, ¿salen de una regla de la lección? Por ejemplo, ¿qué es $f^2$ escrito como producto?
+    explicacion: >-
+      Para tumbar una regla basta un contraejemplo; para defenderla hace falta una demostración. Con $f=g=x$: $(fg)'=(x^2)'=2x$, pero $f'g'=1$ y $f'g=x$, así que $(fg)'=f'g'$ y $(fg)'=f'g$ fallan (en $x=1$, $2\neq1$). También $\left(\frac xx\right)'=(1)'=0$, pero $\frac{f'}{g'}=1$: falla. Las otras tres son válidas: la de la suma es una regla de la lección, $(f^2)'=(f\cdot f)'=f'f+ff'=2ff'$ sale del producto, y $\left(\frac1g\right)'=-\frac{g'}{g^2}$ se demostró en la lección. Revisa: con $f(x)=x^2$, $(f^2)'=(x^4)'=4x^3$ y $2ff'=2x^2\cdot2x=4x^3$; coinciden, como debe ser.
+
+  # razonamiento: deductivo (factorizar en cos x sin perder raíces) · R2
+  - id: calc-04-022
+    tipo: conjunto
+    dificultad: 5
+    conceptos: [derivada-trigonometrica, regla-producto-cociente]
+    enunciado: >-
+      ¿Para qué valores de $x$ en $[0,2\pi)$ es horizontal la recta tangente a $f(x)=\operatorname{sen}x\,(1+\cos x)$? Escribe el conjunto de esos $x$ en términos de π (por ejemplo, `pi/6` o `2*pi/3`).
+    respuesta: ["pi/3", "pi", "5*pi/3"]
+    verificar: { sympy: "solveset(diff(sin(x)*(1 + cos(x)), x), x, Interval.Ropen(0, 2*pi))" }
+    pistas:
+      - >-
+        ¿Qué ecuación tienes que resolver? Al derivar con el producto aparece $\operatorname{sen}^2x$: ¿cómo lo escribes con $\cos x$ para que todo quede en una sola función?
+      - >-
+        ¿Qué tipo de ecuación queda en $\cos x$? ¿Se puede factorizar?
+      - >-
+        Cada factor da su propia ecuación. ¿Cuántas soluciones tiene cada una en $[0,2\pi)$? ¿Las revisaste todas?
+    explicacion: >-
+      Por el producto: $f'(x)=\cos x\,(1+\cos x)+\operatorname{sen}x\,(-\operatorname{sen}x)=\cos x+\cos^2x-\operatorname{sen}^2x$. Con $\operatorname{sen}^2x=1-\cos^2x$: $f'(x)=2\cos^2x+\cos x-1=(2\cos x-1)(\cos x+1)$. Entonces $f'(x)=0$ si $\cos x=\tfrac12$, que en $[0,2\pi)$ da $x=\frac\pi3$ y $x=\frac{5\pi}{3}$, o si $\cos x=-1$, que da $x=\pi$. El conjunto es $\left\{\frac\pi3,\pi,\frac{5\pi}3\right\}$. La trampa es olvidar el factor $\cos x+1$: en $x=\pi$ la tangente también es horizontal, aunque ahí la pendiente no cambie de signo. Revisa: $f'(\pi)=(2(-1)-1)(-1+1)=(-3)(0)=0$, y con $u=\cos x$ el factor queda $2u^2+u-1=(2u-1)(u+1)$, con raíces $u=\tfrac12$ y $u=-1$.
+
+  # razonamiento: deductivo (cosh x = c se vuelve cuadrática en e^x) · R2
+  # sympy da {±acosh(5/4)}; el verificador compara por valor, y acosh(5/4) = ln 2.
+  - id: calc-04-023
+    tipo: conjunto
+    dificultad: 5
+    conceptos: [derivada-hiperbolica]
+    enunciado: >-
+      ¿En qué abscisas la recta tangente a $y=\operatorname{senh}x$ es paralela a la recta $y=\tfrac54x+1$? Escribe el conjunto de esos $x$ en forma exacta, sin redondear: por ejemplo, `sqrt(3)` y no `1.732`.
+    respuesta: ["ln(2)", "-ln(2)"]
+    verificar: { sympy: "solveset(Eq(diff(sinh(x), x), Rational(5, 4)), x, S.Reals)" }
+    pistas:
+      - >-
+        ¿Qué tienen en común dos rectas paralelas? ¿Qué ecuación te da eso con la derivada de $\operatorname{senh}x$?
+      - >-
+        Si escribes $\cosh x$ con $e^x$ y $\frac{1}{e^x}$, ¿qué pasa al multiplicar todo por $e^x$? ¿Qué cambio de variable la vuelve una ecuación conocida?
+      - >-
+        ¿Cuántas soluciones tiene esa ecuación, y sirven todas como valor de $e^x$? ¿Cómo regresas de $e^x$ a $x$?
+    explicacion: >-
+      Paralelas quiere decir misma pendiente: hay que resolver $(\operatorname{senh}x)'=\cosh x=\tfrac54$. Con la definición, $\dfrac{e^x+1/e^x}{2}=\dfrac54$, es decir, $e^x+\dfrac{1}{e^x}=\dfrac52$. Multiplica por $e^x>0$ y llama $u=e^x$: $u^2-\tfrac52u+1=0$, o $2u^2-5u+2=0$, que se factoriza como $(2u-1)(u-2)=0$: $u=2$ o $u=\tfrac12$. Las dos son positivas, así que sirven: $e^x=2$ da $x=\ln2$ y $e^x=\tfrac12$ da $x=\ln\tfrac12=-\ln2$. El conjunto es $\{\ln2,-\ln2\}$, simétrico porque $\cosh$ es par. Revisa: $\cosh(\ln2)=\dfrac{2+\frac12}{2}=\dfrac54$.
+
+  # razonamiento: inductivo (generalizar el producto a tres factores) · R2
+  - id: calc-04-024
+    tipo: numerico
+    dificultad: 5
+    conceptos: [regla-producto-cociente]
+    enunciado: >-
+      Se sabe que $u(1)=2$, $u'(1)=-1$, $v(1)=3$, $v'(1)=4$, $w(1)=-1$ y $w'(1)=5$. Calcula $(uvw)'(1)$, la derivada del producto de las tres en $x=1$.
+    respuesta: 25
+    tolerancia: 0
+    verificar: { sympy: "diff((2 - (x - 1))*(3 + 4*(x - 1))*(-1 + 5*(x - 1)), x).subs(x, 1)" }
+    pistas:
+      - >-
+        La regla del producto es para dos factores. ¿Puedes ver $uvw$ como un producto de dos, por ejemplo $(uv)\cdot w$?
+      - >-
+        Al aplicar la regla aparece $(uv)'$. ¿Qué regla usas otra vez para esa parte?
+      - >-
+        Al final, ¿cuántos términos quedan y qué patrón siguen? ¿En cada uno se deriva una sola función?
+    explicacion: >-
+      Agrupa $uvw=(uv)\cdot w$ y aplica el producto: $(uvw)'=(uv)'w+(uv)w'$. Otra vez el producto en $(uv)'=u'v+uv'$: $(uvw)'=u'vw+uv'w+uvw'$, tres términos, y en cada uno se deriva una sola función. En $x=1$: $u'vw=(-1)(3)(-1)=3$, $uv'w=(2)(4)(-1)=-8$ y $uvw'=(2)(3)(5)=30$. La suma es $3-8+30=25$. Revisa: agrupando al revés, $u\cdot(vw)$, con $(vw)(1)=-3$ y $(vw)'(1)=v'w+vw'=-4+15=11$, sale $(-1)(-3)+(2)(11)=3+22=25$.
+
+  # razonamiento: deductivo (clasificar cada término: ¿la x en la base, en el exponente o dentro del log?) · R0
+  - id: calc-04-025
+    tipo: simbolico
+    dificultad: 2
+    conceptos: [derivada-exponencial-logaritmica]
+    enunciado: >-
+      Deriva $f(x)=5^x-4\log_2x$, con $x>0$. En la app, $5^x$ se escribe `5^x` y $\log_2x$, `log(x, 2)`.
+    respuesta: "5^x*ln(5) - 4/(x*ln(2))"
+    variables: [x]
+    muestreo: { desde: 0.5, hasta: 6 }
+    verificar: { sympy: "diff(5**x - 4*log(x, 2), x)" }
+    pistas:
+      - >-
+        En cada término, ¿dónde está la variable: en la base, en el exponente o dentro del logaritmo? Según eso, ¿qué renglón de la tabla le toca?
+    explicacion: >-
+      Deriva término por término (reglas de la suma y del múltiplo). En $5^x$ la variable está en el exponente y la base 5 es fija: es el renglón $a^x$ con $a=5$, así que $(5^x)'=5^x\ln5$. En $\log_2x$ la variable está dentro del logaritmo y la base 2 es fija: $\log_2x=\dfrac{\ln x}{\ln2}$, así que $(\log_2x)'=\dfrac{1}{x\ln2}$, y el $-4$ se queda multiplicando. Queda $f'(x)=5^x\ln5-\dfrac{4}{x\ln2}$. Los errores típicos son tratar $5^x$ como potencia, que da $x\cdot5^{x-1}$, y escribir $\dfrac{1}{2x}$ en lugar de $\dfrac{1}{x\ln2}$. Revisa: $f'(1)=5\ln5-\dfrac{4}{\ln2}\approx8.0472-5.7708=2.2764$, y el cociente de diferencias con $h=0.001$ da $\approx2.2858$, muy cerca.
+    tiempo_estimado_s: 30
