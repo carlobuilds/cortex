@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "cortex": {
+      "command": "pnpm",
+      "args": ["--silent", "mcp:cortex"]
+    }
+  }
+}

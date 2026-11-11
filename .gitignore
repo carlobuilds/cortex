@@ -13,6 +13,9 @@ __pycache__/
 .DS_Store
 # Respaldos exportados desde la app
 *.cortex-backup.json
+respaldos/
+# Informes del coach y resultados institucionales: datos personales de Carlo (ADR-026)
+diario/
 # Programas oficiales en PDF (pueden ser pesados; decide si los versionas)
 # curriculum/programas/*.pdf
 # Copias locales de node_modules para el navegador (scripts/vendor-assets.ts)
