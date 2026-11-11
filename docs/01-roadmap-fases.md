@@ -92,7 +92,7 @@ Transversal de herramientas, no toca la app: equipo de 19 agentes (`docs/08`), c
 
 ### Sprint del parcial de Cálculo (después del CP1)
 Carlo tiene parcial de Cálculo en menos de 4 semanas. Antes de la Fase 3.5:
-- **Temas y orden:** Carlo dice qué cubre el examen; el coach lee la fecha en Calendar, y `/consejo` (`experto-matematicas`, `pedagogo`, `cientifico-memoria`) ordena las unidades 00 a 07 según el examen y el tiempo disponible.
+- **Temas y orden:** Carlo dice qué cubre el examen; el coach lee la fecha en Calendar, y `/consejo` (`experto-matematicas`, `pedagogo`, `cientifico-memoria`) ordena las unidades 00 a 09 según el examen y el tiempo disponible. Las 08 y 09 (Unidad IV) entraron el 2026-11-10 porque el 3.er parcial la cubre; la decisión y el orden están en `ESTADO.md`.
 - **Por unidad:** `/nueva-unidad` → `pnpm content:check` → `/revisar-contenido`. Si faltan unidades previas, el `repaso_de` del jefe usa solo las que existen.
 - **Cierre del ciclo:** simulacro unos días antes → parcial real → `/coach parcial calculo`, que registra la calificación y da el primer punto de calibración.
 

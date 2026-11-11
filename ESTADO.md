@@ -99,10 +99,18 @@ Brainstorm con Claude en modo plan; plan aprobado el mismo día.
 - **Alcance:** plan IPN **+ Ruta de ingeniero en IA en paralelo**, a ritmo menor.
 - **Orden:** v1 (equipo y coach) → CP1 → **sprint del parcial de Cálculo** (examen en menos de 4 semanas) → Fase 3.5 = v1.1, todo junto → lo demás.
 
+## Decisiones tomadas (Carlo, 2026-11-10 · sprint del parcial de Cálculo)
+- **Examen:** 3.er parcial de Cálculo, **semana del 23 al 27 de noviembre de 2026** (no está en Google Calendar; la dio Carlo). Faltan unos 13 días.
+- **Cobertura:** Unidades **I a IV** del programa oficial (funciones, límites y continuidad, la derivada e integral indefinida). En Cortex son las unidades 00 a 09; ya existe la 01.
+- **Alcance:** el sprint se amplía de 00–07 a **00–09** (`docs/01`).
+- **Orden de escritura:** derivada primero, por peso del examen: **03 → 04 → 05 → 07 → 06 → 08 → 09 → 02**. La **00 (funciones) queda fuera del sprint**. Así se resuelve el choque del `/consejo` (matemáticas y pedagogo contra memoria): `currentUnits` (`src/engine/session.ts:28`) solo recorre las unidades que existen, así que escribir fuera de orden no rompe la sesión diaria. Lo único que la desviaría es una 00 escrita, que mandaría a funciones antes que a límites.
+- **Cuántas:** todas las del orden, una tras otra. Según `cientifico-memoria`, a fondo solo se estudian las 3 o 4 primeras: la última nueva en D−12 (≈ 11 a 15 de noviembre) y el simulacro en D−6 (≈ 17 a 21 de noviembre). Las demás sirven para práctica y para el simulacro.
+
 ## Decisiones pendientes (preguntar a Carlo)
 - [ ] Programas sintéticos que faltan: programacion, mecanica-electromagnetismo, fundamentos-economicos (los de Cálculo y Discretas ya están; la carpeta oficial es `escom.ipn.mx/docs/oferta/uaIIA2020/`). Versionar o no los PDF: el `.gitignore` deja la decisión en Carlo; por ahora no se versionan.
 - [ ] Confirmar el semestre actual (se asumió 1º; Carlo cursa Cálculo este semestre).
-- [ ] Sprint del parcial: qué temas entran al próximo parcial de Cálculo y su fecha (el coach puede leerla en Calendar). El `/consejo` de prueba del 2026-11-10 no pudo priorizar sin esto, y el orden de escritura quedó en conflicto (por peso del examen o por número de unidad; ver la bitácora).
+- [x] Sprint del parcial: temas, fecha y orden de escritura decididos por Carlo el 2026-11-10 (ver «Decisiones tomadas · sprint del parcial de Cálculo»).
+- [ ] Unidad 00 (funciones): escribirla después del parcial, o antes como diagnóstico en papel si Carlo lo pide.
 - [x] Arreglos de `01-limites` que propuso `/revisar-contenido`: Carlo los aprobó y se aplicaron el 2026-11-10 (ver bitácora).
 - [ ] Pulido de `01-limites` que quedó fuera de esos arreglos: aceptar sinónimos en `completar` (p. ej. «divisor» por «factor» en 011) o dejar huecos de una sola respuesta; cerrar el gancho del auto con la velocidad de $s(t)=t^2$; la pista de 003, que casi regala la respuesta; 009 y 020 etiquetados como `0/0` aunque son $\infty-\infty$ e $\infty\cdot0$; `duracion_min: 25` con 4 ejemplos más.
 - [ ] `weeklyVerdict` (aporte de Carlo): umbrales de semana «sólida», «para ajustar» y «de alerta».
@@ -276,6 +284,7 @@ Complementan los ADR-001 a 008 de `docs/02`. Cada uno se escribe en el commit de
 **ADR-013 · Nomenclatura** (paso 1, decisión D1). Código, tablas y campos de IndexedDB en inglés, con equivalencias en `docs/02`. Las claves de YAML y del front matter siguen en español (son el formato de contenido). Los componentes MDX conservan su nombre en español porque son la API del contenido (`Predice` se implementa como `PredictPrompt`). Las URL van en español porque son interfaz. `APP_ID = 'cortex'` es inmutable (nombre de la base y marca de los respaldos); renombrar la app solo cambia `APP_NAME`. *Descartado:* todo en español (contradice `CLAUDE.md`) o una capa de traducción.
 
 ## Bitácora
+- 2026-11-10 · **Arranca el sprint del parcial de Cálculo.** Google Calendar no tiene eventos de «parcial» ni de «examen» antes del 15 de diciembre, así que Carlo dio la fecha a mano. Respondió cobertura, fecha, orden, alcance y cuántas unidades escribir (ver «Decisiones tomadas · sprint del parcial de Cálculo»). No hay `respaldos/`, así que `/coach semana` sigue pendiente.
 - 2026-11-10 · **Arreglos de `01-limites`** (aprobados por Carlo tras `/revisar-contenido`). Los escribió `autor-contenido` con una especificación cuyos números se comprobaron antes con sympy.
   - **Lección:**
     - ejemplos nuevos: laterales, límite notable ($\operatorname{sen}5x/2x$) y encontrar δ;
