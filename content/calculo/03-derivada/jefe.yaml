@@ -1,0 +1,12 @@
+unidad: calculo/03-derivada
+nombre: "La Guardiana de la Tangente"
+vidas: 3
+# Unos 2 min por derivada por definición: 10 preguntas en 20 min.
+tiempo_segundos: 1200
+aprobado_minimo: 0.8
+preguntas:
+  # d2: 003, 004 · d3: 011, 012 · d4: 017, 019 · d5: 022
+  propias: [calc-03-003, calc-03-004, calc-03-011, calc-03-012, calc-03-017, calc-03-019, calc-03-022]
+  # 3 de 10 (30 %), elegidas a mano: límite notable, racionalizar y laterales en un punto de corte.
+  repaso_de: [calc-01-003, calc-01-006, calc-01-018]
+recompensa: { xp: 300, insignia: "cazador-de-pendientes" }

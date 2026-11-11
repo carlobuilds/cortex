@@ -1,0 +1,475 @@
+# Unidad 03 · La derivada (Unidad III, 3.1). Sprint del 3.er parcial: todo por definición.
+# Esquema revisado por experto-matematicas, pedagogo y arquitecto-razonamiento.
+# Ningún ejercicio repite un cálculo de la lección (014 usa √x, pero pregunta por el extremo x = 0).
+# Los textos con apóstrofo (f') van en bloques `>-`: así no hay que escapar ni comillas ni barras.
+unidad: calculo/03-derivada
+ejercicios:
+  # razonamiento: deductivo · R0
+  - id: calc-03-001
+    tipo: numerico
+    dificultad: 1
+    conceptos: [razon-cambio-promedio]
+    enunciado: >-
+      Supón que un tanque tiene $V(t)=200+30t-t^2$ litros de agua a los $t$ minutos. ¿Cuál es la razón de cambio promedio de $V$ entre $t=2$ y $t=6$, en litros por minuto?
+    respuesta: 22
+    tolerancia: 0
+    verificar: { sympy: "(lambda V: (V.subs(t, 6) - V.subs(t, 2))/(6 - 2))(200 + 30*t - t**2)" }
+    pistas:
+      - >-
+        ¿Qué dos valores de $V$ tienes que comparar, y entre qué cambio de tiempo divides su diferencia?
+    explicacion: >-
+      La razón de cambio promedio es $\dfrac{\Delta V}{\Delta t}=\dfrac{V(6)-V(2)}{6-2}$. Como $V(6)=200+180-36=344$ y $V(2)=200+60-4=256$, queda $\dfrac{344-256}{4}=\dfrac{88}{4}=22$ L/min: en esos 4 minutos el tanque ganó, en promedio, 22 litros por minuto. Es la pendiente de la secante que une $(2,256)$ con $(6,344)$.
+
+  # razonamiento: inductivo · R0
+  - id: calc-03-002
+    tipo: numerico
+    dificultad: 1
+    conceptos: [derivada-punto]
+    enunciado: >-
+      Para $f(x)=e^{2x}$, la pendiente de la secante entre $x=0$ y $x=h$, $\dfrac{f(h)-f(0)}{h}$, vale aproximadamente $1.81269$ con $h=-0.1$, $1.98013$ con $h=-0.01$, $2.02013$ con $h=0.01$ y $2.21403$ con $h=0.1$. Estima $f'(0)$ con el número entero al que parecen acercarse esas pendientes.
+    respuesta: 2
+    tolerancia: 0
+    verificar: { sympy: "(lambda h: limit((exp(2*h) - 1)/h, h, 0))(Symbol('h'))" }
+    pistas:
+      - >-
+        ¿A qué número se acercan las pendientes cuando $h$ se acerca a 0 por la izquierda? ¿Y por la derecha?
+    explicacion: >-
+      $f'(0)$ es el límite de esas pendientes cuando $h\to0$. Por la izquierda ($1.81269$, $1.98013$) suben hacia 2; por la derecha ($2.21403$, $2.02013$) bajan hacia 2. Los dos lados se acercan al mismo número, así que la estimación es $f'(0)=2$. Una tabla sugiere el límite pero no lo demuestra. Si usas que $\frac{e^u-1}{u}\to1$ (el límite que estimaste en la unidad 01), con $u=2h$ sale exacto: $\frac{e^{2h}-1}{h}=2\cdot\frac{e^{u}-1}{u}\to2$.
+
+  # razonamiento: deductivo · R1
+  - id: calc-03-003
+    tipo: numerico
+    dificultad: 2
+    conceptos: [derivada-punto]
+    enunciado: >-
+      Sea $f(x)=3x^2-4x+2$. Calcula $f'(2)$ con la definición $f'(a)=\lim_{h\to0}\dfrac{f(a+h)-f(a)}{h}$.
+    respuesta: 8
+    tolerancia: 0
+    verificar: { sympy: "diff(3*x**2 - 4*x + 2, x).subs(x, 2)" }
+    pistas:
+      - >-
+        ¿Qué cociente pide la definición con $a=2$? Escribe $f(2+h)$ completo, desarrollando $(2+h)^2$, antes de restar $f(2)$.
+    explicacion: >-
+      $f(2)=12-8+2=6$. Al sustituir $2+h$ en cada $x$: $f(2+h)=3(4+4h+h^2)-4(2+h)+2=12+12h+3h^2-8-4h+2=6+8h+3h^2$. Entonces $\dfrac{f(2+h)-f(2)}{h}=\dfrac{8h+3h^2}{h}=8+3h$ para $h\neq0$, y $f'(2)=\lim_{h\to0}(8+3h)=8$.
+
+  # razonamiento: deductivo (interpretar unidades) · R0
+  - id: calc-03-004
+    tipo: opcion_multiple
+    dificultad: 2
+    conceptos: [razon-cambio-instantanea]
+    enunciado: >-
+      Supón que $P(t)$ es el número de usuarios de una app, en miles, a los $t$ meses de su lanzamiento, y que $P'(10)=4$. ¿Qué significa?
+    opciones:
+      - 'A los 10 meses la app tiene 4 mil usuarios.'
+      - 'A los 10 meses, el número de usuarios crece a razón de 4 mil por mes.'
+      - 'En sus primeros 10 meses la app ganó, en promedio, 4 mil usuarios por mes.'
+      - 'Del mes 10 al mes 11 la app ganará exactamente 4 mil usuarios.'
+    correcta: 1
+    pistas:
+      - >-
+        ¿$P'(10)$ habla de cuántos usuarios hay o de qué tan rápido cambia ese número? ¿En qué unidades?
+    explicacion: >-
+      $P'(10)$ es la razón de cambio instantánea de $P$ en $t=10$, en miles de usuarios por mes: en ese momento los usuarios crecen a razón de 4 mil por mes. No es el valor $P(10)$ (eso confunde $f$ con $f'$). Tampoco es un promedio desde el lanzamiento, que sería $\frac{P(10)-P(0)}{10}$. Y no dice que del mes 10 al 11 se ganen exactamente 4 mil: la razón puede cambiar dentro de ese mes, así que 4 mil es solo una aproximación.
+
+  # razonamiento: deductivo · R0
+  - id: calc-03-005
+    tipo: opcion_multiple
+    dificultad: 2
+    conceptos: [razon-cambio-instantanea]
+    enunciado: >-
+      Supón que $s(t)$ es la altura de un elevador en metros (positiva hacia arriba, medida desde la planta baja) a los $t$ segundos, y que $s'(5)=-2$ m/s. ¿Qué afirmación es correcta?
+    opciones:
+      - 'En $t=5$ el elevador está 2 m por debajo de la planta baja.'
+      - 'En $t=5$ el elevador baja, y su rapidez es de 2 m/s.'
+      - 'En $t=5$ el elevador va frenando, porque su velocidad es negativa.'
+      - 'En $t=5$ la rapidez del elevador es de $-2$ m/s.'
+    correcta: 1
+    pistas:
+      - >-
+        ¿Qué te dice el signo de la velocidad: dónde está el elevador, hacia dónde se mueve o si frena?
+    explicacion: >-
+      $s'(5)=-2$ m/s es la velocidad en $t=5$. Su signo dice el sentido: negativa significa que la altura disminuye, así que el elevador baja. La rapidez es $|s'(5)|=2$ m/s, que nunca es negativa. La velocidad no dice dónde está (eso es $s(5)$) ni si frena: para saberlo habría que ver cómo cambia la velocidad, no su signo.
+
+  # razonamiento: deductivo · R1
+  - id: calc-03-006
+    tipo: completar
+    dificultad: 2
+    conceptos: [razon-cambio-promedio, recta-tangente]
+    enunciado: 'Completa para $f(x)=x^2+x$.'
+    texto: >-
+      La secante que une los puntos de la gráfica en $x=1$ y $x=3$ tiene pendiente ___. La tangente en $x=1$ tiene pendiente ___.
+    respuestas: ["5", "3"]
+    verificar: { sympy: "[(lambda f: (f.subs(x, 3) - f.subs(x, 1))/(3 - 1))(x**2 + x), diff(x**2 + x, x).subs(x, 1)]" }
+    pistas:
+      - >-
+        ¿Qué cociente da la pendiente entre dos puntos de la curva? ¿Y qué límite da la pendiente en un solo punto?
+    explicacion: >-
+      Secante: $f(1)=2$ y $f(3)=12$, así que su pendiente es $\dfrac{12-2}{3-1}=5$. Tangente en $x=1$, por definición: $\dfrac{f(1+h)-f(1)}{h}=\dfrac{(1+2h+h^2)+(1+h)-2}{h}=\dfrac{3h+h^2}{h}=3+h$ para $h\neq0$, que tiende a 3, así que $f'(1)=3$. La secante es más empinada porque promedia hasta $x=3$, donde la parábola ya sube más rápido.
+
+  # razonamiento: metacognitivo (autoexplicación) · R1
+  - id: calc-03-007
+    tipo: opcion_multiple
+    dificultad: 2
+    conceptos: [derivada-punto]
+    enunciado: >-
+      Al calcular una derivada por definición llegas a $\lim_{h\to0}\dfrac{h(4+h)}{h}$, cancelas $h$ y obtienes $\lim_{h\to0}(4+h)=4$. ¿Por qué se vale cancelar $h$?
+    opciones:
+      - 'Porque el límite solo considera valores $h\neq0$, y para ellos $\frac{h}{h}=1$.'
+      - 'Porque $h$ es casi 0, así que dividir entre $h$ casi no cambia nada.'
+      - 'Porque al final se sustituye $h=0$ de todos modos.'
+      - 'Porque $\frac{h}{h}=1$ siempre, para cualquier valor de $h$.'
+    correcta: 0
+    pistas:
+      - >-
+        ¿Qué valores de $h$ toma en cuenta $\lim_{h\to0}$? ¿Incluye a $h=0$?
+    explicacion: >-
+      El límite cuando $h\to0$ mira los valores de $h$ cercanos a 0 **pero distintos de 0**. Para esos valores, $\frac{h(4+h)}{h}=4+h$ es una igualdad exacta, y dos expresiones que coinciden para todo $h\neq0$ tienen el mismo límite. «$h$ es casi 0» no es una razón: en cada cuenta $h$ es un número fijo distinto de 0. «Al final se sustituye $h=0$» confunde el orden: solo se sustituye después de cancelar, cuando ya no sale $0/0$. Y $\frac{h}{h}=1$ no vale para todo $h$: en $h=0$ no está definido.
+
+  # razonamiento: espacial · R0
+  # Pendientes por definición (comprobadas con sympy): p'(2) = -3, p'(1) = 0, p'(4) = 9. Sin empates.
+  - id: calc-03-008
+    tipo: ordenar
+    dificultad: 2
+    conceptos: [recta-tangente]
+    visual: { id: grafica, f: "x^3-6x^2+9x+1", dominio: "-0.5, 4.5" }
+    enunciado: >-
+      La gráfica es la de $p(x)=x^3-6x^2+9x+1$. Ordena de menor a mayor el valor de la pendiente de la recta tangente en estos tres puntos. Compara los números con su signo, no qué tan empinada se ve la recta.
+    elementos:
+      - 'La pendiente de la tangente en $x=2$'
+      - 'La pendiente de la tangente en $x=1$'
+      - 'La pendiente de la tangente en $x=4$'
+    pistas:
+      - >-
+        ¿En cuál de los tres puntos la curva baja, en cuál está plana y en cuál sube? ¿Qué signo tiene la pendiente en cada caso?
+    explicacion: >-
+      La pendiente de la tangente en cada punto es $p'(x)$. En $x=2$ la curva va bajando, así que $p'(2)<0$; en $x=1$ está en la cima de una loma, con tangente horizontal, así que $p'(1)=0$; en $x=4$ sube con fuerza, así que $p'(4)>0$. El orden es $x=2$, $x=1$, $x=4$. Si calculas $p'(x)$ por definición, obtienes $p'(2)=-3$, $p'(1)=0$ y $p'(4)=9$.
+
+  # razonamiento: algorítmico · R1
+  - id: calc-03-009
+    tipo: simbolico
+    dificultad: 3
+    conceptos: [funcion-derivada, derivada-punto]
+    enunciado: >-
+      Sea $f(x)=1+4x-2x^2$. Simplifica el cociente de diferencias $\dfrac{f(x+h)-f(x)}{h}$ hasta cancelar la $h$ del denominador, pero **no** tomes el límite: tu respuesta debe depender de $x$ y de $h$.
+    respuesta: "4 - 4*x - 2*h"
+    variables: [x, h]
+    verificar: { sympy: "(lambda h: cancel(((1 + 4*(x + h) - 2*(x + h)**2) - (1 + 4*x - 2*x**2))/h))(Symbol('h'))" }
+    pistas:
+      - >-
+        ¿Qué es $f(x+h)$? Sustituye $x+h$ en cada $x$ y desarrolla $(x+h)^2$ completo antes de restar $f(x)$.
+      - >-
+        Al restar, ¿qué términos sin $h$ se van? Como en la unidad 01, ¿queda arriba un factor común que se cancele con el de abajo?
+    explicacion: >-
+      $f(x+h)=1+4(x+h)-2(x^2+2xh+h^2)=1+4x+4h-2x^2-4xh-2h^2$. Al restar $f(x)=1+4x-2x^2$ se van $1$, $4x$ y $-2x^2$: queda $f(x+h)-f(x)=4h-4xh-2h^2=h(4-4x-2h)$. Para $h\neq0$ se cancela $h$ y el cociente es $4-4x-2h$. Si ahora haces $h\to0$, obtienes $f'(x)=4-4x$. Revisa: $f'(1)=0$, y en efecto $x=1$ es el vértice de la parábola, donde la tangente es horizontal.
+
+  # razonamiento: analógico · R1
+  - id: calc-03-010
+    tipo: numerico
+    dificultad: 3
+    conceptos: [derivada-punto]
+    enunciado: >-
+      El límite $\lim_{x\to2}\dfrac{x^3-8}{x-2}$ tiene la forma $\lim_{x\to a}\dfrac{f(x)-f(a)}{x-a}$, así que es la derivada de una función $f$ en un punto $a$. Identifica una $f$ y un $a$ que funcionen, y calcula el límite a mano, sin reglas de derivación. Escribe solo el valor del límite (un número).
+    respuesta: 12
+    tolerancia: 0
+    verificar: { sympy: "diff(x**3, x).subs(x, 2)" }
+    pistas:
+      - >-
+        ¿Qué $f$ y qué $a$ hacen que el numerador sea $f(x)-f(a)=x^3-8$ y el denominador, $x-a$?
+      - >-
+        Sustituir da $0/0$. En la unidad 01, ¿cómo quitabas el $0/0$ de $\frac{x^2-9}{x-3}$? ¿Puedes hacer algo parecido con $x^3-8$?
+    explicacion: >-
+      Con $f(x)=x^3$ y $a=2$ se tiene $f(2)=8$, así que el límite es $f'(2)$. Sustituir da $0/0$; factoriza la diferencia de cubos: $x^3-8=(x-2)(x^2+2x+4)$. Para $x\neq2$ el cociente es $x^2+2x+4$, y el límite es $4+4+4=12$. Así, $f'(2)=12$ para $f(x)=x^3$. Revisa: con $x=2.01$, $\frac{2.01^3-8}{0.01}=12.0601$, cerca de 12.
+
+  # razonamiento: analógico · R1
+  - id: calc-03-011
+    tipo: simbolico
+    dificultad: 3
+    conceptos: [funcion-derivada]
+    enunciado: >-
+      Calcula $f'(x)$ por definición para $f(x)=\sqrt{2x+1}$, con $x>-\tfrac12$.
+    respuesta: "1/sqrt(2*x + 1)"
+    variables: [x]
+    muestreo: { desde: 0, hasta: 6 }
+    verificar: { sympy: "diff(sqrt(2*x + 1), x)" }
+    pistas:
+      - >-
+        ¿Qué cociente pide la definición? Escribe $f(x+h)$ y $f(x)$ completos antes de simplificar nada.
+      - >-
+        Si sustituyes $h=0$ sale $0/0$ y hay una raíz en el numerador. ¿Qué técnica de la unidad 01 servía justo para quitar una raíz de un numerador?
+    explicacion: >-
+      El cociente es $\dfrac{\sqrt{2x+2h+1}-\sqrt{2x+1}}{h}$, y sustituir da $0/0$. Multiplica arriba y abajo por el conjugado $\sqrt{2x+2h+1}+\sqrt{2x+1}$: el numerador queda $(2x+2h+1)-(2x+1)=2h$. Para $h\neq0$, el cociente es $\dfrac{2h}{h\left(\sqrt{2x+2h+1}+\sqrt{2x+1}\right)}=\dfrac{2}{\sqrt{2x+2h+1}+\sqrt{2x+1}}$, y ya se puede hacer $h\to0$: $f'(x)=\dfrac{2}{2\sqrt{2x+1}}=\dfrac{1}{\sqrt{2x+1}}$. Revisa: en $x=4$ da $\frac13\approx0.3333$, y la secante con $h=0.01$ vale $\frac{\sqrt{9.02}-3}{0.01}\approx0.3331$.
+
+  # razonamiento: deductivo · R1
+  - id: calc-03-012
+    tipo: simbolico
+    dificultad: 3
+    conceptos: [recta-tangente]
+    enunciado: >-
+      Encuentra la recta tangente a $f(x)=x^3-2x^2+3$ en $x=2$, con $f'(2)$ calculada por definición. Escribe solo la expresión en $x$, sin «y =».
+    respuesta: "4*x - 5"
+    variables: [x]
+    verificar: { sympy: "(lambda f: f.subs(x, 2) + diff(f, x).subs(x, 2)*(x - 2))(x**3 - 2*x**2 + 3)" }
+    pistas:
+      - >-
+        ¿Qué dos números necesitas para escribir $y=f(a)+f'(a)(x-a)$ con $a=2$?
+      - >-
+        Para $f'(2)$: al desarrollar $(2+h)^3$ y $(2+h)^2$ y restar $f(2)$, ¿todos los términos que quedan llevan $h$? ¿Qué puedes cancelar entonces?
+    explicacion: >-
+      $f(2)=8-8+3=3$. Para la pendiente: $f(2+h)=(8+12h+6h^2+h^3)-2(4+4h+h^2)+3=3+4h+4h^2+h^3$, así que $\dfrac{f(2+h)-f(2)}{h}=\dfrac{4h+4h^2+h^3}{h}=4+4h+h^2$ para $h\neq0$, que tiende a 4. Con $f'(2)=4$, la tangente es $y=3+4(x-2)=4x-5$. Revisa: pasa por $(2,3)$ porque $4(2)-5=3$, y la secante con $h=0.01$ tiene pendiente $4.0401$, cerca de 4.
+
+  # razonamiento: abductivo (encontrar el error) · R2
+  - id: calc-03-013
+    tipo: opcion_multiple
+    dificultad: 3
+    conceptos: [derivada-punto]
+    enunciado: >-
+      Para $g(x)=\sqrt{x+8}$, Ana escribe $g'(1)=\lim_{h\to0}\dfrac{\sqrt{9+h}-3}{h}$. Sustituye $h=0$, obtiene $\frac{0}{0}$ y concluye: «$g'(1)$ no existe». ¿Qué describe mejor su error?
+    opciones:
+      - >-
+        Sustituyó $h=0$ antes de simplificar: $\frac{0}{0}$ es una forma indeterminada que pide trabajar más, no una prueba de que el límite no exista.
+      - >-
+        Planteó mal el cociente: $g(1+h)$ es $g(1)+h=3+h$, no $\sqrt{9+h}$.
+      - >-
+        Su conclusión debió ser $g'(1)=1$, porque $\frac{0}{0}=1$.
+      - >-
+        No hay error: si al sustituir sale $\frac{0}{0}$, la función no es derivable en ese punto.
+    correcta: 0
+    pistas:
+      - >-
+        ¿Qué significa obtener $0/0$ al sustituir: es un resultado o una señal?
+      - >-
+        En la unidad 01, cuando un límite con raíz daba $0/0$, ¿qué hacías antes de volver a sustituir?
+    explicacion: >-
+      El planteamiento de Ana es correcto: $g(1+h)=\sqrt{9+h}$ y $g(1)=3$. Su error es tomar $0/0$ como respuesta. Al sustituir $h=0$ en un cociente de diferencias **siempre** sale $0/0$, también cuando la derivada existe: es la señal de que hay que simplificar. Aquí, con el conjugado, $\dfrac{(9+h)-9}{h\left(\sqrt{9+h}+3\right)}=\dfrac{1}{\sqrt{9+h}+3}\to\dfrac16$, así que $g'(1)=\frac16$ sí existe. Tampoco $\frac00$ vale 1, y $g(1+h)$ no es $g(1)+h$. Revisa: con $h=0.01$, $\frac{\sqrt{9.01}-3}{0.01}\approx0.16662$, cerca de $\frac16\approx0.16667$.
+
+  # razonamiento: deductivo · R2
+  - id: calc-03-014
+    tipo: opcion_multiple
+    dificultad: 3
+    conceptos: [funcion-derivada, derivabilidad-continuidad]
+    enunciado: >-
+      ¿Cuál es el intervalo más grande (el que contiene a todos los demás) en el que $f(x)=\sqrt{x}$ es derivable? Si el intervalo incluye un extremo, ahí basta la derivada lateral del lado de adentro, pero debe existir y ser finita.
+    opciones: ['$(0,\infty)$', '$[0,\infty)$', '$\mathbb{R}$', '$(1,\infty)$']
+    correcta: 0
+    pistas:
+      - >-
+        ¿Dónde está definida $\sqrt{x}$? ¿En qué puntos te puedes acercar por los dos lados?
+      - >-
+        En $x=0$ solo tiene sentido la lateral derecha. ¿A qué tiende $\dfrac{\sqrt{h}-0}{h}$ cuando $h\to0^+$? ¿Es un número?
+    explicacion: >-
+      Para $x>0$, con el conjugado, $\dfrac{\sqrt{x+h}-\sqrt{x}}{h}=\dfrac{1}{\sqrt{x+h}+\sqrt{x}}\to\dfrac{1}{2\sqrt{x}}$, que es finito: $f$ es derivable en cada punto de $(0,\infty)$. En $x=0$ la función es continua por la derecha, pero $f'_{+}(0)=\lim_{h\to0^+}\dfrac{\sqrt{h}}{h}=\lim_{h\to0^+}\dfrac{1}{\sqrt{h}}=+\infty$: la tangente es vertical y $f'_{+}(0)$ no es un número, así que $[0,\infty)$ no sirve. $\mathbb{R}$ tampoco, porque $\sqrt{x}$ ni siquiera está definida para $x<0$. Y en $(1,\infty)$ sí es derivable, pero no es el intervalo más grande. Revisa: la pendiente de la secante de 0 a $h$ es $\frac{1}{\sqrt{h}}$; vale 10 con $h=0.01$ y 100 con $h=0.0001$, y no deja de crecer.
+
+  # razonamiento: analógico (transferencia a IA) · R1
+  - id: calc-03-015
+    tipo: numerico
+    dificultad: 3
+    conceptos: [razon-cambio-promedio, razon-cambio-instantanea]
+    enunciado: >-
+      Supón que entrenas un modelo y mides su pérdida $L(w)$ en tres valores de un peso $w$: $L(1.9)=0.5210$, $L(2.0)=0.5000$ y $L(2.1)=0.4830$. Estima $L'(2)$ con la diferencia centrada $\dfrac{L(2+h)-L(2-h)}{2h}$.
+    respuesta: -0.19
+    tolerancia: 0.0001
+    verificar: { python: "float((Fraction('0.4830') - Fraction('0.5210'))/(Fraction('2.1') - Fraction('1.9')))" }
+    pistas:
+      - >-
+        ¿Qué valor de $h$ usa la tabla, y qué dos valores de $L$ entran en la diferencia centrada?
+      - >-
+        ¿La diferencia centrada es la pendiente de qué secante? ¿Entre qué dos puntos de la tabla?
+    explicacion: >-
+      Con $h=0.1$: $\dfrac{L(2.1)-L(1.9)}{2(0.1)}=\dfrac{0.4830-0.5210}{0.2}=\dfrac{-0.038}{0.2}=-0.19$. Es la pendiente de la secante entre $w=1.9$ y $w=2.1$, que suele aproximar la pendiente de la tangente en $w=2$ mejor que una secante de un solo lado (si $L$ es suave). El signo negativo dice que, cerca de $w=2$, subir $w$ baja la pérdida: el descenso de gradiente, $w\leftarrow w-\eta\,L'(w)$, movería $w$ hacia arriba. Revisa: las diferencias de un solo lado dan $\frac{0.4830-0.5000}{0.1}=-0.17$ y $\frac{0.5000-0.5210}{0.1}=-0.21$; la centrada es su promedio, $-0.19$.
+
+  # razonamiento: algorítmico · R1
+  - id: calc-03-016
+    tipo: simbolico
+    dificultad: 4
+    conceptos: [funcion-derivada]
+    enunciado: >-
+      Calcula $f'(x)$ por definición para $f(x)=\dfrac{x}{x+2}$, con $x\neq-2$.
+    respuesta: "2/(x + 2)^2"
+    variables: [x]
+    verificar: { sympy: "diff(x/(x + 2), x)" }
+    pistas:
+      - >-
+        ¿Qué cociente pide la definición? Escribe $f(x+h)=\dfrac{x+h}{x+h+2}$ y $f(x)$ completos antes de restar.
+      - >-
+        Arriba hay una resta de fracciones y sustituir da $0/0$. ¿Qué hiciste con $\frac{1}{x+\Delta x}-\frac1x$ en el ejemplo de la lección antes de poder cancelar?
+      - >-
+        Al desarrollar el numerador, ¿qué términos se cancelan? ¿Queda un factor $h$ que se vaya con la $h$ de abajo? Mientras no lo canceles, no evalúes en $h=0$.
+    explicacion: >-
+      Con común denominador: $f(x+h)-f(x)=\dfrac{(x+h)(x+2)-x(x+h+2)}{(x+h+2)(x+2)}$. El numerador es $x^2+2x+hx+2h-x^2-hx-2x=2h$. Para $h\neq0$, $\dfrac{f(x+h)-f(x)}{h}=\dfrac{2}{(x+h+2)(x+2)}$, y ya se puede hacer $h\to0$: $f'(x)=\dfrac{2}{(x+2)^2}$, para $x\neq-2$. Revisa: en $x=0$ da $\frac24=0.5$, y la secante con $h=0.01$ vale $\frac{0.01/2.01}{0.01}=\frac{1}{2.01}\approx0.4975$.
+
+  # razonamiento: deductivo (primero el instante, luego la derivada) · R2
+  - id: calc-03-017
+    tipo: numerico
+    dificultad: 4
+    conceptos: [razon-cambio-instantanea]
+    enunciado: >-
+      Supón que lanzas una pelota hacia arriba desde el suelo y que, mientras está en el aire, su altura es $s(t)=20t-5t^2$ metros a los $t$ segundos. ¿Cuál es su velocidad (con signo, no la rapidez), en m/s, justo cuando regresa al suelo? Calcula la derivada por definición.
+    respuesta: -20
+    tolerancia: 0
+    verificar: { sympy: "(lambda s: diff(s, t).subs(t, max(solve(s, t))))(20*t - 5*t**2)" }
+    pistas:
+      - >-
+        ¿Qué te piden: la velocidad en qué instante? ¿Cómo encuentras ese instante a partir de $s(t)$?
+      - >-
+        Ya con ese instante $t_0$, ¿qué cociente da la velocidad instantánea, como en el auto de la lección?
+      - >-
+        Al desarrollar $s(t_0+h)$ y restar $s(t_0)$, ¿todos los términos llevan $h$? ¿Qué signo esperas en la respuesta si la pelota va bajando?
+    explicacion: >-
+      Primero el instante: $s(t)=5t(4-t)=0$ da $t=0$ (el lanzamiento) y $t=4$ (el regreso al suelo). Luego la velocidad en $t=4$, con $s(4)=0$: $\dfrac{s(4+h)-s(4)}{h}=\dfrac{20(4+h)-5(16+8h+h^2)}{h}=\dfrac{80+20h-80-40h-5h^2}{h}=-20-5h$ para $h\neq0$, que tiende a $-20$. La velocidad es $-20$ m/s: baja con rapidez de 20 m/s. Como la fórmula solo vale mientras la pelota está en el aire, en rigor es la lateral izquierda ($h\to0^-$); da lo mismo, porque $-20-5h\to-20$ por los dos lados. Revisa: la velocidad promedio en el último centésimo de segundo es $\frac{s(4)-s(3.99)}{0.01}=\frac{0-0.1995}{0.01}=-19.95$ m/s.
+
+  # razonamiento: deductivo · R1
+  - id: calc-03-018
+    tipo: conjunto
+    dificultad: 4
+    conceptos: [recta-tangente]
+    enunciado: >-
+      ¿En qué valores de $x$ la recta tangente a $f(x)=x^3-3x$ es horizontal? Calcula la derivada por definición y escribe el conjunto de esos $x$.
+    respuesta: ["-1", "1"]
+    verificar: { sympy: "set(solve(diff(x**3 - 3*x, x), x))" }
+    pistas:
+      - >-
+        ¿Qué pendiente tiene una recta horizontal?
+      - >-
+        En vez de probar punto por punto, ¿puedes obtener la pendiente en un $x$ cualquiera, es decir, $f'(x)$?
+      - >-
+        Al desarrollar $(x+h)^3$ y cancelar $h$, ¿qué expresión queda cuando $h\to0$? ¿Para qué $x$ vale 0?
+    explicacion: >-
+      Una tangente es horizontal cuando su pendiente es 0, así que hay que resolver $f'(x)=0$. Por definición: $f(x+h)-f(x)=(x^3+3x^2h+3xh^2+h^3)-3x-3h-x^3+3x=3x^2h+3xh^2+h^3-3h$. Para $h\neq0$, al dividir entre $h$ queda $3x^2+3xh+h^2-3$, que tiende a $f'(x)=3x^2-3$. Entonces $3x^2-3=0$ da $x^2=1$, es decir, $x=-1$ o $x=1$: el conjunto es $\{-1,1\}$. Revisa: $f(-1)=2$ y $f(1)=-2$ son la cima y el valle de la gráfica, justo donde se espera una tangente horizontal.
+
+  # razonamiento: deductivo (la trampa: comparar pendientes de las piezas) · R2
+  # Comprobado con sympy (laterales con h positivo): g(0) = 1, g'_-(0) = oo, g'_+(0) = 1.
+  - id: calc-03-019
+    tipo: opcion_multiple
+    dificultad: 4
+    conceptos: [derivabilidad-continuidad]
+    enunciado: >-
+      Sea $g(x)=x$ si $x<0$ y $g(x)=x+1$ si $x\geq0$. Las dos piezas son rectas de pendiente 1. ¿Es $g$ derivable en $x=0$? Elige la opción en la que la respuesta y la razón son correctas.
+    opciones:
+      - >-
+        Sí, y $g'(0)=1$, porque las dos piezas tienen pendiente 1.
+      - >-
+        No: $g$ no es continua en 0 (salta de 0 a 1), y el cociente $\frac{g(h)-g(0)}{h}$ tiende a $+\infty$ cuando $h\to0^-$.
+      - >-
+        Sí, porque $g'_{+}(0)=1$ y en $x=0$ manda la pieza de la derecha.
+      - >-
+        No, porque $g'_{-}(0)=0$ y $g'_{+}(0)=1$ son distintas.
+    correcta: 1
+    pistas:
+      - >-
+        ¿Qué usa la definición en $x=0$: solo las pendientes de las piezas, o también el valor $g(0)$?
+      - >-
+        ¿Qué teorema de la lección relaciona ser derivable con otra propiedad? ¿Se cumple esa propiedad aquí?
+      - >-
+        En la lateral izquierda, $g(h)=h$, pero $g(0)$ sale de la otra pieza. ¿A qué tiende el numerador $g(h)-g(0)$, y qué le pasa al cociente si el denominador tiende a 0?
+    explicacion: >-
+      Primero la continuidad: $g(0)=0+1=1$, pero por la izquierda $g(x)=x\to0$. Hay un salto, así que $g$ no es continua en 0 y, como derivable implica continua, no puede ser derivable. Por definición se ve lo mismo: $g'_{+}(0)=\lim_{h\to0^+}\dfrac{(h+1)-1}{h}=1$, pero por la izquierda $\dfrac{g(h)-g(0)}{h}=\dfrac{h-1}{h}=1-\dfrac1h$, y con $h\to0^-$ el término $-\frac1h$ crece sin límite: $g'_{-}(0)=+\infty$. Cuando hay salto, las «pendientes de las piezas» no son las derivadas laterales, porque el cociente usa $g(0)$, que sale de la otra pieza. La última opción acierta en el no, pero su razón es falsa: $g'_{-}(0)$ no es 0; ese 0 es $\lim_{x\to0^-}g(x)$, el valor al que se acerca la función, no una pendiente. Revisa: con $h=-0.01$ el cociente vale $101$, y con $h=-0.001$, $1001$.
+
+  # razonamiento: deductivo (clasificar por mecanismo) · R2
+  - id: calc-03-020
+    tipo: seleccion_multiple
+    dificultad: 4
+    conceptos: [derivabilidad-continuidad]
+    enunciado: >-
+      ¿Cuáles de estas funciones son continuas en $x=0$ pero **no** son derivables en $x=0$? Puede haber varias.
+    opciones: ['$\lvert\operatorname{sen}x\rvert$', '$\sqrt[5]{x}$', '$x\lvert x\rvert$', '$\lfloor x\rfloor$ (parte entera)', '$\lvert x^3\rvert$']
+    correctas: [0, 1]
+    verificar: { sympy: "(lambda h, fs: [bool(limit(F.subs(x, h), h, 0) == F.subs(x, 0) == limit(F.subs(x, -h), h, 0)) and not bool((lambda r, l: r == l and r.is_finite)(limit((F.subs(x, h) - F.subs(x, 0))/h, h, 0), limit((F.subs(x, -h) - F.subs(x, 0))/(-h), h, 0))) for F in fs])(Symbol('h', positive=True), [Abs(sin(x)), real_root(x, 5), x*Abs(x), floor(x), Abs(x**3)])" }
+    pistas:
+      - >-
+        Cada opción pide dos cosas: ser continua en 0 y no ser derivable en 0. ¿Alguna falla ya la primera?
+      - >-
+        ¿Qué tres maneras de fallar viste en la tabla de la lección para una función continua que no es derivable?
+      - >-
+        Para cada una, ¿las laterales $\frac{f(h)-f(0)}{h}$ con $h\to0^+$ y con $h\to0^-$ son finitas y coinciden?
+    explicacion: >-
+      Todas valen 0 en $x=0$. $\lvert\operatorname{sen}x\rvert$ es continua, pero su cociente $\frac{\lvert\operatorname{sen}h\rvert}{h}$ tiende a $1$ por la derecha y a $-1$ por la izquierda: es una esquina, no es derivable. $\sqrt[5]{x}$ es continua, y $\frac{\sqrt[5]{h}}{h}=\frac{1}{\sqrt[5]{h^4}}\to+\infty$ por los dos lados: tangente vertical, no es derivable. $x\lvert x\rvert$ sí es derivable: $\frac{h\lvert h\rvert}{h}=\lvert h\rvert\to0$, así que $f'(0)=0$. $\lvert x^3\rvert$ también: $\frac{\lvert h\rvert^3}{h}=\pm h^2\to0$. Y $\lfloor x\rfloor$ ni siquiera es continua en 0: por la izquierda vale $-1$ y $\lfloor0\rfloor=0$. Las correctas son $\lvert\operatorname{sen}x\rvert$ y $\sqrt[5]{x}$. Revisa: con $h=\pm0.01$, el cociente de $\lvert\operatorname{sen}x\rvert$ vale $\approx0.99998$ y $\approx-0.99998$; dos números distintos, una esquina.
+
+  # razonamiento: deductivo (demostración guiada) · R3
+  - id: calc-03-021
+    tipo: autoevaluacion
+    dificultad: 4
+    conceptos: [derivabilidad-continuidad]
+    enunciado: >-
+      Supón que $f$ es derivable en $a$. Explica por qué entonces $f$ es continua en $a$: primero di qué tienes que demostrar y después justifica cada paso. Hazlo a mano, como en el examen.
+    rubrica:
+      - >-
+        Escribe la meta: $\lim_{x\to a}f(x)=f(a)$ o, lo que es lo mismo, $\lim_{h\to0}[f(a+h)-f(a)]=0$.
+      - >-
+        Para $h\neq0$ reescribe $f(a+h)-f(a)=\frac{f(a+h)-f(a)}{h}\cdot h$ y di por qué se vale (se multiplica y divide por $h\neq0$).
+      - >-
+        Aplica la ley del producto: el cociente tiende a $f'(a)$, que existe y es un número, y $h\to0$; el producto tiende a $f'(a)\cdot0=0$. Señala que este es el paso clave: ahí es indispensable que $f'(a)$ exista y sea finita, porque sin eso la ley del producto no se puede aplicar.
+      - >-
+        Concluye que $\lim_{h\to0}f(a+h)=f(a)$, que es la definición de continuidad en $a$ ($f(a)$ existe porque aparece en la definición de $f'(a)$).
+    respuesta_modelo: >-
+      Hay que demostrar que $\lim_{h\to0}f(a+h)=f(a)$, es decir, que $\lim_{h\to0}[f(a+h)-f(a)]=0$. Para $h\neq0$ se vale multiplicar y dividir entre $h$: $f(a+h)-f(a)=\frac{f(a+h)-f(a)}{h}\cdot h$. Cuando $h\to0$, el primer factor tiende a $f'(a)$, que por hipótesis existe y es un número; el segundo tiende a 0. Como los dos factores tienen límite finito, la ley del producto se puede aplicar, y el producto tiende a $f'(a)\cdot0=0$. Es el paso clave: ahí es indispensable que el límite $f'(a)$ exista y sea finito. Entonces $\lim_{h\to0}f(a+h)=f(a)$; además $f(a)$ está definida, porque aparece en el cociente que define $f'(a)$. Eso es exactamente la continuidad de $f$ en $a$.
+    pistas:
+      - >-
+        ¿Qué tienes que demostrar exactamente? ¿Cómo se escribe «continua en $a$» como un límite?
+      - >-
+        ¿Qué límite te da la hipótesis, y cómo podrías hacer que aparezca dentro de $f(a+h)-f(a)$?
+      - >-
+        Si multiplicas y divides entre $h\neq0$, ¿qué ley de los límites te deja separar el producto, y qué pide esa ley de cada factor?
+    explicacion: >-
+      El paso delicado es el tercero: la ley del producto solo se aplica si los dos factores tienen límite finito, y eso es justo lo que da la hipótesis «$f'(a)$ existe». Si tu prueba no dice dónde se usa la hipótesis, le falta lo central. Tampoco basta con «sustituir $h=0$»: el producto $\frac{f(a+h)-f(a)}{h}\cdot h$ no está definido en $h=0$, y lo que se calcula es su límite. Revisa: ¿por qué el mismo truco no «demuestra» que toda función es continua?
+    tarjeta: false
+
+  # razonamiento: deductivo (dos incógnitas, dos condiciones) · R2
+  # Con corte en x = 2 coincidía con un ejercicio publicado (Stewart); se usó x² − x con corte en 3.
+  - id: calc-03-022
+    tipo: completar
+    dificultad: 5
+    conceptos: [derivabilidad-continuidad]
+    enunciado: >-
+      Sea $f(x)=x^2-x$ si $x\leq3$ y $f(x)=ax+b$ si $x>3$. Encuentra las constantes $a$ y $b$ para que $f$ sea derivable en $x=3$.
+    texto: '$a=$ ___ y $b=$ ___'
+    respuestas: ["5", "-9"]
+    verificar: { sympy: "(lambda a, b, h: (lambda s: [s[a], s[b]])(solve([3*a + b - 6, limit((a*(3 + h) + (6 - 3*a) - 6)/h, h, 0) - limit(((3 - h)**2 - (3 - h) - 6)/(-h), h, 0)], [a, b], dict=True)[0]))(Symbol('a'), Symbol('b'), Symbol('h', positive=True))" }
+    pistas:
+      - >-
+        ¿Qué te piden exactamente? Cuenta las incógnitas: ¿cuántas condiciones independientes necesitas en $x=3$?
+      - >-
+        Ser derivable en 3 exige algo de la función misma y algo de sus pendientes. ¿Qué teorema de la lección relaciona ser derivable con otra propiedad? Escribe esa condición como ecuación en $a$ y $b$.
+      - >-
+        Para las pendientes: la lateral izquierda en 3 sale de $x^2-x$ y la derecha, de la recta. ¿Qué ecuación obtienes al igualarlas?
+    explicacion: >-
+      Como $3\leq3$, $f(3)=9-3=6$. Lateral derecha ($h>0$, se usa $ax+b$): $\dfrac{f(3+h)-f(3)}{h}=\dfrac{a(3+h)+b-6}{h}=\dfrac{3a+b-6}{h}+a$. Si $3a+b-6\neq0$, el primer término crece sin límite y $f'_{+}(3)$ no es finita; así que hace falta $3a+b=6$, que es la continuidad en 3 (el límite por la derecha, $3a+b$, debe valer $f(3)=6$). Con eso, $f'_{+}(3)=a$. Lateral izquierda ($h<0$, se usa $x^2-x$): $\dfrac{(3+h)^2-(3+h)-6}{h}=\dfrac{5h+h^2}{h}=5+h\to5$, así que $f'_{-}(3)=5$. Para que sea derivable, las laterales deben ser iguales: $a=5$, y entonces $b=6-3a=6-15=-9$. Revisa: $5(3)-9=6=f(3)$, y las secantes con $h=-0.01$ y $h=0.01$ tienen pendientes $4.99$ y $5$, las dos cerca de 5.
+
+  # razonamiento: algorítmico (dos obstáculos en orden) · R2
+  - id: calc-03-023
+    tipo: simbolico
+    dificultad: 5
+    conceptos: [funcion-derivada]
+    enunciado: >-
+      Calcula $f'(x)$ por definición para $f(x)=\dfrac{1}{\sqrt{x}}$, con $x>0$.
+    respuesta: "-1/(2*x^(3/2))"
+    variables: [x]
+    muestreo: { desde: 0.5, hasta: 6 }
+    verificar: { sympy: "diff(1/sqrt(x), x)" }
+    pistas:
+      - >-
+        ¿Qué cociente pide la definición? Escribe $\dfrac{1}{\sqrt{x+h}}-\dfrac{1}{\sqrt{x}}$ completo antes de simplificar nada.
+      - >-
+        Hay dos obstáculos: una resta de fracciones y raíces en el numerador. ¿Qué hiciste con cada uno en los ejercicios de $\frac{x}{x+2}$ y de $\sqrt{2x+1}$? ¿En qué orden conviene atacarlos?
+      - >-
+        Cuando el numerador ya no tenga raíces, ¿aparece un factor $h$ que se cancele con el de abajo? Mientras no lo canceles, no evalúes en $h=0$.
+    explicacion: >-
+      Primero el común denominador: $\dfrac{1}{\sqrt{x+h}}-\dfrac{1}{\sqrt{x}}=\dfrac{\sqrt{x}-\sqrt{x+h}}{\sqrt{x}\sqrt{x+h}}$. El numerador tiene raíces: multiplícalo por el conjugado $\sqrt{x}+\sqrt{x+h}$ y queda $x-(x+h)=-h$. Así, para $h\neq0$, $\dfrac{f(x+h)-f(x)}{h}=\dfrac{-h}{h\sqrt{x}\sqrt{x+h}\left(\sqrt{x}+\sqrt{x+h}\right)}=\dfrac{-1}{\sqrt{x}\sqrt{x+h}\left(\sqrt{x}+\sqrt{x+h}\right)}$. Ya se puede hacer $h\to0$: $f'(x)=\dfrac{-1}{\sqrt{x}\cdot\sqrt{x}\cdot2\sqrt{x}}=-\dfrac{1}{2x^{3/2}}$, para $x>0$. Revisa: en $x=1$ da $-0.5$, y la secante con $h=0.01$ vale $\frac{1/\sqrt{1.01}-1}{0.01}\approx-0.4963$.
+
+  # razonamiento: deductivo (plantear con un punto genérico) · R2
+  - id: calc-03-024
+    tipo: conjunto
+    dificultad: 5
+    conceptos: [recta-tangente]
+    enunciado: >-
+      El punto $(2,-6)$ no está en la parábola $y=x^2-3x$. ¿Para qué valores de $a$ la recta tangente a la parábola en el punto $(a,\,a^2-3a)$ pasa por $(2,-6)$? Escribe el conjunto de esos valores de $a$: solo números, no los puntos.
+    respuesta: ["0", "4"]
+    verificar: { sympy: "(lambda a: set(solve((a**2 - 3*a + diff(x**2 - 3*x, x).subs(x, a)*(x - a)).subs(x, 2) + 6, a)))(Symbol('a'))" }
+    pistas:
+      - >-
+        ¿Qué te piden? Si $(2,-6)$ no está en la curva, ¿desde qué punto de la curva sale cada tangente, y qué no conoces de ese punto?
+      - >-
+        ¿Puedes escribir la tangente en un punto genérico $x=a$ de la curva, con $f(a)$ y $f'(a)$ en términos de $a$?
+      - >-
+        Si esa recta pasa por $(2,-6)$, ¿qué ecuación en $a$ obtienes al sustituir $x=2$ y $y=-6$?
+    explicacion: >-
+      Con $f(x)=x^2-3x$, por definición: $\dfrac{f(a+h)-f(a)}{h}=\dfrac{2ah+h^2-3h}{h}=2a+h-3\to2a-3$, así que $f'(a)=2a-3$. La tangente en $x=a$ es $y=a^2-3a+(2a-3)(x-a)$. Para que pase por $(2,-6)$: $-6=a^2-3a+(2a-3)(2-a)=a^2-3a+(-2a^2+7a-6)=-a^2+4a-6$. Eso da $a^2-4a=0$, es decir, $a(a-4)=0$: $a=0$ o $a=4$. El conjunto es $\{0,4\}$. Revisa: en $a=0$ la tangente es $y=-3x$, que en $x=2$ vale $-6$; en $a=4$ es $y=4+5(x-4)=5x-16$, que en $x=2$ también vale $-6$. Los puntos de tangencia son $(0,0)$ y $(4,4)$.

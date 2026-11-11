@@ -111,6 +111,11 @@ Brainstorm con Claude en modo plan; plan aprobado el mismo día.
 - [ ] Confirmar el semestre actual (se asumió 1º; Carlo cursa Cálculo este semestre).
 - [x] Sprint del parcial: temas, fecha y orden de escritura decididos por Carlo el 2026-11-10 (ver «Decisiones tomadas · sprint del parcial de Cálculo»).
 - [ ] Unidad 00 (funciones): escribirla después del parcial, o antes como diagnóstico en papel si Carlo lo pide.
+- [ ] Propuestas para el motor que salieron de la revisión de `03-derivada` (2026-11-11):
+  - que un `simbolico` acepte el prefijo «y =» (hoy mathjs lo lee como asignación y la app responde con un mensaje confuso; la 03 lo esquiva en el enunciado);
+  - que `asNumber` (`src/engine/answers/text.ts:20`) acepte el signo «−» tipográfico (U+2212), como ya hace `math.ts`: hoy un «−4» pegado en un hueco de `completar` se califica mal;
+  - `workedExampleFor` (`src/engine/flow.ts:88`): además del ejemplo más cercano por debajo del nivel, preferir el mismo `tipo` (ya estaba propuesto en la bitácora del 2026-11-10).
+- [ ] Mientras no exista la 02, el mapa de maestría muestra `derivabilidad-continuidad` como bloqueado por `continuidad-punto` (`src/engine/mastery.ts:59`). Solo es visual, pero confunde durante el sprint.
 - [x] Arreglos de `01-limites` que propuso `/revisar-contenido`: Carlo los aprobó y se aplicaron el 2026-11-10 (ver bitácora).
 - [ ] Pulido de `01-limites` que quedó fuera de esos arreglos: aceptar sinónimos en `completar` (p. ej. «divisor» por «factor» en 011) o dejar huecos de una sola respuesta; cerrar el gancho del auto con la velocidad de $s(t)=t^2$; la pista de 003, que casi regala la respuesta; 009 y 020 etiquetados como `0/0` aunque son $\infty-\infty$ e $\infty\cdot0$; `duracion_min: 25` con 4 ejemplos más.
 - [ ] `weeklyVerdict` (aporte de Carlo): umbrales de semana «sólida», «para ajustar» y «de alerta».
@@ -176,7 +181,9 @@ Plan (2026-10-13, rama `fase-3-calculo-discretas`): 0) rama y registro · 1) pru
 - [x] Simulacro de examen (`/materias/[materia]/simulacro`; reglas iniciales en `CONFIG.exam`, pendientes de Carlo)
 - [ ] **CP1 · Plataforma** (pendiente de Carlo): `pnpm check`, `pnpm build` y e2e en verde el 2026-11-10; falta que Carlo pruebe `/estilo`, la lección de límites con su visual y un simulacro de Programación
 - [x] Puerta de temario de Cálculo (paso 7): programa oficial en `curriculum/programas/calculo.pdf`, temario aprobado por Carlo y `conceptos.yaml` completo (76 conceptos en 12 unidades)
-- [ ] Cálculo: unidades 00 y 02 a 11 (la `01-limites` ya está completa como piloto de la Fase 1)
+- [ ] Cálculo: unidades 00 y 02 a 11 (la `01-limites` ya está completa como piloto de la Fase 1). Sprint del parcial, en orden 03 → 04 → 05 → 07 → 06 → 08 → 09 → 02:
+  - [x] 03-derivada (2026-11-11)
+  - [ ] 04 · [ ] 05 · [ ] 07 · [ ] 06 · [ ] 08 · [ ] 09 · [ ] 02
 - [ ] Matemáticas discretas
 - [ ] Cierre formal: sesión real de ~20 min de Carlo y etiqueta `fase-3`
 
@@ -284,6 +291,34 @@ Complementan los ADR-001 a 008 de `docs/02`. Cada uno se escribe en el commit de
 **ADR-013 · Nomenclatura** (paso 1, decisión D1). Código, tablas y campos de IndexedDB en inglés, con equivalencias en `docs/02`. Las claves de YAML y del front matter siguen en español (son el formato de contenido). Los componentes MDX conservan su nombre en español porque son la API del contenido (`Predice` se implementa como `PredictPrompt`). Las URL van en español porque son interfaz. `APP_ID = 'cortex'` es inmutable (nombre de la base y marca de los respaldos); renombrar la app solo cambia `APP_NAME`. *Descartado:* todo en español (contradice `CLAUDE.md`) o una capa de traducción.
 
 ## Bitácora
+- 2026-11-11 · **Unidad `calculo/03-derivada`** (sprint del parcial, 3.1 del programa: todo por definición).
+  - **Esquema:** lo revisaron `experto-matematicas`, `pedagogo` y `arquitecto-razonamiento`. Los tres dieron objeción sin bloqueo y sus cambios se integraron:
+    - pasos intermedios calificables (cociente simplificado con `variables: [x, h]`);
+    - problemas de varios pasos;
+    - ejemplo de trozos con el contraste del salto;
+    - recuadro de continuidad, porque la 02 no existe;
+    - laterales con `h` positivo y `real_root`;
+    - pistas socráticas.
+  - **La escribió** `autor-contenido`:
+    - lección de 25 min con el gancho del auto de la 01, $s(t)=3t^2-t^3/3$, que da $v(3)=9$ m/s;
+    - 24 ejercicios: 6 numéricos, 6 de opción múltiple, 5 simbólicos, 2 de completar, 2 de conjunto, 1 de ordenar con gráfica, 1 de selección múltiple y 1 autoevaluación. Por dificultad, 2/6/7/6/3. Cada concepto tiene 3 o más ejercicios de dificultades distintas;
+    - jefe con 7 propias y 3 de repaso (calc-01-003, 006 y 018), 1200 s.
+  - **`/revisar-contenido`:**
+    - resolutor a ciegas: 23 de 23, 0 discrepancias;
+    - checklist con objeción de los tres, sin bloqueo;
+    - con el sí de Carlo se aplicaron 5 errores:
+      - 022 coincidía con un ejercicio publicado de Stewart; ahora es $x^2-x$ con corte en 3, respuesta (5, −9);
+      - la rúbrica del 021 decía «solo ahí»;
+      - enunciados ambiguos en 017 (velocidad con signo), 024 (valores de $a$, no puntos) y 008 (comparar con signo);
+    - y las mejoras: enunciados de 002, 004, 009, 010, 014, 015, 019 y 020; la lección recortada (Predice y Conexión) con el desarrollo y el porqué de cada paso; el 008 pasa a `recta-tangente`; en el jefe, el 011 en lugar del 009.
+    - La notación de Cálculo suma $f'_{+}(a)$, $f'_{-}(a)$ y $\Delta x = h$ (con el sí de Carlo).
+  - **Evidencia:**
+    - `content:check content/calculo` en verde (49 ejercicios, 33 por código, 16 manuales);
+    - `test:content` 313/313;
+    - re-resolución a ciegas de los 12 cambiados: 12 de 12, 0 discrepancias;
+    - la lección abierta en `localhost:3000` (servidor de otra sesión): el visual `secante-tangente` dice «pendiente ≈ 9», sin errores de KaTeX.
+  - **Nota técnica:** con `dynamicParams = false`, un `next dev` ya corriendo no ve una unidad nueva (404) hasta que se toca la página de la unidad.
+  - **Para el motor:** propuestas en «Decisiones pendientes».
 - 2026-11-10 · **Arranca el sprint del parcial de Cálculo.** Google Calendar no tiene eventos de «parcial» ni de «examen» antes del 15 de diciembre, así que Carlo dio la fecha a mano. Respondió cobertura, fecha, orden, alcance y cuántas unidades escribir (ver «Decisiones tomadas · sprint del parcial de Cálculo»). No hay `respaldos/`, así que `/coach semana` sigue pendiente.
 - 2026-11-10 · **Arreglos de `01-limites`** (aprobados por Carlo tras `/revisar-contenido`). Los escribió `autor-contenido` con una especificación cuyos números se comprobaron antes con sympy.
   - **Lección:**

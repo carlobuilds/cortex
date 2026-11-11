@@ -1,0 +1,166 @@
+---
+titulo: "La derivada: la pendiente en un instante"
+materia: calculo
+unidad: 03-derivada
+duracion_min: 25
+prerrequisitos: [indeterminacion-cero-cero, limite-lateral, continuidad-punto]
+conceptos: [razon-cambio-promedio, derivada-punto, recta-tangente, razon-cambio-instantanea, funcion-derivada, derivabilidad-continuidad]
+programa_ref: "Cálculo, Unidad III, 3.1 (3.1.1 pendiente, velocidad y razón de cambio; 3.1.2 derivada en un punto y en diferentes intervalos)"
+---
+
+## El problema
+
+En la unidad 01 quedó una pregunta abierta: un auto arranca, acelera y frena. ¿Cuál es su velocidad **en el instante** $t=3$ s? Supón que su posición es $s(t)=3t^2-\tfrac{t^3}{3}$ metros, con $0\le t\le 6$: arranca en reposo, acelera hasta $t=3$ y frena hasta detenerse en $t=6$. La velocidad promedio es el cambio de posición entre el tiempo transcurrido, pero en un instante no pasa tiempo y la cuenta daría $0/0$.
+
+<Predice pregunta="La velocidad promedio en $[3,\,3+h]$ es $\dfrac{s(3+h)-s(3)}{h}$, con $s(3)=18$. Con $h=0.1$ vale $\approx 8.99667$ m/s. ¿Qué crees que pasa con $h=0.01$, $0.001$…? ¿A qué número se acerca? Si recuerdas cómo se define $f'(a)$, escríbelo también." revela="Con $h=0.01$ sale $\approx 8.99997$ m/s: se acercan a **9**. La velocidad en $t=3$ es el límite de las velocidades promedio, y ese límite es la derivada: $f'(a)=\lim_{h\to0}\frac{f(a+h)-f(a)}{h}$." />
+
+Para el valor exacto no hace falta calculadora. Para $h\neq0$, desarrolla: $s(3+h)=3(9+6h+h^2)-\tfrac{27+27h+9h^2+h^3}{3}=18+9h-\tfrac{h^3}{3}$, así que
+
+$$\frac{s(3+h)-s(3)}{h}=\frac{9h-\tfrac{h^3}{3}}{h}=9-\frac{h^2}{3},$$
+
+que tiende a 9 cuando $h\to0$. La velocidad en $t=3$ es $v(3)=9$ m/s. Y un límite de la unidad 01 ya era uno de estos: $\displaystyle\lim_{x\to3}\frac{x^2-9}{x-3}=6$ es la pendiente de $y=x^2$ en $x=3$.
+
+## Idea central
+
+<Concepto titulo="Razón de cambio promedio">
+Entre $x=a$ y $x=b$, la **razón de cambio promedio** de $f$ es
+
+$$\frac{\Delta y}{\Delta x}=\frac{f(b)-f(a)}{b-a}.$$
+
+Es la pendiente de la **recta secante** que une $(a,f(a))$ con $(b,f(b))$. Con $b=a+h$ queda $\dfrac{f(a+h)-f(a)}{h}$, el **cociente de diferencias**.
+</Concepto>
+
+<Visual id="secante-tangente" f="3x^2-x^3/3" a="3" dominio="0, 6" />
+
+Encoge $h$: la secante gira hacia una recta, la **tangente** a la gráfica de $s$ en $t=3$ (en el visual, $x=3$), con pendiente 9. Esa pendiente límite es la derivada:
+
+<Concepto titulo="Derivada en un punto">
+Sea $f$ definida en un intervalo abierto que contiene a $a$. La **derivada de $f$ en $a$** es
+
+$$f'(a)=\lim_{h\to0}\frac{f(a+h)-f(a)}{h},$$
+
+o, con $x=a+h$, $f'(a)=\displaystyle\lim_{x\to a}\frac{f(x)-f(a)}{x-a}$. Si ese límite existe y es un número **finito**, $f$ es **derivable** en $a$. Si no existe, o si es $\pm\infty$, $f'(a)$ no existe.
+</Concepto>
+
+Sustituir $h=0$ en el cociente siempre da $0/0$: por eso todo lo de la unidad 01 (factorizar, racionalizar, simplificar antes de evaluar) sirve aquí.
+
+**Recta tangente.** Si $f'(a)$ existe, la tangente a la gráfica en $(a,f(a))$ es la recta que pasa por ese punto con pendiente $f'(a)$:
+
+$$y=f(a)+f'(a)(x-a).$$
+
+Si $f'(a)$ no existe, esta fórmula no sirve. A veces no hay tangente (una esquina); otras, la tangente es la recta vertical $x=a$, como con $\sqrt[3]{x}$ en 0 (tabla de abajo).
+
+**Velocidad.** Si $s(t)$ es la posición, $v(a)=s'(a)$ es la **velocidad instantánea** en $t=a$, en unidades de $s$ entre unidades de $t$ (m/s en el auto). La velocidad tiene signo: $v<0$ quiere decir que la posición disminuye (el objeto se mueve en sentido negativo). La **rapidez** es $\lvert v\rvert$.
+
+En general, $f'(a)$ es la **razón de cambio instantánea** de $f$ en $a$, en unidades de $f$ por unidad de $x$.
+
+## La derivada como función
+
+Si en lugar de un punto fijo dejas $x$ libre, obtienes una función nueva:
+
+$$f'(x)=\lim_{h\to0}\frac{f(x+h)-f(x)}{h}.$$
+
+Con $y=f(x)$ también se escribe $\dfrac{dy}{dx}$. Su dominio son los $x$ donde ese límite existe y es finito, y puede ser más chico que el de $f$: $|x|$ está definida en todo $\mathbb{R}$, pero (lo verás abajo) no es derivable en 0.
+
+**En diferentes intervalos.** $f$ es derivable en un intervalo abierto $(a,b)$ si es derivable en cada uno de sus puntos. Si el intervalo incluye un extremo, como en $[a,b]$, en ese extremo solo te puedes acercar por un lado, y para eso están las **derivadas laterales**:
+
+$$f'_{+}(a)=\lim_{h\to0^+}\frac{f(a+h)-f(a)}{h},\qquad f'_{-}(a)=\lim_{h\to0^-}\frac{f(a+h)-f(a)}{h}.$$
+
+$f'(a)$ existe si y solo si las dos laterales existen, son finitas y son iguales (igual que con los límites laterales de la unidad 01). La convención que usamos: $f$ es derivable en $[a,b]$ si es derivable en $(a,b)$ y además existen, finitas, $f'_{+}(a)$ y $f'_{-}(b)$. Con un solo extremo incluido se pide solo esa lateral: $f$ es derivable en $[a,\infty)$ si lo es en $(a,\infty)$ y existe, finita, $f'_{+}(a)$.
+
+En esta unidad todo se calcula **por definición**, como en el examen. Los atajos (las reglas de derivación) llegan en la unidad 04.
+
+## Por definición, paso a paso
+
+<Ejemplo titulo="La regla de los cuatro pasos">
+Calcula $f'(x)$ para $f(x)=\dfrac1x$ y la recta tangente en $x=2$. El incremento se escribe $\Delta x$: es la $h$ de la definición, con la notación de la regla de los cuatro pasos.
+
+1. Evalúa en $x+\Delta x$: $f(x+\Delta x)=\dfrac{1}{x+\Delta x}$.
+2. Calcula el incremento $\Delta y$ y júntalo en una sola fracción, para que aparezca arriba un factor $\Delta x$ que se pueda cancelar: $\Delta y=\dfrac{1}{x+\Delta x}-\dfrac1x=\dfrac{x-(x+\Delta x)}{x(x+\Delta x)}=\dfrac{-\Delta x}{x(x+\Delta x)}$.
+3. Divide entre $\Delta x$. Cancelar se vale porque el límite solo considera $\Delta x\neq0$: $\dfrac{\Delta y}{\Delta x}=\dfrac{-1}{x(x+\Delta x)}$.
+4. Toma el límite. Ahora sustituir ya no da $0/0$: $f'(x)=\displaystyle\lim_{\Delta x\to0}\frac{-1}{x(x+\Delta x)}=-\frac{1}{x^2}$, para $x\neq0$.
+
+En $x=2$: $f(2)=\tfrac12$ y $f'(2)=-\tfrac14$, así que la tangente es $y=\tfrac12-\tfrac14(x-2)$, es decir, $y=1-\tfrac{x}{4}$.
+
+Revisa: con $\Delta x=0.01$ el cociente del paso 3 vale $\dfrac{-1}{2(2.01)}\approx-0.2488$, muy cerca de $-0.25$.
+</Ejemplo>
+
+<Desvanecido titulo="Ahora tú: la raíz en 25" pasos={[
+  "Calcula $f'(25)$ para $f(x)=\\sqrt{x}$ y la recta tangente en $x=25$.",
+  "Primero, $f(25)=$ ___ , así que el cociente es $\\dfrac{\\sqrt{25+h}-5}{h}$. Sustituir $h=0$ da $0/0$ y hay una raíz arriba.",
+  "Multiplica arriba y abajo por el conjugado $\\sqrt{25+h}+5$: el numerador queda $(25+h)-25=h$ y el cociente, $\\dfrac{h}{h\\left(\\sqrt{25+h}+5\\right)}$.",
+  "Cancela $h$ (el límite solo usa $h\\neq0$) y evalúa en $h=0$: $f'(25)=$ ___ .",
+  "La tangente es $y=5+f'(25)(x-25)$. Desarrolla: su ordenada al origen (el valor en $x=0$) es ___ ."
+]} respuestas={["5", "0.1", "2.5"]} />
+
+## Derivable implica continua
+
+<Concepto titulo="Continuidad en un punto (repaso)">
+$f$ es **continua** en $a$ si se cumplen las tres condiciones:
+
+1. $f(a)$ está definida;
+2. $\displaystyle\lim_{x\to a}f(x)$ existe;
+3. $\displaystyle\lim_{x\to a}f(x)=f(a)$.
+
+La unidad 02 trata la continuidad a fondo; para esta unidad basta con esto.
+</Concepto>
+
+<Ejemplo titulo="Si es derivable, es continua">
+Supón que $f'(a)$ existe. Para $h\neq0$ se vale multiplicar y dividir entre $h$:
+
+$$f(a+h)-f(a)=\frac{f(a+h)-f(a)}{h}\cdot h\;\longrightarrow\;f'(a)\cdot0=0\qquad(h\to0),$$
+
+por la ley del producto: el primer factor tiende al **número** $f'(a)$ y el segundo, a 0. Entonces $\displaystyle\lim_{h\to0}f(a+h)=f(a)$, que es la continuidad en $a$.
+</Ejemplo>
+
+El recíproco es falso: una función continua puede no ser derivable. Estas son tres maneras típicas de fallar, todas en $a=0$ y con $f(0)=0$:
+
+| Función | Qué pasa en 0 | $\dfrac{f(h)-f(0)}{h}$ con $h\to0^-$ | con $h\to0^+$ |
+|---|---|---|---|
+| $\lvert x\rvert$ | esquina | $-1$ | $1$ |
+| $\sqrt[3]{x}$ | tangente vertical | $+\infty$ | $+\infty$ |
+| $\sqrt[3]{x^2}$ | cúspide | $-\infty$ | $+\infty$ |
+
+Las tres son continuas en 0, pero $f'(0)$ no existe: en la esquina las laterales son finitas y distintas; en las otras dos el cociente no tiende a un número.
+
+## Funciones por tramos
+
+<Ejemplo titulo="¿Es derivable en el punto de corte?">
+Sea $f(x)=x^2$ si $x<1$ y $f(x)=2x-1$ si $x\geq1$. ¿Es derivable en $x=1$?
+
+1. Primero la continuidad, porque sin ella no puede ser derivable. $f(1)=2(1)-1=1$; por la izquierda $x^2\to1$ y por la derecha $2x-1\to1$. Es continua en 1.
+2. Lateral izquierda: con $h<0$ se tiene $1+h<1$ y se usa $x^2$. $\dfrac{f(1+h)-f(1)}{h}=\dfrac{(1+h)^2-1}{h}=\dfrac{2h+h^2}{h}=2+h\to2$, así que $f'_{-}(1)=2$.
+3. Lateral derecha: con $h>0$ se usa $2x-1$. $\dfrac{2(1+h)-1-1}{h}=\dfrac{2h}{h}=2$, así que $f'_{+}(1)=2$.
+4. Las laterales existen, son finitas e iguales: $f$ es derivable en 1 y $f'(1)=2$.
+</Ejemplo>
+
+Contraste: si el segundo tramo fuera $2x$, las «pendientes de las piezas» seguirían siendo 2 y 2, pero ahora $f(1)=2$ y hay un salto (por la izquierda $f\to1$). En la lateral izquierda, el numerador $(1+h)^2-2$ tiende a $-1$ y el denominador $h$ tiende a 0 por la izquierda. Entonces el cociente tiende a $+\infty$: $f'_{-}(1)=+\infty$ y $f$ no es derivable en 1. Por eso el paso 1 va primero.
+
+## Errores comunes
+
+<Ojo>
+- **Confundir $f(a)$ con $f'(a)$.** En el auto, $s(3)=18$ m dice dónde está y $s'(3)=9$ m/s, qué tan rápido cambia su posición.
+- **Hacer $h=0$ antes de simplificar, o dejar de escribir «lim» antes de evaluar.** Sustituir al principio siempre da $0/0$. Y escribir $\frac{2h+h^2}{h}=2+h=2$ es falso: lo correcto es $\lim_{h\to0}(2+h)=2$.
+- **$(x+h)^2\neq x^2+h^2$** (falta el $2xh$), y $f(x+h)$ no es $f(x)+h$: se sustituye $x+h$ en cada $x$ de la fórmula.
+- **Comparar las derivadas de cada tramo sin revisar la continuidad.** Con un salto, las piezas pueden tener la misma pendiente y aun así $f$ no es derivable (el contraste de arriba).
+- **«La tangente no cruza la curva».** En el auto, $s(3+h)-(18+9h)=-\tfrac{h^3}{3}$ cambia de signo con $h$: la tangente en $t=3$ cruza la curva, porque ahí hay un punto de inflexión (lo verás en la unidad 07). La tangente se define por su pendiente, no por tocar sin cruzar.
+- **«Continua implica derivable».** Falso: $|x|$, $\sqrt[3]{x}$ y $\sqrt[3]{x^2}$ son continuas en 0 y no son derivables ahí. Lo que sí es cierto es al revés.
+</Ojo>
+
+<Conexion materia="Inteligencia artificial">
+Una computadora no calcula límites: aproxima la derivada con **diferencias finitas**, como la adelantada $\dfrac{f(a+h)-f(a)}{h}$ o la centrada $\dfrac{f(a+h)-f(a-h)}{2h}$, que con el mismo $h$ suele ser más precisa. Pero $h$ no puede ser tan chico como quieras: al restar dos números casi iguales entra el **error de redondeo**.
+
+Así se revisa que un gradiente programado esté bien, y el **descenso de gradiente**, $w\leftarrow w-\eta\,L'(w)$, usa la derivada para decidir hacia dónde mover un peso y bajar la pérdida $L$.
+
+En Mecánica y electromagnetismo, la velocidad es la derivada de la posición.
+</Conexion>
+
+<Resumen>
+- La razón de cambio promedio $\frac{f(b)-f(a)}{b-a}$ es la pendiente de una secante; su límite, $f'(a)=\lim_{h\to0}\frac{f(a+h)-f(a)}{h}$, es la pendiente de la tangente y la razón de cambio instantánea (la velocidad, si $f$ es posición).
+- Por definición: escribe $f(a+h)$ completo, simplifica hasta cancelar $h$ y solo entonces evalúa; en un punto de corte, primero la continuidad y luego las dos laterales.
+- Derivable implica continua; el recíproco es falso (esquina, tangente vertical, cúspide).
+</Resumen>
+
+<Feynman>
+Explícale a un amigo qué significa «$s'(3)=9$ m/s» para el auto y por qué ese 9 tiene que salir de un límite y no de una división normal. Si te trabas, vuelve a «El problema».
+</Feynman>
