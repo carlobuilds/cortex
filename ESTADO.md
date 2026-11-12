@@ -203,7 +203,8 @@ Plan (2026-10-13, rama `fase-3-calculo-discretas`): 0) rama y registro · 1) pru
   - [x] 04-reglas-derivacion (2026-11-11)
   - [x] 05-cadena-implicita (2026-11-12)
   - [x] 07-maximos-minimos (2026-11-12)
-  - [ ] 06 · [ ] 08 · [ ] 09 · [ ] 02
+  - [x] 06-razones-diferencial (2026-11-12)
+  - [ ] 08 · [ ] 09 · [ ] 02
 - [ ] Matemáticas discretas
 - [ ] Cierre formal: sesión real de ~20 min de Carlo y etiqueta `fase-3`
 
@@ -311,6 +312,35 @@ Complementan los ADR-001 a 008 de `docs/02`. Cada uno se escribe en el commit de
 **ADR-013 · Nomenclatura** (paso 1, decisión D1). Código, tablas y campos de IndexedDB en inglés, con equivalencias en `docs/02`. Las claves de YAML y del front matter siguen en español (son el formato de contenido). Los componentes MDX conservan su nombre en español porque son la API del contenido (`Predice` se implementa como `PredictPrompt`). Las URL van en español porque son interfaz. `APP_ID = 'cortex'` es inmutable (nombre de la base y marca de los respaldos); renombrar la app solo cambia `APP_NAME`. *Descartado:* todo en español (contradice `CLAUDE.md`) o una capa de traducción.
 
 ## Bitácora
+- 2026-11-12 · **Unidad `calculo/06-razones-diferencial`** (sprint del parcial; 3.3 razones de cambio relacionadas y 3.4 diferencial).
+  - **Esquema:** objeción sin bloqueo de matemáticas, pedagogía y razonamiento.
+    - Lección con presupuesto por sección; quedó en 1,633 palabras, unos 25 min.
+    - Método de 6 pasos con la «regla de las dos sustituciones»: lo que vale en todo instante va antes de derivar; lo del instante, después.
+    - Contextos originales, verificados con sympy: prensa de tortillas, cámara de un auto autónomo, rollo de papel térmico, proyector y lata.
+    - En los ejercicios, dx se escribe `h`, como el incremento de la notación, porque `verify_content.py` parte `dx` en d·x.
+    - Unidades y π fuera de los huecos; tolerancias que rechazan el valor de la calculadora en la aproximación lineal.
+    - Primer razonamiento causal-sistémico de Cálculo.
+  - **Contenido (lo escribió `autor-contenido`):**
+    - 25 ejercicios: 8 completar, 8 numéricos, 4 de selección múltiple, 2 simbólicos, 2 de opción múltiple y 1 autoevaluación. Escalera 5/5/7/5/3; 4 conceptos con 3 o más ejercicios de dificultades distintas.
+    - Jefe con 8 propias, 4 de razones relacionadas y 4 de 3.4, y 3 de repaso (calc-03-006, calc-05-014 y calc-04-017; el repaso solo puede venir de unidades con número menor), 1590 s.
+  - **`/revisar-contenido`:**
+    - a ciegas: 24/24 y, tras los arreglos, 15/15, sin discrepancias y con todos los signos bien;
+    - checklist de los tres con objeción y sin respuestas erróneas.
+    - Con el sí de Carlo se aplicó:
+      - la Conexión dice $\Delta y\approx f'(x)\,dx$, porque $dy$ es exacta;
+      - el 014 pide el entero cubo perfecto más cercano;
+      - «exacta» desambiguada en el 025;
+      - formatos y tolerancias con π de calculadora y sin `±`;
+      - el 024 con 40 m, porque se parecía al 3.42 de Larson;
+      - `## Errores comunes` en la lección;
+      - el 023 pide armar el modelo del anillo;
+      - el 006 se convirtió en un problema tipo escalera, tablón de 2.6 m (5-12-13);
+      - el jefe con más de 3.4.
+  - **Evidencia:**
+    - `content:check content/calculo` en verde (149 ejercicios, 121 por código y 28 manuales);
+    - `test:content` 313/313;
+    - `real-answers` 247/247;
+    - el visual `secante-tangente` de $\sqrt[3]{x}$ en 8 marca 0.0833 = 1/12 en `localhost:3000`, sin errores de KaTeX.
 - 2026-11-12 · **Unidad `calculo/07-maximos-minimos`** (sprint del parcial; 3.5 completa: criterios, gráficas y optimización).
   - **Convenciones (decidió Carlo):** «convexa» = ∪ y «cóncava» = ∩, como su profesor; punto crítico solo interior. Las dos van en la `notacion`.
   - **Esquema:** objeción sin bloqueo de matemáticas, pedagogía y razonamiento.

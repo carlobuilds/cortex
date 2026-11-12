@@ -1,0 +1,608 @@
+# Unidad 06 · Razones de cambio relacionadas y diferencial (Unidad III, 3.3 y 3.4). Sprint del 3.er parcial.
+# Esquema revisado por experto-matematicas, pedagogo y arquitecto-razonamiento.
+# Anclas (primer ejercicio de cada concepto, workedExampleFor): 001 RR, 002 DF, 003 AL, 004 EE.
+# Convenciones de Carlo: dy/dx; «convexa (∪)» y «cóncava (∩)»; «sobreestima» = L(x) > f(x).
+# dx en un simbólico: `variables: [x, h]` y «escribe dx como `h`» (verify_content.py partiría `dx` en d*x).
+# Las unidades van en el texto fijo; los huecos de `completar` llevan solo números exactos (sin π ni raíces).
+# Razones «con signo (negativa si disminuye)»; «rapidez» es la magnitud; los ángulos, en rad/s.
+# En RR, `verificar` modela cada cantidad como una función de t que cumple los datos del instante (t = 0) y deriva
+# con sympy: es una vía independiente de la regla que se usa a mano.
+# La pérdida de IA se llama J (no L) porque en esta unidad L es la linealización.
+# Los textos con apóstrofo (f') van en bloques `>-`: así no hay que escapar ni comillas ni barras.
+unidad: calculo/06-razones-diferencial
+ejercicios:
+  # razonamiento: algorítmico (traducir «disminuye» a una razón con signo y derivar con la cadena) · R0
+  # verificar: la arista como s(t) = 3 - 0.2t (cumple el dato en t = 0) y V = s(t)³; sympy deriva.
+  - id: calc-06-001
+    tipo: completar
+    dificultad: 1
+    conceptos: [razones-relacionadas]
+    enunciado: >-
+      Supón que un cubo de hielo se derrite sin perder su forma de cubo y que su arista disminuye a razón de 0.2 cm/min. Su volumen es $V=s^3$, con $s$ la arista en cm. En el instante en que la arista mide 3 cm, completa con números, con signo (negativo si la cantidad disminuye).
+    texto: >-
+      $\frac{ds}{dt}=$ ___ cm/min · $\frac{dV}{dt}=$ ___ cm³/min
+    respuestas: ["-0.2", "-5.4"]
+    verificar: { sympy: "(lambda s: [diff(s, t).subs(t, 0), diff(s**3, t).subs(t, 0)])(3 - Rational(1, 5)*t)" }
+    pistas:
+      - >-
+        Si la arista disminuye, ¿qué signo lleva $\frac{ds}{dt}$? Al derivar $V=s^3$ respecto a $t$, ¿qué deja la $s$ por la cadena?
+    explicacion: >-
+      **1. Dibuja y nombra.** $s$ es la arista y $V$ el volumen; los dos cambian. **2. Datos y meta.** «Disminuye a razón de 0.2 cm/min» quiere decir $\frac{ds}{dt}=-0.2$ cm/min, negativa porque $s$ baja; busco $\frac{dV}{dt}$ cuando $s=3$. **3. Ecuación para todo instante.** $V=s^3$, que vale mientras el hielo sea un cubo. Aquí te la dieron; cuando no, sale de la figura: Pitágoras, semejanza o una fórmula de área o volumen. **4. Deriva respecto a $t$.** $s$ depende de $t$, así que, por la cadena, $\frac{dV}{dt}=3s^2\frac{ds}{dt}$ (no $3s^2$ a secas). **5. El instante.** Con $s=3$: $\frac{dV}{dt}=3\cdot9\cdot(-0.2)=-5.4$. **6. Responde y revisa.** El volumen disminuye a razón de 5.4 cm³/min: $\frac{dV}{dt}=-5.4$ cm³/min. El signo tiene sentido porque el hielo se derrite, y las unidades salen de cm² por cm/min. Si sustituyes $s=3$ antes de derivar, $V=27$ es un número y su derivada sale 0: el instante va después.
+    tiempo_estimado_s: 40
+
+  # razonamiento: algorítmico (derivar y multiplicar por dx) · R0
+  # verificar: la derivada de sympy por el símbolo h (dx = h). Sin la h, la respuesta es dy/dx y sale mal: es justo el
+  # error que se mide.
+  - id: calc-06-002
+    tipo: simbolico
+    dificultad: 1
+    conceptos: [diferencial]
+    enunciado: >-
+      Calcula la diferencial $dy$ de $y=x\,e^{2x}$. En la app, $e^{u}$ se escribe `exp(u)`, cada producto lleva `*` (como en `sqrt(x + 1)*sin(x)`) y $dx$, si aparece, se escribe `h` ($dx=\Delta x=h$). Escribe solo la expresión, sin «dy =».
+    respuesta: "(1 + 2*x)*exp(2*x)*h"
+    variables: [x, h]
+    verificar: { sympy: "diff(x*exp(2*x), x)*Symbol('h')" }
+    pistas:
+      - >-
+        ¿Qué es $dy$: la derivada sola, o la derivada multiplicada por algo? ¿Qué regla necesitas para derivar $x\,e^{2x}$?
+    explicacion: >-
+      La diferencial es $dy=f'(x)\,dx$: la derivada **por** $dx$, que es una variable independiente (en la app, `h`). Por el producto y la cadena, $f'(x)=1\cdot e^{2x}+x\cdot e^{2x}\cdot2=(1+2x)e^{2x}$. Entonces $dy=(1+2x)e^{2x}\,dx$, que en la app se escribe `(1 + 2*x)*exp(2*x)*h`. Si escribiste solo $(1+2x)e^{2x}$, diste $\frac{dy}{dx}$, no $dy$: $dy$ depende de $x$ **y** de $dx$. Por ejemplo, en $x=0$ con $dx=0.1$, $dy=0.1$: la tangente en $(0,0)$ tiene pendiente 1 y sube 0.1 cuando $x$ avanza 0.1.
+    tiempo_estimado_s: 40
+
+  # razonamiento: algorítmico (f(a), f'(a) y la tangente evaluada) · R0
+  # verificar: f(a), f'(a) y f(a) + f'(a)(x - a) con la derivada de sympy.
+  - id: calc-06-003
+    tipo: completar
+    dificultad: 1
+    conceptos: [aproximacion-lineal]
+    enunciado: >-
+      Usa la linealización $L(x)=f(a)+f'(a)(x-a)$ de $f(x)=\sqrt{x}$ en $a=36$ para estimar $\sqrt{36.6}$. Escribe $f'(36)$ como fracción y $L(36.6)$ como decimal, sin redondear.
+    texto: >-
+      $f(36)=$ ___ · $f'(36)=$ ___ · $L(36.6)=$ ___
+    respuestas: ["6", "1/12", "6.05"]
+    verificar: { sympy: "(lambda f, a, X: [f.subs(x, a), diff(f, x).subs(x, a), f.subs(x, a) + diff(f, x).subs(x, a)*(X - a)])(sqrt(x), 36, Rational(366, 10))" }
+    pistas:
+      - >-
+        ¿Cuánto vale la derivada de $\sqrt x$ en 36? ¿Qué $dx$ separa a 36.6 de 36?
+    explicacion: >-
+      La linealización es la recta tangente en $(a,f(a))$. Con $a=36$, $f(36)=\sqrt{36}=6$. Por la potencia, $f'(x)=\frac{1}{2\sqrt x}$, así que $f'(36)=\frac{1}{12}$. Entonces $L(x)=6+\frac1{12}(x-36)$ y, con $dx=36.6-36=0.6$, $L(36.6)=6+\frac{0.6}{12}=6+0.05=6.05$. La calculadora da $\sqrt{36.6}\approx6.0498$: la estimación es buena porque 36.6 está cerca de 36, y se pasa un poco porque $\sqrt x$ es cóncava (∩). Se elige $a=36$ porque es un cuadrado perfecto cercano: ahí $f(a)$ y $f'(a)$ salen a mano.
+    tiempo_estimado_s: 40
+
+  # razonamiento: algorítmico (dA = A'(x) dx y los tres tipos de error) · R0
+  # verificar: dA con la derivada de sympy en el valor medido, entre A y por 100.
+  - id: calc-06-004
+    tipo: completar
+    dificultad: 1
+    conceptos: [error-con-diferenciales]
+    enunciado: >-
+      Mides el lado $x$ de un cuadrado: 20 cm, con un error de $\pm0.1$ cm. Estima con diferenciales ($dA$, no $\Delta A$) los errores del área $A=x^2$, como números positivos y sin $\pm$: el absoluto en cm², el relativo como decimal y el porcentual como número (el % ya está escrito).
+    texto: >-
+      Error absoluto: ___ cm² · error relativo: ___ · error porcentual: ___ %
+    respuestas: ["4", "0.01", "1"]
+    verificar: { sympy: "(lambda A, s, ds: [diff(A, x).subs(x, s)*ds, diff(A, x).subs(x, s)*ds/A.subs(x, s), 100*diff(A, x).subs(x, s)*ds/A.subs(x, s)])(x**2, 20, Rational(1, 10))" }
+    pistas:
+      - >-
+        ¿Cuánto vale $\frac{dA}{dx}$ en $x=20$? Para el relativo, ¿entre qué cantidad se divide el error absoluto?
+    explicacion: >-
+      Con $A=x^2$, $dA=2x\,dx$, evaluada en el valor medido, $x=20$, con $dx=\pm0.1$: $\lvert dA\rvert=2\cdot20\cdot0.1=4$ cm². Ese es el error absoluto estimado del área. El relativo lo divide entre el área calculada, $A=400$ cm²: $\frac{4}{400}=0.01$, sin unidades. El porcentual es 100 veces el relativo: 1 %. Revisa con la regla de las potencias: para $A=x^2$, el relativo de $A$ es 2 veces el de $x$, y $2\cdot\frac{0.1}{20}=0.01$. El cambio real, $\Delta A=20.1^2-400=4.01$, casi coincide con $dA$; la diferencia, $0.01=(dx)^2$, es el cuadradito de la esquina.
+    tiempo_estimado_s: 40
+
+  # razonamiento: deductivo (separar lo que vale siempre de lo que vale solo en el instante) · R0
+  # verificar: D(t) = 3 + t/2 cumple los datos; con w = D/1.25 y alto = 9w/16, una opción es correcta si la derivada
+  # respecto a t de su cantidad es 0. Las tres constantes lo son por hipótesis del enunciado; la comprobación
+  # confirma que las otras tres sí cambian. Que lo mire la resolución a ciegas.
+  - id: calc-06-005
+    tipo: seleccion_multiple
+    dificultad: 1
+    conceptos: [razones-relacionadas]
+    enunciado: >-
+      Supón que alejas un proyector de una pared, en línea recta y perpendicular a ella, a razón constante de 0.5 m/s. Por su lente, la distancia $D$ a la pared y el ancho $w$ de la imagen cumplen siempre $\frac Dw=1.25$, y la imagen siempre tiene formato 16:9 (su alto es $\frac{9}{16}$ de su ancho). Quieres saber a qué razón crece el área de la imagen en el instante en que $D=3$ m. ¿Qué cantidades se mantienen constantes mientras alejas el proyector? Puede haber varias.
+    opciones:
+      - >-
+        El cociente $\frac Dw=1.25$.
+      - >-
+        La distancia $D$, porque en el instante vale 3 m.
+      - >-
+        El cociente del alto entre el ancho de la imagen, $\frac{9}{16}$.
+      - >-
+        El ancho $w$ de la imagen.
+      - >-
+        La rapidez con que alejas el proyector, $\frac{dD}{dt}=0.5$ m/s.
+      - >-
+        El área de la imagen.
+    correctas: [0, 2, 4]
+    verificar: { sympy: "(lambda D: (lambda w: [simplify(diff(F, t)) == 0 for F in [D/w, D, Rational(9, 16)*w/w, w, diff(D, t), w*Rational(9, 16)*w]])(D/Rational(5, 4)))(3 + t/2)" }
+    pistas:
+      - >-
+        ¿Qué datos dicen «siempre» o «constante», y cuál vale solo «en el instante»? Si una cantidad cambia a razón constante, ¿deja de cambiar?
+    explicacion: >-
+      Se mantienen constantes tres cosas: el cociente $\frac Dw=1.25$, que lo fija la lente; el formato $\frac9{16}$, que lo fija el proyector; y la rapidez, 0.5 m/s, constante por hipótesis (una razón de cambio puede ser constante aunque la cantidad cambie). Sí cambian $D$, $w$ y el área. $D=3$ vale solo en el instante: si lo sustituyes antes de derivar, el área sale constante y su razón, 0. La solución completa: las constantes sí se sustituyen antes, así que $w=\frac{D}{1.25}=0.8D$, el alto es $\frac9{16}w=0.45D$ y $A=0.8D\cdot0.45D=0.36D^2$ en todo instante. Derivando, $\frac{dA}{dt}=0.72D\frac{dD}{dt}$. En el instante, $D=3$ y $\frac{dD}{dt}=0.5$: la imagen mide $w=2.4$ m de ancho y su área crece a $\frac{dA}{dt}=0.72\cdot3\cdot0.5=1.08$ m²/s.
+    tiempo_estimado_s: 45
+
+  # razonamiento: algorítmico (Pitágoras con la hipotenusa fija, sin la ecuación dada; la altura del instante sale
+  # de la misma ecuación) · R1
+  # verificar: x(t) = 1 + 0.3t (el pie se aleja) y la altura como función de t, sqrt(2.6² - x(t)²); sympy deriva.
+  - id: calc-06-006
+    tipo: completar
+    dificultad: 2
+    conceptos: [razones-relacionadas]
+    enunciado: >-
+      Supón que un tablón de 2.6 m está recargado contra una pared vertical y que su pie resbala por el piso, alejándose de la pared a 0.3 m/s, mientras su extremo de arriba baja pegado a la pared. En el instante en que el pie está a 1 m de la pared, ¿a qué altura está el extremo de arriba y cuál es la razón de cambio de esa altura? Da la razón con signo (negativa si la altura disminuye).
+    texto: >-
+      El extremo de arriba está a ___ m · la razón de cambio de su altura es ___ m/s
+    respuestas: ["2.4", "-0.125"]
+    verificar: { sympy: "(lambda X: [sqrt(Rational(169, 25) - X**2).subs(t, 0), diff(sqrt(Rational(169, 25) - X**2), t).subs(t, 0)])(1 + Rational(3, 10)*t)" }
+    pistas:
+      - >-
+        ¿Qué triángulo forman la pared, el piso y el tablón, y cuál de sus lados no cambia? Si el pie se aleja de la pared, ¿qué signo tiene la razón de su distancia a ella, y cuál esperas para la de la altura?
+    explicacion: >-
+      **1. Dibuja y nombra.** $x$ es la distancia del pie del tablón a la pared y $y$ la altura del extremo de arriba, en m; el largo del tablón, 2.6 m, no cambia. **2. Datos y meta.** $\frac{dx}{dt}=0.3$ m/s, positiva porque el pie se aleja; busco $y$ y $\frac{dy}{dt}$ cuando $x=1$. **3. Ecuación para todo instante.** Por Pitágoras, $x^2+y^2=2.6^2$: esta vez lo que no cambia es la hipotenusa. **4. Deriva respecto a $t$.** $2x\frac{dx}{dt}+2y\frac{dy}{dt}=0$; el $2.6^2$ es constante y deriva a 0. **5. El instante.** Primero la altura, con la ecuación del paso 3: $y=\sqrt{6.76-1}=\sqrt{5.76}=2.4$ m (es un triángulo 5-12-13 a escala: 1, 2.4 y 2.6). Entonces $\frac{dy}{dt}=-\frac xy\cdot\frac{dx}{dt}=-\frac{1}{2.4}\cdot0.3=-0.125$ m/s. **6. Responde y revisa.** El extremo de arriba está a 2.4 m y baja a 0.125 m/s; la razón es negativa porque la altura disminuye, y baja más lento de lo que se aleja el pie porque, en ese instante, $\frac xy<1$. Revisa con un cociente de diferencias: con $\Delta t=0.1$ s, el pie llega a $x=1.03$ y $y=\sqrt{6.76-1.0609}\approx2.38728$, así que $\frac{\Delta y}{\Delta t}\approx-0.127$, cerca de $-0.125$ (un poco más rápido, porque el extremo de arriba baja cada vez más rápido).
+    tiempo_estimado_s: 60
+
+  # razonamiento: abductivo (buscar contraejemplos: ¿cuándo es 0 la diferencia Δy - dy para todo x y dx?) · R1
+  # verificar: simplify(f(x + h) - f(x) - f'(x)·h) == 0 por cada función, con h = dx.
+  - id: calc-06-007
+    tipo: seleccion_multiple
+    dificultad: 2
+    conceptos: [diferencial]
+    enunciado: >-
+      ¿Para cuáles de estas funciones vale $\Delta y=dy$ en todo $x$ y con todo $dx$ (donde estén definidas)? Puede haber varias.
+    opciones:
+      - >-
+        $y=3x-7$
+      - >-
+        $y=x^2$
+      - >-
+        $y=(x+1)^2-x^2$
+      - >-
+        $y=\sqrt{x}$
+      - >-
+        $y=\dfrac1x$
+      - >-
+        $y=e^x$
+    correctas: [0, 2]
+    verificar: { sympy: "(lambda h: [simplify(F.subs(x, x + h) - F - diff(F, x)*h) == 0 for F in [3*x - 7, x**2, (x + 1)**2 - x**2, sqrt(x), 1/x, exp(x)]])(Symbol('h'))" }
+    pistas:
+      - >-
+        $dy$ es el cambio sobre la recta tangente y $\Delta y$, sobre la curva. ¿Para qué gráficas coinciden la curva y su tangente? ¿Qué queda si desarrollas $(x+1)^2-x^2$?
+    explicacion: >-
+      $dy=f'(x)\,dx$ es lo que cambia $y$ sobre la tangente, y $\Delta y=f(x+dx)-f(x)$, lo que cambia sobre la curva. Coinciden siempre solo si la gráfica es su propia tangente, una recta: con $f(x)=mx+b$, $\Delta y=m\,dx=dy$. $3x-7$ es afín, y $(x+1)^2-x^2$ parece cuadrática, pero se desarrolla en $2x+1$: también es afín. Las demás tienen contraejemplos: para $x^2$, $\Delta y-dy=(x+dx)^2-x^2-2x\,dx=(dx)^2\neq0$; para $\sqrt x$ en $x=4$ con $dx=5$, $\Delta y=1$ y $dy=1.25$; para $\frac1x$ en $x=1$ con $dx=1$, $\Delta y=-0.5$ y $dy=-1$; para $e^x$ en $x=0$ con $dx=1$, $\Delta y=e-1\approx1.718$ y $dy=1$.
+    tiempo_estimado_s: 45
+
+  # razonamiento: algorítmico (comparar dy con Δy y medir la diferencia) · R1
+  # verificar (de experto-matematicas): f'(4) como límite del cociente, independiente de la regla de la potencia.
+  - id: calc-06-008
+    tipo: completar
+    dificultad: 2
+    conceptos: [diferencial]
+    enunciado: >-
+      Sea $y=\sqrt{x}$. Cuando $x$ pasa de 4 a 4.41, calcula $dy$, $\Delta y$ y su diferencia. Escribe decimales sin redondear, con signo.
+    texto: >-
+      $dy=$ ___ · $\Delta y=$ ___ · $\Delta y-dy=$ ___
+    respuestas: ["0.1025", "0.1", "-0.0025"]
+    verificar: { sympy: "[limit((sqrt(4 + k) - 2)/k, k, 0)*Rational(41, 100), sqrt(Rational(441, 100)) - sqrt(4), (sqrt(Rational(441, 100)) - sqrt(4)) - limit((sqrt(4 + k) - 2)/k, k, 0)*Rational(41, 100)]" }
+    pistas:
+      - >-
+        ¿Cuánto vale $dx$? ¿$\Delta y$ se calcula con la derivada o con la función misma, y cuánto vale $\sqrt{4.41}$?
+    explicacion: >-
+      Aquí $x=4$ y $dx=4.41-4=0.41$. La diferencial: $f'(x)=\frac{1}{2\sqrt x}$ y $f'(4)=\frac14$, así que $dy=\frac{0.41}{4}=0.1025$. El cambio real: $\sqrt{4.41}=2.1$ (porque $2.1^2=4.41$), así que $\Delta y=2.1-2=0.1$. La diferencia es $\Delta y-dy=0.1-0.1025=-0.0025$: la tangente se pasa, porque $\sqrt x$ es cóncava (∩) y su gráfica queda abajo de la tangente. $dy$ es más fácil de calcular, pero no es el cambio real.
+    tiempo_estimado_s: 50
+
+  # razonamiento: algorítmico (cadena en f'(a) y armar la tangente) · R1
+  # verificar: f(a) + f'(a)(x - a) con la derivada de sympy.
+  - id: calc-06-009
+    tipo: simbolico
+    dificultad: 2
+    conceptos: [aproximacion-lineal]
+    enunciado: >-
+      Encuentra la linealización $L(x)$ de $f(x)=\sqrt{x^2+5}$ en $a=2$. En la app, cada producto lleva `*` y las raíces se escriben `sqrt(...)`, como en `2*x*sqrt(x)`. Escribe solo la expresión, sin «L(x) =».
+    respuesta: "3 + 2*(x - 2)/3"
+    variables: [x]
+    verificar: { sympy: "(lambda f, a: f.subs(x, a) + diff(f, x).subs(x, a)*(x - a))(sqrt(x**2 + 5), 2)" }
+    pistas:
+      - >-
+        ¿Cuánto valen $f(2)$ y $f'(2)$? Para derivar la raíz, ¿cuál es la función de adentro?
+    explicacion: >-
+      $L(x)=f(2)+f'(2)(x-2)$. Primero, $f(2)=\sqrt{4+5}=3$. Por la cadena, $f'(x)=\frac{2x}{2\sqrt{x^2+5}}=\frac{x}{\sqrt{x^2+5}}$, así que $f'(2)=\frac23$. Entonces $L(x)=3+\frac23(x-2)$, o $\frac23x+\frac53$ desarrollada (la app acepta las dos formas). Sirve, por ejemplo, para estimar $f(2.3)\approx3+\frac23(0.3)=3.2$, contra $\sqrt{10.29}\approx3.2078$.
+    tiempo_estimado_s: 50
+
+  # razonamiento: analógico (aplicar la regla dV/V = n·dr/r a dos potencias del radio) · R1
+  # verificar: el porcentual con la derivada de sympy y un radio simbólico, que se cancela.
+  - id: calc-06-010
+    tipo: completar
+    dificultad: 2
+    conceptos: [error-con-diferenciales]
+    enunciado: >-
+      Mides el radio de una esfera con un error relativo de 0.4 %. Estima con diferenciales el error porcentual del volumen, $V=\frac43\pi r^3$, y el de la superficie, $S=4\pi r^2$. Escribe solo los números (el % ya está escrito).
+    texto: >-
+      Volumen: ___ % · superficie: ___ %
+    respuestas: ["1.2", "0.8"]
+    verificar: { sympy: "(lambda r: [simplify(100*diff(4*pi*r**3/3, r)*(r*Rational(4, 1000))/(4*pi*r**3/3)), simplify(100*diff(4*pi*r**2, r)*(r*Rational(4, 1000))/(4*pi*r**2))])(Symbol('r', positive=True))" }
+    pistas:
+      - >-
+        Si divides $dV$ entre $V$, ¿qué queda en términos de $\frac{dr}{r}$? ¿Y si haces lo mismo con $S$?
+    explicacion: >-
+      El error relativo del radio es $\left\lvert\frac{dr}{r}\right\rvert=0.004$. Para el volumen, $dV=4\pi r^2\,dr$, así que $\frac{dV}{V}=\frac{4\pi r^2\,dr}{\frac43\pi r^3}=3\frac{dr}{r}$: el relativo es $3\cdot0.004=0.012$, un 1.2 %. Para la superficie, $dS=8\pi r\,dr$ y $\frac{dS}{S}=2\frac{dr}{r}$: $2\cdot0.004=0.008$, un 0.8 %. Es la regla de las potencias: con $y=kr^n$, el error relativo se multiplica por $n$. No hizo falta saber el radio: el $\pi$ y el $\frac43$ se cancelan.
+    tiempo_estimado_s: 45
+
+  # razonamiento: causal-sistémico (el volumen fijo amarra el grosor que baja con el radio que crece) · R1
+  # verificar (de experto-matematicas): con h(t) = 0.5 - 0.2t y V = 18π fijo, r = sqrt(18/h) y A = π·18/h; sympy deriva.
+  - id: calc-06-011
+    tipo: completar
+    dificultad: 3
+    conceptos: [razones-relacionadas]
+    enunciado: >-
+      Supón que una prensa aplasta una bolita de masa hasta hacer una tortilla, que la masa siempre es un cilindro de radio $r$ y grosor $h$, en cm, y que su volumen $V=\pi r^2h$ no cambia. En el instante en que $h=0.5$ cm y $r=6$ cm, el grosor disminuye a razón de 0.2 cm/s. Completa con números, con signo: el volumen, la razón de cambio del radio y la del área de la cara de arriba, $A=\pi r^2$. Donde el texto ya trae $\pi$, escribe solo el número que lo multiplica (para $7\pi$, escribe `7`).
+    texto: >-
+      $V=$ ___ $\pi$ cm³ · $\frac{dr}{dt}=$ ___ cm/s · $\frac{dA}{dt}=$ ___ $\pi$ cm²/s
+    respuestas: ["18", "1.2", "14.4"]
+    verificar: { sympy: "[pi*6**2*Rational(1, 2)/pi, diff(sqrt(18/(Rational(1, 2) - Rational(1, 5)*t)), t).subs(t, 0), diff(pi*18/(Rational(1, 2) - Rational(1, 5)*t), t).subs(t, 0)/pi]" }
+    pistas:
+      - >-
+        ¿Qué cantidad no cambia, y qué dice eso de $\frac{dV}{dt}$? Al derivar $\pi r^2h$ respecto a $t$, ¿qué regla necesitas, si $r$ y $h$ cambian las dos?
+      - >-
+        Ya con $\frac{dr}{dt}$, ¿cómo derivas $A=\pi r^2$ respecto a $t$? ¿Qué signo esperas, si la tortilla se extiende?
+    explicacion: >-
+      **Nombra.** $r$ y $h$ cambian; $V$ es constante. **Datos y meta.** $\frac{dh}{dt}=-0.2$ cm/s (el grosor disminuye) y $\frac{dV}{dt}=0$; busco $\frac{dr}{dt}$ y $\frac{dA}{dt}$ cuando $r=6$ y $h=0.5$. **Ecuación.** $V=\pi r^2h$, con $V=\pi\cdot36\cdot0.5=18\pi$ cm³ en todo instante (el volumen sí se puede sustituir antes de derivar, porque no cambia). **Deriva.** Por el producto y la cadena: $0=\pi\left(2rh\frac{dr}{dt}+r^2\frac{dh}{dt}\right)$. **El instante.** $0=2\cdot6\cdot0.5\frac{dr}{dt}+36(-0.2)$, es decir, $6\frac{dr}{dt}=7.2$ y $\frac{dr}{dt}=1.2$ cm/s. Luego $\frac{dA}{dt}=2\pi r\frac{dr}{dt}=2\pi\cdot6\cdot1.2=14.4\pi$ cm²/s. **Responde.** El radio crece a 1.2 cm/s y el área, a $14.4\pi\approx45.2$ cm²/s; las dos razones son positivas porque la tortilla se extiende mientras adelgaza. Revisa con un cociente de diferencias: como $V$ es fijo, $A=\frac Vh=\frac{18\pi}{h}$; con $\Delta t=0.1$ s, $h$ pasa de 0.5 a 0.48 y $A$, de $36\pi$ a $37.5\pi$, así que $\frac{\Delta A}{\Delta t}=15\pi$, cerca de $14.4\pi$.
+    tiempo_estimado_s: 150
+
+  # razonamiento: abductivo (encontrar la falla de una solución: el instante sustituido antes de derivar) · R2
+  # Revisión manual (opción múltiple conceptual). Comprobado con sympy: con h(t) = 1.5 - 0.3t y A = (2h/3)²,
+  # dA/dt = -2/5 en t = 0; y (A(0.1) - A(0))/0.1 ≈ -0.396.
+  - id: calc-06-012
+    tipo: opcion_multiple
+    dificultad: 3
+    conceptos: [razones-relacionadas]
+    enunciado: |-
+      Supón que una tolva (un depósito de granos) tiene forma de pirámide invertida de base cuadrada: arriba mide 2 m de lado y tiene 3 m de profundidad. El grano sale por abajo, su superficie se mantiene plana y su altura $h$, medida desde el vértice de abajo, baja a razón de 0.3 m/min. Se pide la razón de cambio del área de la superficie del grano en el instante en que $h=1.5$ m. Beto lo resolvió así:
+
+      1. Sea $s$ el lado del cuadrado que forma la superficie del grano. Por semejanza, $\frac sh=\frac23$, así que $s=\frac{2h}{3}$.
+      2. En el instante, $h=1.5$, así que $s=1$ y el área es $A=s^2=1$ m².
+      3. Derivo respecto a $t$: $\frac{dA}{dt}=0$, porque $A=1$ es constante.
+
+      ¿Cuál es el error de Beto?
+    opciones:
+      - >-
+        El paso 2: $h=1.5$ vale solo en el instante; al sustituirlo antes de derivar, $A$ quedó como un número fijo. Hay que derivar $A=\frac{4h^2}{9}$ y sustituir después.
+      - >-
+        El paso 1: como $s$ y $h$ cambian, la semejanza $s=\frac{2h}3$ vale solo en el instante y no se puede sustituir antes de derivar.
+      - >-
+        Ninguno: cuando el grano llega a la mitad de la profundidad, el área de su superficie deja de cambiar.
+      - >-
+        El paso 3: la derivada de $A=s^2$ es $2s$, así que $\frac{dA}{dt}=2$ m²/min.
+    correcta: 0
+    pistas:
+      - >-
+        ¿Qué datos valen en todo instante y cuáles solo en el instante pedido? ¿Cuál de los pasos de Beto usa uno de estos últimos antes de derivar?
+      - >-
+        Si $A$ fuera constante, ¿qué tendría que pasarle a la superficie mientras el grano baja? ¿Tiene sentido en una pirámide invertida?
+    explicacion: >-
+      La regla de las dos sustituciones: antes de derivar se puede sustituir lo que vale en todo instante, como la semejanza $s=\frac{2h}3$ (la forma de la tolva no cambia), así que el paso 1 está bien. Lo que vale solo en el instante, $h=1.5$, va después; Beto lo puso antes, y $A$ quedó congelada. Bien hecho: $A=s^2=\frac{4h^2}9$ en todo instante, $\frac{dA}{dt}=\frac{8h}9\frac{dh}{dt}$ y, con $h=1.5$ y $\frac{dh}{dt}=-0.3$, $\frac{dA}{dt}=\frac{12}9(-0.3)=-0.4$ m²/min. La opción del paso 3 deriva respecto a $s$, no respecto a $t$ (le falta el $\frac{ds}{dt}$), y la de «ninguno» contradice la forma de la tolva: mientras el grano baja, su superficie se encoge. Derivar $\frac sh=\frac23$ con el cociente también se vale, pero no hace falta. Revisa con un cociente de diferencias: con $\Delta t=0.1$ min, $h$ pasa de 1.5 a 1.47 y $A$, de 1 a $\frac{4(1.47)^2}9\approx0.9604$, así que $\frac{\Delta A}{\Delta t}\approx-0.40$.
+    tiempo_estimado_s: 120
+
+  # razonamiento: causal-sistémico (dos efectos que compiten: uno acerca y otro aleja) · R1
+  # verificar: x(t) = 30 - 4t, y(t) = 40 + 5t y la distancia como función de t; sympy deriva.
+  - id: calc-06-013
+    tipo: numerico
+    dificultad: 3
+    conceptos: [razones-relacionadas]
+    enunciado: >-
+      Supón que dos ciclistas van, cada uno, por una de dos calles rectas y perpendiculares que se cruzan en un punto $C$. En cierto instante, Ana está a 30 m de $C$ y se acerca a él a 4 m/s; Luis está a 40 m de $C$, ya lo pasó y se aleja a 5 m/s. En ese instante, ¿cuál es la razón de cambio de la distancia entre ellos, en m/s? Escribe solo el número, con signo (negativo si la distancia disminuye).
+    respuesta: 1.6
+    tolerancia: 0
+    verificar: { sympy: "(lambda X, Y: diff(sqrt(X**2 + Y**2), t).subs(t, 0))(30 - 4*t, 40 + 5*t)" }
+    pistas:
+      - >-
+        Dibuja el cruce y nombra $x$, $y$ y $z$. ¿Qué ecuación los relaciona en todo instante? Si uno se acerca al cruce, ¿qué signo tiene su razón?
+      - >-
+        Después de derivar, ¿qué valores del instante necesitas y cuál te falta calcular? Uno acerca y otro aleja: ¿cuál de los dos términos pesa más?
+    explicacion: >-
+      **Nombra.** $x$ es la distancia de Ana a $C$, $y$ la de Luis y $z$ la distancia entre ellos. **Datos y meta.** $\frac{dx}{dt}=-4$ ($x$ disminuye porque Ana se acerca) y $\frac{dy}{dt}=5$; busco $\frac{dz}{dt}$ cuando $x=30$ y $y=40$. **Ecuación para todo instante.** $z^2=x^2+y^2$. **Deriva.** $2z\frac{dz}{dt}=2x\frac{dx}{dt}+2y\frac{dy}{dt}$. **El instante.** $z=\sqrt{900+1600}=50$, así que $\frac{dz}{dt}=\frac{30(-4)+40(5)}{50}=\frac{-120+200}{50}=1.6$ m/s. **Responde.** La distancia crece a 1.6 m/s. Son dos efectos que compiten: Ana acorta la distancia y Luis la alarga, y gana Luis porque su término pesa $40\cdot5=200$ contra $30\cdot4=120$ (va más rápido y está más lejos del cruce). Si olvidas el signo de Ana, sale 6.4. Revisa con un cociente de diferencias: con $\Delta t=0.1$ s, $x=29.6$, $y=40.5$ y $z\approx50.1638$, así que $\frac{\Delta z}{\Delta t}\approx1.64$, cerca de 1.6.
+    tiempo_estimado_s: 120
+
+  # razonamiento: deductivo (elegir f, a y dx para que todo salga a mano) · R1
+  # verificar: L(125.75) con la derivada de sympy. Tolerancia 0: el valor de la calculadora (5.00998...) sale mal.
+  - id: calc-06-014
+    tipo: numerico
+    dificultad: 3
+    conceptos: [aproximacion-lineal]
+    enunciado: >-
+      Estima $\sqrt[3]{125.75}$ con una aproximación lineal. Elige tú la función $f$ y el número $a$: el entero más cercano a 125.75 que sea un cubo perfecto, para que $f(a)$ y $f'(a)$ salgan exactos a mano; de ahí sale $dx$. Escribe tu $L(125.75)$ como decimal, sin redondear (no el valor de la calculadora, que es otro número).
+    respuesta: 5.01
+    tolerancia: 0
+    verificar: { sympy: "(lambda f, a: f.subs(x, a) + diff(f, x).subs(x, a)*(Rational(12575, 100) - a))(x**Rational(1, 3), 125)" }
+    pistas:
+      - >-
+        ¿De qué función es $\sqrt[3]{125.75}$ un valor? ¿Qué número cercano a 125.75 tiene raíz cúbica exacta?
+      - >-
+        ¿Cuánto vale $f'(a)$ en ese número, y qué $dx$ te lleva hasta 125.75?
+    explicacion: >-
+      **La función:** $f(x)=\sqrt[3]{x}$, porque se pide uno de sus valores. **El punto:** $a=125$, porque $5^3=125$ y está a solo 0.75; ahí $f(a)$ y $f'(a)$ salen a mano. **El $dx$:** $125.75-125=0.75$. Como $f'(x)=\frac{1}{3\sqrt[3]{x^2}}$, $f'(125)=\frac{1}{3\cdot25}=\frac1{75}$. Entonces $dy=\frac{0.75}{75}=0.01$ y $\sqrt[3]{125.75}\approx L(125.75)=5+0.01=5.01$. Revisa: $5.01^3=125.751501$, apenas arriba de 125.75; por eso la calculadora da $5.00998\ldots$, un poco menos. $L$ sobreestima porque $\sqrt[3]{x}$ es cóncava (∩) en todo el tramo de 125 a 125.75 ($f''<0$ para $x>0$). Con $a=64$ o $a=216$ también hay raíz exacta, pero quedan lejos y la estimación sale mucho peor.
+    tiempo_estimado_s: 120
+
+  # razonamiento: algorítmico (dV con una sola medida que tiene error) · R1
+  # verificar: la derivada de sympy de V(r) = 12πr² en r = 4, por dr = 0.02.
+  - id: calc-06-015
+    tipo: numerico
+    dificultad: 3
+    conceptos: [error-con-diferenciales]
+    enunciado: >-
+      Supón que una lata cilíndrica tiene 12 cm de altura, que se conocen sin error, y que su radio se midió como 4 cm con un error de $\pm0.02$ cm. Estima con diferenciales ($dV$, no $\Delta V$) el error absoluto del volumen, en cm³. Escribe la respuesta exacta (como `2*sqrt(7)`) o redondeada a 3 decimales al final, con el π de la calculadora, no 3.14.
+    respuesta: "48*pi/25"
+    tolerancia: 0.001
+    verificar: { sympy: "diff(pi*x**2*12, x).subs(x, 4)*Rational(2, 100)" }
+    pistas:
+      - >-
+        ¿Qué medida tiene error y cuál es fija? ¿Respecto a cuál derivas $V=\pi r^2h$?
+      - >-
+        ¿En qué valor de $r$ evalúas la derivada, y qué $dr$ usas?
+    explicacion: >-
+      $V=\pi r^2h$ con $h=12$ fija: $V=12\pi r^2$. Solo $r$ tiene error, así que $dV=24\pi r\,dr$, evaluada en el radio medido, $r=4$, con $dr=\pm0.02$: $\lvert dV\rvert=24\pi\cdot4\cdot0.02=1.92\pi=\frac{48\pi}{25}\approx6.032$ cm³. Revisa con el relativo: $\frac{dV}{V}=2\frac{dr}{r}=2\cdot\frac{0.02}{4}=0.01$ y $V=12\pi\cdot16=192\pi$, así que $\lvert dV\rvert=0.01\cdot192\pi=1.92\pi$, lo mismo. El cambio real, $\Delta V=12\pi(4.02^2-16)\approx6.047$, casi coincide.
+    tiempo_estimado_s: 90
+
+  # razonamiento: deductivo (del signo de f'' en todo el tramo al lado de la tangente) · R1
+  # Revisión manual (opción múltiple conceptual: dos opciones dicen «subestima» con razones distintas).
+  # Comprobado con sympy: L(4.08) = 49/200 = 0.245 < 1/4.08 ≈ 0.245098, y f''(x) = 2/x³ > 0 en [4, 4.08].
+  - id: calc-06-016
+    tipo: opcion_multiple
+    dificultad: 3
+    conceptos: [aproximacion-lineal, concavidad-inflexion]
+    enunciado: >-
+      Con la linealización de $f(x)=\frac1x$ en $a=4$ se estima $\frac{1}{4.08}\approx L(4.08)=0.245$. ¿$L$ sobreestima ($L(4.08)>f(4.08)$) o subestima ($L(4.08)<f(4.08)$) a $f$ en 4.08, y por qué? Elige la opción con la conclusión **y** la razón correctas. Responde sin calculadora.
+    opciones:
+      - >-
+        Subestima: $f''(x)=\frac{2}{x^3}>0$ en todo el tramo de 4 a 4.08, así que ahí la gráfica es convexa (∪) y queda arriba de su tangente.
+      - >-
+        Sobreestima: $f$ es decreciente, y la tangente de una función decreciente queda arriba de la curva.
+      - >-
+        Subestima: $f'(4)<0$, y toda función decreciente queda arriba de su tangente.
+      - >-
+        Sobreestima: $f''(4)>0$, y eso quiere decir que la tangente queda arriba de la curva.
+    correcta: 0
+    pistas:
+      - >-
+        ¿Qué dice el signo de $f''$ sobre el lado de la tangente en el que queda la curva? ¿Basta mirarlo en $a=4$, o hay que mirarlo en todo el tramo?
+      - >-
+        ¿Conoces funciones decrecientes que queden arriba de sus tangentes y otras que queden abajo? Si las hay, ¿puede el crecimiento decidir el lado?
+    explicacion: >-
+      $f(4)=0.25$ y $f'(x)=-\frac1{x^2}$, así que $f'(4)=-\frac1{16}$ y $L(4.08)=0.25-\frac{0.08}{16}=0.245$. Como $f''(x)=\frac2{x^3}>0$ en todo el tramo de 4 a 4.08, ahí $f$ es convexa (∪), y una función convexa queda arriba de su tangente: $f(4.08)>L(4.08)$, así que $L$ subestima. El crecimiento no decide: para $x>0$, $\frac1x$ y $-x^2$ decrecen las dos, pero la primera queda arriba de sus tangentes y la segunda, abajo. Y $f''>0$ pone la curva arriba de la tangente, no abajo. Revisa: $\frac1{4.08}=0.245098\ldots$, un poco más que 0.245.
+    tiempo_estimado_s: 90
+
+  # razonamiento: analógico (transferencia a visión por computadora: el tiempo para el contacto) · R1
+  # verificar: D(t) = 24 - 12t y p(t) = f·W/D(t); sympy deriva.
+  - id: calc-06-017
+    tipo: numerico
+    dificultad: 3
+    conceptos: [razones-relacionadas]
+    enunciado: >-
+      Supón que la cámara de un auto autónomo ve la parte trasera de una camioneta detenida, de $W=1.8$ m de ancho. En la imagen, la camioneta mide $p=\frac{fW}{D}$ píxeles de ancho, con $f=800$ píxeles (una constante de la cámara) y $D$ la distancia a la camioneta, en m. El auto se acerca a ella a 12 m/s. En el instante en que $D=24$ m, ¿cuál es la razón de cambio de $p$, en píxeles por segundo? Escribe solo el número, con signo.
+    respuesta: 30
+    tolerancia: 0
+    verificar: { sympy: "diff(800*Rational(18, 10)/(24 - 12*t), t).subs(t, 0)" }
+    pistas:
+      - >-
+        ¿Qué cantidades cambian y cuáles son constantes en $p=\frac{fW}{D}$? Si el auto se acerca, ¿qué signo tiene $\frac{dD}{dt}$?
+      - >-
+        Al derivar $\frac{fW}{D}=fW\,D^{-1}$ respecto a $t$, ¿qué sale de la potencia y qué deja la cadena?
+    explicacion: >-
+      **Nombra.** $p$ y $D$ cambian; $f=800$ y $W=1.8$ son constantes, así que $fW=1440$ y $p=\frac{1440}{D}$ en todo instante. **Datos y meta.** $\frac{dD}{dt}=-12$ m/s (la distancia disminuye); busco $\frac{dp}{dt}$ cuando $D=24$. **Deriva.** $\frac{dp}{dt}=-\frac{1440}{D^2}\frac{dD}{dt}$. **El instante.** $-\frac{1440}{576}(-12)=2.5\cdot12=30$ px/s. **Responde.** La imagen de la camioneta crece a 30 px/s, una razón positiva porque al acercarse se ve más grande. Hay un dato escondido: en ese instante $p=\frac{1440}{24}=60$ px y $\frac{p}{dp/dt}=\frac{60}{30}=2$ s, justo $\frac{D}{\lvert dD/dt\rvert}=\frac{24}{12}$, el tiempo que falta para el contacto si nada cambia. La cámara puede medirlo sin conocer ni $W$ ni $D$: le basta cuánto mide la imagen y a qué razón crece. Revisa con un cociente de diferencias: con $\Delta t=0.1$ s, $D=22.8$ y $p=\frac{1440}{22.8}\approx63.16$, así que $\frac{\Delta p}{\Delta t}\approx31.6$, cerca de 30 (un poco más, porque la imagen crece cada vez más rápido).
+    tiempo_estimado_s: 120
+
+  # razonamiento: deductivo (eliminar r con la semejanza antes de derivar y hallar h a partir del volumen) · R2
+  # verificar: V(t) = 108π - 12t y h = (3V/(π q²))^(1/3), con q = r/h = 12/18; sympy deriva en t = 0.
+  # Errores típicos que la tolerancia no acepta: r congelado en 6 (-1/π ≈ -0.318), h = 18 (≈ -0.027), sin signo.
+  - id: calc-06-018
+    tipo: numerico
+    dificultad: 4
+    conceptos: [razones-relacionadas]
+    enunciado: >-
+      Supón que un embudo tiene forma de cono con el vértice hacia abajo, de 12 cm de radio arriba y 18 cm de profundidad. Tiene aceite, que sale por abajo a razón de 12 cm³/s. En el instante en que quedan $108\pi$ cm³ de aceite, ¿cuál es la razón de cambio de la profundidad del aceite, en cm/s? Escribe la respuesta sin unidades y con signo: exacta (como `2*sqrt(7)`) o redondeada a 3 decimales al final, con el π de la calculadora.
+    respuesta: "-1/(3*pi)"
+    tolerancia: 0.001
+    verificar: { sympy: "(lambda V, q: diff((3*V/(pi*q**2))**Rational(1, 3), t).subs(t, 0))(108*pi - 12*t, Rational(12, 18))" }
+    pistas:
+      - >-
+        ¿Qué cantidades cambian? ¿Qué relación entre el radio de la superficie del aceite y su profundidad vale en todo instante, y la puedes usar antes de derivar?
+      - >-
+        El instante viene dado por el volumen, no por la profundidad: ¿cómo sacas la profundidad que corresponde a $108\pi$ cm³?
+      - >-
+        Si el aceite sale, ¿qué signo tiene $\frac{dV}{dt}$? ¿Tu resultado está en cm/s y tiene el signo que esperas?
+    explicacion: >-
+      **Nombra.** $h$ es la profundidad del aceite, $r$ el radio de su superficie y $V$ su volumen; los 12 cm y los 18 cm son constantes. **Datos y meta.** $\frac{dV}{dt}=-12$ cm³/s (el aceite sale); busco $\frac{dh}{dt}$ cuando $V=108\pi$. **Ecuación.** $V=\frac13\pi r^2h$. Sobra $r$: por semejanza, $\frac rh=\frac{12}{18}=\frac23$ en todo instante, así que se sustituye antes de derivar: $V=\frac13\pi\cdot\frac{4h^2}9\cdot h=\frac{4\pi}{27}h^3$. **Deriva.** $\frac{dV}{dt}=\frac{4\pi}9h^2\frac{dh}{dt}$. **El instante.** Primero la profundidad: $\frac{4\pi}{27}h^3=108\pi$ da $h^3=729$ y $h=9$ cm. Entonces $-12=\frac{4\pi}9\cdot81\frac{dh}{dt}=36\pi\frac{dh}{dt}$, así que $\frac{dh}{dt}=-\frac{1}{3\pi}\approx-0.106$ cm/s. **Responde.** La profundidad baja a unos 0.106 cm/s. Si congelas el radio en $r=6$ (su valor en el instante) antes de derivar, sale $-\frac1\pi\approx-0.318$, el triple: el radio también se encoge. Revisa con un cociente de diferencias: con $\Delta t=1$ s quedan $108\pi-12$ cm³ y $h=\sqrt[3]{\frac{27(108\pi-12)}{4\pi}}\approx8.8926$, así que $\frac{\Delta h}{\Delta t}\approx-0.107$, cerca de $-0.106$ (un poco más rápido, porque el cono se angosta hacia abajo).
+    tiempo_estimado_s: 240
+
+  # razonamiento: espacial (elegir la razón trigonométrica que amarra el ángulo con la altura) · R2
+  # verificar: y(t) = 40 + 2t y θ = atan(y/30); sympy deriva.
+  - id: calc-06-019
+    tipo: numerico
+    dificultad: 4
+    conceptos: [razones-relacionadas]
+    enunciado: >-
+      Supón que un elevador panorámico sube en vertical por la fachada de un edificio a 2 m/s y que lo miras desde el suelo, a 30 m de la base de su recorrido. Sea $\theta$ el ángulo de elevación de tu línea de vista. En el instante en que el elevador está a 40 m de altura, ¿cuál es la razón de cambio de $\theta$, en rad/s? Escribe solo el número, con signo.
+    respuesta: 0.024
+    tolerancia: 0
+    verificar: { sympy: "diff(atan((40 + 2*t)/30), t).subs(t, 0)" }
+    pistas:
+      - >-
+        Dibuja el triángulo: ¿qué lados son constantes y cuáles cambian? ¿Qué razón trigonométrica de $\theta$ usa justo el lado que sube y el que no cambia?
+      - >-
+        Al derivar $\tan\theta$ respecto a $t$, ¿qué sale, y qué deja la cadena? ¿En qué unidades debe estar $\theta$ para que esa derivada valga?
+      - >-
+        En el instante, ¿cuánto vale $\sec^2\theta$? ¿Puedes sacarlo del triángulo, sin calcular $\theta$?
+    explicacion: >-
+      **Nombra.** $y$ es la altura del elevador y $\theta$ el ángulo; los 30 m son constantes. **Datos y meta.** $\frac{dy}{dt}=2$ m/s; busco $\frac{d\theta}{dt}$ cuando $y=40$. **Ecuación para todo instante.** El cateto opuesto es $y$ y el adyacente, 30: $\tan\theta=\frac y{30}$ (con el seno o el coseno aparecería la hipotenusa, que también cambia). **Deriva.** $\sec^2\theta\,\frac{d\theta}{dt}=\frac1{30}\frac{dy}{dt}$, con $\theta$ en radianes. **El instante.** La hipotenusa es $\sqrt{30^2+40^2}=50$, así que $\sec\theta=\frac{50}{30}$ y $\sec^2\theta=\frac{25}9$. Entonces $\frac{d\theta}{dt}=\frac{9}{25}\cdot\frac{2}{30}=0.024$ rad/s. **Responde.** El ángulo crece a 0.024 rad/s, unos $1.4^\circ$ por segundo. Revisa con un cociente de diferencias: con $\Delta t=1$ s, $\theta$ pasa de $\arctan\frac43\approx0.9273$ a $\arctan\frac{42}{30}\approx0.9505$ rad, así que $\frac{\Delta\theta}{\Delta t}\approx0.023$, cerca de 0.024 (un poco menos, porque el ángulo crece cada vez más despacio).
+    tiempo_estimado_s: 180
+
+  # razonamiento: causal-sistémico (el paso cambia la pérdida; la linealización solo predice bien con pasos chicos) · R2
+  # verificar: dJ = J'(1)·Δw y ΔJ = J(1 + Δw) - J(1), con J' de sympy y Δw = -η·J'(1).
+  - id: calc-06-020
+    tipo: completar
+    dificultad: 4
+    conceptos: [aproximacion-lineal, diferencial]
+    enunciado: >-
+      Supón que un modelo de un solo peso $w$ tiene la pérdida $J(w)=(w-3)^2$ (la llamamos $J$ y no $L$ porque aquí $L$ es la linealización) y que está en $w=1$. El descenso de gradiente da un paso $\Delta w=-\eta J'(w)$, con tasa de aprendizaje $\eta$. Para cada $\eta$, da un solo paso desde $w=1$ y calcula $dJ=J'(1)\,\Delta w$, el cambio que predice la linealización, y el cambio real, $\Delta J=J(1+\Delta w)-J(1)$. Escribe decimales sin redondear, con signo.
+    texto: >-
+      Con $\eta=0.1$: $dJ=$ ___ y $\Delta J=$ ___ · con $\eta=1.2$: $dJ=$ ___ y $\Delta J=$ ___
+    respuestas: ["-1.6", "-1.44", "-19.2", "3.84"]
+    verificar: { sympy: "(lambda J, w0: [item for eta in [Rational(1, 10), Rational(6, 5)] for dw in [-eta*diff(J, x).subs(x, w0)] for item in [diff(J, x).subs(x, w0)*dw, J.subs(x, w0 + dw) - J.subs(x, w0)]])((x - 3)**2, 1)" }
+    pistas:
+      - >-
+        ¿Cuánto vale $J'(1)$, y qué $\Delta w$ da cada $\eta$? ¿Hacia dónde mueve el paso a $w$?
+      - >-
+        $dJ$ usa solo la tangente en $w=1$; $\Delta J$ usa la parábola. ¿Dónde cae $w$ después de cada paso, y cuánto vale $J$ ahí?
+      - >-
+        Con el paso grande, ¿la linealización y el cambio real tienen siquiera el mismo signo? ¿Dónde quedó $w$ respecto al mínimo, en 3?
+    explicacion: >-
+      $J'(w)=2(w-3)$, así que $J'(1)=-4$ y $J(1)=4$. **Con $\eta=0.1$:** $\Delta w=-0.1(-4)=0.4$ y $w$ pasa a 1.4. La linealización predice $dJ=-4\cdot0.4=-1.6$, y el cambio real es $\Delta J=(1.4-3)^2-4=2.56-4=-1.44$. Se parecen, porque el paso es chico. **Con $\eta=1.2$:** $\Delta w=4.8$ y $w$ pasa a 5.8, del otro lado del mínimo y más lejos de él. La linealización predice $dJ=-4\cdot4.8=-19.2$, una bajada enorme, pero en realidad $\Delta J=2.8^2-4=7.84-4=3.84$: la pérdida **sube**. La tangente solo describe la parábola cerca de $w=1$; con un paso tan grande, manda la curvatura. Por eso la tasa de aprendizaje debe ser chica. Revisa: la diferencia $\Delta J-dJ$ es $(\Delta w)^2$, el término que la linealización ignora: $0.16=0.4^2$ con el paso chico y $23.04=4.8^2$ con el grande.
+    tiempo_estimado_s: 180
+
+  # razonamiento: metacognitivo (resolver como en el examen y revisar con una comprobación) · R3
+  # Rúbrica de arquitecto-razonamiento, tal cual: 4 criterios, todos obligatorios (se aprueba con ceil(0.8·4) = 4).
+  # Comprobado con sympy: s(0) = 25 y ds/dt = -20 con x(t) = 20 - 25t; s(0.01) ≈ 24.800454 y
+  # (s(0.01) - 25)/0.01 ≈ -19.9546.
+  - id: calc-06-021
+    tipo: autoevaluacion
+    dificultad: 4
+    conceptos: [razones-relacionadas]
+    enunciado: >-
+      Supón que un radar de tránsito está a 15 m de una carretera recta, medidos en perpendicular, y que un auto se acerca por la carretera al punto $P$ más cercano al radar. Cuando el auto está a 20 m de $P$, el radar mide que la distancia entre él y el auto disminuye a razón de 20 m/s. ¿A qué rapidez va el auto, en m/s y en km/h? Resuelve como en el examen: dibuja y nombra, relaciona, deriva, sustituye el instante y revisa con al menos una comprobación.
+    rubrica:
+      - >-
+        Nombra lo que cambia: $x$ es la distancia del auto a $P$ y $s$ la del radar al auto; los 15 m son constantes. Escribe una relación que vale en todo instante, $s^2=x^2+15^2$, sin poner todavía $x=20$ ni $s=25$.
+      - >-
+        Deriva respecto a $t$ antes de sustituir: $2s\frac{ds}{dt}=2x\frac{dx}{dt}$ (la derivada de $15^2$ es 0). Después sustituye el instante: $x=20$, $s=\sqrt{20^2+15^2}=25$ y $\frac{ds}{dt}=-20$, negativa porque la distancia disminuye.
+      - >-
+        Despeja $\frac{dx}{dt}=\frac sx\cdot\frac{ds}{dt}=-25$ m/s e interpreta el signo ($x$ disminuye porque el auto se acerca a $P$). Responde la rapidez sin signo y con unidades: 25 m/s, es decir, 90 km/h.
+      - >-
+        Revisa con al menos una comprobación. Por ejemplo: aquí $\lvert\frac{ds}{dt}\rvert=\frac xs\lvert\frac{dx}{dt}\rvert$ con $\frac xs=0.8$, así que tiene sentido que el radar marque menos (20 < 25). O un cociente de diferencias con $x(t)=20-25t$, que da cerca de $-20$ m/s. O las unidades de cada término.
+    respuesta_modelo: >-
+      Llamo $x$ a la distancia del auto a $P$ y $s$ a la del radar al auto; los 15 m no cambian. Por Pitágoras, en todo instante $s^2=x^2+15^2$. Derivo respecto a $t$: $2s\frac{ds}{dt}=2x\frac{dx}{dt}$. Ahora sustituyo el instante: $x=20$, $s=\sqrt{625}=25$ y $\frac{ds}{dt}=-20$ m/s (negativa: la distancia disminuye). Entonces $\frac{dx}{dt}=\frac{25}{20}(-20)=-25$ m/s: $x$ disminuye porque el auto se acerca. La rapidez es 25 m/s, o $25\cdot3.6=90$ km/h. Compruebo: el radar solo mide la parte de la velocidad en su dirección, $\frac xs\cdot25=0.8\cdot25=20$, así que es lógico que marque menos. Con $x(t)=20-25t$, $\frac{s(0.01)-s(0)}{0.01}\approx\frac{24.8005-25}{0.01}\approx-19.95$, cerca de $-20$.
+    pistas:
+      - >-
+        Dibuja el radar, la carretera y el auto. ¿Qué distancias cambian y cuál no? ¿Qué ecuación las relaciona en todo instante?
+      - >-
+        ¿Qué mide el radar, $\frac{dx}{dt}$ o $\frac{ds}{dt}$? Si la distancia disminuye, ¿qué signo lleva? ¿Los números del instante van antes o después de derivar?
+      - >-
+        ¿Tu resultado es la rapidez o la razón con signo? ¿Debería el radar marcar más o menos que la rapidez real? ¿Qué cuenta con un $\Delta t$ chico lo confirmaría?
+    explicacion: >-
+      Lo que más se omite es el signo: «disminuye a razón de 20 m/s» es $\frac{ds}{dt}=-20$. El otro error típico es poner $x=20$ antes de derivar: entonces $x$ parece constante y la ecuación ya no dice nada de $\frac{dx}{dt}$. Revisa: si te salió 16 m/s, multiplicaste por $\frac xs$ en vez de dividir. Un radar fuera de la carretera no puede marcar más que la rapidez real.
+    tarjeta: false
+    tiempo_estimado_s: 270
+
+  # razonamiento: abductivo (buscar contraejemplos y reconocer las hipótesis que hacen falta) · R2
+  # verificar: True = la afirmación falla. Las cuatro que fallan se comprueban con un contraejemplo concreto, todos con
+  # x²; las dos que valen son teoremas: ahí solo se comprueba que una familia de funciones no las contradiga (para la
+  # convexa, funciones con f'' > 0 en todo el tramo), lo que no las demuestra. Que lo mire la resolución a ciegas.
+  - id: calc-06-022
+    tipo: seleccion_multiple
+    dificultad: 4
+    conceptos: [diferencial, aproximacion-lineal]
+    enunciado: >-
+      Marca las afirmaciones que **fallan**: las que tienen al menos una función que las contradice. Puede haber varias. En todas, $f$ es derivable (dos veces, si se habla de $f''$), $L$ es su linealización en $a$ y $dx=\Delta x$.
+    opciones:
+      - >-
+        Si $y=f(x)$ y $x$ cambia con el tiempo a razón constante, entonces $y$ también cambia a razón constante.
+      - >-
+        Si $dx\neq0$ es lo bastante pequeño, entonces $\Delta y=dy$.
+      - >-
+        Si $f''>0$ en un intervalo que contiene a $a$ y a $x$, entonces $L(x)\le f(x)$.
+      - >-
+        $L(x)$ sobreestima a $f(x)$ en todo $x\neq a$.
+      - >-
+        Si $f'(a)=0$, entonces $L(x)=f(x)$ en todos los $x$ cercanos a $a$.
+      - >-
+        Con diferenciales, el error relativo de $V=kr^3$ ($k\neq0$) es ≈ 3 veces el de $r$.
+    correctas: [0, 1, 3, 4]
+    verificar: { sympy: "(lambda h, F: [diff(diff(F.subs(x, t), t), t) != 0, simplify((x + h)**2 - x**2 - 2*x*h) != 0, any((G.subs(x, a) + diff(G, x).subs(x, a)*(X - a)) > G.subs(x, X) for G, a, X in [(exp(x), 0, 1), (x**4, 1, 2), (1/x, 4, Rational(41, 10)), (x**2, 3, -2)]), (lambda a, X: F.subs(x, a) + diff(F, x).subs(x, a)*(X - a) < F.subs(x, X))(1, 2), diff(F, x).subs(x, 0) == 0 and F.subs(x, Rational(1, 10)) != F.subs(x, 0), simplify(diff(k*x**3, x)*h/(k*x**3) - 3*h/x) != 0])(Symbol('h'), x**2)" }
+    pistas:
+      - >-
+        Para cada afirmación, ¿qué tendría que pasarle a una función para contradecirla? ¿Qué pasa si pruebas con $x^2$, la curva más sencilla que no es una recta?
+      - >-
+        ¿Qué dice el signo de $f''$ sobre el lado de la tangente en el que queda la curva? ¿Hay funciones que queden abajo de sus tangentes?
+      - >-
+        En la del error relativo, ¿qué queda al dividir $dV$ entre $V$? ¿Depende de $k$ o de $r$?
+    explicacion: >-
+      Fallan cuatro. «$x'$ constante implica $y'$ constante»: con $x=t$ y $y=x^2$, $\frac{dy}{dt}=2t$ crece con $t$; la cadena multiplica por $f'(x)$, que cambia. «Con $dx$ pequeño, $\Delta y=dy$»: para $x^2$, $\Delta y-dy=(dx)^2$, que es chico, pero no 0, por pequeño que sea $dx$. «$L$ siempre sobreestima»: para $x^2$ en $a=1$, $L(2)=3<4=f(2)$. «$f'(a)=0$ implica $L=f$ cerca de $a$»: para $x^2$ en $a=0$, $L(x)=0$, pero $f(0.1)=0.01$. Valen dos. Si $f''>0$ en un intervalo, $f$ es convexa (∪) ahí y queda arriba de su tangente en $a$: $L(x)\le f(x)$ en todo ese intervalo. Y con $V=kr^3$, $\frac{dV}V=\frac{3kr^2\,dr}{kr^3}=3\frac{dr}r$. Revisa: los cuatro contraejemplos usan la misma función, $x^2$; una sola curva basta para tumbar una afirmación general.
+    tiempo_estimado_s: 150
+
+  # razonamiento: causal-sistémico (armar el modelo del anillo; el papel que sale encoge el rollo: del largo al radio
+  # y al diámetro) · R2
+  # verificar (de experto-matematicas): R(t) = sqrt(r0² + g·ℓ(t)/π), con ℓ(t) = ℓ(0) - 15t; sympy deriva D = 2R y
+  # convierte de cm/s a mm/min (×10 ×60).
+  - id: calc-06-023
+    tipo: numerico
+    dificultad: 5
+    conceptos: [razones-relacionadas]
+    enunciado: >-
+      Supón que una caja registradora imprime en un rollo de papel térmico enrollado en un tubo de radio $r_0=0.6$ cm. El papel tiene un grosor $g=0.006$ cm; al rollo le quedan $\ell$ cm de papel y su radio exterior es $R$ cm. Visto de frente, el papel forma un anillo entre el tubo y el borde exterior, y el área de ese anillo es igual al grosor por el largo del papel que queda. La impresora jala el papel a 15 cm/s. En el instante en que $R=3$ cm, ¿cuál es la razón de cambio del **diámetro** del rollo, en mm/min? Escribe la respuesta sin unidades y con signo: exacta (como `2*sqrt(7)`) o redondeada a 2 decimales al final, sin redondear los pasos intermedios y con el π de la calculadora.
+    respuesta: "-18/pi"
+    tolerancia: 0.005
+    verificar: { sympy: "diff(2*sqrt(Rational(9, 25) + Rational(6, 1000)*(pi*(9 - Rational(9, 25))/Rational(6, 1000) - 15*t)/pi), t).subs(t, 0)*10*60" }
+    pistas:
+      - >-
+        ¿Cuánto mide el área de un anillo de radios $r_0$ y $R$? ¿Qué cantidades de tu ecuación cambian y cuáles son constantes? Si el papel sale del rollo, ¿qué signo tiene $\frac{d\ell}{dt}$?
+      - >-
+        Al derivar respecto a $t$, ¿qué deja $R^2$ y qué deja $r_0^2$? Ya con $\frac{dR}{dt}$, ¿cómo pasas al diámetro?
+      - >-
+        ¿En qué unidades te salió, cm/s? ¿Cuántos mm hay en un cm y cuántos segundos en un minuto? ¿El signo dice que el rollo adelgaza?
+    explicacion: >-
+      **Nombra.** $R$ (y con él el diámetro, $D=2R$) y $\ell$ cambian; $r_0=0.6$ y $g=0.006$ son constantes. **Datos y meta.** $\frac{d\ell}{dt}=-15$ cm/s, porque al rollo le queda cada vez menos papel; busco $\frac{dD}{dt}$ cuando $R=3$. **Ecuación para todo instante.** El área del anillo es la del círculo de radio $R$ menos la del tubo, y es igual al grosor por el largo del papel: $\pi R^2-\pi r_0^2=g\,\ell$. **Deriva.** $2\pi R\frac{dR}{dt}=g\frac{d\ell}{dt}$ (el $\pi r_0^2$ es constante). **El instante.** $\frac{dR}{dt}=\frac{0.006(-15)}{2\pi\cdot3}=-\frac{0.015}\pi$ cm/s, así que $\frac{dD}{dt}=2\frac{dR}{dt}=-\frac{0.03}{\pi}$ cm/s. **Unidades.** Por 10 para pasar a mm y por 60 para pasar a minutos: $-\frac{0.03\cdot600}{\pi}=-\frac{18}{\pi}\approx-5.73$ mm/min. **Responde.** El diámetro disminuye a unos 5.73 mm/min. No hizo falta $\ell$, ni $r_0$. Hay una cadena de causas: el papel que sale encoge el área del anillo, y esa área encoge el radio, cada vez más rápido mientras más delgado está el rollo ($\frac{dR}{dt}$ va con $\frac1R$). Revisa con un cociente de diferencias: en 1 s, $R^2$ baja $\frac{0.09}{\pi}\approx0.0286$, de 9 a 8.9714; $R$ pasa a 2.99522 y $D$ baja 0.00956 cm, que son $0.00956\cdot600\approx5.73$ mm/min.
+    tiempo_estimado_s: 300
+
+  # razonamiento: algorítmico (dh = h'(θ)·dθ con dθ en radianes) · R2
+  # verificar: h(θ) = 40 tan θ, derivada de sympy en π/3, por dθ = 0.5° = π/360 rad.
+  - id: calc-06-024
+    tipo: numerico
+    dificultad: 5
+    conceptos: [error-con-diferenciales]
+    enunciado: >-
+      Supón que, a 40 m de la base de un edificio, mides el ángulo de elevación de su azotea: $60^\circ$, con un error de $\pm0.5^\circ$. La distancia de 40 m no tiene error. Estima con diferenciales ($dh$, no $\Delta h$) el error absoluto de la altura $h$ calculada, en m. Escribe la respuesta exacta (como `2*sqrt(7)`) o redondeada a 3 decimales al final, con el π de la calculadora, no 3.14.
+    respuesta: "4*pi/9"
+    tolerancia: 0.001
+    verificar: { sympy: "diff(40*tan(x), x).subs(x, pi/3)*pi/360" }
+    pistas:
+      - >-
+        ¿Qué cantidad mides y cuál calculas? Con la distancia fija, ¿qué ecuación da la altura a partir del ángulo?
+      - >-
+        $dh=h'(\theta)\,d\theta$: ¿en qué unidades debe ir $d\theta$ para que $(\tan\theta)'=\sec^2\theta$?
+      - >-
+        ¿Te piden el error absoluto, en m? Si te salió más grande que el edificio, ¿qué unidad revisarías?
+    explicacion: >-
+      La altura es $h=40\tan\theta$, así que $dh=40\sec^2\theta\,d\theta$. Esa derivada de $\tan\theta$ solo vale con $\theta$ en radianes: $d\theta=\pm0.5^\circ=\pm0.5\cdot\frac{\pi}{180}=\pm\frac{\pi}{360}$ rad. En $\theta=60^\circ=\frac\pi3$, $\sec\theta=2$ y $\sec^2\theta=4$, así que $\lvert dh\rvert=40\cdot4\cdot\frac{\pi}{360}=\frac{4\pi}{9}\approx1.396$ m. Si usas $d\theta=0.5$ (en grados), sale 80 m, más que la altura del edificio, $40\sqrt3\approx69.3$ m: un absurdo que avisa del error de unidades. Revisa con el cambio real: $40\tan60.5^\circ-40\tan60^\circ\approx1.418$ m, cerca de 1.396 y un poco más, porque $\tan\theta$ es convexa (∪) en $\left(0,\frac\pi2\right)$ y queda arriba de su tangente.
+    tiempo_estimado_s: 210
+
+  # razonamiento: deductivo (del signo de L - σ y de su derivada, a dónde sobreestima) · R2
+  # verificar: D = L - σ (en las pistas y la explicación se llama g, porque D ya es distancia y diámetro en otros
+  # ejercicios), con D(0) = 0 y D' = (1 - e^z)²/(4(1 + e^z)²) ≥ 0 (identidad comprobada con simplify), más D en
+  # puntos de prueba. Las afirmaciones se deciden con esos hechos: no es una demostración hecha por sympy.
+  - id: calc-06-025
+    tipo: seleccion_multiple
+    dificultad: 5
+    conceptos: [aproximacion-lineal, concavidad-inflexion]
+    enunciado: >-
+      En IA se usa la sigmoide $\sigma(z)=\dfrac{1}{1+e^{-z}}$, y cerca de 0 se aproxima con su linealización, $L(z)=\frac12+\frac z4$. ¿Cuáles afirmaciones son ciertas? Puede haber varias. «$L$ sobreestima a $\sigma$ en $z$» quiere decir $L(z)>\sigma(z)$.
+    opciones:
+      - >-
+        $L$ sobreestima a $\sigma$ en todo $z>0$.
+      - >-
+        $L$ sobreestima a $\sigma$ en todo $z<0$.
+      - >-
+        Para todo $z$, $L(-z)-\sigma(-z)=-\left[L(z)-\sigma(z)\right]$.
+      - >-
+        Para $z>0$, la diferencia $L(z)-\sigma(z)$ crece con $z$.
+      - >-
+        La tangente queda arriba de la curva a los dos lados de 0.
+      - >-
+        $L(z)=\sigma(z)$ en todos los $z$ cercanos a 0, porque $\sigma''(0)=0$.
+    correctas: [0, 2, 3]
+    verificar: { sympy: "(lambda D: (lambda ok: [ok and all(D.subs(z, v) > 0 for v in [Rational(1, 10), 1, 5]), all(D.subs(z, -v) > 0 for v in [Rational(1, 10), 1, 5]), simplify(D.subs(z, -z) + D) == 0, ok and D.subs(z, 1) < D.subs(z, 2) < D.subs(z, 5), all(D.subs(z, v) > 0 for v in [-1, 1]), D.subs(z, Rational(1, 10)) == 0])(D.subs(z, 0) == 0 and simplify(diff(D, z) - (1 - exp(z))**2/(4*(1 + exp(z))**2)) == 0))(Rational(1, 2) + z/4 - 1/(1 + exp(-z)))" }
+    pistas:
+      - >-
+        Llama $g(z)=L(z)-\sigma(z)$. ¿Cuánto vale $g(0)$? ¿Qué signo tiene $g'(z)=\frac14-\sigma'(z)$, si escribes $\sigma'$ con $e^z$?
+      - >-
+        ¿Qué relación hay entre $\sigma(-z)$ y $\sigma(z)$? ¿Y entre $L(-z)$ y $L(z)$?
+      - >-
+        Que $\sigma''(0)=0$, ¿hace que la tangente coincida con la curva, o solo que el error sea más chico de lo usual? ¿Qué signo tiene $\sigma''$ a cada lado de 0?
+    explicacion: >-
+      $\sigma'(z)=\frac{e^{-z}}{(1+e^{-z})^2}=\frac{e^z}{(1+e^z)^2}$, así que $\sigma(0)=\frac12$ y $\sigma'(0)=\frac14$: esa es la $L$. Sea $g=L-\sigma$. Entonces $g(0)=0$ y $g'(z)=\frac14-\frac{e^z}{(1+e^z)^2}=\frac{(1-e^z)^2}{4(1+e^z)^2}\ge0$, que solo vale 0 en $z=0$: $g$ crece en todo $\mathbb R$. Por eso $g>0$ para $z>0$ (sobreestima: cierta) y $g<0$ para $z<0$ (ahí subestima: falsas la segunda y la de «arriba a los dos lados»). Para $z>0$, $g$ crece con $z$: cierta. Como $\sigma(-z)=1-\sigma(z)$ y $L(-z)=1-L(z)$, $g(-z)=-g(z)$: cierta. Y $\sigma''(0)=0$ no hace que coincidan: $g(0.1)\approx2.1\times10^{-5}\neq0$. Solo hace que el error sea del orden de $z^3$ y no de $z^2$, porque 0 es un punto de inflexión: $\sigma$ es convexa (∪) para $z<0$ y cóncava (∩) para $z>0$, y la tangente la cruza. Revisa: $\sigma(2)\approx0.881$ y $L(2)=1$; $\sigma(-2)\approx0.119$ y $L(-2)=0$.
+    tiempo_estimado_s: 210
