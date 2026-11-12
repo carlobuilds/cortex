@@ -1,0 +1,556 @@
+# Unidad 05 · Regla de la cadena, derivación implícita y orden superior (Unidad III, 3.2.2 a 3.2.4, más las
+# trigonométricas e hiperbólicas inversas de 3.2.1). Sprint del 3.er parcial.
+# Esquema revisado por experto-matematicas, pedagogo y arquitecto-razonamiento.
+# Anclas (primer ejercicio de cada concepto, workedExampleFor): 001 CA, 002 IM, 003 TI, 004 OS, 005 HI, 007 LG.
+# Notación (decisión de Carlo): dy/dx en la cadena y la implícita; arcsen, arcsenh, arccosh y arctanh en el texto.
+# Las respuestas simbólicas usan nombres que leen sympy y la app (asin, exp, ln); cada simbólico trae su propia
+# línea de sintaxis, porque el repaso muestra los ejercicios sueltos.
+# La dy/dx implícita como simbólico solo en curvas polinomiales (015); la d²y/dx² implícita va en un punto (023).
+# En las curvas, `verificar` comprueba que el punto esté sobre la curva (si no, da nan) y deriva con idiff.
+# Los textos con apóstrofo (f') van en bloques `>-`: así no hay que escapar ni comillas ni barras.
+unidad: calculo/05-cadena-implicita
+ejercicios:
+  # razonamiento: algorítmico (identificar las dos capas y aplicar) · R0
+  - id: calc-05-001
+    tipo: simbolico
+    dificultad: 1
+    conceptos: [regla-cadena]
+    enunciado: >-
+      Deriva $f(x)=(5-2x^3)^4$ con la regla de la cadena, sin desarrollar la potencia. Puedes dejar el resultado factorizado, como en `(x + 1)^2*(x - 4)`; cada producto lleva `*`. Escribe solo la expresión, sin «f'(x) =».
+    respuesta: "-24*x^2*(5 - 2*x^3)^3"
+    variables: [x]
+    verificar: { sympy: "diff((5 - 2*x**3)**4, x)" }
+    pistas:
+      - >-
+        ¿Cuál es la capa de afuera y cuál la de adentro? ¿Qué derivada tiene cada una por separado?
+    explicacion: >-
+      Hay dos capas: afuera, $y=u^4$; adentro, $u=5-2x^3$. Con $\frac{dy}{dx}=\frac{dy}{du}\cdot\frac{du}{dx}$: la capa de afuera da $\frac{dy}{du}=4u^3$, evaluada en $u=5-2x^3$, es decir, $4(5-2x^3)^3$ (lo de adentro queda intacto). La de adentro da $\frac{du}{dx}=-6x^2$. Multiplicando: $f'(x)=4(5-2x^3)^3\cdot(-6x^2)=-24x^2(5-2x^3)^3$. El error más común es quedarse en $4(5-2x^3)^3$, sin el factor $-6x^2$. Revisa: en $x=1$, $u=3$ y $f'(1)=-24\cdot27=-648$.
+    tiempo_estimado_s: 35
+
+  # razonamiento: algorítmico (derivar los dos lados y sustituir el punto) · R0
+  - id: calc-05-002
+    tipo: numerico
+    dificultad: 1
+    conceptos: [derivacion-implicita]
+    enunciado: >-
+      La curva $y^2-x^3=8$ pasa por el punto $(2,4)$. ¿Cuál es la pendiente $\frac{dy}{dx}$ de su recta tangente en ese punto? Puedes derivar implícitamente o despejar $y$ (cerca del punto, $y>0$). Escribe el decimal o la fracción.
+    respuesta: 1.5
+    tolerancia: 0
+    verificar: { sympy: "(lambda F, P: idiff(F, y, x).subs(P) if F.subs(P) == 0 else nan)(y**2 - x**3 - 8, {x: 2, y: 4})" }
+    pistas:
+      - >-
+        Si derivas los dos lados respecto a $x$, ¿qué sale de $y^2$, sabiendo que $y$ depende de $x$?
+    explicacion: >-
+      Primero comprueba el punto: $4^2-2^3=16-8=8$. Deriva los dos lados respecto a $x$, tratando a $y$ como función de $x$: por la cadena, $\frac{d}{dx}y^2=2y\frac{dy}{dx}$; además, $\frac{d}{dx}x^3=3x^2$ y $\frac{d}{dx}8=0$. Queda $2y\frac{dy}{dx}-3x^2=0$, así que $\frac{dy}{dx}=\frac{3x^2}{2y}$. En $(2,4)$: $\frac{3\cdot4}{2\cdot4}=\frac{12}{8}=1.5$. Por la vía explícita: cerca del punto, $y=\sqrt{x^3+8}$, y la cadena da $\frac{dy}{dx}=\frac{3x^2}{2\sqrt{x^3+8}}$, que en $x=2$ es $\frac{12}{2\cdot4}=1.5$. Las dos vías coinciden.
+    tiempo_estimado_s: 40
+
+  # razonamiento: algorítmico (recuperar la fórmula y evaluar) · R0
+  - id: calc-05-003
+    tipo: numerico
+    dificultad: 1
+    conceptos: [derivada-trig-inversa]
+    enunciado: >-
+      Sea $f(x)=\operatorname{arcsen}x$. Calcula $f'(0.6)$. Escribe el decimal o la fracción, sin redondear.
+    respuesta: 1.25
+    tolerancia: 0
+    verificar: { sympy: "diff(asin(x), x).subs(x, Rational(3, 5))" }
+    pistas:
+      - >-
+        ¿Cuál es la derivada de $\operatorname{arcsen}x$? Ya con ella, ¿cuánto vale $1-x^2$ en $x=0.6$?
+    explicacion: >-
+      De la lección, $(\operatorname{arcsen}x)'=\dfrac{1}{\sqrt{1-x^2}}$ para $-1<x<1$, y $0.6$ está en ese intervalo. La fórmula sale de $\operatorname{sen}y=x$: al derivar, $\cos y\,\frac{dy}{dx}=1$, y $\cos y=+\sqrt{1-x^2}$ porque $y$ está entre $-\frac\pi2$ y $\frac\pi2$. En $x=0.6$: $1-0.36=0.64$, $\sqrt{0.64}=0.8$ y $f'(0.6)=\frac{1}{0.8}=1.25$, o $\frac54$ como fracción.
+    tiempo_estimado_s: 30
+
+  # razonamiento: algorítmico (derivar dos veces e interpretar el signo) · R0
+  - id: calc-05-004
+    tipo: numerico
+    dificultad: 1
+    conceptos: [derivadas-orden-superior]
+    enunciado: >-
+      Supón que un bloque sujeto a un resorte oscila sobre una recta y que su posición es $s(t)=2\operatorname{sen}(3t)$ metros a los $t$ segundos. ¿Cuál es su aceleración en $t=\frac{\pi}{6}$ s? Da el valor con signo, en m/s².
+    respuesta: -18
+    tolerancia: 0
+    verificar: { sympy: "diff(2*sin(3*t), t, 2).subs(t, pi/6)" }
+    pistas:
+      - >-
+        ¿Qué función da la aceleración a partir de la posición? Al derivar $\operatorname{sen}(3t)$, ¿qué factor sale de la función de adentro?
+    explicacion: >-
+      La aceleración es la derivada de la velocidad, que a su vez es la derivada de la posición: $a(t)=s''(t)$. Primera derivada, con la cadena (adentro está $3t$, que deriva a 3): $v(t)=s'(t)=2\cos(3t)\cdot3=6\cos(3t)$. Segunda derivada, otra vez con la cadena: $a(t)=s''(t)=6\cdot(-\operatorname{sen}(3t))\cdot3=-18\operatorname{sen}(3t)$. En $t=\frac\pi6$, $3t=\frac\pi2$ y $\operatorname{sen}\frac\pi2=1$, así que $a=-18$ m/s². El signo tiene sentido: en ese instante el bloque está en $s=2$, su posición máxima, y el resorte lo jala de regreso. Si olvidas el 3 de la cadena en las dos derivadas, sale $-2$.
+    tiempo_estimado_s: 40
+
+  # razonamiento: algorítmico (deducir la fórmula de la inversa y aplicar la cadena) · R0
+  - id: calc-05-005
+    tipo: simbolico
+    dificultad: 1
+    conceptos: [derivada-hiperbolica-inversa]
+    enunciado: >-
+      Deriva $f(x)=\operatorname{arcsenh}(3x)$. En la app, $\operatorname{arcsenh}u$ es `arcsenh(u)` o `asinh(u)`, $\sqrt u$ es `sqrt(u)` y cada producto lleva `*`. Escribe solo la expresión, sin «f'(x) =».
+    respuesta: "3/sqrt(9*x^2 + 1)"
+    variables: [x]
+    verificar: { sympy: "diff(asinh(3*x), x)" }
+    pistas:
+      - >-
+        ¿Qué da la tabla para $(\operatorname{arcsenh}u)'$? Con $u=3x$, ¿qué va dentro de la raíz y qué factor sale de la capa de adentro?
+    explicacion: >-
+      Primero la derivada de $\operatorname{arcsenh}u$. Si $y=\operatorname{arcsenh}u$, entonces $\operatorname{senh}y=u$; al derivar respecto a $u$, $\cosh y\,\frac{dy}{du}=1$, así que $\frac{dy}{du}=\frac{1}{\cosh y}$. Por $\cosh^2y-\operatorname{senh}^2y=1$, $\cosh y=\sqrt{1+u^2}$, sin signo que elegir porque $\cosh y>0$ siempre: $(\operatorname{arcsenh}u)'=\dfrac{1}{\sqrt{1+u^2}}$. Ahora la cadena, con $u=3x$ y $\frac{du}{dx}=3$: $f'(x)=\dfrac{1}{\sqrt{1+(3x)^2}}\cdot3=\dfrac{3}{\sqrt{9x^2+1}}$. Los errores típicos son olvidar el 3 de afuera de la raíz y escribir $3x^2$ dentro en lugar de $(3x)^2=9x^2$. No la confundas con la del arcoseno, $\frac{1}{\sqrt{1-u^2}}$: aquí va $+u^2$. Revisa: en $x=0.25$, $9x^2+1=\frac{25}{16}$ y $\sqrt{\frac{25}{16}}=\frac54$, así que $f'(0.25)=\frac{3}{5/4}=2.4$.
+    tiempo_estimado_s: 35
+
+  # razonamiento: deductivo (descomponer en capas leyendo la notación) · R0
+  # verificar: cada opción es una descomposición f = F(u); al recomponerla, solo la correcta da sen²(3x).
+  - id: calc-05-006
+    tipo: opcion_multiple
+    dificultad: 2
+    conceptos: [regla-cadena]
+    enunciado: >-
+      Para derivar $f(x)=\operatorname{sen}^2(3x)$ de afuera hacia adentro, primero se escribe $f(x)=F(u)$: $F$ es la capa de afuera y $u$, todo lo que queda dentro de ella. ¿Cuál de estas descomposiciones es la correcta?
+    opciones:
+      - >-
+        $F(u)=u^2$, con $u=\operatorname{sen}(3x)$
+      - >-
+        $F(u)=\operatorname{sen}u$, con $u=(3x)^2$
+      - >-
+        $F(u)=\operatorname{sen}(3u)$, con $u=x^2$
+      - >-
+        $F(u)=3u$, con $u=\operatorname{sen}^2x$
+    valores: ["sin(3*x)**2", "sin((3*x)**2)", "sin(3*x**2)", "3*sin(x)**2"]
+    correcta: 0
+    verificar: { sympy: "sin(3*x)**2" }
+    pistas:
+      - >-
+        Si calculas $\operatorname{sen}^2(3x)$ con calculadora para un $x$ dado, ¿qué operación haces al último?
+    explicacion: >-
+      $\operatorname{sen}^2(3x)$ quiere decir $\left(\operatorname{sen}(3x)\right)^2$. Para evaluarla en un número, primero multiplicas por 3, luego sacas el seno y al final elevas al cuadrado: lo último que se hace es la capa de afuera. Así, $F(u)=u^2$ con $u=\operatorname{sen}(3x)$, y dentro de $u$ todavía hay otra capa, $3x$. Entonces $f'(x)=2\operatorname{sen}(3x)\cdot\cos(3x)\cdot3=6\operatorname{sen}(3x)\cos(3x)$. Las otras descomposiciones arman otras funciones: $\operatorname{sen}\left((3x)^2\right)=\operatorname{sen}(9x^2)$, $\operatorname{sen}(3x^2)$ y $3\operatorname{sen}^2x$.
+    tiempo_estimado_s: 25
+
+  # razonamiento: algorítmico (tomar ln para bajar el exponente) · R1
+  - id: calc-05-007
+    tipo: numerico
+    dificultad: 2
+    conceptos: [derivacion-logaritmica]
+    enunciado: >-
+      Sea $y=x^{\ln x}$, con $x>0$. Calcula $y'(e)$. Ojo: la $x$ está en la base y en el exponente, así que ni la regla de la potencia ni la de $a^x$ sirven tal cual.
+    respuesta: 2
+    tolerancia: 0
+    verificar: { sympy: "diff(x**log(x), x).subs(x, E)" }
+    pistas:
+      - >-
+        ¿Qué pasa con el exponente si tomas $\ln$ en los dos lados? Después, ¿qué regla necesitas en cada lado para derivar? ¿Cuánto vale $\ln e$?
+    explicacion: >-
+      Para $x>0$, toma logaritmo natural en los dos lados: $\ln y=\ln x\cdot\ln x=(\ln x)^2$. Deriva respecto a $x$ con la cadena en los dos lados: a la izquierda, $\frac{y'}{y}$; a la derecha, $2\ln x\cdot\frac1x$. Entonces $y'=x^{\ln x}\cdot\frac{2\ln x}{x}$. En $x=e$: $\ln e=1$, así que $y(e)=e^1=e$ y $y'(e)=e\cdot\frac2e=2$. Las dos reglas ingenuas dan la mitad cada una: con el exponente fijo (potencia) sale $\ln x\cdot x^{\ln x-1}$, que en $e$ vale $1\cdot e^0=1$; con la base fija (como $a^x$) sale $x^{\ln x}\ln x\cdot\frac1x$, que en $e$ vale $e\cdot1\cdot\frac1e=1$. Como con $x^x$ en la lección, la correcta es su suma: $1+1=2$.
+    tiempo_estimado_s: 40
+
+  # razonamiento: deductivo (contrastar con la tabla; leer la notación) · R1
+  # verificar: sen⁻¹x se modela como asin(x), que es lo que significa; la opción 0 la lee como 1/sen x.
+  - id: calc-05-008
+    tipo: seleccion_multiple
+    dificultad: 2
+    conceptos: [derivada-trig-inversa, derivada-hiperbolica-inversa]
+    enunciado: >-
+      ¿Cuáles de estas fórmulas son correctas? Aquí, como en la lección, $\operatorname{sen}^{-1}x$ significa $\operatorname{arcsen}x$. Revisa cada una solo en los $x$ donde es derivable la función entre paréntesis. Puede haber varias.
+    opciones:
+      - >-
+        $(\operatorname{sen}^{-1}x)'=-\dfrac{\cos x}{\operatorname{sen}^2x}$
+      - >-
+        $(\arccos x)'=\dfrac{1}{\sqrt{1-x^2}}$
+      - >-
+        $(\arctan x)'=\dfrac{1}{1+x^2}$
+      - >-
+        $(\operatorname{arcsenh}x)'=\dfrac{1}{\sqrt{1+x^2}}$
+      - >-
+        $(\operatorname{arctanh}x)'=\dfrac{1}{1-x^2}$
+      - >-
+        $(\operatorname{arccosh}x)'=\dfrac{1}{\sqrt{1+x^2}}$
+    correctas: [2, 3, 4]
+    verificar: { sympy: "[simplify(diff(F, x) - G) == 0 for F, G in [(asin(x), -cos(x)/sin(x)**2), (acos(x), 1/sqrt(1 - x**2)), (atan(x), 1/(1 + x**2)), (asinh(x), 1/sqrt(1 + x**2)), (atanh(x), 1/(1 - x**2)), (acosh(x), 1/sqrt(1 + x**2))]]" }
+    pistas:
+      - >-
+        ¿Qué quiere decir el $-1$ en $\operatorname{sen}^{-1}x$? En las demás, ¿qué signo lleva cada fórmula de la tabla y qué signo va dentro de la raíz?
+    explicacion: >-
+      $\operatorname{sen}^{-1}x$ es $\operatorname{arcsen}x$, no $\frac{1}{\operatorname{sen}x}$: su derivada es $\frac{1}{\sqrt{1-x^2}}$, y la opción derivó $\frac{1}{\operatorname{sen}x}$: mal. $(\arccos x)'=-\frac{1}{\sqrt{1-x^2}}$, con signo menos, porque arccos es decreciente: mal. $(\arctan x)'=\frac{1}{1+x^2}$: bien. $(\operatorname{arcsenh}x)'=\frac{1}{\sqrt{1+x^2}}$: bien. $(\operatorname{arctanh}x)'=\frac{1}{1-x^2}$ para $\lvert x\rvert<1$: bien. $(\operatorname{arccosh}x)'=\frac{1}{\sqrt{x^2-1}}$ para $x>1$, con $-1$ dentro de la raíz: la opción le puso la de arcsenh, mal.
+    tiempo_estimado_s: 40
+
+  # razonamiento: algorítmico (cadena y luego producto) · R1
+  - id: calc-05-009
+    tipo: simbolico
+    dificultad: 2
+    conceptos: [derivadas-orden-superior]
+    enunciado: >-
+      Calcula la segunda derivada $f''(x)$ de $f(x)=e^{x^2-2x}$. En la app, $e^{u}$ es `exp(u)`, como en `exp(x^2 - 2*x)`, y cada producto lleva `*`. Escribe solo la expresión, sin «f''(x) =».
+    respuesta: "(4*x^2 - 8*x + 6)*exp(x^2 - 2*x)"
+    variables: [x]
+    verificar: { sympy: "diff(exp(x**2 - 2*x), x, 2)" }
+    pistas:
+      - >-
+        Primero $f'$ con la cadena: ¿qué factor sale de la función de adentro? Para derivar $f'$, ¿qué regla pide un producto como ese?
+    explicacion: >-
+      Primera derivada, por la cadena con $u=x^2-2x$: $f'(x)=e^{x^2-2x}\cdot(2x-2)$. Ahora $f'$ es un producto de $(2x-2)$ y $e^{x^2-2x}$, así que, por la regla del producto y otra vez la cadena en la exponencial: $f''(x)=2\cdot e^{x^2-2x}+(2x-2)\cdot e^{x^2-2x}(2x-2)=\left[2+(2x-2)^2\right]e^{x^2-2x}=(4x^2-8x+6)\,e^{x^2-2x}$. El error típico es derivar solo la exponencial y perder el término $2e^{x^2-2x}$. Revisa: en $x=1$, $f'(1)=0$ (el exponente $x^2-2x$ tiene ahí su mínimo) y $f''(1)=2e^{-1}>0$.
+    tiempo_estimado_s: 40
+
+  # razonamiento: algorítmico (tres capas: exponencial de base fija, raíz y polinomio) · R1
+  - id: calc-05-010
+    tipo: simbolico
+    dificultad: 2
+    conceptos: [regla-cadena]
+    enunciado: >-
+      Deriva $f(x)=5^{\sqrt{x^2+1}}$. En la app, el exponente va entre paréntesis, como en `2^(cos(x))`; $\ln5$ es `ln(5)`, $\sqrt u$ es `sqrt(u)` y cada producto lleva `*`. Escribe solo la expresión, sin «f'(x) =».
+    respuesta: "5^(sqrt(x^2 + 1))*ln(5)*x/sqrt(x^2 + 1)"
+    variables: [x]
+    verificar: { sympy: "diff(5**sqrt(x**2 + 1), x)" }
+    pistas:
+      - >-
+        ¿Cuántas capas hay, de afuera hacia adentro? ¿Qué renglón de la tabla le toca a $5^{u}$ y cuál a $\sqrt w$?
+      - >-
+        Después de derivar la capa de afuera y la del medio, ¿qué falta multiplicar?
+    explicacion: >-
+      Hay tres capas: afuera, $5^{u}$; en medio, $u=\sqrt w$; adentro, $w=x^2+1$. Afuera hay una exponencial de base fija: $(5^u)'=5^u\ln5$ (no la potencia, porque la variable está en el exponente). En medio, $(\sqrt w)'=\frac{1}{2\sqrt w}$. Adentro, $(x^2+1)'=2x$. Por la cadena, el producto de las tres, cada una evaluada en lo que tiene adentro: $f'(x)=5^{\sqrt{x^2+1}}\ln5\cdot\dfrac{1}{2\sqrt{x^2+1}}\cdot2x=\dfrac{5^{\sqrt{x^2+1}}\,x\ln5}{\sqrt{x^2+1}}$. Los errores típicos son parar en la capa del medio y perder el $2x$, o derivar $5^u$ como si fuera potencia ($u\cdot5^{u-1}$). Revisa: en $x=0$ da 0, porque ahí $\sqrt{x^2+1}$ deja de bajar y empieza a subir, y en $x=\sqrt3$, con $\sqrt{x^2+1}=2$, da $25\ln5\cdot\frac{\sqrt3}{2}\approx34.85$.
+    tiempo_estimado_s: 40
+
+  # razonamiento: algorítmico (elegir en qué fila se evalúa cada factor) · R1
+  # verificar (de experto-matematicas): f y g se modelan con el polinomio de grado 5 que tiene esos valores y
+  # esas derivadas en 1, 2 y 3, y se deriva la composición completa.
+  - id: calc-05-011
+    tipo: completar
+    dificultad: 3
+    conceptos: [regla-cadena]
+    enunciado: |-
+      De dos funciones derivables $f$ y $g$ solo conoces esta tabla:
+
+      $$
+      \begin{array}{c|cc|cc}
+      x & f(x) & f'(x) & g(x) & g'(x) \\ \hline
+      1 & 3 & -2 & 2 & 5 \\
+      2 & -1 & 4 & 3 & -1 \\
+      3 & 2 & 7 & 1 & -3
+      \end{array}
+      $$
+
+      Sean $p(x)=f(g(x))$, $m(x)=g(f(x))$ y $r(x)=[g(x)]^3$. Completa con números.
+    texto: >-
+      $p'(1)=$ ___ · $m'(3)=$ ___ · $r'(3)=$ ___
+    respuestas: ["20", "-7", "-9"]
+    verificar: { sympy: "(lambda H: (lambda f, g: [diff(f.subs(x, g), x).subs(x, 1), diff(g.subs(x, f), x).subs(x, 3), diff(g**3, x).subs(x, 3)])(H([3, -1, 2], [-2, 4, 7]), H([2, 3, 1], [5, -1, -3])))((lambda v, d: (lambda c: sum(c[i]*x**i for i in range(6)).subs(solve([sum(c[i]*a**i for i in range(6)) - v[a - 1] for a in (1, 2, 3)] + [sum(i*c[i]*a**(i - 1) for i in range(1, 6)) - d[a - 1] for a in (1, 2, 3)], c)))(symbols('c0:6'))))" }
+    pistas:
+      - >-
+        En cada función, ¿cuál es la capa de afuera y cuál la de adentro? Según la cadena, ¿dónde se evalúa la derivada de la capa de afuera: en el $x$ que te dan o en el valor de la de adentro?
+      - >-
+        ¿Qué fila de la tabla lees primero, y a qué fila te manda el valor que encontraste ahí? En $r$, ¿qué papel tiene el cubo?
+    explicacion: >-
+      Por la cadena, $p'(x)=f'(g(x))\,g'(x)$: la derivada de afuera se evalúa en lo de adentro. En $x=1$, la primera fila da $g(1)=2$ y $g'(1)=5$, y la segunda, $f'(2)=4$: $p'(1)=4\cdot5=20$. Para $m'(x)=g'(f(x))\,f'(x)$ en $x=3$: $f(3)=2$, $f'(3)=7$ y $g'(2)=-1$, así que $m'(3)=(-1)(7)=-7$. En $r=[g]^3$ la capa de afuera es el cubo: $r'(x)=3[g(x)]^2g'(x)$, y en $x=3$, $r'(3)=3\cdot1^2\cdot(-3)=-9$. Revisa: el error típico es evaluar $f'$ en el mismo $x$, $f'(1)\,g'(1)=(-2)(5)=-10$; la tabla obliga a saltar de fila.
+
+  # razonamiento: analógico (transferencia a IA: retropropagación) · R1
+  # verificar: deriva con sympy la composición completa en cada nivel (L como función de a, de z, de w y de b),
+  # no los productos de derivadas locales.
+  - id: calc-05-012
+    tipo: completar
+    dificultad: 3
+    conceptos: [regla-cadena]
+    enunciado: >-
+      Una neurona calcula $z=wx+b$, luego $a=\sigma(z)$ con la sigmoide $\sigma(z)=\dfrac{e^z}{1+e^z}$ (la de la unidad 04, con $\sigma'=\sigma(1-\sigma)$) y al final la pérdida $L=(a-1)^2$; $x$ es la entrada, $w$ el peso y $b$ el sesgo. Con $w=1$, $x=3$ y $b=-3$, la pasada hacia adelante da $z=0$, $a=0.5$ y $L=0.25$. La retropropagación va de regreso, de $L$ hacia $w$ y $b$, multiplicando derivadas locales con la cadena. Aquí $\frac{dL}{dw}$ es la derivada de $L$ respecto a $w$ con $x$ y $b$ fijos, y $\frac{dL}{db}$, respecto a $b$ con $w$ y $x$ fijos. Completa con números (entero, decimal o fracción).
+    texto: >-
+      $\frac{dL}{da}=$ ___ · $\frac{dL}{dz}=$ ___ · $\frac{dL}{dw}=$ ___ · $\frac{dL}{db}=$ ___
+    respuestas: ["-1", "-0.25", "-0.75", "-0.25"]
+    verificar: { sympy: "(lambda W, X, B, A, Z, sig: (lambda L, P: [diff((A - 1)**2, A).subs(A, sig(0)), diff((sig(Z) - 1)**2, Z).subs(Z, 0), diff(L, W).subs(P), diff(L, B).subs(P)])((sig(W*X + B) - 1)**2, {W: 1, X: 3, B: -3}))(*symbols('W X B A Z'), lambda s: exp(s)/(1 + exp(s)))" }
+    visual: { id: grafo, vertices: "w, x, b, z, a, L", aristas: "w-z, x-z, b-z, z-a, a-L", dirigido: "si" }
+    pistas:
+      - >-
+        ¿Cuál es la derivada local de cada paso: de $L$ respecto a $a$, de $a$ respecto a $z$ y de $z$ respecto a $w$ y a $b$? ¿En qué valores de la pasada hacia adelante las evalúas?
+      - >-
+        Para llegar de $L$ a $w$, ¿por qué nodos del grafo pasas? ¿Qué haces con las derivadas locales de ese camino?
+    explicacion: >-
+      De regreso, nodo por nodo. $\frac{dL}{da}=2(a-1)=2(0.5-1)=-1$. La sigmoide: $\frac{da}{dz}=\sigma(0)\left(1-\sigma(0)\right)=0.5\cdot0.5=0.25$, así que, por la cadena, $\frac{dL}{dz}=\frac{dL}{da}\cdot\frac{da}{dz}=-1\cdot0.25=-0.25$. Con $x$ y $b$ fijos, $\frac{dz}{dw}=x=3$, y $\frac{dL}{dw}=-0.25\cdot3=-0.75$. Con $w$ y $x$ fijos, $\frac{dz}{db}=1$, y $\frac{dL}{db}=-0.25$. El $\frac{dL}{dz}$ se calculó una vez y sirvió para $w$ y para $b$: por eso basta una sola pasada hacia atrás. Como $\frac{dL}{dw}<0$, subir $w$ baja la pérdida, y el descenso de gradiente lo sube. Revisa: con $w=1.01$, $z=0.03$, $a\approx0.5075$ y $L\approx0.24256$, que bajó $\approx0.0074$, casi $0.75\cdot0.01$. En la 04, los pares (valor, derivada) iban hacia adelante; aquí se va hacia atrás. En los papers verás $\frac{\partial L}{\partial w}$, la derivada parcial (*partial derivative*): la $\partial$ avisa que las demás variables quedan fijas, lo mismo que aquí se dijo con palabras.
+
+  # razonamiento: algorítmico (reescribir con las leyes de los logaritmos antes de derivar) · R1
+  # verificar: s = x + 3 > 0 (el dominio de f) como símbolo positivo, para que sympy derive ln|·| sin ramas
+  # complejas; se deriva la función original, sin separarla en logaritmos.
+  # muestreo: solo donde f existe (x > -3).
+  - id: calc-05-013
+    tipo: simbolico
+    dificultad: 3
+    conceptos: [derivacion-logaritmica]
+    enunciado: >-
+      Deriva $f(x)=\ln\left\lvert\dfrac{x^2\sqrt{x+3}}{(x-1)^4}\right\rvert$, definida para $x>-3$ con $x\neq0$ y $x\neq1$. Conviene separar con las leyes de los logaritmos antes de derivar. En la app, cada producto lleva `*`, como en `5/(3*(x - 2))`, y $\lvert u\rvert$ es `abs(u)`. Escribe solo la expresión, sin «f'(x) =».
+    respuesta: "2/x + 1/(2*(x + 3)) - 4/(x - 1)"
+    variables: [x]
+    muestreo: { desde: -2.5, hasta: 6 }
+    verificar: { sympy: "(lambda s: simplify(diff(log(Abs((s - 3)**2*sqrt(s)/(s - 4)**4)), s)).subs(s, x + 3))(Symbol('s', positive=True))" }
+    pistas:
+      - >-
+        ¿En qué se convierten el producto, el cociente, el cuadrado y la raíz dentro de un $\ln\lvert\cdot\rvert$? ¿Puedes partir el valor absoluto en un factor por cada pieza?
+      - >-
+        Ya separado, ¿qué da $(\ln\lvert g\rvert)'=\frac{g'}{g}$ en cada término? ¿Cuál de ellos no necesita valor absoluto?
+    explicacion: >-
+      Con $\lvert ab\rvert=\lvert a\rvert\lvert b\rvert$ y las leyes de los logaritmos: $f(x)=\ln(x^2)+\ln\sqrt{x+3}-\ln\left((x-1)^4\right)=2\ln\lvert x\rvert+\tfrac12\ln(x+3)-4\ln\lvert x-1\rvert$. La raíz no lleva valor absoluto porque $x+3>0$ en el dominio. Con $(\ln\lvert g\rvert)'=\frac{g'}{g}$: $f'(x)=\dfrac2x+\dfrac{1}{2(x+3)}-\dfrac{4}{x-1}$. Las barras importan: $x^2$ y $(x-1)^4$ nunca son negativos, pero $x$ y $x-1$ sí, y para $x<0$ no existe $\ln x$; con $\ln\lvert x\rvert$ la misma fórmula vale a los dos lados. Revisa: en $x=-1$, donde $x$ y $x-1$ son negativos, la fórmula da $-2+\tfrac14+2=0.25$, y el cociente de diferencias centrado de $f$ con $h=0.001$ da $\approx0.2500$.
+
+  # razonamiento: algorítmico (implícita con producto y exponencial) · R1
+  - id: calc-05-014
+    tipo: numerico
+    dificultad: 3
+    conceptos: [derivacion-implicita]
+    enunciado: >-
+      La curva $y^3+y\,e^{x-3}=2$ pasa por $(3,1)$. Calcula la pendiente $\frac{dy}{dx}$ de su recta tangente en ese punto. Escribe el decimal o la fracción.
+    respuesta: -0.25
+    tolerancia: 0
+    verificar: { sympy: "(lambda F, P: idiff(F, y, x).subs(P) if F.subs(P) == 0 else nan)(y**3 + y*exp(x - 3) - 2, {x: 3, y: 1})" }
+    pistas:
+      - >-
+        ¿Qué reglas necesitas para derivar $y\,e^{x-3}$ respecto a $x$, si $y$ depende de $x$?
+      - >-
+        Si juntas en un lado los términos que llevan $\frac{dy}{dx}$, ¿cuánto vale cada pieza en $(3,1)$?
+    explicacion: >-
+      El punto está en la curva: $1+1\cdot e^0=2$. Deriva los dos lados respecto a $x$. Por la cadena, $\frac{d}{dx}y^3=3y^2\frac{dy}{dx}$. El término $y\,e^{x-3}$ es un producto: $\frac{dy}{dx}\,e^{x-3}+y\,e^{x-3}$ (la cadena en $e^{x-3}$ da un factor 1). Queda $3y^2\frac{dy}{dx}+e^{x-3}\frac{dy}{dx}+y\,e^{x-3}=0$, así que $\frac{dy}{dx}=-\dfrac{y\,e^{x-3}}{3y^2+e^{x-3}}$. En $(3,1)$: $-\dfrac{1}{3+1}=-0.25$. Revisa: despejar $y$ pediría resolver una cúbica, pero $x$ sí se despeja: $x=3+\ln\frac{2-y^3}{y}$. Entonces $\frac{dx}{dy}=-\frac{3y^2}{2-y^3}-\frac1y$, que en $y=1$ vale $-4$, y su recíproco es $-0.25$.
+
+  # razonamiento: algorítmico (implícita general, con producto) · R1
+  # Simbólico implícito: curva polinomial y variables [x, y]; la app compara en puntos que no están sobre la
+  # curva, así que se permite simplificar pero no sustituir nada con la ecuación.
+  - id: calc-05-015
+    tipo: simbolico
+    dificultad: 3
+    conceptos: [derivacion-implicita]
+    enunciado: >-
+      Encuentra $\frac{dy}{dx}$ para la curva $x^2-xy+2y^3=4$, en términos de $x$ y $y$ y sin despejar $y$. Puedes simplificar, pero no sustituyas nada usando la ecuación de la curva: la app compara tu fórmula en puntos que no están sobre ella. En la app, $xy$ se escribe `x*y` (`xy` sería otra variable). Escribe solo la expresión, sin «dy/dx =».
+    respuesta: "(2*x - y)/(x - 6*y^2)"
+    variables: [x, y]
+    verificar: { sympy: "idiff(x**2 - x*y + 2*y**3 - 4, y, x)" }
+    pistas:
+      - >-
+        ¿Qué término es un producto de dos cosas que dependen de $x$? ¿Qué aparece al derivar $2y^3$?
+      - >-
+        Después de derivar, ¿cómo juntas en un lado los términos que llevan $\frac{dy}{dx}$ para despejarla?
+    explicacion: >-
+      Deriva cada término respecto a $x$: $(x^2)'=2x$; $(xy)'=y+x\frac{dy}{dx}$, por el producto; $(2y^3)'=6y^2\frac{dy}{dx}$, por la cadena; y $(4)'=0$. Queda $2x-y-x\frac{dy}{dx}+6y^2\frac{dy}{dx}=0$. Junta: $(6y^2-x)\frac{dy}{dx}=y-2x$, así que $\frac{dy}{dx}=\dfrac{y-2x}{6y^2-x}$, que es lo mismo que $\dfrac{2x-y}{x-6y^2}$. El error típico es escribir $(xy)'=y$ o $(xy)'=x\frac{dy}{dx}$, con un solo término. Revisa: el punto $(2,1)$ está en la curva ($4-2+2=4$), y ahí la fórmula da $\frac{4-1}{2-6}=-0.75$.
+
+  # razonamiento: deductivo (reconstruir una deducción; cada paso usa el anterior) · R2
+  - id: calc-05-016
+    tipo: ordenar
+    dificultad: 3
+    conceptos: [derivada-hiperbolica-inversa]
+    enunciado: >-
+      Ordena los pasos de la deducción de $(\operatorname{arcsenh}x)'$ por derivación implícita.
+    elementos:
+      - >-
+        Si $y=\operatorname{arcsenh}x$, entonces $\operatorname{senh}y=x$.
+      - >-
+        Se derivan los dos lados de $\operatorname{senh}y=x$ respecto a $x$: $\cosh y\cdot\frac{dy}{dx}=1$, así que $\frac{dy}{dx}=\frac{1}{\cosh y}$.
+      - >-
+        Por la identidad $\cosh^2y-\operatorname{senh}^2y=1$, el $\cosh y$ de esa fracción es $\sqrt{1+\operatorname{senh}^2y}$, con la raíz positiva porque $\cosh y>0$.
+      - >-
+        Dentro de esa raíz se sustituye $\operatorname{senh}y=x$: $\cosh y=\sqrt{1+x^2}$.
+      - >-
+        Entonces $(\operatorname{arcsenh}x)'=\dfrac{1}{\sqrt{1+x^2}}$ para todo $x$ real.
+    pistas:
+      - >-
+        ¿Qué paso no depende de ningún otro? ¿Cuál necesita ya tener una ecuación sin arcsenh para poder derivarla?
+      - >-
+        ¿Qué paso usa la fracción $\frac{1}{\cosh y}$, y cuál necesita que $\cosh y$ ya esté escrito con $\operatorname{senh}y$?
+    explicacion: >-
+      Primero se quita la inversa: $y=\operatorname{arcsenh}x$ quiere decir $\operatorname{senh}y=x$. Esa ecuación se deriva con la cadena en el lado de $y$, y queda $\frac{dy}{dx}=\frac{1}{\cosh y}$. Para escribir el resultado con $x$, la identidad da $\cosh y=\sqrt{1+\operatorname{senh}^2y}$ (sin signo que elegir, porque $\cosh$ siempre es positiva), y al sustituir $\operatorname{senh}y=x$ sale $\cosh y=\sqrt{1+x^2}$. La conclusión vale en todo $\mathbb R$. Revisa: con la forma logarítmica de la tabla, $\operatorname{arcsenh}x=\ln\left(x+\sqrt{x^2+1}\right)$, la cadena da $\dfrac{1+\frac{x}{\sqrt{x^2+1}}}{x+\sqrt{x^2+1}}=\dfrac{\frac{\sqrt{x^2+1}+x}{\sqrt{x^2+1}}}{x+\sqrt{x^2+1}}=\dfrac{1}{\sqrt{x^2+1}}$: la misma.
+
+  # razonamiento: algorítmico (producto, cadena e inversa juntas) · R1
+  - id: calc-05-017
+    tipo: simbolico
+    dificultad: 3
+    conceptos: [derivada-trig-inversa]
+    enunciado: >-
+      Deriva $f(x)=x\operatorname{arcsen}(2x)$, para $-\frac12<x<\frac12$. En la app, $\operatorname{arcsen}u$ es `arcsen(u)` o `asin(u)` (no `sen^(-1)(u)`, que la app lee como $1/\operatorname{sen}u$), $\sqrt u$ es `sqrt(u)` y cada producto lleva `*`. Escribe solo la expresión, sin «f'(x) =».
+    respuesta: "asin(2*x) + 2*x/sqrt(1 - 4*x^2)"
+    variables: [x]
+    muestreo: { desde: -0.45, hasta: 0.45 }
+    verificar: { sympy: "diff(x*asin(2*x), x)" }
+    pistas:
+      - >-
+        ¿Es un producto, una composición o las dos cosas? ¿Qué parte pide cada regla?
+      - >-
+        Al derivar $\operatorname{arcsen}(2x)$, ¿qué va dentro de la raíz y qué factor sale de la función de adentro?
+    explicacion: >-
+      Es un producto de $x$ y $\operatorname{arcsen}(2x)$: $f'(x)=1\cdot\operatorname{arcsen}(2x)+x\cdot\left(\operatorname{arcsen}(2x)\right)'$. Para el segundo factor, la cadena con $u=2x$: $\left(\operatorname{arcsen}u\right)'=\frac{1}{\sqrt{1-u^2}}\cdot u'=\frac{2}{\sqrt{1-4x^2}}$. Queda $f'(x)=\operatorname{arcsen}(2x)+\dfrac{2x}{\sqrt{1-4x^2}}$, que vale en $-\frac12<x<\frac12$, donde $\lvert2x\rvert<1$. Los errores típicos son escribir $\sqrt{1-2x^2}$ en lugar de $\sqrt{1-(2x)^2}$ y olvidar el 2 de adentro. Revisa: en $x=\frac14$ la fórmula da $\frac\pi6+\frac{0.5}{\sqrt{0.75}}\approx0.5236+0.5774=1.1010$, y el cociente de diferencias con $h=0.001$ da $\approx1.104$, muy cerca.
+
+  # razonamiento: abductivo (encontrar el primer paso con error) · R2
+  # Revisión manual (opción múltiple conceptual). Comprobado con sympy: la pendiente correcta en (2, 1) es -7/4.
+  - id: calc-05-018
+    tipo: opcion_multiple
+    dificultad: 4
+    conceptos: [derivacion-implicita]
+    enunciado: |-
+      Ana busca $\frac{dy}{dx}$ en la curva $x^2+3xy-y^2=9$ así:
+
+      1. Deriva cada término respecto a $x$: $\frac{d}{dx}(x^2)+\frac{d}{dx}(3xy)-\frac{d}{dx}(y^2)=\frac{d}{dx}(9)$.
+      2. $2x+3y-2y\frac{dy}{dx}=0$.
+      3. $2y\frac{dy}{dx}=2x+3y$.
+      4. $\frac{dy}{dx}=\dfrac{2x+3y}{2y}$.
+
+      ¿Cuál es el **primer** paso con un error, y en qué consiste? Los pasos siguientes pueden arrastrarlo.
+    opciones:
+      - >-
+        El paso 1: no se puede derivar una ecuación término por término si $y$ no está despejada.
+      - >-
+        El paso 2: $3xy$ es un producto y $y$ depende de $x$, así que su derivada es $3y+3x\frac{dy}{dx}$; falta el término $3x\frac{dy}{dx}$.
+      - >-
+        El paso 2: la derivada de $y^2$ respecto a $x$ es $2y$, sin $\frac{dy}{dx}$.
+      - >-
+        El paso 3: al pasar $2x+3y$ al otro lado de la igualdad, debía cambiar de signo.
+      - >-
+        Ninguno: los cuatro pasos están bien (con $y\neq0$).
+    correcta: 1
+    pistas:
+      - >-
+        ¿Qué te piden: el primer paso donde algo deja de ser cierto? Revisa el paso 2 término por término: si $y$ depende de $x$, ¿qué regla le toca a cada uno?
+      - >-
+        ¿Cuántos términos debe tener la derivada de $3xy$? ¿Y la de $y^2$, lleva o no $\frac{dy}{dx}$?
+      - >-
+        Revisa con un punto: $(2,1)$ está en la curva. ¿Qué pendiente da ahí la fórmula de Ana y cuál da la tuya? ¿Tienen siquiera el mismo signo?
+    explicacion: >-
+      El paso 1 está bien: si $y$ es una función derivable de $x$, los dos lados son funciones de $x$ iguales y sus derivadas también. El error está en el paso 2: $3xy$ es un producto de $3x$ y $y$, así que $\frac{d}{dx}(3xy)=3y+3x\frac{dy}{dx}$, y Ana solo escribió $3y$. Su $-2y\frac{dy}{dx}$ sí está bien (la cadena en $y^2$). Los pasos 3 y 4 son álgebra correcta sobre lo que traía el 2, pero arrastran el error. Lo correcto: $2x+3y+3x\frac{dy}{dx}-2y\frac{dy}{dx}=0$, así que $\frac{dy}{dx}=\dfrac{2x+3y}{2y-3x}$. Revisa: en $(2,1)$, que está en la curva ($4+6-1=9$), la correcta da $\frac{7}{2-6}=-1.75$ y la de Ana, $\frac72=3.5$, con el signo contrario. Despejando con la fórmula general, la rama que pasa por $(2,1)$ es $y=\frac{3x-\sqrt{13x^2-36}}{2}$, y su derivada en $x=2$ es $\frac{3-26/4}{2}=-1.75$.
+
+  # razonamiento: deductivo (de la pendiente a las dos rectas) · R2
+  - id: calc-05-019
+    tipo: completar
+    dificultad: 4
+    conceptos: [derivacion-implicita]
+    enunciado: >-
+      La curva $xy^2+x^3=10$ pasa por $(1,3)$. La recta normal a una curva en un punto es la que pasa por ese punto y es perpendicular a la recta tangente. Completa con números (entero, decimal o fracción).
+    texto: >-
+      Pendiente de la tangente en $(1,3)$: ___ · pendiente de la normal en $(1,3)$: ___ · ordenada al origen de la tangente (el valor de $y$ donde corta al eje $y$): ___
+    respuestas: ["-2", "0.5", "5"]
+    verificar: { sympy: "(lambda F, P: (lambda m: [m, -1/m, (y - m*x).subs(P)])(idiff(F, y, x).subs(P)) if F.subs(P) == 0 else [nan, nan, nan])(x*y**2 + x**3 - 10, {x: 1, y: 3})" }
+    pistas:
+      - >-
+        ¿Qué reglas pide $xy^2$ al derivar respecto a $x$? ¿Cuántos términos te da?
+      - >-
+        Si dos rectas son perpendiculares y ninguna es vertical, ¿qué relación hay entre sus pendientes?
+      - >-
+        Con la pendiente y el punto, ¿cómo escribes la tangente en la forma $y=mx+b$? ¿Cómo compruebas que pasa por $(1,3)$?
+    explicacion: >-
+      El punto está en la curva: $1\cdot9+1=10$. Deriva respecto a $x$: $xy^2$ es un producto, $(xy^2)'=y^2+x\cdot2y\frac{dy}{dx}$ (con la cadena en $y^2$), y $(x^3)'=3x^2$. Queda $y^2+2xy\frac{dy}{dx}+3x^2=0$, así que $\frac{dy}{dx}=-\dfrac{y^2+3x^2}{2xy}$. En $(1,3)$: $-\dfrac{9+3}{6}=-2$. La normal es perpendicular, así que su pendiente es $-\frac{1}{-2}=\frac12=0.5$. La tangente es $y-3=-2(x-1)$, es decir, $y=-2x+5$, que corta al eje $y$ en 5. Revisa: $(-2)(0.5)=-1$, como deben dar dos pendientes perpendiculares, y $y=-2x+5$ en $x=1$ da 3.
+
+  # razonamiento: deductivo (la inversa como ecuación implícita) · R2
+  # verificar: invierte f con solve (fórmula de Cardano), toma la rama real y la deriva; no usa 1/f'.
+  - id: calc-05-020
+    tipo: numerico
+    dificultad: 4
+    conceptos: [derivacion-implicita]
+    enunciado: >-
+      La función $f(x)=x^3+2x-1$ es creciente en todo $\mathbb R$, así que tiene inversa $f^{-1}$. Sin buscar la fórmula de $f^{-1}$, calcula $(f^{-1})'(2)$. Escribe el decimal o la fracción.
+    respuesta: 0.2
+    tolerancia: 0
+    verificar: { sympy: "[diff(s, y).subs(y, 2) for s in solve(x**3 + 2*x - 1 - y, x) if s.subs(y, 2).is_real][0]" }
+    pistas:
+      - >-
+        Si $y=f^{-1}(x)$, ¿qué ecuación sin $f^{-1}$ cumplen $x$ y $y$? Es como pasar de $y=\operatorname{arcsen}x$ a $\operatorname{sen}y=x$.
+      - >-
+        Al derivar esa ecuación respecto a $x$, ¿qué despejas? Si $x=2$, ¿en qué valor de $y$ tienes que evaluar?
+      - >-
+        ¿Qué $y$ cumple $f(y)=2$? Prueba con enteros chicos. Al final, ¿qué signo debe tener la pendiente de la inversa de una función creciente?
+    explicacion: >-
+      Sea $y=f^{-1}(x)$; entonces $f(y)=x$, es decir, $y^3+2y-1=x$. Deriva los dos lados respecto a $x$, con la cadena en el lado de $y$: $(3y^2+2)\frac{dy}{dx}=1$, así que $\frac{dy}{dx}=\dfrac{1}{3y^2+2}$. Para $x=2$ hace falta el $y$ con $f(y)=2$: $y^3+2y-1=2$, y $y=1$ sirve ($1+2-1=2$); es el único, porque $f$ es creciente. Entonces $(f^{-1})'(2)=\dfrac{1}{3+2}=\dfrac15=0.2$. Es lo mismo que $\dfrac{1}{f'(1)}$: la pendiente de la inversa es el recíproco de la de $f$ en el punto correspondiente. El error típico es evaluar en 2: $\frac{1}{f'(2)}=\frac{1}{14}$. Revisa: el punto $(1,2)$ está en la gráfica de $f$, con pendiente 5, y el $(2,1)$ en la de $f^{-1}$; reflejar en la recta $y=x$ intercambia las coordenadas e invierte la pendiente, $5\to\frac15$, y la pendiente es positiva, como debe ser.
+
+  # razonamiento: inductivo (calcular casos, conjeturar el patrón y comprobarlo) · R2
+  - id: calc-05-021
+    tipo: numerico
+    dificultad: 4
+    conceptos: [derivadas-orden-superior]
+    enunciado: >-
+      Sea $f(x)=xe^{-2x}$. Calcula $f^{(10)}(0)$, el valor en $x=0$ de la décima derivada de $f$ (el $(10)$ indica cuántas veces se deriva, no una potencia).
+    respuesta: -5120
+    tolerancia: 0
+    verificar: { sympy: "diff(x*exp(-2*x), x, 10).subs(x, 0)" }
+    pistas:
+      - >-
+        ¿Te piden la fórmula de $f^{(10)}$ o solo su valor en 0? ¿Puedes calcular primero $f'(0)$, $f''(0)$ y $f'''(0)$?
+      - >-
+        Escribe cada derivada como (un polinomio)$\cdot e^{-2x}$. ¿Qué cambia y qué se repite? ¿Qué fórmula para $f^{(n)}(0)$ da los casos que ya tienes?
+      - >-
+        ¿Cómo sabes que el patrón no es una coincidencia? Si derivas una vez más tu fórmula de $f^{(n)}(x)$, ¿obtienes la de $f^{(n+1)}(x)$?
+    explicacion: >-
+      Por el producto y la cadena: $f'(x)=(1-2x)e^{-2x}$, $f''(x)=(4x-4)e^{-2x}$ y $f'''(x)=(12-8x)e^{-2x}$. En 0: $f'(0)=1$, $f''(0)=-4$ y $f'''(0)=12$. El patrón: $f^{(n)}(x)=\left[(-2)^nx+n(-2)^{n-1}\right]e^{-2x}$, así que $f^{(n)}(0)=n(-2)^{n-1}$, que da $1$, $-4$ y $12$ para $n=1,2,3$. Se comprueba derivando una vez más: $\left(\left[(-2)^nx+n(-2)^{n-1}\right]e^{-2x}\right)'=\left[(-2)^n-2(-2)^nx-2n(-2)^{n-1}\right]e^{-2x}=\left[(-2)^{n+1}x+(n+1)(-2)^n\right]e^{-2x}$, que es la fórmula con $n+1$. Entonces $f^{(10)}(0)=10\cdot(-2)^9=10\cdot(-512)=-5120$. Revisa: el signo alterna con $n$ (positivo en $n$ impar) y $n=10$ es par, así que debe ser negativo.
+
+  # razonamiento: deductivo (demostración guiada, como en el examen) · R3
+  # Rúbrica de arquitecto-razonamiento: 4 criterios, todos obligatorios (se aprueba con ceil(0.8·4) = 4).
+  - id: calc-05-022
+    tipo: autoevaluacion
+    dificultad: 4
+    conceptos: [derivada-trig-inversa]
+    enunciado: >-
+      Deduce $(\arccos x)'$ por derivación implícita, como en el examen: plantea una ecuación sin arccos, deriva, justifica el signo de la raíz con el rango de arccos, di para qué $x$ vale y revisa tu resultado con una comprobación.
+    rubrica:
+      - >-
+        Plantea la ecuación sin arccos: si $y=\arccos x$, entonces $\cos y=x$ con $0\le y\le\pi$. Trabaja en $-1<x<1$ y dice que supone que $y$ es derivable ahí.
+      - >-
+        Deriva los dos lados respecto a $x$ con la cadena en el lado de $y$ ($-\operatorname{sen}y\cdot\frac{dy}{dx}=1$) y despeja $\frac{dy}{dx}=-\frac{1}{\operatorname{sen}y}$. Dice por qué puede dividir: si $-1<x<1$, entonces $0<y<\pi$ y $\operatorname{sen}y\neq0$.
+      - >-
+        Escribe $\operatorname{sen}y$ en términos de $x$ con $\operatorname{sen}^2y+\cos^2y=1$ y justifica el signo con el rango: como $0\le y\le\pi$, $\operatorname{sen}y\ge0$, así que $\operatorname{sen}y=\sqrt{1-x^2}$ y no $-\sqrt{1-x^2}$.
+      - >-
+        Concluye $(\arccos x)'=-\frac{1}{\sqrt{1-x^2}}$ para $-1<x<1$ y lo revisa con al menos una comprobación: el signo (arccos es decreciente), un valor (en $x=0$ da $-1$) o la identidad $\operatorname{arcsen}x+\arccos x=\frac\pi2$.
+    respuesta_modelo: >-
+      Sea $y=\arccos x$. Entonces $\cos y=x$ con $0\le y\le\pi$. Trabajo en $-1<x<1$ y supongo que $y$ es derivable ahí. Derivo los dos lados respecto a $x$, con la cadena en el lado izquierdo: $-\operatorname{sen}y\cdot\frac{dy}{dx}=1$. Si $-1<x<1$, entonces $0<y<\pi$, así que $\operatorname{sen}y\neq0$ y puedo dividir: $\frac{dy}{dx}=-\frac{1}{\operatorname{sen}y}$. De $\operatorname{sen}^2y+\cos^2y=1$ sale $\operatorname{sen}y=\pm\sqrt{1-\cos^2y}=\pm\sqrt{1-x^2}$. Como $0\le y\le\pi$, $\operatorname{sen}y\ge0$, así que $\operatorname{sen}y=\sqrt{1-x^2}$. Entonces $(\arccos x)'=-\dfrac{1}{\sqrt{1-x^2}}$ para $-1<x<1$. Compruebo: el resultado es negativo, como debe ser, porque arccos es decreciente; en $x=0$ da $-1$; y como $\operatorname{arcsen}x+\arccos x=\frac\pi2$ es constante, las dos derivadas deben sumar 0, y en efecto $\frac{1}{\sqrt{1-x^2}}-\frac{1}{\sqrt{1-x^2}}=0$.
+    pistas:
+      - >-
+        ¿Qué ecuación sin arccos cumplen $x$ y $y=\arccos x$? ¿En qué intervalo está $y$?
+      - >-
+        Al derivar los dos lados respecto a $x$, ¿qué regla usas en el lado de $y$? ¿Para qué $x$ puedes dividir entre lo que acompaña a $\frac{dy}{dx}$?
+      - >-
+        ¿Qué identidad te deja escribir $\operatorname{sen}y$ con $\cos y=x$? En el rango de $y$, ¿qué signo tiene $\operatorname{sen}y$? ¿Qué comprobación rápida harías al final?
+    explicacion: >-
+      Es la misma idea que la de $\operatorname{arcsen}x$ en la lección, con dos cambios: el rango de arccos es $[0,\pi]$, donde el seno es el que no cambia de signo, y al derivar $\cos y$ sale un signo menos. El paso que más se omite es justificar el signo de la raíz: no basta escribir $\sqrt{1-x^2}$, hay que decir que $\operatorname{sen}y\ge0$ porque $0\le y\le\pi$. También se olvida excluir $x=\pm1$: ahí $\operatorname{sen}y=0$ y la tangente es vertical. Revisa: si te salió $+\frac{1}{\sqrt{1-x^2}}$, en $x=0$ darías pendiente $+1$, pero arccos va de $\pi$ (en $x=-1$) a 0 (en $x=1$): baja, así que su pendiente debe ser negativa.
+    tarjeta: false
+
+  # razonamiento: algorítmico (derivar dos veces sin despejar y sustituir) · R2
+  # Curva cambiada respecto al esquema (x^3 + y^3 = 9) por originalidad: la familia x^3 + y^3 = c es de libro.
+  - id: calc-05-023
+    tipo: completar
+    dificultad: 5
+    conceptos: [derivacion-implicita, derivadas-orden-superior]
+    enunciado: >-
+      La curva $2x^3+y^3=10$ pasa por $(1,2)$. Calcula, en ese punto, la primera y la segunda derivada de $y$ respecto a $x$, sin despejar $y$. Escribe cada una como entero, decimal o fracción.
+    texto: >-
+      En $(1,2)$: $\frac{dy}{dx}=$ ___ y $\frac{d^2y}{dx^2}=$ ___
+    respuestas: ["-0.5", "-1.25"]
+    verificar: { sympy: "(lambda F, P: [idiff(F, y, x).subs(P), idiff(F, y, x, 2).subs(P)] if F.subs(P) == 0 else [nan, nan])(2*x**3 + y**3 - 10, {x: 1, y: 2})" }
+    pistas:
+      - >-
+        Primero $\frac{dy}{dx}$: ¿qué sale al derivar $y^3$ respecto a $x$? ¿Puedes simplificar la ecuación derivada antes de seguir?
+      - >-
+        Para la segunda, ¿te conviene derivar la ecuación que ya tiene $\frac{dy}{dx}$ o la fórmula despejada? En los dos casos, $y$ y $\frac{dy}{dx}$ dependen de $x$: ¿qué reglas te tocan en un término como $y^2\frac{dy}{dx}$?
+      - >-
+        Al sustituir el punto, ¿ya tienes el valor de $\frac{dy}{dx}$ que aparece en la segunda ecuación? ¿Cómo comprobarías tus dos valores con la rama explícita?
+    explicacion: >-
+      El punto está en la curva: $2+8=10$. Deriva una vez: $6x^2+3y^2\frac{dy}{dx}=0$, o, dividiendo entre 3, $2x^2+y^2\frac{dy}{dx}=0$. En $(1,2)$: $2+4\frac{dy}{dx}=0$, así que $\frac{dy}{dx}=-\frac12=-0.5$. Deriva otra vez la ecuación $2x^2+y^2\frac{dy}{dx}=0$: el segundo término es un producto, y $y^2$ pide la cadena, así que $4x+2y\left(\frac{dy}{dx}\right)^2+y^2\frac{d^2y}{dx^2}=0$. En $(1,2)$, con $\frac{dy}{dx}=-\frac12$: $4+2\cdot2\cdot\frac14+4\frac{d^2y}{dx^2}=0$, es decir, $5+4\frac{d^2y}{dx^2}=0$ y $\frac{d^2y}{dx^2}=-\frac54=-1.25$. El error típico es olvidar que $y$ depende de $x$ en la segunda derivada: derivar $y^2\frac{dy}{dx}$ como si $y^2$ fuera constante (o derivar $-\frac{2x^2}{y^2}$ como si $y$ lo fuera) pierde el término $2y\left(\frac{dy}{dx}\right)^2$; así sale $-1$. Revisa con la rama explícita, $y=(10-2x^3)^{1/3}$: $\frac{dy}{dx}=-2x^2(10-2x^3)^{-2/3}$ y $\frac{d^2y}{dx^2}=-4x(10-2x^3)^{-2/3}-8x^4(10-2x^3)^{-5/3}$; en $x=1$, con $10-2x^3=8$, dan $-\frac24=-0.5$ y $-1-\frac{8}{32}=-1.25$.
+
+  # razonamiento: algorítmico (ln|y| porque y(0) < 0) · R2
+  - id: calc-05-024
+    tipo: numerico
+    dificultad: 5
+    conceptos: [derivacion-logaritmica]
+    enunciado: >-
+      Sea $y=\dfrac{(x-1)^3\sqrt{x+4}}{(x^2+4)^2}$. Calcula $y'(0)$ con derivación logarítmica. Escribe la fracción o su decimal, sin redondear.
+    respuesta: 0.359375
+    tolerancia: 0
+    verificar: { sympy: "diff((x - 1)**3*sqrt(x + 4)/(x**2 + 4)**2, x).subs(x, 0)" }
+    pistas:
+      - >-
+        ¿Cuánto vale $y(0)$? ¿Puedes tomar $\ln y$ ahí, o necesitas otra cosa?
+      - >-
+        ¿En qué se convierte $\ln\lvert y\rvert$ con las leyes de los logaritmos? ¿Qué término queda por cada factor?
+      - >-
+        Después de derivar, ¿por qué tienes que multiplicar para obtener $y'$, y con qué signo? ¿Cómo comprobarías el resultado sin logaritmos?
+    explicacion: >-
+      En $x=0$, $y(0)=\dfrac{(-1)^3\cdot2}{4^2}=-\dfrac18<0$: $\ln y$ no existe ahí, pero $\ln\lvert y\rvert$ sí. Con las leyes de los logaritmos: $\ln\lvert y\rvert=3\ln\lvert x-1\rvert+\tfrac12\ln(x+4)-2\ln(x^2+4)$. Deriva con $(\ln\lvert g\rvert)'=\frac{g'}{g}$: $\dfrac{y'}{y}=\dfrac{3}{x-1}+\dfrac{1}{2(x+4)}-\dfrac{4x}{x^2+4}$. En $x=0$: $\dfrac{y'}{y}=-3+\dfrac18-0=-\dfrac{23}{8}$. Entonces $y'(0)=y(0)\cdot\left(-\dfrac{23}{8}\right)=\left(-\dfrac18\right)\left(-\dfrac{23}{8}\right)=\dfrac{23}{64}=0.359375$. El error típico es multiplicar por $\lvert y(0)\rvert=\frac18$ en lugar de $y(0)$, que da $-0.359375$. Revisa con el cociente: arriba, $N=(x-1)^3\sqrt{x+4}$ tiene $N(0)=-2$ y $N'(0)=3\cdot1\cdot2+\frac{-1}{2\cdot2}=5.75$; abajo, $D=(x^2+4)^2$ tiene $D(0)=16$ y $D'(0)=0$. Así, $y'(0)=\frac{5.75\cdot16-(-2)\cdot0}{256}=\frac{92}{256}=0.359375$.
+
+  # razonamiento: deductivo (sistema curva + condición, sin perder soluciones ni aceptar puntos singulares) · R2
+  # verificar: resuelve curva y F_x = 0 juntas y descarta donde F_y = 0; las tres soluciones son reales.
+  - id: calc-05-025
+    tipo: conjunto
+    dificultad: 5
+    conceptos: [derivacion-implicita]
+    enunciado: >-
+      ¿En qué puntos de la curva $y^3-3y=x^2$ es horizontal la recta tangente? No incluyas los puntos donde $\frac{dy}{dx}$ no está definida. Escribe cada punto aparte como `(a, b)`, sin `±`, en forma exacta y sin redondear (`sqrt(5)` y no `2.236`), y sepáralos con comas: por ejemplo, `(2, -1), (1/3, sqrt(5))`.
+    respuesta: ["(0, 0)", "(0, sqrt(3))", "(0, -sqrt(3))"]
+    verificar: { sympy: "(lambda F: {(s[x], s[y]) for s in solve([F, diff(F, x)], [x, y], dict=True) if diff(F, y).subs(s) != 0})(y**3 - 3*y - x**2)" }
+    pistas:
+      - >-
+        ¿Qué tiene que valer $\frac{dy}{dx}$ en un punto con tangente horizontal? ¿Basta con que se anule el numerador de tu fórmula, o hace falta algo más?
+      - >-
+        Con esa condición y la ecuación de la curva tienes un sistema. ¿Cuántas soluciones puede tener?
+      - >-
+        Para cada punto: ¿está sobre la curva y cuánto vale ahí el denominador? ¿Revisaste todas las soluciones de la última ecuación?
+    explicacion: >-
+      Deriva respecto a $x$: $3y^2\frac{dy}{dx}-3\frac{dy}{dx}=2x$, así que $\frac{dy}{dx}=\dfrac{2x}{3y^2-3}$, definida donde $y\neq\pm1$. Tangente horizontal quiere decir $\frac{dy}{dx}=0$: el numerador se anula ($x=0$) y el denominador no. Con $x=0$ en la curva: $y^3-3y=0$, es decir, $y(y^2-3)=0$, que da $y=0$, $y=\sqrt3$ y $y=-\sqrt3$. El denominador vale $-3$ en $y=0$ y $6$ en $y=\pm\sqrt3$: ninguno es 0. Los puntos son $(0,0)$, $(0,\sqrt3)$ y $(0,-\sqrt3)$. Los errores típicos son quedarse con $y=0$ y perder $y^2=3$, o no revisar el denominador. Revisa: donde el denominador sí se anula, $y=1$ da $x^2=-2$ (ningún punto) y $y=-1$ da $x^2=2$, los puntos $(\pm\sqrt2,-1)$, donde la tangente es vertical, no horizontal.

@@ -120,6 +120,15 @@ Brainstorm con Claude en modo plan; plan aprobado el mismo día.
   - `senx` y `senhx` son inválidos, aunque `sinx` y `cosx` pasan; faltan los alias `cosec`, `ctg` y `cotg`.
   - Con `\b` en `ALIASES` y en `/\bln\(/` (`math.ts:28-31` y `:73`), una función pegada a un número no se traduce: `2sen(x)`, `2senh(x)`, `2arcsen(x)` y `6ln(x)` salen inválidos (no cuentan como intento, pero el mensaje no sugiere el `*`). El arreglo probable es `(?<![A-Za-z_])`. Mientras tanto, la 04 pide «`*` entre un número y una función».
   - `workedExampleFor`: cuando hay empate de dificultad, preferir el ejercicio que contenga el primer concepto del fallado (propuesta de `pedagogo` en la revisión de la 04, con su prueba en `mechanics.test.ts`).
+- [ ] Propuestas de la revisión del esquema de `05-cadena-implicita` (2026-11-12):
+  - **Grave:** `sin^(-1)(x)` y `sen^(-1)(x)` se leen como $1/\operatorname{sen}x$ sin avisar (`math.ts:45` y `:72`), justo en la unidad que enseña que $\operatorname{sen}^{-1}=\operatorname{arcsen}$. Conviene rechazarlos con «¿quisiste decir arcsen(x)?». Mientras tanto, la 05 lo advierte en cada enunciado.
+  - Faltan los alias `asen`, `argsenh`, `argcosh` y `argtanh`. `ln|x|` no funciona (choca con FN_NO_PARENS); hoy se escribe `ln(abs(x))`.
+  - `parse_expr` de `verify_content.py` lee `arcsin`, `arcsen` y `arctan` como productos de letras, y `cos x^2` como $\cos(x^2)$, mientras la app lo lee como $\cos(x)^2$. Hay que alinearlo con los alias de la app.
+  - Una $y'$ implícita se compara en puntos que no están sobre la curva (`symbolic.ts:41-48`), así que una respuesta correcta simplificada con la ecuación sale como distinta. Por eso la 05 pide derivar sin simplificar y la $y''$ va en un punto. A futuro: un modo de equivalencia «sobre la curva».
+  - Que `content:check` exija `variables` en los `simbolico` que lleven `y`.
+  - En un `conjunto`, un elemento con `±` (`(0, ±sqrt(3))`) se compara como texto y se califica mal sin aviso (`sets.ts:44-51`). Conviene un error explícito: «escribe cada punto por separado». La 05 lo advierte en el enunciado.
+- [ ] Inversas de sech, csch y coth: el programa (1.3.4) no las excluye y la 05 no las cubre. arcsec, arccsc y arccot entraron solo en la tabla de la 05, con nota de convención (decisión de Carlo, 2026-11-12). Falta saber qué convención de rango usa su curso.
+- [ ] Mientras no exista la 00, el mapa de maestría marca `regla-cadena`, `derivada-trig-inversa` y `derivada-hiperbolica-inversa` como bloqueados por `composicion-funciones`, `trigonometricas-inversas` y `hiperbolicas-inversas`. Es el mismo síntoma que con la 02.
   - `parse_expr` de `verify_content.py` no conoce `sen`, `senh`, `e` ni `log10`: la `respuesta` oficial va en sintaxis de sympy (`sin`, `exp(x)`, `log(x, 10)`). Conviene alinearlo con los alias de la app.
 - [ ] Mientras no exista la 02, el mapa de maestría muestra `derivabilidad-continuidad` como bloqueado por `continuidad-punto` (`src/engine/mastery.ts:59`). Solo es visual, pero confunde durante el sprint.
 - [x] Arreglos de `01-limites` que propuso `/revisar-contenido`: Carlo los aprobó y se aplicaron el 2026-11-10 (ver bitácora).
@@ -190,7 +199,8 @@ Plan (2026-10-13, rama `fase-3-calculo-discretas`): 0) rama y registro · 1) pru
 - [ ] Cálculo: unidades 00 y 02 a 11 (la `01-limites` ya está completa como piloto de la Fase 1). Sprint del parcial, en orden 03 → 04 → 05 → 07 → 06 → 08 → 09 → 02:
   - [x] 03-derivada (2026-11-11)
   - [x] 04-reglas-derivacion (2026-11-11)
-  - [ ] 05 · [ ] 07 · [ ] 06 · [ ] 08 · [ ] 09 · [ ] 02
+  - [x] 05-cadena-implicita (2026-11-12)
+  - [ ] 07 · [ ] 06 · [ ] 08 · [ ] 09 · [ ] 02
 - [ ] Matemáticas discretas
 - [ ] Cierre formal: sesión real de ~20 min de Carlo y etiqueta `fase-3`
 
@@ -298,6 +308,42 @@ Complementan los ADR-001 a 008 de `docs/02`. Cada uno se escribe en el commit de
 **ADR-013 · Nomenclatura** (paso 1, decisión D1). Código, tablas y campos de IndexedDB en inglés, con equivalencias en `docs/02`. Las claves de YAML y del front matter siguen en español (son el formato de contenido). Los componentes MDX conservan su nombre en español porque son la API del contenido (`Predice` se implementa como `PredictPrompt`). Las URL van en español porque son interfaz. `APP_ID = 'cortex'` es inmutable (nombre de la base y marca de los respaldos); renombrar la app solo cambia `APP_NAME`. *Descartado:* todo en español (contradice `CLAUDE.md`) o una capa de traducción.
 
 ## Bitácora
+- 2026-11-12 · **Unidad `calculo/05-cadena-implicita`** (sprint del parcial; 3.2.2 a 3.2.4 más las inversas de 3.2.1).
+  - **Notación (decidió Carlo):** dy/dx en la cadena y la implícita; arcsenh, arccosh y arctanh.
+  - **Esquema:** objeción sin bloqueo de matemáticas, pedagogía y razonamiento. Integra:
+    - prueba de la cadena con φ, como bloque opcional;
+    - dominios y signos de las inversas, suponiendo derivabilidad;
+    - formato que la app sí puede calificar: dy/dx implícita solo en curvas polinomiales y sin simplificar con la ecuación; d²y/dx² en un punto; curvas implícitas como pares;
+    - una línea de sintaxis en cada simbólico;
+    - anclas de un solo concepto;
+    - retropropagación con números, tabla de (f∘g)′ y (g∘f)′, (f⁻¹)′(b) y f⁽¹⁰⁾(0) inductivo;
+    - autoevaluación de arccos.
+  - **Contenido (lo escribió `autor-contenido`):**
+    - lección de 160 líneas, unos 21–25 min;
+    - 25 ejercicios: 8 numéricos, 7 simbólicos, 4 completar, 2 de opción múltiple, 1 de selección múltiple, 1 ordenar, 1 autoevaluación y 1 conjunto. Por dificultad, 5/5/7/5/3; los 6 conceptos con 3 o más de dificultades distintas;
+    - jefe con 9 propias y 3 de repaso (calc-04-025, calc-03-024 y calc-01-019), 1260 s.
+  - **`/revisar-contenido`:**
+    - a ciegas: 24/24 y, tras los arreglos, 15/15, sin discrepancias;
+    - checklist de los tres con objeción y sin respuestas erróneas;
+    - con el sí de Carlo se aplicó:
+      - 007 → $x^{\ln x}$ en $e$ (la fórmula ingenua daba lo mismo en 1);
+      - frase falsa del 023;
+      - ejemplo de d²y/dx² implícita;
+      - lección recortada, con el esbozo como opcional;
+      - 013 ya no filtra un término de la respuesta;
+      - 025 sin `±`;
+      - notación dy/dx;
+      - en 008, $\operatorname{sen}^{-1}=\operatorname{arcsen}$ explícito;
+      - desvanecidos con el paso modelado;
+      - 010 de tres capas y 005 con cadena;
+      - regla única «cada producto lleva `*`».
+    - arcsec, arccsc y arccot entran solo en la tabla, con nota de convención (decisión de Carlo).
+  - **Evidencia:**
+    - `content:check content/calculo` en verde (99 ejercicios, 77 por código y 22 manuales);
+    - `test:content` 313/313;
+    - `real-answers` 199/199;
+    - la lección se abrió en `localhost:3000` sin errores de KaTeX.
+  - **Calendario:** con D−12 cumplido, la 05 es la última unidad que se estudia a fondo antes del parcial. Las que siguen (07, 06, 08, 09 y 02) sirven para práctica y simulacro.
 - 2026-11-11 · **Unidad `calculo/04-reglas-derivacion`** (sprint del parcial, 3.2.1 del programa, sin regla de la cadena).
   - **Esquema:** objeción sin bloqueo de `experto-matematicas`, `pedagogo` y `arquitecto-razonamiento`. Lo que entró:
     - demostraciones completas solo del producto, $e^x$ y sen;

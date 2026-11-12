@@ -1,0 +1,160 @@
+---
+titulo: "Cadena e implícita: derivar lo que va por dentro"
+materia: calculo
+unidad: 05-cadena-implicita
+duracion_min: 25
+prerrequisitos: [regla-producto-cociente, derivada-trigonometrica, derivada-exponencial-logaritmica, derivada-hiperbolica, funcion-derivada]
+conceptos: [regla-cadena, derivacion-implicita, derivada-trig-inversa, derivada-hiperbolica-inversa, derivacion-logaritmica, derivadas-orden-superior]
+programa_ref: "Cálculo, Unidad III, 3.2.2 a 3.2.4 (regla de la cadena, derivación implícita y explícita, derivadas de orden superior), más de 3.2.1 las trigonométricas e hiperbólicas inversas, diferidas de la 04; la derivación logarítmica se agrega como técnica de apoyo"
+---
+
+## El problema
+
+Supón que en un puerto la altura del agua es $h(t)=3+2\operatorname{sen}\!\left(\frac{\pi t}{6}\right)$ metros a las $t$ horas. ¿Qué tan rápido sube a la hora 1? La tabla de la 04 no alcanza: $h$ no es suma, producto ni cociente de funciones de la tabla, sino el seno **de** otra función. Esta unidad trae la regla para eso, la de la cadena, y con ella la derivación implícita, las inversas, la derivación logarítmica y las derivadas de orden superior.
+
+<Predice pregunta="Si la derivada de $f(g(x))$ fuera solo $f'(g(x))$, entonces $((x^2)^3)'$ sería $3(x^2)^2=3x^4$. Desarrolla $(x^2)^3$ y deriva con la potencia: ¿coincide? ¿Qué factor falta?" revela="$(x^6)'=6x^5=3x^4\cdot2x$. Falta $(x^2)'=2x$, la derivada de la función de adentro." />
+
+**Recordatorio:** en $f(g(x))$ primero se aplica $g$, la capa de adentro, y luego $f$, la de afuera: en $\sqrt{x^2+9}$, adentro está $g(x)=x^2+9$ y afuera, $f(u)=\sqrt u$.
+
+## La regla de la cadena
+
+Si $u$ cambia 3 veces más rápido que $x$ y $y$ cambia 2 veces más rápido que $u$, entonces $y$ cambia $2\cdot3=6$ veces más rápido que $x$: las razones de cambio se multiplican.
+
+<Concepto titulo="Regla de la cadena">
+Si $g$ es derivable en $a$ y $f$ es derivable en $g(a)$, entonces $f\circ g$ es derivable en $a$ y $(f\circ g)'(a)=f'(g(a))\,g'(a)$. Con $u=g(x)$ y $y=f(u)$:
+
+$$\frac{dy}{dx}=\frac{dy}{du}\cdot\frac{du}{dx},\qquad\text{con }\frac{dy}{du}\text{ evaluada en }u=g(x).$$
+
+**Método, de afuera hacia adentro:** deriva la capa de afuera sin tocar lo de adentro, multiplica por la derivada de lo de adentro y repite hasta llegar a $x$.
+</Concepto>
+
+<Ejemplo titulo="Una capa y tres capas">
+**La marea.** Afuera está $3+2\operatorname{sen}u$ y adentro, $u=\frac{\pi t}{6}$, con $\frac{du}{dt}=\frac\pi6$. Entonces $h'(t)=2\cos\!\left(\frac{\pi t}{6}\right)\cdot\frac\pi6=\frac\pi3\cos\!\left(\frac{\pi t}{6}\right)$ y, a la hora 1, $h'(1)=\frac\pi3\cdot\frac{\sqrt3}{2}\approx0.907$ m/h.
+
+**Tres capas.** $f(x)=\cos^3(2x^2+1)=\left[\cos(2x^2+1)\right]^3$. De afuera hacia adentro: el cubo, el coseno y el polinomio.
+
+1. El cubo: $3\cos^2(2x^2+1)$, con el coseno intacto.
+2. Por la derivada del coseno, evaluada en lo de adentro: $-\operatorname{sen}(2x^2+1)$.
+3. Por la derivada del polinomio: $4x$.
+
+Queda $f'(x)=-12x\cos^2(2x^2+1)\operatorname{sen}(2x^2+1)$.
+</Ejemplo>
+
+<Desvanecido titulo="Ahora tú: tres capas en x = 4" pasos={[
+  "Calcula la derivada de $y=\\ln\\sqrt{x^2+9}$ en $x=4$, con $y=\\ln u$, $u=\\sqrt w$ y $w=x^2+9$. En $x=4$: $w=25$ y $u=5$.",
+  "Capa de afuera: la derivada de $\\ln u$ respecto a $u$ es $\\frac1u$, que en $u=5$ vale $0.2$.",
+  "Capa del medio: la derivada de $\\sqrt w$ respecto a $w$, evaluada en $w=25$, vale ___ .",
+  "Capa de adentro: la derivada de $x^2+9$ respecto a $x$, evaluada en $x=4$, vale ___ .",
+  "Multiplica los tres valores: en $x=4$, $\\frac{dy}{dx}=$ ___ ."
+]} respuestas={["0.1", "8", "0.16"]} />
+
+**Formas generalizadas.** Con $g$ derivable:
+
+$$\left[g^n\right]'=n\,g^{n-1}g',\qquad\left(e^{g}\right)'=e^{g}g',\qquad\left(a^{g}\right)'=a^{g}\ln a\cdot g',\qquad\left(\ln\lvert g\rvert\right)'=\frac{g'}{g}.$$
+
+La primera vale sin condición si $n$ es entero positivo, pide $g\neq0$ si $n$ es entero negativo y $g>0$ si $n$ es un real cualquiera; la de $a^g$ pide $a>0$, y la última, $g\neq0$. Si además hay productos o cocientes, se combinan con las reglas de la 04.
+
+**Por qué funciona (opcional; no entra en la práctica ni en el jefe).** Con $b=g(a)$, define $\varphi(k)=\frac{f(b+k)-f(b)}{k}$ si $k\neq0$ y $\varphi(0)=f'(b)$. Así, $f(b+k)-f(b)=\varphi(k)\,k$ para todo $k$ (en $k=0$ los dos lados valen 0), y $\varphi$ es continua en 0, porque $\varphi(k)\to f'(b)=\varphi(0)$. Con $\Delta u=g(a+h)-g(a)$ y $k=\Delta u$, el cociente de diferencias de $f\circ g$ es
+
+$$\frac{f(g(a+h))-f(g(a))}{h}=\varphi(\Delta u)\cdot\frac{\Delta u}{h}.$$
+
+Cuando $h\to0$, $\Delta u\to0$ porque $g$ es continua en $a$ (unidad 03). Como $\varphi$ es continua en 0 (para eso se definió $\varphi(0)=f'(b)$), $\varphi(\Delta u)\to f'(b)$ aunque $\Delta u$ valga 0 para algunos $h$, y $\frac{\Delta u}{h}\to g'(a)$. ¿Por qué no escribir simplemente $\frac{\Delta y}{\Delta u}\cdot\frac{\Delta u}{h}$? Porque $\Delta u$ puede valer 0 con $h\neq0$ (por ejemplo, si $g$ es constante cerca de $a$), y no se puede dividir entre 0.
+
+## Derivación implícita y explícita
+
+Una curva como $y=\frac12\sqrt{8-x^2}$ está en forma **explícita**, con $y$ despejada. La ecuación $x^2+4y^2=8$ define $y$ **implícitamente**. Para derivar sin despejar, se supone que $y$ es una función derivable de $x$ y se derivan los dos lados respecto a $x$. Como $y$ es función de $x$, derivar $y^3$ es la cadena: $\frac{d}{dx}y^3=3y^2\frac{dy}{dx}$. Y $xy$ es un producto: $\frac{d}{dx}(xy)=y+x\frac{dy}{dx}$. Con $y=f(x)$, $f'(x)$, $y'$ y $\frac{dy}{dx}$ son lo mismo; en la cadena y en la implícita escribimos $\frac{dy}{dx}$ porque deja ver respecto a qué variable se deriva.
+
+<Ejemplo titulo="La tangente a una elipse">
+La elipse $x^2+4y^2=8$ pasa por $(2,1)$, porque $4+4=8$.
+
+1. Deriva los dos lados respecto a $x$: $2x+8y\frac{dy}{dx}=0$. El $8y\frac{dy}{dx}$ es la cadena en $4y^2$.
+2. Despeja: $\frac{dy}{dx}=-\frac{x}{4y}$, si $y\neq0$. En $(2,1)$: $\frac{dy}{dx}=-\frac24=-\frac12$.
+3. La tangente: $y-1=-\frac12(x-2)$, es decir, $y=-\frac12x+2$.
+4. Deriva otra vez $x+4y\frac{dy}{dx}=0$ (la ecuación del paso 1 entre 2). $4y\frac{dy}{dx}$ es un producto de dos funciones de $x$: $1+4\left(\frac{dy}{dx}\right)^2+4y\frac{d^2y}{dx^2}=0$. En $(2,1)$, con $\frac{dy}{dx}=-\frac12$: $2+4\frac{d^2y}{dx^2}=0$, así que $\frac{d^2y}{dx^2}=-\frac12$.
+
+Revisa con la forma explícita del principio, $y=\frac12\sqrt{8-x^2}$, que es la mitad de arriba de la elipse (una **rama** de la curva): la cadena da $\frac{dy}{dx}=-\frac{x}{2\sqrt{8-x^2}}$, y en $x=2$ sale $-\frac{2}{2\cdot2}=-\frac12$; y con la rama, $\frac{d^2y}{dx^2}=-\frac{4}{(8-x^2)^{3/2}}$, que en $x=2$ da $-\frac12$.
+</Ejemplo>
+
+<Desvanecido titulo="Ahora tú: sin despejar" pasos={[
+  "Calcula $\\frac{dy}{dx}$ en $(1,2)$ para la curva $x^3+xy+y^2=7$. El punto está en la curva: $1+2+4=7$. Despejar $y$ pediría la fórmula general; derivando implícitamente es más corto.",
+  "Deriva los dos lados respecto a $x$: $xy$ es un producto (da dos términos) y $y^2$ pide la cadena, como el $4y^2$ de la elipse. Sustituye $(1,2)$ en lo que salga.",
+  "Los términos que no llevan $\\frac{dy}{dx}$ suman ___ .",
+  "Los coeficientes de $\\frac{dy}{dx}$ (uno sale de $xy$ y otro de $y^2$) suman ___ .",
+  "Despeja: $\\frac{dy}{dx}=$ ___ ."
+]} respuestas={["5", "5", "-1"]} />
+
+## Inversas: trigonométricas e hiperbólicas
+
+<Ejemplo titulo="La derivada de arcsen x">
+Sea $y=\operatorname{arcsen}x$ con $-1<x<1$; entonces $\operatorname{sen}y=x$ con $-\frac\pi2<y<\frac\pi2$. Se supone que $y$ es derivable (lo garantiza el teorema de la función inversa).
+
+1. Deriva $\operatorname{sen}y=x$ respecto a $x$: $\cos y\cdot\frac{dy}{dx}=1$, así que $\frac{dy}{dx}=\frac{1}{\cos y}$.
+2. Por la identidad pitagórica, $\cos y=\pm\sqrt{1-\operatorname{sen}^2y}=\pm\sqrt{1-x^2}$. Como $-\frac\pi2<y<\frac\pi2$, $\cos y>0$: va el signo $+$.
+3. Entonces $(\operatorname{arcsen}x)'=\dfrac{1}{\sqrt{1-x^2}}$ en $(-1,1)$. En $x=\pm1$, $\cos y=0$ y la tangente es vertical.
+</Ejemplo>
+
+**Arcotangente.** De $\tan y=x$ sale $\sec^2y\cdot\frac{dy}{dx}=1$, y $\sec^2y=1+\tan^2y=1+x^2$, así que $(\arctan x)'=\frac{1}{1+x^2}$ en todo $\mathbb R$. **Arcoseno hiperbólico.** De $\operatorname{senh}y=x$ sale $\frac{dy}{dx}=\frac{1}{\cosh y}$. Por $\cosh^2y-\operatorname{senh}^2y=1$, $\cosh y=\sqrt{1+x^2}$, sin signo que elegir porque $\cosh y>0$ siempre.
+
+| $f(x)$ | $f'(x)$ | Dónde vale $f'$ | Rango de $f$ |
+|---|---|---|---|
+| $\operatorname{arcsen}x$ | $\frac{1}{\sqrt{1-x^2}}$ | $-1<x<1$ | $[-\frac\pi2,\frac\pi2]$ |
+| $\arccos x$ | $-\frac{1}{\sqrt{1-x^2}}$ | $-1<x<1$ | $[0,\pi]$ |
+| $\arctan x$ | $\frac{1}{1+x^2}$ | $\mathbb R$ | $(-\frac\pi2,\frac\pi2)$ |
+| $\operatorname{arccot}x$ | $-\frac{1}{1+x^2}$ | $\mathbb R$ | $(0,\pi)$ |
+| $\operatorname{arcsec}x$ | $\frac{1}{\lvert x\rvert\sqrt{x^2-1}}$ | $\lvert x\rvert>1$ | $[0,\frac\pi2)\cup(\frac\pi2,\pi]$ |
+| $\operatorname{arccsc}x$ | $-\frac{1}{\lvert x\rvert\sqrt{x^2-1}}$ | $\lvert x\rvert>1$ | $[-\frac\pi2,0)\cup(0,\frac\pi2]$ |
+| $\operatorname{arcsenh}x=\ln\left(x+\sqrt{x^2+1}\right)$ | $\frac{1}{\sqrt{x^2+1}}$ | $\mathbb R$ | $\mathbb R$ |
+| $\operatorname{arccosh}x=\ln\left(x+\sqrt{x^2-1}\right)$ | $\frac{1}{\sqrt{x^2-1}}$ | $x>1$ | $[0,\infty)$ |
+| $\operatorname{arctanh}x=\frac12\ln\frac{1+x}{1-x}$ | $\frac{1}{1-x^2}$ | $\lvert x\rvert<1$ | $\mathbb R$ |
+
+Para $\operatorname{arccot}x$ se usan dos convenciones de rango, pero con las dos $(\operatorname{arccot}x)'=-\frac{1}{1+x^2}$ (con rango $(0,\pi)$, en todo $\mathbb R$). En $\operatorname{arcsec}$ y $\operatorname{arccsc}$ la convención sí cambia la fórmula para $x<-1$: con rango $[0,\frac\pi2)\cup(\frac\pi2,\pi]$, $(\operatorname{arcsec}x)'=\frac{1}{\lvert x\rvert\sqrt{x^2-1}}$; con $[0,\frac\pi2)\cup[\pi,\frac{3\pi}2)$, $\frac{1}{x\sqrt{x^2-1}}$. Usa la de tu curso.
+
+## Derivación logarítmica
+
+**La potencia con $n$ real (lo que prometió la 04).** En $x>0$, $x^n=e^{n\ln x}$ y la cadena da $nx^{n-1}$. Para $x<0$, cuando $x^n$ existe ($n$ entero, o racional $\frac pq$ en forma reducida con $q$ impar), también vale.
+
+**$x^x$.** Ni la potencia ni la de $a^x$ sirven: la $x$ está en la base y en el exponente. Para $x>0$, toma $\ln$: $\ln y=x\ln x$. Deriva los dos lados (la cadena a la izquierda, el producto a la derecha): $\frac{y'}{y}=\ln x+1$, así que $(x^x)'=x^x(\ln x+1)$.
+
+**$(\ln\lvert x\rvert)'=\frac1x$ en $x\neq0$.** Para $x>0$ es la de la 04; para $x<0$, $\ln\lvert x\rvert=\ln(-x)$ y la cadena da $\frac{1}{-x}\cdot(-1)=\frac1x$.
+
+**Productos y cocientes largos.** Con $\ln\lvert y\rvert$, las leyes de los logaritmos convierten los productos en sumas y las potencias en factores, aunque $y$ sea negativa. Para $y=\dfrac{(x+2)^5}{\sqrt{x^2+1}}$: $\ln\lvert y\rvert=5\ln\lvert x+2\rvert-\frac12\ln(x^2+1)$. Al derivar, $\frac{y'}{y}=\frac{5}{x+2}-\frac{x}{x^2+1}$, así que $y'=y\left(\frac{5}{x+2}-\frac{x}{x^2+1}\right)$ (en los $x$ donde $y\neq0$, es decir, $x\neq-2$). Revisa: en $x=0$, $y=32$ y $y'=32\cdot\frac52=80$, lo mismo que con la regla del cociente.
+
+## Derivadas de orden superior
+
+La derivada de $f'$ es la **segunda derivada**, $f''$ o $\frac{d^2y}{dx^2}$; luego vienen $f'''$ y, en general, $f^{(n)}$, la $n$-ésima derivada (el paréntesis indica cuántas veces se deriva, no una potencia).
+
+- Si $s(t)$ es una posición, $s'(t)$ es la velocidad y $s''(t)$ la **aceleración, con signo**: positiva cuando la velocidad aumenta.
+- Dos patrones: las derivadas de $\operatorname{sen}x$ se repiten cada cuatro ($\cos x$, $-\operatorname{sen}x$, $-\cos x$, $\operatorname{sen}x$), y $\left(e^{kx}\right)^{(n)}=k^ne^{kx}$.
+- En una curva implícita, $\frac{d^2y}{dx^2}$ sale como en la elipse: se deriva otra vez la ecuación que ya tiene $\frac{dy}{dx}$ (con la cadena en cada $y$) y se sustituye el valor de $\frac{dy}{dx}$.
+
+## ¿Qué regla uso?
+
+A la lista de la 04 (¿suma de potencias?, ¿constante por función?, ¿producto?, ¿cociente?) súmale:
+
+5. ¿Hay una función dentro de otra? Cadena, de afuera hacia adentro.
+6. ¿No puedes (o no te conviene) despejar $y$? Implícita.
+7. ¿Está $x$ en la base y en el exponente? Logarítmica, que también ahorra trabajo en productos y cocientes largos.
+
+<Ojo>
+- **Falta la derivada de adentro.** $\left(\operatorname{sen}(5x)\right)'=5\cos(5x)$, no $\cos(5x)$.
+- **Falta el $\frac{dy}{dx}$.** Al derivar $y^2$ respecto a $x$ sale $2y\frac{dy}{dx}$, no $2y$; y $xy$ es un producto: su derivada es $y+x\frac{dy}{dx}$.
+- **$\operatorname{sen}^{-1}x=\operatorname{arcsen}x\neq\frac{1}{\operatorname{sen}x}$**, pero $\operatorname{sen}^2x=(\operatorname{sen}x)^2$. El $-1$ de arriba quiere decir inversa, no recíproca.
+- **El signo de la raíz.** En $(\operatorname{arcsen}x)'$, $\cos y=+\sqrt{1-x^2}$ porque $y$ está en $[-\frac\pi2,\frac\pi2]$: el rango decide el signo.
+- **$(x^x)'\neq x\cdot x^{x-1}$ y $(x^x)'\neq x^x\ln x$.** La primera trata el exponente como fijo y la segunda, la base. Curiosamente, su suma, $x^x+x^x\ln x$, es la correcta.
+</Ojo>
+
+**Cómo se escribe en la app:**
+- Cada función lleva su argumento entre paréntesis: `cos(x^2)` es $\cos(x^2)$, pero `cos x^2` la app lo lee como $(\cos x)^2$.
+- Pon `*` en cada producto: `2*arcsen(x)`, `x*sen(x)` y `x*y`. Sin él, la app no entiende `2arcsen(x)` ni `xsen(x)`, y lee `xy` como otra variable. `arcsen(x)` o `asin(x)`, nunca `sen^(-1)(x)`, que la app lee como $1/\operatorname{sen}x$.
+
+<Conexion materia="Inteligencia artificial">
+Entrenar una red neuronal pide la derivada de la pérdida $L$ respecto a cada peso, y la red es una composición de capas. La **retropropagación** (*backpropagation*) aplica la cadena de la salida hacia las entradas: guarda los valores de la pasada hacia adelante (*forward pass*) y, de regreso, multiplica por la derivada local de cada nodo (y suma lo que llega por cada camino). Una sola pasada hacia atrás da todas esas derivadas. Es el modo inverso (*reverse mode*) de la diferenciación automática; el de la 04 era el modo hacia adelante (*forward mode*).
+</Conexion>
+<Resumen>
+- La cadena: $\frac{dy}{dx}=\frac{dy}{du}\cdot\frac{du}{dx}$. Se deriva de afuera hacia adentro, multiplicando por la derivada de cada capa.
+- La implícita trata a $y$ como función de $x$ (cada $y$ que se deriva deja un $\frac{dy}{dx}$), y de ella salen las derivadas de las inversas, con el signo que fija el rango.
+- La logarítmica resuelve $x^x$ y los productos largos; $f''$ es la derivada de $f'$, y en una curva implícita $\frac{d^2y}{dx^2}$ sale de derivar otra vez y sustituir $\frac{dy}{dx}$.
+</Resumen>
+<Feynman>
+Explícale a un amigo por qué al derivar $y^3$ respecto a $x$ aparece $\frac{dy}{dx}$: ¿quién es la función de adentro? Luego dile por qué en $(\operatorname{arcsen}x)'$ se toma la raíz positiva.
+</Feynman>

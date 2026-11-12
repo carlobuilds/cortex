@@ -1,0 +1,17 @@
+unidad: calculo/05-cadena-implicita
+nombre: "La Matrioska Derivable"
+vidas: 3
+# Derivadas con varias reglas a la vez, como en la 04: 12 preguntas, 105 s cada una (21 min).
+tiempo_segundos: 1260
+aprobado_minimo: 0.8
+preguntas:
+  # d2: 008, 010 · d3: 011, 013, 017 · d4: 018, 019, 021 · d5: 023
+  # Sin autoevaluación, sin ordenar y sin simbólicos implícitos (la dy/dx implícita de 015 se queda en la práctica).
+  propias: [calc-05-008, calc-05-010, calc-05-011, calc-05-013, calc-05-017, calc-05-018, calc-05-019, calc-05-021, calc-05-023]
+  # 3 de 12 (25 %), elegidas a mano y que la lección no cita: derivar 5^x − 4 log₂ x (04, d2), tangentes a una
+  # parábola desde un punto que no está en ella (03, d5) y un límite al infinito (01, d3).
+  # Oleadas 3/5/4 (waveSizes(12) del motor: 30/40/30 por mayor residuo, el empate va a la más difícil), por
+  # dificultad: 1.ª = los tres d2 (008, 010 y calc-04-025); 2.ª = los cuatro d3 (011, 013, 017 y calc-01-019) y
+  # uno de los tres d4; 3.ª = los otros dos d4, 023 y calc-03-024.
+  repaso_de: [calc-04-025, calc-03-024, calc-01-019]
+recompensa: { xp: 300, insignia: "desarmador-de-capas" }
