@@ -1,0 +1,633 @@
+# Unidad 07 · Máximos, mínimos, gráficas y optimización (Unidad III, 3.5.1 a 3.5.3). Sprint del 3.er parcial.
+# Esquema revisado por experto-matematicas, pedagogo y arquitecto-razonamiento.
+# Anclas (primer ejercicio de cada concepto, workedExampleFor): 001 PC, 002 EA, 003 C1, 004 CI, 005 C2, 006 OP, 007 TG.
+# Convenciones de Carlo: «convexa (∪)» = cóncava hacia arriba y «cóncava (∩)» = cóncava hacia abajo; un número
+# crítico es siempre interior al dominio.
+# Intervalos: `completar` con los bordes en huecos y el ∞ en el texto fijo; nunca `conjunto` para intervalos.
+# `conjunto` solo para números críticos y abscisas de inflexión, en forma exacta, sin ± y con `*`.
+# En `opcion_multiple`, los `valores` de clasificación son códigos: un dígito por número crítico, de menor a mayor
+# (1 = máximo local, 2 = mínimo local, 3 = ninguno; 0 = «no se puede saber»).
+# Los textos con apóstrofo (f') van en bloques `>-`: así no hay que escapar ni comillas ni barras.
+unidad: calculo/07-maximos-minimos
+ejercicios:
+  # razonamiento: algorítmico (derivar, factorizar y no perder la raíz x = 0) · R0
+  - id: calc-07-001
+    tipo: conjunto
+    dificultad: 1
+    conceptos: [puntos-criticos]
+    enunciado: >-
+      Encuentra los números críticos de $f(x)=x^4-4x^3-8x^2+1$. Escríbelos separados por comas, como en `-5, 7`.
+    respuesta: ["-1", "0", "4"]
+    verificar: { sympy: "solveset(diff(x**4 - 4*x**3 - 8*x**2 + 1, x), x, S.Reals)" }
+    pistas:
+      - >-
+        En un polinomio, ¿hay puntos donde $f'$ no exista, o solo te queda resolver $f'(x)=0$? ¿Qué factor común tiene $f'(x)$?
+    explicacion: >-
+      Un número crítico es un $c$ interior al dominio con $f'(c)=0$ o con $f'(c)$ inexistente. Como $f$ es un polinomio, su dominio es $\mathbb R$ (todo punto es interior) y $f'$ existe en todas partes, así que basta resolver $f'(x)=0$. Por la regla de la potencia, $f'(x)=4x^3-12x^2-16x=4x(x^2-3x-4)=4x(x-4)(x+1)$, que vale 0 en $x=0$, $x=4$ y $x=-1$. El error típico es dividir entre $x$ y perder el 0. Ojo: todavía no sabemos si alguno es máximo o mínimo; para eso hace falta un criterio. Fuera de los polinomios hay una segunda vía: los puntos del dominio donde $f'$ no existe, como el 0 de $\sqrt[3]{x^2}$.
+    tiempo_estimado_s: 35
+
+  # razonamiento: algorítmico (evaluar los candidatos y comparar) · R0
+  - id: calc-07-002
+    tipo: completar
+    dificultad: 1
+    conceptos: [extremos-absolutos]
+    enunciado: >-
+      La función $f(x)=x^4-18x^2$ es continua en $[-1,4]$, y sus números críticos dentro de $(-1,4)$ son $0$ y $3$. Encuentra sus extremos absolutos en $[-1,4]$.
+    texto: >-
+      Máximo absoluto: ___ , en $x=$ ___ · mínimo absoluto: ___ , en $x=$ ___
+    respuestas: ["0", "0", "-81", "3"]
+    verificar: { sympy: "(lambda f, I: (lambda M, m: [M, list(solveset(f - M, x, I))[0], m, list(solveset(f - m, x, I))[0]])(maximum(f, x, I), minimum(f, x, I)))(x**4 - 18*x**2, Interval(-1, 4))" }
+    pistas:
+      - >-
+        Además de los números críticos, ¿qué otros valores de $x$ son candidatos en un intervalo cerrado?
+    explicacion: >-
+      Como $f$ es un polinomio, es continua en $[-1,4]$, y el teorema del valor extremo garantiza que ahí alcanza un máximo y un mínimo absolutos. El método del intervalo cerrado dice dónde buscarlos: en los números críticos de $(-1,4)$ y en los dos bordes. Los candidatos son $-1$, $0$, $3$ y $4$: $f(-1)=1-18=-17$, $f(0)=0$, $f(3)=81-162=-81$ y $f(4)=256-288=-32$. El mayor valor es $0$, en $x=0$, y el menor es $-81$, en $x=3$. El otro número crítico de $f$, $x=-3$ (porque $f'(x)=4x(x^2-9)$), no cuenta: está fuera del intervalo. No confundas el valor con el lugar: el mínimo absoluto es $-81$ y ocurre en $x=3$.
+    tiempo_estimado_s: 40
+
+  # razonamiento: deductivo (leer la tabla de signos y aplicar el criterio) · R0
+  # verificar (valores): se modela f' con un polinomio que tiene esa tabla de signos, (x + 2)(x - 1)²(x - 4), y se
+  # clasifica cada raíz por el cambio de signo; el código es un dígito por número crítico (ver la cabecera).
+  - id: calc-07-003
+    tipo: opcion_multiple
+    dificultad: 1
+    conceptos: [criterio-primera-derivada]
+    enunciado: |-
+      Una función $f$ es continua en todo $\mathbb R$, sus números críticos son $-2$, $1$ y $4$, y su derivada tiene estos signos:
+
+      $$
+      \begin{array}{c|cccc}
+      \text{intervalo} & (-\infty,-2) & (-2,1) & (1,4) & (4,\infty) \\ \hline
+      \text{signo de }f' & + & - & - & +
+      \end{array}
+      $$
+
+      ¿Qué tiene $f$ en cada número crítico?
+    opciones:
+      - >-
+        Máximo local en $-2$; ni máximo ni mínimo en $1$; mínimo local en $4$.
+      - >-
+        Máximo local en $-2$; mínimo local en $1$; mínimo local en $4$.
+      - >-
+        Mínimo local en $-2$; ni máximo ni mínimo en $1$; máximo local en $4$.
+      - >-
+        Máximo local en $-2$; máximo local en $1$; mínimo local en $4$.
+    valores: [132, 122, 231, 112]
+    correcta: 0
+    verificar: { sympy: "(lambda d, h: sum(10**(2 - i)*(1 if d.subs(x, c - h) > 0 > d.subs(x, c + h) else 2 if d.subs(x, c - h) < 0 < d.subs(x, c + h) else 3) for i, c in enumerate(sorted(solveset(d, x, S.Reals)))))((x + 2)*(x - 1)**2*(x - 4), Rational(1, 100))" }
+    pistas:
+      - >-
+        Si $f'$ es positiva antes de $c$ y negativa después, ¿$f$ sube o baja al pasar por $c$? ¿Y si el signo no cambia?
+    explicacion: >-
+      El criterio de la primera derivada, con $f$ continua en cada número crítico: si $f'$ pasa de $+$ a $-$, $f$ sube y luego baja, así que hay un máximo local; si pasa de $-$ a $+$, hay un mínimo local; si no cambia de signo, no hay extremo. En $-2$ el signo va de $+$ a $-$: máximo local. En $1$ va de $-$ a $-$: $f$ sigue bajando, así que no hay extremo aunque sea número crítico. En $4$ va de $-$ a $+$: mínimo local. Además, como $f$ es continua en $1$, los dos tramos donde baja se pegan: $f$ decrece en todo $[-2,4]$.
+    tiempo_estimado_s: 30
+
+  # razonamiento: algorítmico (f'' = 0 y cambio de signo) · R0
+  - id: calc-07-004
+    tipo: numerico
+    dificultad: 1
+    conceptos: [concavidad-inflexion]
+    enunciado: >-
+      ¿En qué abscisa ($x$) está el punto de inflexión de la cúbica $f(x)=2x^3-9x^2+4x-1$? Escribe el número (entero, decimal o fracción), sin redondear.
+    respuesta: 1.5
+    tolerancia: 0
+    verificar: { sympy: "(lambda d2: [c for c in solveset(d2, x, S.Reals) if d2.subs(x, c - Rational(1, 100))*d2.subs(x, c + Rational(1, 100)) < 0][0])(diff(2*x**3 - 9*x**2 + 4*x - 1, x, 2))" }
+    pistas:
+      - >-
+        ¿Qué derivada te dice la concavidad? ¿Dónde se anula y cambia de signo?
+    explicacion: >-
+      La concavidad la da el signo de $f''$. Por la potencia, $f'(x)=6x^2-18x+4$ y $f''(x)=12x-18$, que vale 0 en $x=1.5$. Además cambia de signo ahí: si $x<1.5$, $f''<0$ y $f$ es cóncava (∩); si $x>1.5$, $f''>0$ y $f$ es convexa (∪). Como $f$ es continua y la concavidad cambia, el punto de inflexión es $(1.5,f(1.5))$, y su abscisa es $1.5=\frac32$. En toda cúbica $ax^3+bx^2+cx+d$, $f''(x)=6ax+2b$ es una recta que cruza el 0 una sola vez, en $x=-\frac{b}{3a}$: aquí, $\frac{9}{6}=1.5$.
+    tiempo_estimado_s: 30
+
+  # razonamiento: deductivo (aplicar el criterio y reconocer cuándo no decide) · R0
+  # Revisión manual: «no decide» es una afirmación sobre el criterio, no un valor que se pueda calcular. Comprobado
+  # con sympy: con f'(2) = f''(2) = 0, (x - 2)^4 tiene mínimo, -(x - 2)^4 máximo y (x - 2)^3 ninguno.
+  - id: calc-07-005
+    tipo: opcion_multiple
+    dificultad: 1
+    conceptos: [criterio-segunda-derivada]
+    enunciado: >-
+      De una función $f$ que tiene segunda derivada en todo $\mathbb R$ sabes que $f'(-1)=0$ con $f''(-1)=4$, y que $f'(2)=0$ con $f''(2)=0$. Según el criterio de la segunda derivada, ¿qué puedes concluir?
+    opciones:
+      - >-
+        Mínimo local en $-1$; en $2$, el criterio no decide.
+      - >-
+        Máximo local en $-1$; en $2$, el criterio no decide.
+      - >-
+        Mínimo local en $-1$; en $2$ no hay ni máximo ni mínimo, porque $f''(2)=0$.
+      - >-
+        Máximo local en $-1$; en $2$ hay un punto de inflexión, porque $f''(2)=0$.
+    correcta: 0
+    pistas:
+      - >-
+        Si $f''(c)>0$, ¿$f'$ va de $-$ a $+$ o de $+$ a $-$ al pasar por $c$? Y si $f''(c)=0$, ¿conoces funciones con mínimo, con máximo y sin extremo que tengan $f'=f''=0$ en el mismo punto?
+    explicacion: >-
+      El criterio: si $f'(c)=0$ y $f''(c)>0$, $f'$ crece al pasar por $c$, así que va de $-$ a $+$ y hay un mínimo local; si $f''(c)<0$, va de $+$ a $-$ y hay un máximo local; si $f''(c)=0$, no decide. En $-1$, $f''(-1)=4>0$: mínimo local. En $2$, $f''(2)=0$: el criterio no dice nada, ni que no haya extremo ni que haya inflexión. Con $f'=f''=0$ en el mismo punto pasa de todo: $(x-2)^4$ tiene un mínimo en 2, $-(x-2)^4$ un máximo y $(x-2)^3$, ninguno (y $(x-2)^4$ tampoco tiene inflexión ahí). Para decidir en 2 hace falta el criterio de la primera derivada.
+    tiempo_estimado_s: 30
+
+  # razonamiento: algorítmico (traducir el texto a una función de una variable) · R1
+  # muestreo: dentro del dominio, 0 < x < 10. verificar: despeja el largo de la condición de la malla y lo sustituye.
+  - id: calc-07-006
+    tipo: simbolico
+    dificultad: 2
+    conceptos: [optimizacion]
+    enunciado: >-
+      Supón que una escuela va a hacer una huerta rectangular pegada a una de sus paredes; ese lado no lleva malla. Dos tramos de malla perpendiculares a la pared dividen la huerta en 3 parcelas iguales. Hay 40 m de malla y se usan todos: en los otros tres lados y en las dos divisiones. Llama $x$ a la profundidad de la huerta, en m: lo que mide cada uno de los dos lados perpendiculares a la pared, igual que cada división. Escribe el área total de la huerta, en m², como función de $x$. En la app, cada producto lleva `*`, como en `3*x*sqrt(x + 1)`. Escribe solo la expresión, sin «A(x) =».
+    respuesta: "x*(40 - 4*x)"
+    variables: [x]
+    muestreo: { desde: 0.5, hasta: 9.5 }
+    verificar: { sympy: "(lambda w: x*solve(2*x + 2*x + w - 40, w)[0])(Symbol('w'))" }
+    pistas:
+      - >-
+        ¿Cuántos tramos de malla de largo $x$ hay, contando los dos lados y las divisiones? ¿Cuánta malla queda para el lado paralelo a la pared?
+    explicacion: >-
+      **Entiende.** Se pide el área como función de $x$ (el primer paso para maximizarla). **Modela.** Si $y$ es el largo, el lado paralelo a la pared, el área es $A=xy$. La malla se reparte en 4 piezas de largo $x$ (los dos lados y las dos divisiones) y una de largo $y$: $4x+y=40$, así que $y=40-4x$ y $A(x)=x(40-4x)=40x-4x^2$. **Dominio.** Las dos medidas deben ser positivas: $x>0$ y $40-4x>0$, es decir, $0<x<10$. **Candidatos.** $A'(x)=40-8x$ existe en todo el dominio y vale 0 en $x=5$. **Justifica el global.** $A''(x)=-8<0$ en todo $(0,10)$: $A$ es cóncava (∩) en todo el dominio, así que el máximo local en 5 es global (también sirve que $A'>0$ antes de 5 y $A'<0$ después). **Responde.** Con $x=5$ m, el largo es $y=20$ m y el área máxima es $A(5)=100$ m². El error típico es contar solo las dos piezas de los lados y olvidar las divisiones: así sale $x(40-2x)$.
+    tiempo_estimado_s: 40
+
+  # razonamiento: deductivo (juntar dos tablas en una descripción de la gráfica) · R1
+  # verificar: clasifica con el cambio de signo de f' y f'' calculadas por sympy, no con las tablas del enunciado.
+  - id: calc-07-007
+    tipo: completar
+    dificultad: 2
+    conceptos: [trazado-graficas]
+    enunciado: |-
+      Para $f(x)=x^3+6x^2+9x+1$ ya se calcularon $f'(x)=3(x+3)(x+1)$ y $f''(x)=6(x+2)$, con estas tablas de signos:
+
+      $$
+      \begin{array}{c|ccc}
+      \text{intervalo} & (-\infty,-3) & (-3,-1) & (-1,\infty) \\ \hline
+      \text{signo de }f' & + & - & +
+      \end{array}
+      \qquad
+      \begin{array}{c|cc}
+      \text{intervalo} & (-\infty,-2) & (-2,\infty) \\ \hline
+      \text{signo de }f'' & - & +
+      \end{array}
+      $$
+
+      Usa las dos tablas para completar.
+    texto: >-
+      Valor del máximo local: ___ · valor del mínimo local: ___ · abscisa ($x$) del punto de inflexión: ___
+    respuestas: ["1", "-3", "-2"]
+    verificar: { sympy: "(lambda f, h: (lambda d, d2: [f.subs(x, [c for c in solveset(d, x, S.Reals) if d.subs(x, c - h) > 0 > d.subs(x, c + h)][0]), f.subs(x, [c for c in solveset(d, x, S.Reals) if d.subs(x, c - h) < 0 < d.subs(x, c + h)][0]), [c for c in solveset(d2, x, S.Reals) if d2.subs(x, c - h)*d2.subs(x, c + h) < 0][0]])(diff(f, x), diff(f, x, 2)))(x**3 + 6*x**2 + 9*x + 1, Rational(1, 100))" }
+    pistas:
+      - >-
+        ¿En qué número crítico pasa $f'$ de $+$ a $-$, y en cuál de $-$ a $+$? Ya con eso, ¿te piden el $x$ o el valor $f(x)$?
+    explicacion: >-
+      De la tabla de $f'$: $f$ crece en $(-\infty,-3]$, decrece en $[-3,-1]$ y crece en $[-1,\infty)$. Por el criterio de la primera derivada ($f$ es continua), hay un máximo local en $x=-3$, que vale $f(-3)=-27+54-27+1=1$, y un mínimo local en $x=-1$, que vale $f(-1)=-1+6-9+1=-3$. De la tabla de $f''$: $f$ es cóncava (∩) en $(-\infty,-2]$ y convexa (∪) en $[-2,\infty)$; la concavidad cambia en $x=-2$, así que el punto de inflexión es $(-2,f(-2))=(-2,-1)$. La gráfica entera: viene de $-\infty$ subiendo (es una cúbica con coeficiente principal positivo), llega con forma ∩ a la cima $(-3,1)$, baja pasando por la inflexión $(-2,-1)$, donde cambia a ∪, toca fondo en $(-1,-3)$ y sube sin límite, cortando al eje $y$ en $(0,1)$. El error típico es responder los $x$ de los extremos ($-3$ y $-1$) en lugar de sus valores.
+    tiempo_estimado_s: 40
+
+  # razonamiento: algorítmico (tabla de signos de f') · R1
+  # verificar: los intervalos salen de solveset(f' < 0) y solveset(f' > 0), no de las raíces de f'.
+  - id: calc-07-008
+    tipo: completar
+    dificultad: 2
+    conceptos: [criterio-primera-derivada]
+    enunciado: >-
+      Encuentra dónde crece y dónde decrece $f(x)=-2x^3+3x^2+36x$. Escribe solo los bordes de cada intervalo; los infinitos ya están escritos.
+    texto: >-
+      $f$ decrece en $(-\infty,$ ___ $]$, crece en $[$ ___ $,$ ___ $]$ y decrece en $[$ ___ $,\infty)$.
+    respuestas: ["-2", "-2", "3", "3"]
+    verificar: { sympy: "(lambda d: (lambda dec, inc: [dec.args[0].end, inc.start, inc.end, dec.args[1].start])(solveset(d < 0, x, S.Reals), solveset(d > 0, x, S.Reals)))(diff(-2*x**3 + 3*x**2 + 36*x, x))" }
+    pistas:
+      - >-
+        ¿Dónde se anula $f'(x)=-6x^2+6x+36$? Con un punto de prueba en cada tramo, ¿qué signo tiene $f'$?
+    explicacion: >-
+      $f'(x)=-6x^2+6x+36=-6(x^2-x-6)=-6(x-3)(x+2)$ existe siempre y se anula en $-2$ y en $3$, que parten la recta en tres tramos. Puntos de prueba: $f'(-3)=-54-18+36=-36<0$, $f'(0)=36>0$ y $f'(4)=-96+24+36=-36<0$. Entonces $f$ decrece en $(-\infty,-2]$, crece en $[-2,3]$ y decrece en $[3,\infty)$. Los bordes van cerrados porque $f$ es continua en $-2$ y en $3$ (abiertos también sería correcto). Con coeficiente principal negativo, la cúbica viene de $+\infty$ bajando: por eso el primer tramo decrece, al revés de $x^3$.
+    tiempo_estimado_s: 40
+
+  # razonamiento: espacial (leer los signos de f' y f'' en la gráfica de f) · R1
+  - id: calc-07-009
+    tipo: seleccion_multiple
+    dificultad: 2
+    conceptos: [trazado-graficas]
+    visual: { id: grafica, f: "-x^3 + 6*x^2 - 5", dominio: "-1.5, 5.5" }
+    enunciado: >-
+      La gráfica es la de $f(x)=-x^3+6x^2-5$. Sin hacer cuentas largas, ¿cuáles de estas afirmaciones son ciertas? Puede haber varias.
+    opciones:
+      - >-
+        $f'>0$ en $(0,4)$
+      - >-
+        $f'<0$ en $(4,5)$
+      - >-
+        $f''>0$ en $(3,5)$
+      - >-
+        $f''<0$ en $(-1,1)$
+      - >-
+        $f''(4)<0$
+      - >-
+        $f'(2)=0$
+    correctas: [0, 1, 4]
+    verificar: { sympy: "(lambda f: (lambda d1, d2: [Interval.open(0, 4).is_subset(solveset(d1 > 0, x, S.Reals)), Interval.open(4, 5).is_subset(solveset(d1 < 0, x, S.Reals)), Interval.open(3, 5).is_subset(solveset(d2 > 0, x, S.Reals)), Interval.open(-1, 1).is_subset(solveset(d2 < 0, x, S.Reals)), d2.subs(x, 4) < 0, Eq(d1.subs(x, 2), 0)])(diff(f, x), diff(f, x, 2)))(-x**3 + 6*x**2 - 5)" }
+    pistas:
+      - >-
+        Donde la curva sube, ¿qué signo tiene $f'$? Donde tiene forma ∪, ¿qué signo tiene $f''$? ¿Dónde cambia la forma de ∪ a ∩?
+    explicacion: >-
+      Donde la curva sube, $f'>0$; donde baja, $f'<0$; donde tiene forma ∪ (convexa), $f''>0$; donde tiene forma ∩ (cóncava), $f''<0$. En la gráfica, $f$ baja hasta el mínimo en $x=0$, sube hasta el máximo en $x=4$ y vuelve a bajar; la forma es ∪ a la izquierda de $x=2$ y ∩ a la derecha. Entonces: $f'>0$ en $(0,4)$, cierta; $f'<0$ en $(4,5)$, cierta; $f''>0$ en $(3,5)$, falsa (ahí es ∩); $f''<0$ en $(-1,1)$, falsa (ahí es ∪); $f''(4)<0$, cierta (el máximo está en el tramo ∩); $f'(2)=0$, falsa: en $x=2$ está la inflexión, donde la curva sube con su mayor pendiente, no un extremo. Con fórmulas: $f'(x)=-3x^2+12x=-3x(x-4)$, que da $f'(2)=12$, y $f''(x)=-6x+12$, que da $f''(4)=-12$.
+    tiempo_estimado_s: 40
+
+  # razonamiento: algorítmico (candidatos con esquinas: f' no existe donde se anula lo de adentro) · R1
+  # verificar: candidatos explícitos (maximum y minimum no sirven con Abs): ceros de g' y de g en (-2, 5), más los bordes.
+  - id: calc-07-010
+    tipo: completar
+    dificultad: 2
+    conceptos: [extremos-absolutos]
+    enunciado: >-
+      Encuentra los extremos absolutos de $f(x)=\lvert x^2-2x-3\rvert$ en $[-2,5]$.
+    texto: >-
+      Máximo absoluto: ___ , en $x=$ ___ · mínimo absoluto: ___ · valor del máximo local que está en $x=1$: ___
+    respuestas: ["12", "5", "0", "4"]
+    verificar: { sympy: "(lambda g, a, b: (lambda C: (lambda V: [max(V), [c for c in C if Abs(g).subs(x, c) == max(V)][0], min(V), Abs(g).subs(x, 1)])([Abs(g).subs(x, c) for c in C]))(sorted(set(solveset(diff(g, x), x, Interval.open(a, b))) | set(solveset(g, x, Interval.open(a, b))) | {a, b})))(x**2 - 2*x - 3, -2, 5)" }
+    pistas:
+      - >-
+        ¿Cuáles son los candidatos: dónde $f'=0$, dónde $f'$ no existe y qué más? ¿En qué puntos vale 0 lo que está dentro del valor absoluto?
+    explicacion: >-
+      $f$ es continua en $[-2,5]$, así que el teorema del valor extremo garantiza máximo y mínimo. Con $g(x)=x^2-2x-3=(x-3)(x+1)$, $f=\lvert g\rvert$. Donde $g\neq0$, $f'=\pm g'=\pm(2x-2)$, que se anula en $x=1$. Donde $g$ cambia de signo, en $x=-1$ y en $x=3$, la gráfica tiene esquinas y $f'$ no existe: también son números críticos. Los candidatos son $-2$, $-1$, $1$, $3$ y $5$, con $f(-2)=5$, $f(-1)=0$, $f(1)=\lvert-4\rvert=4$, $f(3)=0$ y $f(5)=12$. El máximo absoluto es $12$, en el borde $x=5$; el mínimo absoluto es $0$, en $x=-1$ y en $x=3$. El máximo local en $x=1$ vale $4$ y pierde contra los dos bordes. Los errores típicos son olvidar las esquinas (aunque aquí el 0 se adivina, porque un valor absoluto nunca es negativo) o quedarse con el 4 sin evaluar los bordes.
+    tiempo_estimado_s: 40
+
+  # razonamiento: abductivo (el criterio no decide: elegir otro y justificarlo) · R1
+  # verificar (valores): sympy clasifica x = 0 por el cambio de signo de f' (código 1 = máximo local). Comprobado
+  # también: mínimo local en 4, con f(4) = -256, e inflexión única en (3, -162); en 0, f'' = 20x²(x - 3) no cambia de signo.
+  - id: calc-07-011
+    tipo: opcion_multiple
+    dificultad: 3
+    conceptos: [criterio-segunda-derivada]
+    enunciado: >-
+      Sea $f(x)=x^4(x-5)=x^5-5x^4$. Comprueba que $f'(0)=0$ y que $f''(0)=0$. ¿Qué tiene $f$ en $x=0$?
+    opciones:
+      - >-
+        Un máximo local: el criterio de la segunda derivada no decide, pero $f'$ pasa de $+$ a $-$ en 0.
+      - >-
+        Un punto de inflexión y ningún extremo, porque $f''(0)=0$.
+      - >-
+        Un mínimo local, porque $x^4\ge0$.
+      - >-
+        No se puede saber: cuando $f''(0)=0$, ningún criterio decide.
+    valores: [1, 3, 2, 0]
+    correcta: 0
+    verificar: { sympy: "(lambda d, h: 1 if d.subs(x, -h) > 0 > d.subs(x, h) else 2 if d.subs(x, -h) < 0 < d.subs(x, h) else 3)(diff(x**4*(x - 5), x), Rational(1, 100))" }
+    pistas:
+      - >-
+        Si $f''(0)=0$, ¿qué te dice el criterio de la segunda derivada? ¿Qué otro criterio te queda?
+      - >-
+        Si factorizas $f'(x)$, ¿qué signo tiene un poco a la izquierda de 0 y un poco a la derecha?
+    explicacion: >-
+      $f'(x)=5x^4-20x^3=5x^3(x-4)$ y $f''(x)=20x^3-60x^2=20x^2(x-3)$: las dos valen 0 en $x=0$, así que el criterio de la segunda derivada no decide (lo cual no quiere decir que no haya extremo). Queda el de la primera, y $f$ es continua: para $x$ un poco menor que 0, $x^3<0$ y $x-4<0$, así que $f'>0$; para $0<x<4$, $x^3>0$ y $x-4<0$, así que $f'<0$. $f'$ pasa de $+$ a $-$: hay un máximo local en $x=0$, con $f(0)=0$. Tiene sentido: cerca de 0, $x^4\ge0$ y $x-5<0$, así que $f(x)\le0=f(0)$. Tampoco hay inflexión en 0: $f''=20x^2(x-3)$ es negativa a los dos lados (la concavidad no cambia); la única inflexión está en $(3,-162)$. Después del máximo, $f$ baja hasta un mínimo local en $x=4$, con $f(4)=-256$. Revisa: $f(-0.1)=0.0001\cdot(-5.1)=-0.00051$ y $f(0.1)=0.0001\cdot(-4.9)=-0.00049$, los dos menores que $f(0)=0$.
+    tiempo_estimado_s: 120
+
+  # razonamiento: espacial (leer la gráfica de g' para concluir sobre g) · R2
+  # verificar (de experto-matematicas): g es una antiderivada de f; se comprueba cada afirmación sobre g directamente.
+  # x^3 - 3x + 2 es la forma desarrollada de (x + 2)(x - 1)^2 (comprobado con expand).
+  - id: calc-07-012
+    tipo: seleccion_multiple
+    dificultad: 3
+    conceptos: [criterio-primera-derivada, trazado-graficas]
+    visual: { id: grafica, f: "x^3 - 3*x + 2", dominio: "-3, 2.5" }
+    enunciado: >-
+      La gráfica muestra $f$, la derivada de una función $g$ derivable en todo $\mathbb R$ ($f=g'$). ¿Cuáles de estas afirmaciones sobre $g$ son ciertas? Puede haber varias.
+    opciones:
+      - >-
+        $g$ tiene un mínimo local en $x=-2$.
+      - >-
+        $g$ tiene un máximo local en $x=1$.
+      - >-
+        $g$ crece en $(-2,\infty)$.
+      - >-
+        $g$ es cóncava (∩) en $(-1,1)$.
+      - >-
+        $g$ tiene un punto de inflexión en $x=-2$.
+    correctas: [0, 2, 3]
+    verificar: { sympy: "(lambda g, h, I: [g.subs(x, -2) < min(g.subs(x, -2 - h), g.subs(x, -2 + h)), g.subs(x, 1) > max(g.subs(x, 1 - h), g.subs(x, 1 + h)), I.is_subset(solveset(diff(g, x) >= 0, x, S.Reals)) and solveset(diff(g, x), x, I).is_FiniteSet, is_convex(-g, x, domain=Interval.open(-1, 1)), diff(g, x, 2).subs(x, -2 - h)*diff(g, x, 2).subs(x, -2 + h) < 0])(integrate((x + 2)*(x - 1)**2, x), Rational(1, 100), Interval.open(-2, oo))" }
+    pistas:
+      - >-
+        En la gráfica de $f=g'$, ¿dónde está la curva arriba del eje y dónde abajo? ¿Qué te dice eso de $g$? ¿Y si la curva toca el eje sin cruzarlo?
+      - >-
+        La concavidad de $g$ la da $g''=f'$: ¿dónde sube la curva dibujada y dónde baja? Para que $g$ tenga una inflexión, ¿qué tiene que hacer $f$ en ese punto?
+    explicacion: >-
+      Aquí la gráfica es la de $g'$, no la de $g$: la altura de la curva es el signo de $g'$, y su pendiente es $g''$. $f(x)=x^3-3x+2=(x+2)(x-1)^2$ corta el eje en $-2$ y lo toca sin cruzarlo en $1$. Para $x<-2$, $f<0$; para $x>-2$, $f>0$ (salvo en $x=1$, donde vale 0). Entonces $g'$ pasa de $-$ a $+$ en $-2$: mínimo local de $g$, cierta. En $1$, $g'=0$ pero no cambia de signo: no hay extremo, falsa. En $(-2,\infty)$, $g'>0$ salvo en el cero aislado $x=1$, que no rompe la monotonía: $g$ crece ahí, cierta. La concavidad de $g$ la da $g''(x)=f'(x)=3x^2-3$, negativa en $(-1,1)$ (ahí la curva dibujada baja): $g$ es cóncava (∩) en $(-1,1)$, cierta. Una inflexión de $g$ pide que $g''=f'$ cambie de signo, es decir, que $f$ tenga un máximo o un mínimo; en $-2$, $f$ solo cruza el eje subiendo ($f'(-2)=9$), así que no hay inflexión, falsa. Las inflexiones de $g$ están en $-1$ y en $1$. Revisa: con $g(x)=\frac{x^4}{4}-\frac{3x^2}{2}+2x$ (una antiderivada de $f$), $g(-3)=0.75$, $g(-2)=-6$ y $g(0)=0$; el $-6$ es el menor de los tres, como pide un mínimo en $-2$.
+    tiempo_estimado_s: 120
+
+  # razonamiento: algorítmico (las dos vías: f' = 0 y f' sin definir) · R1
+  # verificar (de experto-matematicas): ceros del numerador y del denominador de f', solo los que están en el dominio.
+  - id: calc-07-013
+    tipo: conjunto
+    dificultad: 3
+    conceptos: [puntos-criticos]
+    enunciado: >-
+      Encuentra los números críticos de $f(x)=\sqrt[3]{x}\,(x-4)$, definida en todo $\mathbb R$ (la raíz cúbica de un número negativo existe). Escríbelos separados por comas, como en `-5, 7`.
+    respuesta: ["0", "1"]
+    verificar: { sympy: "(lambda f, d: {c for c in solveset(numer(d), x, S.Reals) | solveset(denom(d), x, S.Reals) if f.subs(x, c).is_real})(real_root(x, 3)*(x - 4), together(diff(x**Rational(1, 3)*(x - 4), x)))" }
+    pistas:
+      - >-
+        ¿Qué forma de $f$ es más cómoda para derivar: el producto, o desarrollada como $x^{4/3}-4x^{1/3}$?
+      - >-
+        ¿Dónde vale 0 tu $f'$? ¿Hay algún punto del dominio donde $f'$ no exista?
+    explicacion: >-
+      Desarrollada, $f(x)=x^{4/3}-4x^{1/3}$. Por la potencia, para $x\neq0$: $f'(x)=\frac43x^{1/3}-\frac43x^{-2/3}=\dfrac{4(x-1)}{3\sqrt[3]{x^2}}$ (se multiplica arriba y abajo por $x^{2/3}$). Primera vía: $f'(x)=0$ cuando $x=1$. Segunda vía: en $x=0$ el denominador se anula y $f'(0)$ no existe, pero $f(0)=0$ sí existe y 0 es interior al dominio, así que también es crítico. Los números críticos son $0$ y $1$. El error típico es quedarse con la primera vía. Revisa: el cociente de diferencias en 0 es $\frac{f(h)-f(0)}{h}=\frac{\sqrt[3]{h}\,(h-4)}{h}=\frac{h-4}{\sqrt[3]{h^2}}$, que tiende a $-\infty$ cuando $h\to0$: $f'(0)$ no existe (la tangente es vertical). Ser crítico no es ser extremo: $f'<0$ a los dos lados de 0, así que $f$ decrece en todo $(-\infty,1]$; solo 1 es extremo, un mínimo local con $f(1)=-3$.
+    tiempo_estimado_s: 120
+
+  # razonamiento: algorítmico (modelar con dos precios y minimizar) · R1
+  # Comprobación del hueco C(5) (con x = 5, y = 40): el modelo correcto da 10000 y los erróneos típicos dan otro
+  # número: todo a 100 pesos, 9000; sin el lado de atrás, 9500; la reja en un lado de largo y, 17000; un solo lado y, 6000.
+  - id: calc-07-014
+    tipo: completar
+    dificultad: 3
+    conceptos: [optimizacion]
+    enunciado: >-
+      Supón que vas a cercar los cuatro lados de un patio rectangular de 200 m² junto a un taller. El frente, que da a la calle, lleva reja de 300 pesos por metro; los otros tres lados llevan malla de 100 pesos por metro. Llama $x$ al largo del frente, en m, y $C(x)$ al costo total de la cerca, en pesos. Completa con números; escribe los pesos sin separador de miles, como en `12500`.
+    texto: >-
+      Con tu modelo, $C(5)=$ ___ pesos · el dominio es $x>$ ___ · el único candidato es $x=$ ___ m · el costo mínimo es ___ pesos
+    respuestas: ["10000", "0", "10", "8000"]
+    verificar: { sympy: "(lambda C, D: [C.subs(x, 5), D.inf, list(solveset(diff(C, x), x, D))[0], C.subs(x, list(solveset(diff(C, x), x, D))[0])])((lambda y: 300*x + 100*x + 2*100*y)(200/x), solveset(200/x > 0, x, S.Reals))" }
+    pistas:
+      - >-
+        ¿Qué se minimiza, y qué condición amarra el frente con la profundidad? ¿Cuántos metros de cada material hay?
+      - >-
+        Con $C$ ya en función de $x$, ¿qué valores de $x$ tienen sentido? ¿Dónde se anula $C'$ dentro de ese dominio, y cómo sabes que ahí está el mínimo de todo el dominio?
+    explicacion: >-
+      **Entiende.** Minimizar el costo; se piden el candidato y el costo mínimo. **Modela.** Con $y$ la profundidad del patio, $xy=200$, así que $y=\frac{200}{x}$. El frente cuesta $300x$; el lado de atrás, $100x$, y los dos laterales, $100\cdot2y$. Entonces $C(x)=400x+\frac{40000}{x}$, y $C(5)=2000+8000=10000$. **Dominio.** $x>0$ (y entonces $y>0$): abierto y no acotado. **Candidatos.** $C'(x)=400-\frac{40000}{x^2}$ existe en todo el dominio y vale 0 si $x^2=100$, es decir, $x=10$ ($-10$ queda fuera). **Justifica el global.** $C''(x)=\frac{80000}{x^3}>0$ en todo $x>0$: $C$ es convexa (∪) en todo el dominio, así que el mínimo en 10 es global. **Responde.** Frente de 10 m y profundidad de 20 m, con costo mínimo $C(10)=4000+4000=8000$ pesos. Revisa: si tu $C(5)$ no dio 10000, tu modelo tiene un error; por ejemplo, con todo a 100 pesos sale 9000, y sin el lado de atrás, 9500. Además, $C(8)=3200+5000=8200$ y $C(12)=4800+3333.3\approx8133$ quedan arriba de 8000.
+    tiempo_estimado_s: 210
+
+  # razonamiento: algorítmico (segunda derivada de un cociente y cambio de signo) · R1
+  # verificar (de experto-matematicas): ceros de f'' en los que f'' cambia de signo.
+  - id: calc-07-015
+    tipo: conjunto
+    dificultad: 3
+    conceptos: [concavidad-inflexion]
+    enunciado: >-
+      Encuentra las abscisas ($x$) de los puntos de inflexión de $f(x)=\dfrac{x}{x^2+9}$. Escríbelas separadas por comas, cada una aparte (sin $\pm$) y en forma exacta, como en `2*sqrt(5), -1`.
+    respuesta: ["0", "3*sqrt(3)", "-3*sqrt(3)"]
+    verificar: { sympy: "(lambda d2: {c for c in solveset(d2, x, S.Reals) if d2.subs(x, c - Rational(1, 100))*d2.subs(x, c + Rational(1, 100)) < 0})(diff(x/(x**2 + 9), x, 2))" }
+    pistas:
+      - >-
+        ¿Qué derivada te dice la concavidad? Antes de derivar por segunda vez, ¿conviene simplificar $f'$?
+      - >-
+        Si factorizas el numerador de $f''$, ¿dónde se anula? ¿Hay algún punto del dominio donde $f''$ no exista? ¿Cambia de signo en cada candidato?
+    explicacion: >-
+      Por el cociente, $f'(x)=\frac{(x^2+9)-x\cdot2x}{(x^2+9)^2}=\frac{9-x^2}{(x^2+9)^2}$. Otra vez el cociente, con la cadena en el denominador: $f''(x)=\frac{-2x(x^2+9)^2-(9-x^2)\cdot2(x^2+9)\cdot2x}{(x^2+9)^4}$. Se cancela un factor $(x^2+9)$: $f''(x)=\frac{-2x(x^2+9)-4x(9-x^2)}{(x^2+9)^3}=\frac{2x(x^2-27)}{(x^2+9)^3}$. El denominador nunca se anula, así que $f''$ existe siempre y los candidatos son los ceros del numerador: $x=0$ y $x=\pm\sqrt{27}=\pm3\sqrt3$. Los tres son raíces simples, así que $f''$ cambia de signo en cada uno: es negativa en $(-\infty,-3\sqrt3)$, positiva en $(-3\sqrt3,0)$, negativa en $(0,3\sqrt3)$ y positiva en $(3\sqrt3,\infty)$. Las abscisas de inflexión son $0$, $3\sqrt3$ y $-3\sqrt3$. Los errores típicos son perder el 0 al dividir entre $x$ y simplificar $\sqrt{27}$ como $9\sqrt3$. Revisa: $f$ es impar ($f(-x)=-f(x)$), así que sus inflexiones deben quedar simétricas respecto al origen, y lo están.
+    tiempo_estimado_s: 150
+
+  # razonamiento: algorítmico (dos soluciones de sen x = 1/2 y comparar con los bordes) · R1
+  - id: calc-07-016
+    tipo: numerico
+    dificultad: 3
+    conceptos: [extremos-absolutos]
+    enunciado: >-
+      Encuentra el valor mínimo absoluto de $f(x)=\frac x2+\cos x$ en $[0,2\pi]$. Escribe la respuesta exacta (como `2*sqrt(7)`) o redondeada a 3 decimales.
+    respuesta: "5*pi/12 - sqrt(3)/2"
+    tolerancia: 0.001
+    verificar: { sympy: "minimum(x/2 + cos(x), x, Interval(0, 2*pi))" }
+    pistas:
+      - >-
+        ¿Dónde vale 0 $f'$ en $(0,2\pi)$? ¿Cuántas soluciones tiene $\operatorname{sen}x=\frac12$ en ese intervalo?
+      - >-
+        Además de los números críticos, ¿qué candidatos comparas? ¿Te piden el $x$ o el valor?
+    explicacion: >-
+      $f$ es continua en $[0,2\pi]$, así que tiene mínimo absoluto. $f'(x)=\frac12-\operatorname{sen}x$ existe siempre y se anula si $\operatorname{sen}x=\frac12$: en $(0,2\pi)$, eso pasa en $x=\frac\pi6$ y en $x=\frac{5\pi}6$. Los candidatos y sus valores: $f(0)=1$; $f\left(\frac\pi6\right)=\frac{\pi}{12}+\frac{\sqrt3}2\approx1.128$; $f\left(\frac{5\pi}6\right)=\frac{5\pi}{12}-\frac{\sqrt3}2\approx0.443$; $f(2\pi)=\pi+1\approx4.142$. El menor es $\frac{5\pi}{12}-\frac{\sqrt3}{2}\approx0.443$, en $x=\frac{5\pi}{6}$. Los errores típicos son perder la segunda solución de $\operatorname{sen}x=\frac12$ (la del segundo cuadrante) y responder el lugar, $x=\frac{5\pi}6\approx2.618$, en vez del valor. Revisa: $f''(x)=-\cos x$ vale $\frac{\sqrt3}{2}>0$ en $\frac{5\pi}{6}$ (mínimo local) y $-\frac{\sqrt3}2<0$ en $\frac\pi6$ (máximo local).
+    tiempo_estimado_s: 150
+
+  # razonamiento: analógico (transferencia a IA y estadística: media y mediana como óptimos) · R1
+  # verificar: S por su derivada; A por sus candidatos (es lineal por tramos, sin tramos planos: el mínimo está en un
+  # punto donde A' no existe, es decir, en un dato).
+  - id: calc-07-017
+    tipo: completar
+    dificultad: 3
+    conceptos: [optimizacion]
+    enunciado: >-
+      Supón que un modelo de IA muy simple predice siempre el mismo número $c$, y que tus datos son $1$, $2$ y $6$. Con el error cuadrático, la pérdida es $S(c)=(1-c)^2+(2-c)^2+(6-c)^2$; con el error absoluto, es $A(c)=\lvert1-c\rvert+\lvert2-c\rvert+\lvert6-c\rvert$. Encuentra el $c$ que minimiza cada pérdida y el valor mínimo de cada una.
+    texto: >-
+      $S$ es mínima en $c=$ ___ , con $S=$ ___ · $A$ es mínima en $c=$ ___ , con $A=$ ___
+    respuestas: ["3", "14", "2", "5"]
+    verificar: { sympy: "(lambda D: (lambda Q, A: [solve(diff(Q, x), x)[0], Q.subs(x, solve(diff(Q, x), x)[0]), min(D, key=lambda d: A.subs(x, d)), min(A.subs(x, d) for d in D)])(sum((d - x)**2 for d in D), sum(Abs(d - x) for d in D)))([1, 2, 6])" }
+    pistas:
+      - >-
+        $S$ es un polinomio: ¿dónde se anula $S'$? $A$ tiene esquinas: ¿en qué valores de $c$ no existe $A'$, y cuánto vale $A'$ en cada tramo entre ellos?
+      - >-
+        ¿Cómo justificas que cada candidato es el mínimo en todo $\mathbb R$ y no solo cerca? ¿Cómo se llama cada resultado en estadística?
+    explicacion: >-
+      $S'(c)=-2(1-c)-2(2-c)-2(6-c)=6c-18$, que se anula en $c=3$, y $S''=6>0$ en todo $\mathbb R$: $S$ es convexa (∪), así que el mínimo es global, con $S(3)=4+1+9=14$. Ese $c$ es la media, $\frac{1+2+6}3=3$. En $A$, cada $\lvert d-c\rvert$ tiene pendiente $-1$ si $c<d$ y $+1$ si $c>d$, y no es derivable en $c=d$: los números críticos de $A$ son $1$, $2$ y $6$, donde $A'$ no existe, y entre ellos $A'$ nunca vale 0. Por tramos, $A'=-3$ si $c<1$, $-1$ en $(1,2)$, $+1$ en $(2,6)$ y $+3$ si $c>6$: $A$ decrece hasta 2 y crece después, así que el mínimo global está en $c=2$, la mediana, con $A(2)=1+0+4=5$. La media se va hacia el dato lejano (el 6) y la mediana no: por eso el error absoluto resiste mejor los valores atípicos. Revisa: $A(3)=2+1+3=6>5$ y $S(2)=1+0+16=17>14$; cada pérdida prefiere su propio $c$.
+    tiempo_estimado_s: 150
+
+  # razonamiento: abductivo (encontrar la falla de una justificación) · R2
+  # Revisión manual (opción múltiple conceptual). Comprobado con sympy: en [0, 8], maximum(T) = 124 (en t = 8) y
+  # minimum(T) = 20 (en t = 0); T(3) = 74 es solo máximo local y T(5) = 70, mínimo local.
+  - id: calc-07-018
+    tipo: opcion_multiple
+    dificultad: 4
+    conceptos: [extremos-absolutos, criterio-segunda-derivada, optimizacion]
+    enunciado: |-
+      Supón que, durante un ciclo de 8 minutos, la temperatura de un horno es $T(t)=t^3-12t^2+45t+20$ °C a los $t$ minutos, con $0\le t\le8$. Rosa busca la temperatura máxima del ciclo así:
+
+      1. $T'(t)=3t^2-24t+45=3(t-3)(t-5)$, que vale 0 en $t=3$ y en $t=5$.
+      2. $T''(t)=6t-24$, y $T''(3)=-6<0$.
+      3. «Por el criterio de la segunda derivada, la temperatura máxima del ciclo es $T(3)=74$ °C.»
+
+      ¿Qué está mal en su razonamiento?
+    opciones:
+      - >-
+        Nada: como $T''(3)<0$, $T(3)$ es la temperatura máxima del ciclo.
+      - >-
+        Solo probó un máximo local: faltó comparar con los bordes, y $T(8)=124>74$.
+      - >-
+        Le faltó el otro número crítico: la máxima es $T(5)=70$ °C.
+      - >-
+        $T''(3)<0$ quiere decir que en $t=3$ hay un mínimo, no un máximo.
+      - >-
+        El paso 1: los números críticos salen de $T(t)=0$, no de $T'(t)=0$.
+    correcta: 1
+    pistas:
+      - >-
+        ¿Qué te piden: un máximo local o la temperatura máxima en todo el ciclo? ¿En qué conjunto de valores de $t$ vive el problema?
+      - >-
+        El criterio de la segunda derivada, ¿compara $T(3)$ con todos los $t$ de $[0,8]$ o solo con los cercanos a 3?
+      - >-
+        En un intervalo cerrado, ¿qué candidatos le faltan a la lista de Rosa? ¿Cuánto vale $T$ en ellos?
+    explicacion: >-
+      Los pasos 1 y 2 están bien, y es cierto que $T''(3)<0$ hace de $t=3$ un máximo local: $T(3)=27-108+135+20=74$ le gana a los $t$ cercanos. Pero se pide la máxima de todo el ciclo, $[0,8]$, un intervalo cerrado; con $T$ continua, el método es comparar los números críticos con los bordes: $T(0)=20$, $T(3)=74$, $T(5)=125-300+225+20=70$ y $T(8)=512-768+360+20=124$. La temperatura máxima del ciclo es 124 °C, a los 8 minutos, en el borde. Las otras opciones fallan: $T(5)=70$ es un mínimo local ($T''(5)=6>0$); $T''(3)<0$ indica ∩, es decir, máximo; y los números críticos salen de $T'=0$, no de $T=0$. Revisa: después del mínimo en $t=5$, $T'>0$ en $(5,8]$ y la temperatura sube sin parar hasta el final del ciclo, así que el borde $t=8$ tenía que entrar en la comparación.
+    tiempo_estimado_s: 150
+
+  # razonamiento: deductivo (justificar el máximo global, como en el examen) · R3
+  # Rúbrica de arquitecto-razonamiento: 4 criterios, todos obligatorios (se aprueba con ceil(0.8·4) = 4).
+  # Comprobado con sympy: C'(t) = 60(9 - t²)/(t² + 9)², C''(t) = 120t(t² - 27)/(t² + 9)³, C(3) = 10,
+  # C(2) = 120/13 y C(4) = 48/5. C es 60 veces la f del 015: la explicación y la respuesta modelo no dan ni C'' ni la
+# abscisa de su inflexión, que regalarían el 015 (está en el jefe).
+  - id: calc-07-019
+    tipo: autoevaluacion
+    dificultad: 4
+    conceptos: [optimizacion]
+    enunciado: >-
+      Supón que la concentración de un medicamento en la sangre, $t$ horas después de tomarlo, es $C(t)=\dfrac{60t}{t^2+9}$ mg/L, para $t\ge0$. Encuentra la concentración máxima y cuántas horas después de tomarlo se alcanza. Justifica, como en el examen, por qué es el máximo absoluto en todo $t\ge0$ y no solo un máximo local.
+    rubrica:
+      - >-
+        Calcula $C'(t)=\dfrac{60(9-t^2)}{(t^2+9)^2}$ (o una forma equivalente) y busca los números críticos del dominio por las dos vías: $C'$ existe en todo $t\ge0$, porque el denominador nunca vale 0, y $C'(t)=0$ solo en $t=3$ (la solución $t=-3$ queda fuera del dominio).
+      - >-
+        Clasifica $t=3$ como máximo local con un criterio válido y da la razón: el signo de $C'$ a cada lado (el denominador es positivo, así que manda $9-t^2$) o $C''(3)<0$.
+      - >-
+        Justifica que el máximo es absoluto con un argumento que cubre todo $t\ge0$: $C'>0$ en $[0,3)$ y $C'<0$ en $(3,\infty)$, así que $C$ crece en $[0,3]$ y decrece en $[3,\infty)$; o bien, $C$ es continua en un intervalo y $t=3$ es su único número crítico, que es un máximo local. Si usó $C''(3)<0$, no lo presenta como prueba de que el máximo es absoluto: por sí solo da un máximo local.
+      - >-
+        Responde las dos cosas que se piden, con unidades: la concentración máxima es $C(3)=10$ mg/L y se alcanza 3 h después de tomarlo. La revisa con al menos una comprobación: $C(0)=0$, $C(t)\to0$ cuando $t\to\infty$, o un valor cercano como $C(2)=\frac{120}{13}\approx9.23$ o $C(4)=9.6$, menores que 10.
+    respuesta_modelo: >-
+      El dominio es $t\ge0$. Por el cociente, $C'(t)=\dfrac{60(t^2+9)-60t\cdot2t}{(t^2+9)^2}=\dfrac{60(9-t^2)}{(t^2+9)^2}$. El denominador nunca vale 0, así que $C'$ existe en todo el dominio, y $C'(t)=0$ solo si $t^2=9$; en $t\ge0$ eso es $t=3$ ($t=-3$ queda fuera). Como el denominador es positivo, el signo de $C'$ es el de $9-t^2$: positivo en $[0,3)$ y negativo en $(3,\infty)$. Entonces $C$ crece en $[0,3]$ y decrece en $[3,\infty)$, así que $C(t)\le C(3)$ para todo $t\ge0$: el máximo es absoluto, no solo local. Con $C''(3)<0$ solo sabría que es local; además, $C''$ cambia de signo más adelante, así que la concavidad no es la misma en todo el dominio. La concentración máxima es $C(3)=\frac{180}{18}=10$ mg/L, 3 h después de tomarlo. Compruebo: $C(0)=0$, $C(t)\to0$ cuando $t\to\infty$, y $C(2)=\frac{120}{13}\approx9.23$ y $C(4)=9.6$ quedan por debajo de 10.
+    pistas:
+      - >-
+        ¿Qué te piden: el instante, la concentración o las dos? ¿Qué valores de $t$ tienen sentido?
+      - >-
+        ¿Dónde puede tener $C$ un número crítico: solo donde $C'=0$, o también en otro tipo de punto? ¿Cuál de los dos casos aparece aquí?
+      - >-
+        Saber que $C''$ es negativa en tu candidato, ¿te dice algo sobre los $t$ lejanos? ¿Qué argumento cubre todo $t\ge0$, y con qué valores lo comprobarías?
+    explicacion: >-
+      El paso que más se omite es justificar que el máximo es absoluto: $C''(3)<0$ solo dice que $C(3)$ le gana a los $t$ cercanos. Aquí la concavidad ni siquiera es la misma en todo el dominio: después del máximo, $C''$ cambia de signo y la curva pasa a ser convexa (∪) mientras baja hacia 0. Revisa: si reportaste «3» a secas, te falta decir si son horas o mg/L, y cuál de las dos cosas es la concentración máxima.
+    tarjeta: false
+    tiempo_estimado_s: 270
+
+  # razonamiento: inductivo (iterar, encontrar el factor que se repite y concluir) · R2
+  # verificar: itera la regla con S' de sympy y obtiene el intervalo de η de |1 - η·S''| < 1 con solveset.
+  - id: calc-07-020
+    tipo: completar
+    dificultad: 4
+    conceptos: [optimizacion]
+    enunciado: >-
+      Supón que un modelo predice siempre el mismo número $c$ y que, con los datos $1$, $2$ y $6$, su pérdida es $S(c)=(c-1)^2+(c-2)^2+(c-6)^2$. El descenso de gradiente empieza en $c_0=0$ y repite $c_{k+1}=c_k-\eta\,S'(c_k)$, con tasa de aprendizaje $\eta=0.1$. Escribe $c_1$ y $c_2$ como decimales, sin redondear; el último hueco, como fracción.
+    texto: >-
+      $c_1=$ ___ · $c_2=$ ___ · en general, $c_k$ tiende al mínimo de $S$ desde todo $c_0$ si y solo si $0<\eta<$ ___
+    respuestas: ["1.8", "2.52", "1/3"]
+    verificar: { sympy: "(lambda Q, eta, e: (lambda step: [step(0), step(step(0)), solveset(Abs(1 - e*diff(Q, x, 2)) < 1, e, S.Reals).sup])(lambda c: c - eta*diff(Q, x).subs(x, c)))((x - 1)**2 + (x - 2)**2 + (x - 6)**2, Rational(1, 10), Symbol('e'))" }
+    pistas:
+      - >-
+        ¿Qué es $S'(c)$? ¿Qué signo tiene en $c_0=0$, y hacia dónde mueve eso a $c$?
+      - >-
+        Si sustituyes $S'(c)$ en la regla, ¿qué número no se mueve al aplicarla? ¿Puedes escribir $c_{k+1}$ menos ese número como un múltiplo de $c_k$ menos ese número?
+      - >-
+        Si en cada paso la distancia a ese número se multiplica por el mismo factor, ¿qué debe cumplir el factor para que la distancia tienda a 0 desde cualquier $c_0$? ¿Qué pasa si el factor vale exactamente $-1$?
+    explicacion: >-
+      $S'(c)=2(c-1)+2(c-2)+2(c-6)=6c-18$. Con $\eta=0.1$: $c_1=0-0.1\cdot(-18)=1.8$; luego $S'(1.8)=10.8-18=-7.2$, así que $c_2=1.8+0.72=2.52$. La derivada es negativa en los dos pasos: $S$ baja hacia la derecha y el método avanza a la derecha. En general, $c_{k+1}=c_k-\eta(6c_k-18)$, es decir, $c_{k+1}-3=(1-6\eta)(c_k-3)$: el 3 (la media de los datos, donde está el mínimo de $S$) no se mueve, y la distancia a él se multiplica por $1-6\eta$ en cada paso. Llega al mínimo desde cualquier $c_0$ si y solo si $\lvert1-6\eta\rvert<1$ (con $\eta=0$ no se mueve), es decir, $0<\eta<\frac13$. Con $\eta=\frac13$ el factor es $-1$ y $c$ salta para siempre entre $c_0$ y $6-c_0$; con $\eta>\frac13$, los saltos crecen. Ese $\frac13$ es $\frac{2}{S''}$, con $S''=6$: una pérdida más curva pide pasos más chicos. Revisa: $c_1-3=-1.2=0.4\cdot(-3)$ y $c_2-3=-0.48=0.4\cdot(-1.2)$, con el factor $1-6(0.1)=0.4$.
+    tiempo_estimado_s: 180
+
+  # razonamiento: abductivo (buscar contraejemplos y reconocer las hipótesis que faltan) · R2
+  # verificar: True = la afirmación falla. Las cuatro que fallan se comprueban con un contraejemplo concreto cada una
+  # (x³, x⁴, |x| y f(x) = x en (0, 1)). Las dos que valen son teoremas (Fermat y valor extremo): ahí solo se comprueba
+  # que una familia de funciones no las contradiga, lo que no las demuestra. Que lo mire la resolución a ciegas.
+  - id: calc-07-021
+    tipo: seleccion_multiple
+    dificultad: 4
+    conceptos: [criterio-primera-derivada, concavidad-inflexion]
+    enunciado: >-
+      Marca las afirmaciones que **fallan**: las que tienen al menos una función que las contradice. Puede haber varias. En las que mencionan $c$, $c$ es un número interior del dominio de $f$.
+    opciones:
+      - >-
+        Si $f'(c)=0$, entonces $f$ tiene un extremo local en $c$.
+      - >-
+        Si $f''(c)=0$, entonces $(c,f(c))$ es un punto de inflexión.
+      - >-
+        Si $f$ tiene un mínimo local en $c$, entonces $f'(c)=0$.
+      - >-
+        Si $f$ es continua en $(a,b)$, entonces alcanza un máximo absoluto en $(a,b)$.
+      - >-
+        Si $f$ tiene un extremo local en $c$ y $f'(c)$ existe, entonces $f'(c)=0$.
+      - >-
+        Si $f$ es continua en $[a,b]$, entonces alcanza un máximo absoluto en $[a,b]$.
+    correctas: [0, 1, 2, 3]
+    verificar: { sympy: "(lambda h, p, I: [diff(x**3, x).subs(x, 0) == 0 and (x**3).subs(x, -h) < 0 < (x**3).subs(x, h), diff(x**4, x, 2).subs(x, 0) == 0 and diff(x**4, x, 2).subs(x, -h) > 0 < diff(x**4, x, 2).subs(x, h), Abs(-h) > 0 < Abs(h) and limit(Abs(p)/p, p, 0) != limit(Abs(-p)/(-p), p, 0), imageset(Lambda(x, x), I).sup not in imageset(Lambda(x, x), I), any(diff(F, x).subs(x, 0) != 0 for F in [x**2, -x**4, 1 - x**2, x**2*(x - 3)]), any(maximum(F, x, Interval(-1, 2)) not in imageset(Lambda(x, F), Interval(-1, 2)) for F in [x, x**3 - x, -x**4, x**2*(x - 3)])])(Rational(1, 100), Symbol('p', positive=True), Interval.open(0, 1))" }
+    pistas:
+      - >-
+        Para cada afirmación, ¿qué tendría que pasarle a una función para contradecirla? Piensa en $x^3$, $x^4$, $\lvert x\rvert$ y en intervalos abiertos.
+      - >-
+        En las que hablan de $f'(c)$, ¿qué pasa si $f'(c)$ ni siquiera existe? ¿Cuál de ellas lo pide como hipótesis?
+      - >-
+        ¿Qué hipótesis del teorema del valor extremo le falta a alguna afirmación? ¿Puedes dar una función que se acerque a un máximo sin alcanzarlo?
+    explicacion: >-
+      Fallan cuatro. «Si $f'(c)=0$, hay extremo»: $x^3$ tiene $f'(0)=0$ y crece en todo $\mathbb R$. «Si $f''(c)=0$, hay inflexión»: $x^4$ tiene $f''(0)=0$, pero $f''(x)=12x^2\ge0$ a los dos lados, así que es convexa (∪) siempre. «Mínimo local implica $f'(c)=0$»: $\lvert x\rvert$ tiene un mínimo en 0, pero $f'(0)$ no existe (los cocientes laterales valen $-1$ y $1$). «Continua en $(a,b)$ implica máximo»: $f(x)=x$ en $(0,1)$ se acerca a 1 sin llegar. Valen dos. «Extremo local y $f'(c)$ existe implica $f'(c)=0$» es el teorema de Fermat; con la hipótesis de que $f'(c)$ existe, $\lvert x\rvert$ ya no la contradice. «Continua en $[a,b]$ implica máximo» es el teorema del valor extremo, con sus dos hipótesis: continuidad e intervalo cerrado y acotado. Revisa: cada afirmación que vale es una de las que fallan con la hipótesis que le faltaba; la de Fermat arregla la del mínimo local y la de $[a,b]$ arregla la de $(a,b)$.
+    tiempo_estimado_s: 150
+
+  # razonamiento: algorítmico (optimización con producto y cadena; justificar el global) · R2
+  # verificar (de experto-matematicas): el crítico de (0, ∞) donde E' pasa de + a -.
+  - id: calc-07-022
+    tipo: numerico
+    dificultad: 4
+    conceptos: [optimizacion]
+    enunciado: >-
+      Supón que el campo eléctrico sobre el eje de un anillo cargado de radio 3 cm, a $d$ cm de su centro, es $E(d)=\dfrac{d}{(d^2+9)^{3/2}}$ (en unidades arbitrarias), con $d\ge0$. ¿A qué distancia $d$, en cm, es máximo el campo? Escribe la respuesta exacta (como `2*sqrt(7)`) o redondeada a 3 decimales.
+    respuesta: "3*sqrt(2)/2"
+    tolerancia: 0.001
+    verificar: { sympy: "(lambda Q: [c for c in solveset(diff(Q, x), x, Interval.open(0, oo)) if diff(Q, x).subs(x, c - Rational(1, 100)) > 0 > diff(Q, x).subs(x, c + Rational(1, 100))][0])(x/(x**2 + 9)**Rational(3, 2))" }
+    pistas:
+      - >-
+        ¿Qué cantidad tienes que hacer máxima, y qué te piden reportar: dónde ocurre, cuánto vale o las dos cosas? ¿Qué valores de $d$ tienen sentido?
+      - >-
+        Para derivar, ¿te conviene el cociente, o escribir $E=d\,(d^2+9)^{-3/2}$ y usar el producto con la cadena? ¿Qué factor común puedes sacar?
+      - >-
+        ¿Cómo sabes que tu candidato gana en todo $d\ge0$ y no solo cerca de él? ¿Qué pasa con $E$ en $d=0$ y cuando $d\to\infty$?
+    explicacion: >-
+      **Entiende.** Se pide la distancia, el $d$, no el valor del campo. **Modela.** Ya está en una variable. **Dominio.** $d\ge0$, no acotado. **Candidatos.** Con $E=d\,(d^2+9)^{-3/2}$, por el producto y la cadena: $E'(d)=(d^2+9)^{-3/2}+d\cdot\left(-\frac32\right)(d^2+9)^{-5/2}\cdot2d=(d^2+9)^{-5/2}\left[(d^2+9)-3d^2\right]=\dfrac{9-2d^2}{(d^2+9)^{5/2}}$. Existe siempre (el denominador es positivo) y vale 0 si $d^2=\frac92$, es decir, en $d=\frac{3}{\sqrt2}=\frac{3\sqrt2}2\approx2.121$ (el valor negativo queda fuera). **Justifica el global.** El signo de $E'$ es el de $9-2d^2$: positivo en $\left[0,\frac{3\sqrt2}2\right)$ y negativo después, así que $E$ crece y luego decrece en todo el dominio, y el máximo es global. **Responde.** $d=\frac{3\sqrt2}{2}\approx2.121$ cm, el radio entre $\sqrt2$. El error típico es olvidar el $2d$ de la cadena: así sale $E'$ con numerador $d^2-\frac32d+9$, que nunca vale 0, y parecería que no hay máximo. Revisa: $E(0)=0$, $E\to0$ cuando $d\to\infty$, y $E(2)\approx0.04267$ y $E(2.5)\approx0.04198$ quedan por debajo del máximo, $E\!\left(\frac{3\sqrt2}2\right)=\frac{2\sqrt3}{81}\approx0.04277$.
+    tiempo_estimado_s: 210
+
+  # razonamiento: deductivo (minimizar D² en vez de D, con dominio cerrado que sale de la curva) · R2
+  # verificar: vía independiente, la elipse parametrizada (3 cos t, sen t) y minimum en [0, 2π]. Segunda vía (sympy,
+  # fuera del YAML porque `verificar` admite una sola): multiplicadores de Lagrange para (X - 2)² + Y² con
+  # X² + 9Y² = 9; los candidatos son (±3, 0) y (9/4, ±√7/4), y el mínimo de la distancia es √2/2.
+  # 2026-11-12: cambió de problema (antes, (1, 0) y x² + 4y² = 4) por originalidad, según pedagogo; mismo id.
+  - id: calc-07-023
+    tipo: numerico
+    dificultad: 5
+    conceptos: [optimizacion]
+    enunciado: >-
+      ¿Cuál es la distancia mínima del punto $(2,0)$ a la elipse $x^2+9y^2=9$? Escribe la respuesta exacta (como `2*sqrt(7)`) o redondeada a 3 decimales.
+    respuesta: "sqrt(2)/2"
+    tolerancia: 0.001
+    verificar: { sympy: "sqrt(minimum((3*cos(t) - 2)**2 + sin(t)**2, t, Interval(0, 2*pi)))" }
+    pistas:
+      - >-
+        ¿Qué cantidad tienes que hacer mínima, y qué te piden reportar? ¿Te conviene trabajar con la distancia $D$ o con $D^2$, y por qué las dos son mínimas en el mismo punto?
+      - >-
+        Si usas la ecuación de la elipse para quitar $y^2$, ¿qué valores puede tomar $x$ sin salirte de la curva? Ese dominio, ¿es cerrado, abierto o no acotado, y qué método te deja usar?
+      - >-
+        ¿Comparaste tu candidato con lo que pasa en los bordes del dominio? ¿Tu respuesta es una distancia, y no un $x$ ni un $D^2$?
+    explicacion: >-
+      **Entiende.** Se pide la distancia mínima, un número, no el punto. **Modela.** Para un punto $(x,y)$ de la elipse, la distancia a $(2,0)$ es $D=\sqrt{(x-2)^2+y^2}$. Como $D\ge0$ y la raíz es creciente, $D$ y $D^2$ son mínimas en el mismo punto, y $D^2$ no tiene raíz que derivar. De la elipse, $y^2=\frac{9-x^2}{9}=1-\frac{x^2}{9}$, así que $D^2=(x-2)^2+1-\frac{x^2}9=\frac89x^2-4x+5$. **Dominio.** $y^2\ge0$ pide $-3\le x\le3$: cerrado y acotado, así que sirve el método del intervalo cerrado. **Candidatos.** $(D^2)'=\frac{16}9x-4=0$ en $x=\frac94$, que está en $(-3,3)$; los bordes son $-3$ y $3$. **Justifica el global.** $D^2\left(\frac94\right)=\frac89\cdot\frac{81}{16}-9+5=\frac92-4=\frac12$, $D^2(3)=1$ y $D^2(-3)=25$: el menor es $\frac12$. **Responde.** La distancia mínima es $\sqrt{\frac12}=\frac{\sqrt2}{2}\approx0.707$, en los puntos $\left(\frac94,\pm\frac{\sqrt7}{4}\right)$. Los errores típicos son responder $\frac12$ (el $D^2$) o $\frac94$ (el $x$). Revisa: el vértice $(3,0)$, el punto de la elipse que parece más cercano a ojo, está a distancia 1, más que $0.707$; y $\left(\frac94\right)^2+9\cdot\frac7{16}=\frac{81}{16}+\frac{63}{16}=9$, así que los puntos sí están en la elipse.
+    tiempo_estimado_s: 270
+
+  # razonamiento: deductivo (análisis completo de una racional; la asíntota no es un extremo) · R2
+  # verificar: asíntota vertical con singularities, horizontal con los dos límites al infinito, crítico de f' = 0 fuera
+  # de la asíntota y la inflexión por cambio de signo de f''. Función elegida para que no sea de libro.
+  - id: calc-07-024
+    tipo: completar
+    dificultad: 5
+    conceptos: [trazado-graficas]
+    enunciado: >-
+      Analiza $f(x)=\dfrac{x^2-3x}{(x-1)^2}$: asíntotas, crecimiento, extremos y concavidad. Completa con números (enteros o fracciones).
+    texto: >-
+      Asíntota vertical: $x=$ ___ · asíntota horizontal: $y=$ ___ · número crítico: $x=$ ___ · valor del extremo local: ___ · abscisa ($x$) del punto de inflexión: ___
+    respuestas: ["1", "1", "-3", "9/8", "-5"]
+    verificar: { sympy: "(lambda f, h: (lambda d1, d2, V: [list(V)[0], limit(f, x, oo) if limit(f, x, oo) == limit(f, x, -oo) else nan, [c for c in solveset(d1, x, S.Reals) if c not in V][0], f.subs(x, [c for c in solveset(d1, x, S.Reals) if c not in V][0]), [c for c in solveset(d2, x, S.Reals) if c not in V and d2.subs(x, c - h)*d2.subs(x, c + h) < 0][0]])(diff(f, x), diff(f, x, 2), singularities(f, x)))((x**2 - 3*x)/(x - 1)**2, Rational(1, 100))" }
+    pistas:
+      - >-
+        ¿Dónde no está definida $f$, y qué hace cerca de ahí? ¿Qué pasa con $f$ cuando $x\to\pm\infty$? Compara los grados de arriba y de abajo.
+      - >-
+        Al derivar con el cociente, ¿puedes cancelar un factor $(x-1)$ antes de simplificar? ¿Dónde se anula $f'$, y el punto donde $f'$ no existe está en el dominio?
+      - >-
+        En tu tabla de signos de $f'$, ¿hay un cambio de signo en $x=1$, y es un extremo? En la de $f''$, ¿dónde cambia de signo y dónde no?
+    explicacion: >-
+      **Dominio:** $x\neq1$. **Asíntotas:** cerca de 1, el numerador tiende a $1-3=-2$ y el denominador a $0^+$, así que $f\to-\infty$ por los dos lados: asíntota vertical $x=1$. Arriba y abajo hay grado 2 con coeficiente principal 1, así que $f\to1$ cuando $x\to\pm\infty$: asíntota horizontal $y=1$, sin oblicua. **Cortes:** $f(x)=0$ en $x=0$ y en $x=3$. **Derivadas:** por el cociente, cancelando un $(x-1)$, $f'(x)=\frac{(2x-3)(x-1)-2(x^2-3x)}{(x-1)^3}=\frac{x+3}{(x-1)^3}$; otra vez, $f''(x)=\frac{(x-1)-3(x+3)}{(x-1)^4}=-\frac{2(x+5)}{(x-1)^4}$. **Crecimiento:** el único número crítico es $x=-3$ ($x=1$ no está en el dominio). $f'$ es positiva en $(-\infty,-3)$, negativa en $(-3,1)$ y positiva en $(1,\infty)$: hay un máximo local en $-3$, con $f(-3)=\frac{18}{16}=\frac98$. En $x=1$ el signo cambia de $-$ a $+$, pero ahí hay una asíntota, no un extremo: $f$ no existe en 1 y se va a $-\infty$. **Concavidad:** $f''>0$ en $(-\infty,-5)$, convexa (∪), y $f''<0$ en $(-5,1)$ y en $(1,\infty)$, cóncava (∩). La inflexión está en $\left(-5,\frac{10}9\right)$; en 1 la concavidad no cambia (y tampoco hay punto). **Dibujo:** desde la izquierda viene de $y=1$ por arriba, sube convexa hasta $x=-5$ y cóncava hasta la cima $\left(-3,\frac98\right)$, baja, cruza $y=1$ en $x=-1$, pasa por el origen y cae a $-\infty$ junto a $x=1$; del otro lado sube desde $-\infty$, cruza el eje en $x=3$ y se acerca a $y=1$ por abajo. Revisa: $f(-1)=\frac{4}{4}=1$, así que la curva sí cruza su asíntota horizontal (puede hacerlo), y $f(-3)=\frac98>1$, como debe ser si después baja hacia $y=1$.
+    tiempo_estimado_s: 300
+
+  # razonamiento: deductivo (problema inverso; comprobar que el crítico sí es máximo) · R2
+  # verificar: resuelve f'(-1) = 0 y f''(1) = 0, y solo da el valor del máximo si f''(-1) < 0 (si no, nan).
+  - id: calc-07-025
+    tipo: completar
+    dificultad: 5
+    conceptos: [puntos-criticos, concavidad-inflexion]
+    enunciado: >-
+      La función $f(x)=x^3+ax^2+bx$ tiene un máximo local en $x=-1$ y un punto de inflexión en $x=1$. Encuentra $a$ y $b$, y comprueba que en $-1$ sí hay un máximo (no basta con $f'(-1)=0$).
+    texto: >-
+      $a=$ ___ · $b=$ ___ · el máximo local vale ___ · el mínimo local está en $x=$ ___
+    respuestas: ["-3", "-9", "5", "3"]
+    verificar: { sympy: "(lambda a, b: (lambda f: (lambda s: (lambda F: [s[a], s[b], F.subs(x, -1) if diff(F, x, 2).subs(x, -1) < 0 else nan, [c for c in solveset(diff(F, x), x, S.Reals) if diff(F, x, 2).subs(x, c) > 0][0]])(f.subs(s)))(solve([diff(f, x).subs(x, -1), diff(f, x, 2).subs(x, 1)], [a, b])))(x**3 + a*x**2 + b*x))(*symbols('a b'))" }
+    pistas:
+      - >-
+        ¿Qué condición sobre $f'$ da un extremo en $-1$, y qué condición sobre $f''$ da la inflexión en 1? ¿Cuántas ecuaciones y cuántas incógnitas tienes?
+      - >-
+        ¿Cuál de las dos condiciones tiene una sola incógnita? ¿Te conviene empezar por ella?
+      - >-
+        Ya con $a$ y $b$, ¿cómo compruebas que $-1$ es un máximo y no un mínimo? ¿Cambia de signo $f''$ en $x=1$?
+    explicacion: >-
+      $f'(x)=3x^2+2ax+b$ y $f''(x)=6x+2a$. La inflexión en 1 pide $f''(1)=6+2a=0$, así que $a=-3$; como $f''$ es una recta de pendiente 6, cambia de signo en 1, así que sí es inflexión. Un extremo local en $-1$, donde $f$ es derivable, pide $f'(-1)=0$ (Fermat): $3-2a+b=0$, es decir, $3+6+b=0$ y $b=-9$. Pero $f'(-1)=0$ solo dice que $-1$ es crítico, y falta comprobar el tipo: con $f(x)=x^3-3x^2-9x$, $f''(-1)=-6-6=-12<0$, así que es un máximo local, como se pedía, y vale $f(-1)=-1-3+9=5$. El otro número crítico sale de $f'(x)=3x^2-6x-9=3(x+1)(x-3)$: en $x=3$, $f''(3)=12>0$, un mínimo local, con $f(3)=-27$. Si las cuentas hubieran dado $f''(-1)>0$, ninguna función de esa forma tendría un máximo en $-1$. Revisa: la inflexión de una cúbica está a la mitad de sus dos números críticos, y $\frac{-1+3}2=1$.
+    tiempo_estimado_s: 180

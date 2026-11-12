@@ -127,6 +127,8 @@ Brainstorm con Claude en modo plan; plan aprobado el mismo día.
   - Una $y'$ implícita se compara en puntos que no están sobre la curva (`symbolic.ts:41-48`), así que una respuesta correcta simplificada con la ecuación sale como distinta. Por eso la 05 pide derivar sin simplificar y la $y''$ va en un punto. A futuro: un modo de equivalencia «sobre la curva».
   - Que `content:check` exija `variables` en los `simbolico` que lleven `y`.
   - En un `conjunto`, un elemento con `±` (`(0, ±sqrt(3))`) se compara como texto y se califica mal sin aviso (`sets.ts:44-51`). Conviene un error explícito: «escribe cada punto por separado». La 05 lo advierte en el enunciado.
+- [ ] Separador de miles (revisión de la 07, 2026-11-12): `evaluateNumber` (`math.ts:137-138`) lee «10,000» como 10 y lo califica como incorrecto, sin avisar. En México se escribe así, de modo que afecta a cualquier respuesta de 1000 o más. Propuesta: que `^\d{1,3}(,\d{3})+$` dé «inválido» con el mensaje «¿Es separador de miles? Escribe 10000». Mientras tanto, los enunciados lo advierten (07-014).
+- [ ] Visual `grafica` en ejercicios (revisión del esquema de la 07, 2026-11-12): el pie siempre dice «Gráfica de $f(x)=$…» y muestra la fórmula (`visuals.ts:248-253`). Si se pregunta por $f'$, el pie lo contradice, y además regala la fórmula. Mientras tanto, la 07 llama $f$ a la función dibujada y $g$ a la incógnita ($g'=f$). Propuesta para el motor: un parámetro de etiqueta (`f'`) y uno para ocultar la fórmula. Es un cambio de código: va por `/equipo` (dev-interfaz o dev-motor), con su prueba y el ajuste en `docs/05`.
 - [ ] Inversas de sech, csch y coth: el programa (1.3.4) no las excluye y la 05 no las cubre. arcsec, arccsc y arccot entraron solo en la tabla de la 05, con nota de convención (decisión de Carlo, 2026-11-12). Falta saber qué convención de rango usa su curso.
 - [ ] Mientras no exista la 00, el mapa de maestría marca `regla-cadena`, `derivada-trig-inversa` y `derivada-hiperbolica-inversa` como bloqueados por `composicion-funciones`, `trigonometricas-inversas` y `hiperbolicas-inversas`. Es el mismo síntoma que con la 02.
   - `parse_expr` de `verify_content.py` no conoce `sen`, `senh`, `e` ni `log10`: la `respuesta` oficial va en sintaxis de sympy (`sin`, `exp(x)`, `log(x, 10)`). Conviene alinearlo con los alias de la app.
@@ -200,7 +202,8 @@ Plan (2026-10-13, rama `fase-3-calculo-discretas`): 0) rama y registro · 1) pru
   - [x] 03-derivada (2026-11-11)
   - [x] 04-reglas-derivacion (2026-11-11)
   - [x] 05-cadena-implicita (2026-11-12)
-  - [ ] 07 · [ ] 06 · [ ] 08 · [ ] 09 · [ ] 02
+  - [x] 07-maximos-minimos (2026-11-12)
+  - [ ] 06 · [ ] 08 · [ ] 09 · [ ] 02
 - [ ] Matemáticas discretas
 - [ ] Cierre formal: sesión real de ~20 min de Carlo y etiqueta `fase-3`
 
@@ -308,6 +311,37 @@ Complementan los ADR-001 a 008 de `docs/02`. Cada uno se escribe en el commit de
 **ADR-013 · Nomenclatura** (paso 1, decisión D1). Código, tablas y campos de IndexedDB en inglés, con equivalencias en `docs/02`. Las claves de YAML y del front matter siguen en español (son el formato de contenido). Los componentes MDX conservan su nombre en español porque son la API del contenido (`Predice` se implementa como `PredictPrompt`). Las URL van en español porque son interfaz. `APP_ID = 'cortex'` es inmutable (nombre de la base y marca de los respaldos); renombrar la app solo cambia `APP_NAME`. *Descartado:* todo en español (contradice `CLAUDE.md`) o una capa de traducción.
 
 ## Bitácora
+- 2026-11-12 · **Unidad `calculo/07-maximos-minimos`** (sprint del parcial; 3.5 completa: criterios, gráficas y optimización).
+  - **Convenciones (decidió Carlo):** «convexa» = ∪ y «cóncava» = ∩, como su profesor; punto crítico solo interior. Las dos van en la `notacion`.
+  - **Esquema:** objeción sin bloqueo de matemáticas, pedagogía y razonamiento.
+    - Una función hilo, $(x+1)^3(x-3)$, recorre críticos, $[a,b]$, tablas de $f'$ y $f''$, segundo criterio y trazado.
+    - Gancho original del costo por lote; el planteamiento de la optimización es calificable (el modelo evaluado en un punto, el dominio, el candidato y el valor).
+    - En las gráficas, $f$ es la función dibujada y $g$ la incógnita, porque el pie muestra la fórmula.
+    - Los intervalos se piden por sus bordes en `completar`, nunca como pares.
+    - Definiciones con sus hipótesis: valor extremo, primer criterio con $f$ continua, inflexión con tangente.
+  - **Contenido (lo escribió `autor-contenido`):**
+    - lección de unas 2,340 palabras (~25–28 min, un poco más que la 05);
+    - 25 ejercicios: 9 completar, 4 numéricos, 4 de opción múltiple, 3 de conjunto, 3 de selección múltiple, 1 simbólico y 1 autoevaluación. Por dificultad, 5/5/7/5/3; 7 conceptos, cada uno con 3 o más ejercicios de dificultades distintas;
+    - jefe con 8 propias (las 7 cubren los conceptos) y 3 de repaso (calc-05-009, calc-04-016 y calc-03-020), 1560 s.
+  - **`/revisar-contenido`:**
+    - a ciegas: 24/24 y, tras los arreglos, 12/12, sin discrepancias;
+    - checklist de los tres con objeción y sin respuestas erróneas.
+    - Con el sí de Carlo se aplicó:
+      - la lección recortada;
+      - el ejemplo de «el único crítico pide un intervalo» corregido, con $x^2+\frac2x$;
+      - el 023 cambiado, porque era casi el 4.21 de Stewart: ahora $x^2+9y^2=9$ con $(2,0)$;
+      - en el 014, «sin separador de miles»;
+      - en el 020, «tiende al mínimo desde todo $c_0$»;
+      - la hipótesis $f'(c)=0$ en el Ojo y el Feynman;
+      - el 006 sin filtrar el modelo;
+      - desvanecidos que retiran la clasificación y la justificación;
+      - en el jefe, el 015 (concavidad) en lugar del 022.
+    - Las asíntotas oblicuas se quedan para la 02.
+  - **Evidencia:**
+    - `content:check content/calculo` en verde (124 ejercicios, 99 por código y 25 manuales);
+    - `test:content` 313/313;
+    - `real-answers` 223/223;
+    - la lección se abrió en `localhost:3000` sin errores de KaTeX.
 - 2026-11-12 · **Unidad `calculo/05-cadena-implicita`** (sprint del parcial; 3.2.2 a 3.2.4 más las inversas de 3.2.1).
   - **Notación (decidió Carlo):** dy/dx en la cadena y la implícita; arcsenh, arccosh y arctanh.
   - **Esquema:** objeción sin bloqueo de matemáticas, pedagogía y razonamiento. Integra:

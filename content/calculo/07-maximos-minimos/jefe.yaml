@@ -1,0 +1,20 @@
+unidad: calculo/07-maximos-minimos
+nombre: "La Cordillera de los Extremos"
+vidas: 3
+# tiempo_segundos: suma de los tiempo_estimado_s de las 11 preguntas más 10 %. Propias: 010 (40) + 011 (120) +
+# 012 (120) + 013 (120) + 014 (210) + 015 (150) + 018 (150) + 023 (270) = 1180. Repaso: calc-05-009 (40) +
+# calc-04-016 (sin tiempo propio: 75, el del motor para d3) + calc-03-020 (sin tiempo propio: 120, el de d4) = 235.
+# Total 1415; con el 10 %, 1556.5, redondeado a 1560 s (26 min).
+tiempo_segundos: 1560
+aprobado_minimo: 0.8
+preguntas:
+  # d2: 010 · d3: 011, 012, 013, 014, 015 · d4: 018 · d5: 023. Sin autoevaluación ni ordenar.
+  # 2026-11-12 (tras /revisar-contenido): el 015 entra en lugar del 022; el 019 ya no da la inflexión del 015.
+  propias: [calc-07-010, calc-07-011, calc-07-012, calc-07-013, calc-07-014, calc-07-015, calc-07-018, calc-07-023]
+  # 3 de 11 (27 %), elegidas a mano y que la lección no cita: la segunda derivada de e^(x² − 2x) (05, d2), revisar
+  # con una secante la derivada de x/e^x (04, d3) y continuidad contra derivabilidad (03, d4).
+  # Oleadas 3/5/3 (waveSizes(11) del motor: 3.3/4.4/3.3, el sobrante a la de mayor residuo), por dificultad:
+  # 1.ª = los dos d2 (010 y calc-05-009) y uno de los seis d3; 2.ª = los otros cinco d3 (de 011, 012, 013, 014, 015
+  # y calc-04-016); 3.ª = los dos d4 (018 y calc-03-020) y 023.
+  repaso_de: [calc-05-009, calc-04-016, calc-03-020]
+recompensa: { xp: 300, insignia: "explorador-de-cimas" }

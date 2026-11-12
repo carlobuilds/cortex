@@ -1,0 +1,190 @@
+---
+titulo: "Máximos, mínimos y optimización: dónde gana una función"
+materia: calculo
+unidad: 07-maximos-minimos
+duracion_min: 25
+prerrequisitos: [funcion-derivada, derivadas-orden-superior, regla-cadena, regla-producto-cociente]
+conceptos: [puntos-criticos, extremos-absolutos, criterio-primera-derivada, concavidad-inflexion, criterio-segunda-derivada, trazado-graficas, optimizacion]
+programa_ref: "Cálculo, Unidad III, 3.5 (3.5.1 criterios de la primera y segunda derivada, 3.5.2 gráficas de funciones, 3.5.3 optimización)"
+---
+
+## El problema
+
+Supón que un taller produce en lotes de $q$ piezas y que el costo por pieza es $T(q)=2+\frac{50}{q}+0.02q$ pesos, con $q>0$ (datos hipotéticos): $\frac{50}{q}$ reparte el costo de preparar la máquina y $0.02q$ crece con el lote (almacén, piezas que esperan).
+
+<Predice pregunta="Sin hacer cuentas largas: $T(10)=7.2$ y $T(200)=6.25$. ¿Habrá un lote con un costo por pieza menor que los dos? ¿Más cerca de 10 o de 200?" revela="Sí, y más cerca de 10. Con lotes chicos manda $\frac{50}{q}$ y con grandes, $0.02q$; el equilibrio está en $q=50$, con $T(50)=4$ pesos. Al final se demuestra que ningún otro lote da menos." />
+
+Demostrar cuál lote es el mejor pide las herramientas de esta unidad. Para aprenderlas, casi toda la lección sigue una misma función, la **función hilo**, con derivadas que ya sabes sacar (unidad 04); en su gráfica, fíjate dónde toca fondo y dónde se aplana:
+
+$$f(x)=x^4-6x^2-8x-3=(x+1)^3(x-3),\qquad f'(x)=4(x+1)^2(x-2),\qquad f''(x)=12(x+1)(x-1).$$
+
+<Visual id="grafica" f="x^4 - 6*x^2 - 8*x - 3" dominio="-2, 3.2" titulo="La función hilo" />
+
+## Puntos críticos
+
+<Concepto titulo="Número crítico y extremos locales">
+Un **número crítico** de $f$ es un número $c$ **interior** al dominio de $f$ (no un borde) en el que $f'(c)=0$ o $f'(c)$ no existe. Muchos libros le dicen *punto crítico*, pero es un número del eje $x$, no un punto de la gráfica.
+
+$f$ tiene un **máximo local** en $c$ si hay un intervalo abierto alrededor de $c$, dentro del dominio, en el que $f(c)\ge f(x)$ para todo $x$; un **mínimo local**, con $\le$. Por eso los extremos locales son interiores. $f$ tiene un **máximo absoluto** en $c$ sobre un conjunto $D$ (un intervalo o todo el dominio) si $f(c)\ge f(x)$ para todo $x$ de $D$, y un **mínimo absoluto**, con $\le$; esos sí pueden estar en un borde.
+</Concepto>
+
+**Teorema de Fermat:** si $f$ tiene un extremo local en $c$ y $f'(c)$ existe, entonces $f'(c)=0$; por eso los extremos locales están en números críticos. Al revés no: un número crítico puede no ser extremo. (Algunos libros cuentan los bordes como críticos; aquí no.)
+
+- **La función hilo.** $f'(x)=4(x+1)^2(x-2)$ existe en todo $\mathbb R$ y vale 0 en $x=-1$ y en $x=2$: esos son sus números críticos.
+- **Donde $f'$ no existe.** $p(x)=\sqrt[3]{x^2}$ tiene $p'(x)=\frac{2}{3\sqrt[3]{x}}$, que no existe en 0, pero $p(0)=0$ sí existe: 0 es crítico (ahí la gráfica tiene una cúspide, una punta hacia abajo, y es un mínimo).
+
+## Extremos absolutos en un intervalo cerrado
+
+**Recordatorio (unidad 02):** $f$ es continua en $c$ si $\lim_{x\to c}f(x)=f(c)$ (en los bordes de $[a,b]$, con el límite lateral). Polinomios, racionales, raíces, $e^x$, $\ln x$, trigonométricas y sus combinaciones son continuas en su dominio, y derivable implica continua.
+
+<Concepto titulo="Teorema del valor extremo">
+Si $f$ es continua en un intervalo **cerrado y acotado** $[a,b]$, alcanza ahí un máximo absoluto y un mínimo absoluto: hay $c$ y $d$ en $[a,b]$ con $f(d)\le f(x)\le f(c)$ para todo $x$ de $[a,b]$.
+</Concepto>
+
+Las hipótesis hacen falta: $f(x)=x$ en $(0,1)$ no alcanza ni su máximo ni su mínimo, y $e^x$ en $[0,\infty)$ no tiene máximo. Son suficientes, no necesarias.
+
+**Método del intervalo cerrado** (con $f$ continua en $[a,b]$):
+1. Encuentra los números críticos de $f$ que están en $(a,b)$.
+2. Evalúa $f$ en ellos y en los bordes $a$ y $b$.
+3. El mayor valor es el máximo absoluto y el menor, el mínimo absoluto.
+
+<Ejemplo titulo="La función hilo en [0, 3]">
+1. De los críticos $-1$ y $2$, solo $2$ está en $(0,3)$: el $-1$ no es candidato.
+2. $f(0)=-3$, $f(2)=-27$ y $f(3)=0$.
+3. El máximo absoluto es $0$, en $x=3$ (un borde), y el mínimo absoluto es $-27$, en $x=2$.
+</Ejemplo>
+
+## Crecimiento y criterio de la primera derivada
+
+$f$ es **creciente** en un intervalo $I$ si $x_1<x_2$ en $I$ implica $f(x_1)<f(x_2)$, y **decreciente** si implica $f(x_1)>f(x_2)$. **Criterio:** si $f$ es continua en $I$ y $f'>0$ en el interior de $I$, $f$ crece en $I$; si $f'<0$, decrece. Cerramos cada intervalo en los bordes donde $f$ es continua (si en tu clase los dejan abiertos, también es correcto).
+
+<Concepto titulo="Criterio de la primera derivada">
+Sea $c$ un número crítico de $f$, con $f$ **continua en $c$**. Si $f'$ pasa de $+$ a $-$ en $c$, hay un máximo local; si pasa de $-$ a $+$, un mínimo local; si no cambia de signo, no hay extremo.
+</Concepto>
+
+<Ejemplo titulo="La tabla de signos de la función hilo">
+Los críticos $-1$ y $2$ parten la recta en tres tramos; en cada uno basta un punto de prueba.
+
+| $x$ | $(-\infty,-1)$ | $-1$ | $(-1,2)$ | $2$ | $(2,\infty)$ |
+|---|---|---|---|---|---|
+| prueba | $f'(-2)=-16$ | | $f'(0)=-8$ | | $f'(3)=64$ |
+| signo de $f'$ | $-$ | $0$ | $-$ | $0$ | $+$ |
+| $f$ | baja | sin extremo | baja | mínimo | sube |
+
+Como $f$ es continua en $-1$, los dos tramos donde baja se pegan: $f$ decrece en $(-\infty,2]$ y crece en $[2,\infty)$. En $-1$ no hay extremo (el signo no cambia) y en $2$ hay un mínimo local, $f(2)=-27$.
+</Ejemplo>
+
+<Desvanecido titulo="Ahora tú: una tabla de signos" pasos={[
+  "Clasifica los números críticos de $g(x)=x^3-3x^2-24x+1$, con $g'(x)=3(x+2)(x-4)$: los críticos $-2$ y $4$ parten la recta en tres tramos.",
+  "Prueba en $(-\\infty,-2)$: $g'(-3)=21>0$, así que $g$ sube.",
+  "Prueba en $(-2,4)$: $g'(0)=$ ___ . Prueba en $(4,\\infty)$: $g'(6)=$ ___ .",
+  "Lee los cambios de signo: el máximo local está en $x=$ ___ y vale ___ ; el mínimo local está en $x=$ ___ ."
+]} respuestas={["-24", "48", "-2", "29", "4"]} />
+
+## Concavidad e inflexión
+
+<Concepto titulo="Convexa (∪), cóncava (∩) e inflexión">
+$f$ es **convexa (∪)** en un intervalo $I$ si $f'$ crece en $I$, y **cóncava (∩)** si $f'$ decrece. Muchos libros dicen *cóncava hacia arriba* para ∪ y *cóncava hacia abajo* para ∩; otros libros usan «cóncava» a secas para ∪, al revés que aquí. Por eso aquí siempre va el símbolo; en el examen, escríbelo también. Por el criterio anterior aplicado a $f'$: si $f''>0$ en $I$, $f$ es convexa (∪); si $f''<0$, cóncava (∩). (Si $f$ es derivable, convexa quiere decir que la gráfica queda arriba de cada tangente, y cóncava, abajo.)
+
+Un **punto de inflexión** es un punto $(c,f(c))$ de la gráfica donde $f$ es continua, la concavidad cambia y hay recta tangente (puede ser vertical). Los candidatos son los $c$ del dominio donde $f''(c)=0$ **o** $f''(c)$ no existe; luego se revisa si $f''$ cambia de signo.
+</Concepto>
+
+En la función hilo, $f''(x)=12(x+1)(x-1)$ existe en todo $\mathbb R$ y se anula en $-1$ y en $1$:
+
+| $x$ | $(-\infty,-1)$ | $-1$ | $(-1,1)$ | $1$ | $(1,\infty)$ |
+|---|---|---|---|---|---|
+| prueba | $f''(-2)=36$ | | $f''(0)=-12$ | | $f''(2)=36$ |
+| signo de $f''$ | $+$ | $0$ | $-$ | $0$ | $+$ |
+| $f$ | convexa (∪) | inflexión | cóncava (∩) | inflexión | convexa (∪) |
+
+La función hilo tiene dos puntos de inflexión: $(-1,0)$, con tangente horizontal porque $f'(-1)=0$, y $(1,-16)$.
+
+**$f''=0$ no basta.** $x^4$ tiene $f''(0)=0$ y es convexa (∪) a los dos lados: no hay inflexión (lo mismo pasa en una raíz doble de $f''$). Y $\frac1x$ cambia de concavidad en 0, que no está en el dominio: tampoco hay inflexión. En cambio, $\sqrt[3]{x}$ no tiene $f''(0)$ y sí tiene inflexión en $(0,0)$, con tangente vertical.
+
+## Criterio de la segunda derivada
+
+<Concepto titulo="Criterio de la segunda derivada">
+Si $f'(c)=0$ y $f''(c)$ existe:
+
+- con $f''(c)>0$ hay un mínimo local, porque $\frac{f'(x)}{x-c}=\frac{f'(x)-f'(c)}{x-c}\to f''(c)>0$, así que cerca de $c$ la derivada es negativa a la izquierda y positiva a la derecha (va de $-$ a $+$);
+- con $f''(c)<0$, un máximo local, porque $f'$ va de $+$ a $-$;
+- con $f''(c)=0$, el criterio **no decide** y hay que usar el de la primera derivada.
+
+No aplica donde $f'(c)$ no existe.
+</Concepto>
+
+En la función hilo, $f''(2)=36>0$: mínimo local en 2. En cambio, $f''(-1)=0$ no decide, y la tabla de $f'$ dice que en $-1$ no hay extremo. Con $f'(0)=f''(0)=0$ pasa de todo: $x^3$ no tiene extremo en 0, $x^4$ tiene un mínimo y $-x^4$, un máximo.
+
+## Trazado de gráficas
+
+**Recordatorio (unidad 02):** $x=a$ es **asíntota vertical** si $f(x)\to\pm\infty$ por algún lado de $a$ (en una racional simplificada, donde se anula el denominador); $y=L$ es **asíntota horizontal** si $f(x)\to L$ cuando $x\to\infty$ o $x\to-\infty$, y la curva puede cruzarla. Las oblicuas se ven en la 02.
+
+Para dibujar una gráfica:
+1. **Dominio.**
+2. **Cortes con los ejes:** $f(0)$ y las soluciones de $f(x)=0$.
+3. **Simetría:** **par** si $f(-x)=f(x)$ (respecto al eje $y$) e **impar** si $f(-x)=-f(x)$ (respecto al origen).
+4. **Asíntotas** verticales y horizontales.
+5. **$f'$ y $f''$:** crecimiento, extremos, concavidad e inflexiones.
+6. **Tabla y dibujo:** une los puntos clave respetando la forma de cada tramo.
+
+<Ejemplo titulo="La función hilo, armada">
+1. **Dominio:** $\mathbb R$.
+2. **Cortes:** $(-1,0)$, $(3,0)$ y $(0,-3)$.
+3. **Simetría:** ninguna; $f(1)=-16$ y $f(-1)=0$ no son iguales ni opuestos.
+4. **Asíntotas:** ninguna, es un polinomio; $f(x)\to\infty$ cuando $x\to\pm\infty$.
+5. **$f'$ y $f''$:** baja hasta el mínimo, $-27$ en $x=2$, y luego sube; es ∪, luego ∩ entre $-1$ y $1$, y otra vez ∪.
+6. **Dibujo:** une esos puntos con esa forma y compáralo con la gráfica del principio; en el punto $(-1,0)$ se aplana, con tangente horizontal, sin dejar de bajar.
+</Ejemplo>
+
+## Optimización
+
+1. **Entiende** qué se optimiza y qué se reporta: ¿dónde, cuánto o las dos cosas?
+2. **Modela** esa cantidad con **una** variable, usando la condición que amarra a las demás.
+3. **Dominio:** ¿cerrado, abierto, no acotado?
+4. **Candidatos:** los críticos del dominio y los bordes que incluya.
+5. **Justifica el global** con un argumento que cubra todo el dominio.
+6. **Responde** lo que se pidió, con unidades.
+
+En $[a,b]$ basta el método del intervalo cerrado. En otro intervalo (abierto o no acotado), el global se justifica con uno de estos argumentos:
+- **(a) Signo de $f'$:** $f$ crece hasta $c$ y decrece después, o al revés, en todo el intervalo.
+- **(b) Signo de $f''$:** $f'(c)=0$ y $f''$ tiene el mismo signo en todo el intervalo.
+- **(c) Único crítico:** $f$ es continua en el intervalo, $c$ es su único número crítico y es extremo local.
+
+Los tres piden un **intervalo**: $k(x)=x^2+\frac2x$ tiene un solo número crítico, $x=1$ (de $k'(x)=2x-\frac2{x^2}=0$ sale $x^3=1$); en $(0,\infty)$, $k(1)=3$ es el mínimo absoluto, pero en $\mathbb R\setminus\{0\}$, que no es un intervalo, no lo es: $k(-1)=-1$. Si una solución de $f'=0$ cae fuera del dominio del problema, no es candidata, y el extremo puede quedar en un borde.
+
+<Ejemplo titulo="El lote más barato">
+1. **Entiende.** Minimizar $T$; reportar el lote y el costo por pieza.
+2. **Modela.** Ya viene en una variable: $T(q)=2+\frac{50}{q}+0.02q$.
+3. **Dominio.** $q>0$: abierto y no acotado, así que no hay método del intervalo cerrado.
+4. **Candidatos.** $T'(q)=-\frac{50}{q^2}+0.02$ existe en todo $q>0$ y vale 0 si $q^2=2500$: $q=50$ (el $-50$ queda fuera).
+5. **Justifica el global.** $T''(q)=\frac{100}{q^3}>0$ en todo $q>0$: $T$ es convexa (∪) en todo el dominio y queda arriba de su tangente horizontal en $q=50$. El mínimo es global.
+6. **Responde.** Lotes de 50 piezas, a $T(50)=2+1+1=4$ pesos por pieza. Revisa: $T(10)=7.2$ y $T(200)=6.25$ son mayores.
+</Ejemplo>
+
+<Desvanecido titulo="Ahora tú: la potencia máxima" pasos={[
+  "Supón que una fuente de 12 V con resistencia interna de 2 Ω alimenta una resistencia $R$ (en Ω) con potencia $P(R)=\\dfrac{144R}{(R+2)^2}$ W, $R>0$. ¿Qué $R$ da la potencia máxima, y cuánto vale esa potencia?",
+  "Por el cociente: $P'(R)=\\dfrac{144\\left[(R+2)^2-2R(R+2)\\right]}{(R+2)^4}=\\dfrac{144(4-R^2)}{(R+2)^4}$, que existe en todo $R>0$.",
+  "$4-R^2=0$ en $R=\\pm2$; en el dominio, el único candidato es $R=$ ___ .",
+  "Justifica el global: el signo de $P'$ es el de $4-R^2$, que en $R=1$ vale ___ y en $R=3$ vale ___ . $P$ crece y luego decrece en todo el dominio: el máximo es global.",
+  "Responde: la potencia máxima es $P=$ ___ W."
+]} respuestas={["2", "3", "-5", "18"]} />
+
+<Ojo>
+- **Con $f'(c)=0$, $f''(c)<0$ solo da un máximo local**, no el de todo el problema: compara con los bordes o usa un argumento que cubra el dominio.
+- **$h(x)=x+\frac4x$ no tiene crítico en 0:** $h'(0)$ no existe, pero 0 no está en el dominio. Y no unas intervalos a través de él: $h$ decrece en $[-2,0)$ y en $(0,2]$, pero $h(-1)=-5<h(1)=5$.
+- **En $[a,b]$, evalúa también los bordes.**
+- **El número crítico es un $x$; el valor es $f(x)$.** Responde lo que te piden, con unidades.
+- **$f'(c)=0$ no garantiza un extremo:** $x^3$.
+</Ojo>
+
+<Conexion materia="Inteligencia artificial">
+Entrenar un modelo es minimizar una función de pérdida $L$. El descenso de gradiente usa el signo de la derivada: si $L'(w)>0$, bajar $w$ baja la pérdida, así que el algoritmo da el paso $w\leftarrow w-\eta L'(w)$, con $\eta$ la tasa de aprendizaje. En IA, «convexa» es justo ∪, como en este curso, y en una pérdida convexa todo mínimo local es global. En inglés: *gradient descent*, *learning rate*, *loss*; *convex* es ∪ y *concave* es ∩, igual que aquí; en *first/second derivative test*, *test* es «criterio», no examen.
+</Conexion>
+<Resumen>
+- Los extremos locales están en números críticos (interiores, con $f'=0$ o sin $f'$); en $[a,b]$, los extremos absolutos salen de comparar los críticos con los bordes.
+- El signo de $f'$ dice dónde crece $f$ y clasifica los críticos; el de $f''$ dice dónde es convexa (∪) o cóncava (∩), y clasifica un crítico con $f'(c)=0$ si $f''(c)\neq0$.
+- Optimizar: entiende, modela en una variable, fija el dominio, busca candidatos, justifica que el ganador es global y responde con unidades.
+</Resumen>
+<Feynman>
+Explícale a un amigo por qué, si $f'(c)=0$ y $f''(c)<0$, tienes un máximo local, pero eso no basta para decir que es el máximo de todo el problema. Haz un dibujo: ¿qué puede pasar lejos de $c$? Si te trabas, vuelve a la sección de optimización.
+</Feynman>
