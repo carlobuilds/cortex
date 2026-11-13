@@ -1,0 +1,161 @@
+---
+titulo: "Antiderivadas: integrar es buscar, derivar es revisar"
+materia: calculo
+unidad: 08-antiderivadas
+duracion_min: 25
+prerrequisitos: [reglas-basicas-derivacion, regla-producto-cociente, regla-cadena, derivada-trigonometrica, derivada-hiperbolica, derivada-exponencial-logaritmica, derivada-trig-inversa]
+conceptos: [antiderivada, integrales-inmediatas, antiderivada-condicion-inicial, integracion-sustitucion, integracion-partes]
+programa_ref: "Cálculo, Unidad IV, 4.1 (antiderivada e integración indefinida), 4.2 (integración por sustitución) y 4.3 (integración por partes)"
+---
+
+## El problema
+
+En un examen, a Sofía y a Diego les tocó $\int2\operatorname{sen}x\cos x\,dx$. Sofía escribió $\operatorname{sen}^2x+C$ y Diego, $-\cos^2x+C$. Se ven distintas, y cada uno jura que la suya está bien.
+
+<Predice pregunta="Sin integrar nada: ¿quién tiene razón: Sofía, Diego, los dos o ninguno? ¿Cómo lo comprobarías?" revela="Los dos. Al derivar, $(\operatorname{sen}^2x)'=2\operatorname{sen}x\cos x$ y $(-\cos^2x)'=2\cos x\operatorname{sen}x$: las dos devuelven el integrando. Además, $\operatorname{sen}^2x-(-\cos^2x)=1$: difieren en una constante, y la $C$ la absorbe. Derivar es como se revisa una integral." />
+
+## Antiderivada e integral indefinida
+
+<Concepto titulo="Antiderivada">
+$F$ es una **antiderivada** de $f$ en un intervalo $I$ si $F'(x)=f(x)$ para todo $x$ de $I$. Por ejemplo, $x^3$ es una antiderivada de $3x^2$, y $x^3+7$ también.
+
+Si $F$ y $G$ son antiderivadas de $f$ en el **mismo intervalo**, $(F-G)'=0$ en todo él, y una función con pendiente 0 en todo un intervalo es constante (lo tomamos como dato). Así, todas las antiderivadas de $f$ en ese intervalo son $F+C$, con $C$ constante. Esa familia es la **integral indefinida**:
+
+$$\int f(x)\,dx=F(x)+C.$$
+
+$f$ es el **integrando** y $dx$ indica la variable.
+</Concepto>
+
+**Integrar es buscar; derivar es revisar.** Para derivar siempre hay una regla; para integrar, no: hay que buscar con método. Por eso el hábito de esta unidad es **Revisa: deriva tu resultado**. Si te devuelve el integrando, es una antiderivada.
+
+## La tabla al revés
+
+Estas derivadas de las unidades 04 y 05, leídas al revés, dan una tabla de integrales (en el renglón de $a^x$, con $a>0$ y $a\neq1$):
+
+| $f(x)$ | $\int f(x)\,dx$ | $f(x)$ | $\int f(x)\,dx$ |
+|---|---|---|---|
+| $x^n$, $n\neq-1$ | $\frac{x^{n+1}}{n+1}+C$ | $\sec^2x$ | $\tan x+C$ |
+| $\frac1x$ | $\ln\lvert x\rvert+C$ | $\sec x\tan x$ | $\sec x+C$ |
+| $e^x$ | $e^x+C$ | $\frac1{1+x^2}$ | $\arctan x+C$ |
+| $a^x$ | $\frac{a^x}{\ln a}+C$ | $\frac1{\sqrt{1-x^2}}$ | $\operatorname{arcsen}x+C$ |
+| $\operatorname{sen}x$ | $-\cos x+C$ | $\operatorname{senh}x$ | $\cosh x+C$ |
+| $\cos x$ | $\operatorname{sen}x+C$ | $\cosh x$ | $\operatorname{senh}x+C$ |
+
+¿Por qué $\lvert x\rvert$? Para $x>0$, $(\ln x)'=\frac1x$; para $x<0$, $(\ln(-x))'=\frac{-1}{-x}=\frac1x$. Las barras juntan los dos casos, pero $x\neq0$ no es un intervalo: $\ln\lvert x\rvert+C$ da todas las antiderivadas en $(0,\infty)$ y, por separado, en $(-\infty,0)$, y la $C$ de un lado no tiene que ser la del otro. Así se lee cada renglón: en un intervalo donde el integrando esté definido (para $\sec^2x$, uno sin ceros de $\cos x$).
+
+<Ojo>
+Cuida los signos: $\int\operatorname{sen}x\,dx=-\cos x+C$, porque $(\cos x)'=-\operatorname{sen}x$; pero $\int\operatorname{senh}x\,dx=\cosh x+C$, sin menos.
+</Ojo>
+
+**Linealidad:** $\int[af(x)+bg(x)]\,dx=a\int f(x)\,dx+b\int g(x)\,dx$, con $a$ y $b$ constantes. No hay regla para integrar un producto o un cociente factor por factor: si se puede, primero se reescribe como suma.
+
+$$\int\sqrt x\,(x-3)\,dx=\int\left(x^{3/2}-3x^{1/2}\right)dx=\tfrac25x^{5/2}-2x^{3/2}+C.$$
+
+## Condición inicial
+
+Un dato $F(a)=b$ elige un miembro de la familia (en un intervalo que contenga a $a$): integra con todo y $C$, sustituye el dato y despeja $C$. Si $F'(x)=e^x+2x$ y $F(0)=5$, entonces $F(x)=e^x+x^2+C$ y $F(0)=1+C=5$, así que $C=4$: $F(x)=e^x+x^2+4$. Si conoces $f''$ (por ejemplo, una aceleración), se integra dos veces: salen dos constantes y hacen falta dos datos.
+
+## Sustitución
+
+<Concepto titulo="Sustitución: la cadena al revés">
+Por la cadena, $\frac{d}{dx}F(g(x))=F'(g(x))\,g'(x)$. Leída al revés, si $g$ es derivable en un intervalo y $F'=f$ en un intervalo que contiene todos los valores de $g$:
+
+$$\int f(g(x))\,g'(x)\,dx=\int f(u)\,du,\qquad u=g(x),\quad du=g'(x)\,dx,$$
+
+con la diferencial $du$ de la unidad 06. La idea: **propón, deriva y ajusta**. Busca una función de adentro cuya derivada, salvo un factor constante, multiplique al resto.
+</Concepto>
+
+1. **Elige $u$:** la función de adentro.
+2. **Calcula $du$** y ajusta la constante que falte.
+3. **Reescribe** todo en $u$: no debe quedar ninguna $x$.
+4. **Integra** en $u$.
+5. **Regresa a $x$.**
+6. **Revisa:** deriva el resultado.
+
+Si sobra una $x$ que $du$ no absorbe, despéjala de la igualdad que define a $u$.
+
+<Ejemplo titulo="Una potencia con su derivada al lado">
+Calcula $\int\frac{6x+3}{(x^2+x+2)^3}\,dx$.
+
+1. **Elige $u$.** No es inmediata: no está en la tabla, y desarrollar el cubo del denominador no ayuda. Pero dentro de la potencia está $x^2+x+2$, y su derivada, $2x+1$, se parece al numerador: esa es la función de adentro. Con $u=6x+3$ no avanzas, porque el denominador no se escribe en esa $u$ sin complicarse.
+2. **$du$ y el ajuste.** Con $u=x^2+x+2$, $du=(2x+1)\,dx$. El numerador no es $2x+1$, pero es un múltiplo: $6x+3=3(2x+1)$. Entonces $(6x+3)\,dx=3\,du$; el 3 es la constante que ajusta.
+3. **Reescribe.** $\int\frac{3\,du}{u^3}=3\int u^{-3}\,du$. Ya no queda ninguna $x$: si quedara, la sustitución estaría incompleta.
+4. **Integra.** Con la potencia de la tabla, $3\cdot\frac{u^{-2}}{-2}+C=-\frac{3}{2u^2}+C$.
+5. **Regresa a $x$.** $-\frac{3}{2(x^2+x+2)^2}+C$.
+6. **Revisa.** Por la cadena, $\frac{d}{dx}\left[-\frac32(x^2+x+2)^{-2}\right]=-\frac32\cdot(-2)(x^2+x+2)^{-3}(2x+1)=\frac{6x+3}{(x^2+x+2)^3}$: es el integrando.
+</Ejemplo>
+
+<Desvanecido titulo="Ahora tú: sustitución" pasos={[
+  "Calcula $\\int\\frac{\\cos x}{(2+\\operatorname{sen}x)^2}\\,dx$.",
+  "Con $u=2+\\operatorname{sen}x$, $du=\\cos x\\,dx$, así que la integral es $\\int u^{n}\\,du$ con $n=$ ___ .",
+  "Integra y regresa a $x$: el resultado es $\\frac{k}{2+\\operatorname{sen}x}+C$, con $k=$ ___ .",
+  "Revisa con un punto: la derivada de tu resultado en $x=0$ vale ___ , y tiene que coincidir con el integrando en $x=0$. Es una prueba rápida, que descubre errores pero no los descarta; la completa es derivar en general."
+]} respuestas={["-2", "-1", "0.25"]} />
+
+## Integración por partes
+
+<Concepto titulo="Integración por partes: el producto al revés">
+Si $u$ y $v$ tienen derivada continua, de $(uv)'=u'v+uv'$ sale, al integrar y despejar:
+
+$$\int u\,dv=uv-\int v\,du,\qquad du=u'(x)\,dx,\quad dv=v'(x)\,dx.$$
+
+Cambia una integral por otra. El criterio de fondo para elegir: que $dv$ se pueda integrar y que $\int v\,du$ quede **más fácil** que la original.
+</Concepto>
+
+- **LIATE** (logarítmica, inversa trigonométrica, algebraica, trigonométrica, exponencial) es una heurística: toma como $u$ el factor cuyo tipo sale antes en esa lista. A veces falla; manda el criterio de fondo.
+- **Con un ln o un arctan solos**, toma $dv=dx$: $\int\ln x\,dx=x\ln x-\int x\cdot\frac1x\,dx=x\ln x-x+C$. Guárdala como un renglón más de la tabla.
+- **$v$ puede ir sin constante:** con $v+K$, la fórmula da $u(v+K)-\int(v+K)\,du=uv-\int v\,du$, porque $-K\int du=-Ku$ (más una constante, que absorbe la $C$) cancela a $Ku$.
+
+<Ejemplo titulo="Un polinomio por un coseno">
+Calcula $\int x\cos(4x)\,dx$.
+
+1. **Tipo.** No es inmediata, y no es sustitución: la función de adentro, $4x$, tiene derivada 4, que no absorbe la $x$ de afuera. Es un polinomio por una trigonométrica: partes.
+2. **Elige.** $u=x$, porque al derivarla queda 1, y $dv=\cos(4x)\,dx$, porque se integra con la tabla.
+3. **$du$ y $v$.** $du=dx$ y $v=\frac14\operatorname{sen}(4x)$ (sustitución con $w=4x$), sin constante.
+4. **La fórmula.** $\int x\cos(4x)\,dx=uv-\int v\,du=\frac x4\operatorname{sen}(4x)-\int\frac14\operatorname{sen}(4x)\,dx$. La integral nueva ya no tiene $x$ multiplicando: es más fácil, como pide el criterio.
+5. **La integral que queda.** $\int\frac14\operatorname{sen}(4x)\,dx=-\frac1{16}\cos(4x)$, y al restarla cambia de signo: el resultado es $\frac x4\operatorname{sen}(4x)+\frac1{16}\cos(4x)+C$.
+6. **Revisa.** Por el producto, $\left[\frac x4\operatorname{sen}(4x)\right]'=\frac14\operatorname{sen}(4x)+x\cos(4x)$, y $\left[\frac1{16}\cos(4x)\right]'=-\frac14\operatorname{sen}(4x)$: suman $x\cos(4x)$.
+
+Con la elección contraria, $u=\cos(4x)$ y $dv=x\,dx$, la integral que queda es $\int2x^2\operatorname{sen}(4x)\,dx$: la potencia sube y es más difícil que la original.
+</Ejemplo>
+
+<Desvanecido titulo="Ahora tú: por partes" pasos={[
+  "Calcula $\\int x\\operatorname{sen}(x/2)\\,dx$ con $u=x$ y $dv=\\operatorname{sen}(x/2)\\,dx$.",
+  "Al derivar $u=x$ queda 1, y $dv$ se integra con la tabla. Entonces $du=dx$ y, al integrar $dv$ (no al derivarlo), $v=$ ___ $\\cos(x/2)$, sin constante.",
+  "Por la fórmula: $\\int x\\operatorname{sen}(x/2)\\,dx=uv-\\int v\\,du=xv+$ ___ $\\int\\cos(x/2)\\,dx$.",
+  "Como $\\int\\cos(x/2)\\,dx=2\\operatorname{sen}(x/2)$, en el resultado el coeficiente de $\\operatorname{sen}(x/2)$ es ___ . Revisa: deriva tu resultado."
+]} respuestas={["-2", "2", "4"]} />
+
+**Partes cíclicas.** A veces, tras dos rondas de partes, reaparece la integral original. Llámala $I$, pásala al otro lado, despeja y suma la $C$ al final. En la segunda ronda usa el mismo tipo de $u$; si no, deshaces lo hecho.
+
+## ¿Qué técnica uso?
+
+Antes de calcular, haz un plan con este **triaje**: recorre las preguntas en orden y quédate con la primera que diga «sí»; suele ser el camino más corto.
+
+1. ¿Es inmediata, o lo es al desarrollar, simplificar o dividir? → la tabla.
+2. ¿Hay una función de adentro cuya derivada, salvo un factor constante, multiplica al resto? → sustitución.
+3. ¿Es un producto de dos tipos de función distintos (de los de LIATE), o un ln o un arctan solos? → partes.
+
+El orden importa: $xe^{x^2}$ es un producto, pero la 2 dice «sí» antes, y por partes se complica. Si te queda otra integral, como la $\int v\,du$ de partes, pásala otra vez por el triaje. Si nada encaja, prueba una sustitución que simplifique; en la unidad 09 llegan tres técnicas más. Siempre: revisa derivando.
+
+## Errores comunes
+
+<Ojo>
+- **El factor de $du$.** Con $u=4x-1$, $du=4\,dx$, así que $dx=\frac{du}4$, y el $\frac14$ se queda.
+- **No se divide entre la derivada de adentro.** $\int\cos(x^2)\,dx\neq\frac{\operatorname{sen}(x^2)}{2x}$: el $\frac1{2x}$ no puede salir de la integral como si fuera una constante.
+- **No se integra factor por factor.** $\int x\cdot x^2\,dx=\int x^3\,dx=\frac{x^4}4+C$, no $\frac{x^2}2\cdot\frac{x^3}3$.
+- **En partes,** el menos de $-\int v\,du$ afecta a toda la integral, y $v$ sale de **integrar** $dv$.
+- **Barras y constante.** $\int\frac{dx}x=\ln\lvert x\rvert+C$: sin las barras, solo vale para $x>0$. Con una condición inicial, primero despeja $C$ y después evalúa en el punto que te piden.
+</Ojo>
+
+<Conexion materia="Inteligencia artificial">
+Derivar es mecánico: por eso las bibliotecas de redes neuronales calculan gradientes automáticamente (retropropagación). Integrar no siempre tiene fórmula. La probabilidad de que una variable normal estándar caiga en un intervalo sale de integrar $e^{-x^2/2}$, que no tiene antiderivada elemental: las bibliotecas calculan esa integral numéricamente (unidad 10). En cambio, $xe^{-x^2/2}$ sí sale con lo de esta unidad.
+</Conexion>
+<Resumen>
+- Una antiderivada de $f$ en un intervalo es una $F$ con $F'=f$; todas son $F+C$, y un dato $F(a)=b$ fija la $C$.
+- Sustitución es la cadena al revés (una función de adentro con su derivada al lado); partes sale de la regla del producto y conviene cuando $\int v\,du$ queda más fácil que la original.
+- Integrar es buscar y derivar es revisar: deriva siempre tu resultado.
+</Resumen>
+<Feynman>
+Explícale a un amigo por qué $\operatorname{sen}^2x+C$ y $-\cos^2x+C$ son correctas las dos, y cómo decides entre sustitución y partes con solo mirar el integrando. Si te trabas, vuelve a «Antiderivada e integral indefinida» o a «¿Qué técnica uso?».
+</Feynman>

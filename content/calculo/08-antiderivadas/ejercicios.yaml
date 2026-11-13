@@ -1,0 +1,615 @@
+# Unidad 08 · Antiderivadas, sustitución y por partes (Unidad IV, 4.1 a 4.3). Sprint del 3.er parcial.
+# Esquema revisado por experto-matematicas, pedagogo y arquitecto-razonamiento (esquema-08, 2026-11-12).
+# Anclas (primer ejercicio de cada concepto, workedExampleFor): 001 AD, 002 II, 003 CI, 004 SU, 005 PA.
+# Un solo concepto por ejercicio, porque workedExampleFor muestra el más fácil de CUALQUIER concepto compartido; la
+# única excepción es el 015 (clasificar por técnica).
+# Abreviaturas: AD antiderivada · II integrales-inmediatas · CI antiderivada-condicion-inicial ·
+# SU integracion-sustitucion · PA integracion-partes.
+# Convenciones de Carlo: dy/dx; arcsen y arcsenh; logaritmos con base; «convexa» = ∪.
+# salvo_constante (primera unidad que lo usa): siempre con `variables`, para que una c minúscula salga inválida con
+# aviso («No esperaba la variable c») y no «mal» sin explicación; la app acepta `+ C` en mayúscula. En los simbólicos,
+# los argumentos de ln son positivos (x² + 4) o se pide x > 0, y la `respuesta` va sin abs: la app no distingue ln x
+# de ln|x| (descarta los NaN) y verify_content.py falla con abs contra un integrate. El |x| se califica con un
+# numérico en x < 0 (016) y con el contraejemplo de las dos constantes (025).
+# `completar` y `<Desvanecido>`: solo huecos numéricos (enteros, decimales sin redondear o fracciones como 1/6).
+# Condición inicial: siempre C ≠ 0, para que olvidar la C dé otro número.
+# En `verificar`, `f` no existe: para dsolve, (lambda f: …)(Function('f')).
+# Desde d3: la primera pista es el triaje (o la pista modelo del esquema), salvo en el 011 y el 022, que no piden
+# integrar, y en el 013, que primero pide revisar a Ana. La explicación abre con «Tipo.» y cierra con «Revisa:»
+# derivando, y el enunciado no nombra la técnica (salvo el 015, que es el triaje mismo).
+# «Salvo un factor constante» (el triaje: la derivada de adentro, multiplicada por un número) no es «salvo una
+# constante» (la +C).
+# Los textos con apóstrofo (f') van en bloques `>-`: así no hay que escapar ni comillas ni barras.
+unidad: calculo/08-antiderivadas
+ejercicios:
+  # razonamiento: deductivo (revisar cada candidata derivándola; una constante no cambia la derivada) · R0
+  # verificar: la derivada de sympy de cada opción contra el integrando (True = es antiderivada).
+  - id: calc-08-001
+    tipo: seleccion_multiple
+    dificultad: 1
+    conceptos: [antiderivada]
+    enunciado: >-
+      ¿Cuáles de estas funciones son antiderivadas de $f(x)=6x(x^2+1)^2$ en todo $\mathbb R$? Puede haber varias.
+    opciones:
+      - >-
+        $(x^2+1)^3$
+      - >-
+        $\dfrac{(x^2+1)^3}{3}$
+      - >-
+        $x^6+3x^4+3x^2$
+      - >-
+        $3x^2(x^2+1)^2$
+      - >-
+        $(x^2+1)^3-4$
+      - >-
+        $x^2(x^2+1)^3$
+    correctas: [0, 2, 4]
+    verificar: { sympy: "[simplify(diff(F, x) - 6*x*(x**2 + 1)**2) == 0 for F in [(x**2 + 1)**3, (x**2 + 1)**3/3, x**6 + 3*x**4 + 3*x**2, 3*x**2*(x**2 + 1)**2, (x**2 + 1)**3 - 4, x**2*(x**2 + 1)**3]]" }
+    pistas:
+      - >-
+        ¿Cómo compruebas, sin integrar, que una función es antiderivada de otra? Si dos candidatas difieren en una constante, ¿puede ser una sí y la otra no?
+    explicacion: >-
+      $F$ es antiderivada de $f$ si $F'=f$, así que se revisa derivando cada candidata. $(x^2+1)^3$: por la cadena, $3(x^2+1)^2\cdot2x=6x(x^2+1)^2$, sí. $(x^2+1)^3-4$: la constante deriva a 0, así que da lo mismo; sí. $x^6+3x^4+3x^2$: es $(x^2+1)^3-1$ desarrollada, y su derivada, $6x^5+12x^3+6x=6x(x^2+1)^2$; sí. Las tres difieren en constantes: son miembros de la misma familia, $\int6x(x^2+1)^2\,dx=(x^2+1)^3+C$. Las otras no: $\frac{(x^2+1)^3}{3}$ deriva a $2x(x^2+1)^2$, la tercera parte de $f$; $3x^2(x^2+1)^2$ integra solo el factor $6x$ y deja el otro igual, y al derivarla por el producto sale $6x(x^2+1)^2+12x^3(x^2+1)$, con un término de más; $x^2(x^2+1)^3$ deriva a $2x(x^2+1)^3+6x^3(x^2+1)^2$, que tampoco es $f$. Un producto no se integra factor por factor: cada candidata se revisa derivándola entera.
+    tiempo_estimado_s: 45
+
+  # razonamiento: algorítmico (linealidad y la tabla: √x como potencia y el signo de ∫senh) · R0
+  # verificar: la integral de sympy; con salvo_constante basta que la diferencia sea constante.
+  - id: calc-08-002
+    tipo: simbolico
+    dificultad: 1
+    conceptos: [integrales-inmediatas]
+    enunciado: >-
+      Calcula $\int\left(4x^3-6\sqrt x+\dfrac{2}{1+x^2}+3\operatorname{senh}x\right)dx$, para $x>0$. Escribe solo la expresión, sin $+C$ (si la pones, con $C$ mayúscula). Cada producto lleva `*`; los exponentes fraccionarios y los argumentos van entre paréntesis, como en `2^(1/3)` y `arcsen(x/2)`; $\arctan u$ se escribe `arctan(u)` o `atan(u)`, y las hiperbólicas, `senh(u)` y `cosh(u)`.
+    respuesta: "x^4 - 4*x^(3/2) + 2*atan(x) + 3*cosh(x)"
+    variables: [x]
+    salvo_constante: true
+    verificar: { sympy: "integrate(4*x**3 - 6*sqrt(x) + 2/(1 + x**2) + 3*sinh(x), x)" }
+    pistas:
+      - >-
+        ¿Qué renglón de la tabla le toca a cada término, incluido el de $\operatorname{senh}x$? ¿Cómo escribes $\sqrt x$ como una potencia de $x$?
+    explicacion: >-
+      Por linealidad, se integra término a término y las constantes salen de la integral. $\int4x^3\,dx=4\cdot\frac{x^4}{4}=x^4$. Como $\sqrt x=x^{1/2}$, por la potencia $\int6x^{1/2}\,dx=6\cdot\frac{x^{3/2}}{3/2}=4x^{3/2}$. Y $\int\frac{2}{1+x^2}\,dx=2\arctan x$, del renglón de la arcotangente. Y $\int3\operatorname{senh}x\,dx=3\cosh x$, sin menos, porque $(\cosh x)'=\operatorname{senh}x$; con el seno es al revés: $\int\operatorname{sen}x\,dx=-\cos x$. Juntos: $x^4-4x^{3/2}+2\arctan x+3\cosh x+C$; en la app, `x^4 - 4*x^(3/2) + 2*atan(x) + 3*cosh(x)`, con o sin `+ C`. Revisa: derivando, $4x^3-4\cdot\frac32x^{1/2}+\frac{2}{1+x^2}+3\operatorname{senh}x=4x^3-6\sqrt x+\frac{2}{1+x^2}+3\operatorname{senh}x$, el integrando. El error típico es multiplicar por el exponente nuevo en vez de dividir: $\int x^{1/2}\,dx=\frac{x^{3/2}}{3/2}=\frac23x^{3/2}$, no $\frac32x^{3/2}$.
+    tiempo_estimado_s: 55
+
+  # razonamiento: algorítmico (integrar con la C, sustituir el dato y despejar) · R0
+  # verificar: dsolve de sympy con la condición F(1) = 5; el término constante es F(0).
+  - id: calc-08-003
+    tipo: completar
+    dificultad: 1
+    conceptos: [antiderivada-condicion-inicial]
+    enunciado: >-
+      Sea $F$ la antiderivada de $f(x)=6x^2-2x+1$ en $\mathbb R$ con $F(1)=5$. Integra $f$ y llama $C$ a la constante, de modo que $C$ sea el término constante del polinomio $F(x)$; usa el dato para hallarla y calcula $F(2)$.
+    texto: >-
+      $C=$ ___ · $F(2)=$ ___
+    respuestas: ["3", "17"]
+    verificar: { sympy: "(lambda f: (lambda F: [F.subs(x, 0), F.subs(x, 2)])(dsolve(Eq(f(x).diff(x), 6*x**2 - 2*x + 1), f(x), ics={f(1): 5}).rhs))(Function('f'))" }
+    pistas:
+      - >-
+        ¿Qué familia de funciones tiene derivada $6x^2-2x+1$? Si sustituyes $x=1$ en esa familia, ¿qué ecuación te queda para $C$?
+    explicacion: >-
+      **Integra con todo y $C$.** Término a término: $F(x)=2x^3-x^2+x+C$. **Sustituye el dato.** $F(1)=2-1+1+C=2+C$, y debe valer 5, así que $C=3$. **Escribe la antiderivada.** $F(x)=2x^3-x^2+x+3$: es la única de la familia que pasa por $(1,5)$. **Evalúa.** $F(2)=16-4+2+3=17$. Revisa: $F'(x)=6x^2-2x+1$ y $F(1)=2-1+1+3=5$. Si olvidas la $C$, $F(2)$ sale 14 y el dato no se cumple: la condición es justo lo que fija la constante.
+    tiempo_estimado_s: 40
+
+  # razonamiento: algorítmico (los seis pasos de la sustitución con la u dada) · R0
+  # verificar: du/dx entre x², el factor x²/(du/dx), y el coeficiente principal y el grado (entre 3) de la integral de
+  # sympy, que es un polinomio de grado 15: si es k(x³ - 2)^n, su coeficiente principal es k y su grado, 3n.
+  - id: calc-08-004
+    tipo: completar
+    dificultad: 1
+    conceptos: [integracion-sustitucion]
+    enunciado: >-
+      Calcula $\int x^2(x^3-2)^4\,dx$ con la sustitución $u=x^3-2$. Escribe las fracciones como `1/6`, no como 0.167.
+    texto: >-
+      $du=$ ___ $x^2\,dx$ · la integral queda ___ $\int u^4\,du$ · el resultado es ___ $(x^3-2)^n+C$, con $n=$ ___
+    respuestas: ["3", "1/3", "1/15", "5"]
+    verificar: { sympy: "(lambda I: [diff(x**3 - 2, x)/x**2, x**2/diff(x**3 - 2, x), Poly(I, x).LC(), Rational(Poly(I, x).degree(), 3)])(integrate(x**2*(x**3 - 2)**4, x))" }
+    pistas:
+      - >-
+        Si $u=x^3-2$, ¿cuánto vale $du$? ¿Qué parte del integrando es casi $du$, y qué constante le falta?
+    explicacion: >-
+      **1. Elige $u$.** Te la dan: $u=x^3-2$, la función de adentro de la potencia; su derivada, $3x^2$, está multiplicando salvo el 3. **2. $du$ y el ajuste.** $du=3x^2\,dx$; en el integrando solo hay $x^2\,dx$, que es $\frac13\,du$. **3. Reescribe.** $\int(x^3-2)^4\,x^2\,dx=\int u^4\cdot\frac13\,du=\frac13\int u^4\,du$; ya no queda ninguna $x$. **4. Integra.** $\frac13\cdot\frac{u^5}{5}=\frac{u^5}{15}$. **5. Regresa a $x$.** $\frac{1}{15}(x^3-2)^5+C$. **6. Revisa.** Por la cadena, $\frac{5(x^3-2)^4\cdot3x^2}{15}=x^2(x^3-2)^4$, el integrando. Si olvidas el $\frac13$, la derivada sale el triple del integrando; si no regresas a $x$, la respuesta queda en otra variable.
+    tiempo_estimado_s: 50
+
+  # razonamiento: algorítmico (u, dv, du, v y la fórmula con su signo) · R0
+  # verificar: v es la integral de sympy de e^(-2x); el último hueco sale de restar uv a la integral de sympy.
+  - id: calc-08-005
+    tipo: completar
+    dificultad: 1
+    conceptos: [integracion-partes]
+    enunciado: >-
+      Calcula $\int xe^{-2x}\,dx$ por partes, con $u=x$ y $dv=e^{-2x}\,dx$. El resultado tiene la forma $a\,xe^{-2x}+b\,e^{-2x}+C$. Escribe cada coeficiente con su signo, como decimal sin redondear o como fracción (como `-0.75` o `-3/4`).
+    texto: >-
+      $v=$ ___ $e^{-2x}$ · $\int xe^{-2x}\,dx=a\,xe^{-2x}+k\int e^{-2x}\,dx$, con $a=$ ___ y $k=$ ___ · $b=$ ___
+    respuestas: ["-0.5", "-0.5", "0.5", "-0.25"]
+    verificar: { sympy: "(lambda v, I: [simplify(v/exp(-2*x)), simplify(x*v/(x*exp(-2*x))), simplify(-v/exp(-2*x)), simplify((I - x*v)/exp(-2*x))])(integrate(exp(-2*x), x), integrate(x*exp(-2*x), x))" }
+    pistas:
+      - >-
+        Si $dv=e^{-2x}\,dx$, ¿$v$ se obtiene integrando o derivando? En $uv-\int v\,du$, ¿qué le pasa al signo de $v$ cuando lo restas?
+    explicacion: >-
+      **Tipo.** Polinomio por exponencial: partes. **Elección.** $u=x$, porque su derivada, 1, es más sencilla, y $dv=e^{-2x}\,dx$, porque se integra con la tabla. **$du$ y $v$.** $du=dx$; $v$ se obtiene **integrando** $dv$: $v=\int e^{-2x}\,dx=-\frac12e^{-2x}$ (sustitución con $w=-2x$; revisa: $\left(-\frac12e^{-2x}\right)'=e^{-2x}$). No lleva constante: cualquier $v$ con $v'=e^{-2x}$ sirve. **La fórmula.** $\int u\,dv=uv-\int v\,du=-\frac12xe^{-2x}-\int\left(-\frac12e^{-2x}\right)dx=-\frac12xe^{-2x}+\frac12\int e^{-2x}\,dx$, así que $a=-0.5$ y $k=0.5$. **La integral que queda.** $\frac12\cdot\left(-\frac12e^{-2x}\right)=-\frac14e^{-2x}$. **Resultado:** $-\frac12xe^{-2x}-\frac14e^{-2x}+C$, así que $b=-0.25$. Revisa: $\left(-\frac12xe^{-2x}\right)'=-\frac12e^{-2x}+xe^{-2x}$ y $\left(-\frac14e^{-2x}\right)'=\frac12e^{-2x}$; suman $xe^{-2x}$, el integrando.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (traducir todo a u: du absorbe a x²) · R1
+  # verificar: el integrando entre du/dx, con x³ = u - 8, en el símbolo u de sympy. No es salvo_constante: se pide
+  # el integrando en u, no la antiderivada.
+  - id: calc-08-006
+    tipo: simbolico
+    dificultad: 2
+    conceptos: [integracion-sustitucion]
+    enunciado: >-
+      Para calcular $\int\dfrac{x^2}{\sqrt{x^3+8}}\,dx$ con $u=x^3+8$, hay que escribirla como $\int g(u)\,du$. ¿Cuánto vale $g(u)$? Escribe solo esa expresión, sin $du$ ni $+C$; no debe quedar ninguna $x$. Cada producto lleva `*` y $\sqrt w$ se escribe `sqrt(w)`.
+    respuesta: "1/(3*sqrt(u))"
+    variables: [u]
+    verificar: { sympy: "simplify((x**2/sqrt(x**3 + 8)/diff(x**3 + 8, x)).subs(x**3, Symbol('u') - 8))" }
+    pistas:
+      - >-
+        Con $u=x^3+8$, ¿cuánto vale $du$? ¿Qué parte del integrando se vuelve $du$, y con qué constante?
+    explicacion: >-
+      $du=3x^2\,dx$, así que $x^2\,dx=\frac13\,du$, y la raíz es $\sqrt u$: $\int\frac{x^2\,dx}{\sqrt{x^3+8}}=\int\frac{1}{3\sqrt u}\,du$. Lo que se pedía es $g(u)=\frac{1}{3\sqrt u}$ (también vale $\frac13u^{-1/2}$). Ya en $u$ es inmediata: $\frac13\cdot2u^{1/2}=\frac23\sqrt{x^3+8}+C$. Revisa: $\left(\frac23\sqrt{x^3+8}\right)'=\frac23\cdot\frac{3x^2}{2\sqrt{x^3+8}}=\frac{x^2}{\sqrt{x^3+8}}$. Si te quedó $\frac{x^2}{\sqrt u}$, mezclaste variables: $x^2\,dx$ tiene que volverse $du$ entero, con su constante.
+    tiempo_estimado_s: 45
+
+  # razonamiento: algorítmico (reescribir antes de integrar: desarrollar y dividir) · R1
+  # verificar: la integral de sympy.
+  - id: calc-08-007
+    tipo: simbolico
+    dificultad: 2
+    conceptos: [integrales-inmediatas]
+    enunciado: >-
+      Calcula $\int\dfrac{(x^2-3)^2}{x^2}\,dx$, para $x>0$. Escribe solo la expresión, sin $+C$ (si la pones, con $C$ mayúscula); cada producto lleva `*`.
+    respuesta: "x^3/3 - 6*x - 9/x"
+    variables: [x]
+    salvo_constante: true
+    verificar: { sympy: "integrate((x**2 - 3)**2/x**2, x)" }
+    pistas:
+      - >-
+        No hay regla del cociente para integrar: ¿qué pasa si desarrollas el numerador y divides cada término entre $x^2$?
+    explicacion: >-
+      Primero se reescribe: $(x^2-3)^2=x^4-6x^2+9$, y al dividir entre $x^2$ queda $x^2-6+9x^{-2}$. Término a término, con la potencia: $\frac{x^3}{3}-6x+9\cdot\frac{x^{-1}}{-1}=\frac{x^3}{3}-6x-\frac9x+C$. Revisa: la derivada es $x^2-6+\frac{9}{x^2}=\frac{x^4-6x^2+9}{x^2}$, el integrando. El error típico es integrar el numerador y el denominador por separado; otro, olvidar el signo de $\int x^{-2}\,dx=-x^{-1}$.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (dos integraciones, dos constantes y un dato para cada una) · R1
+  # verificar: dsolve de sympy con las dos condiciones; el primer hueco es f' menos 6x² - 6x.
+  - id: calc-08-008
+    tipo: completar
+    dificultad: 2
+    conceptos: [antiderivada-condicion-inicial]
+    enunciado: >-
+      Encuentra $f$ si $f''(x)=12x-6$, $f'(1)=2$ y $f(0)=-1$. Tu respuesta no lleva constantes arbitrarias: las condiciones fijan las dos.
+    texto: >-
+      $f'(x)=6x^2-6x+$ ___ · el término constante de $f$ vale ___ · $f(2)=$ ___
+    respuestas: ["2", "-1", "7"]
+    verificar: { sympy: "(lambda f: (lambda F: [simplify(diff(F, x) - 6*x**2 + 6*x), F.subs(x, 0), F.subs(x, 2)])(dsolve(Eq(f(x).diff(x, 2), 12*x - 6), f(x), ics={f(x).diff(x).subs(x, 1): 2, f(0): -1}).rhs))(Function('f'))" }
+    pistas:
+      - >-
+        ¿Cuántas veces integras para llegar de $f''$ a $f$, y cuántas constantes aparecen? ¿Qué dato usas para cada una?
+    explicacion: >-
+      Se integra dos veces y cada vez sale una constante. **Primera.** $f'(x)=6x^2-6x+C_1$; con $f'(1)=6-6+C_1=2$, $C_1=2$. **Segunda.** $f(x)=2x^3-3x^2+2x+C_2$; con $f(0)=C_2=-1$. Entonces $f(x)=2x^3-3x^2+2x-1$ y $f(2)=16-12+4-1=7$. Revisa: $f'(x)=6x^2-6x+2$ y $f''(x)=12x-6$, con $f'(1)=2$ y $f(0)=-1$. El error típico es usar el dato $f'(1)=2$ en $f$ en lugar de en $f'$.
+    tiempo_estimado_s: 60
+
+  # razonamiento: deductivo (prever qué integral deja cada elección de u y dv antes de calcular) · R1
+  # Revisión manual (opción múltiple conceptual). Comprobado con sympy: ∫x⁶ ln x dx = x⁷ ln x/7 - x⁷/49; con
+  # u = ln x, ∫v du = x⁷/49; con u = x⁶, v = x ln x - x y v·du = (6x⁶ ln x - 6x⁶)dx; con u = x⁶ ln x, v = x y
+  # v·du = (6x⁶ ln x + x⁶)dx. Las dos últimas traen de vuelta la original.
+  - id: calc-08-009
+    tipo: opcion_multiple
+    dificultad: 2
+    conceptos: [integracion-partes]
+    enunciado: >-
+      Quieres calcular $\int x^6\ln x\,dx$, con $x>0$, por partes. ¿Qué elección de $u$ y $dv$ cumple el criterio de fondo: que $v$ salga de la tabla y que $\int v\,du$ quede más sencilla que la integral original?
+    opciones:
+      - >-
+        $u=x^6$ y $dv=\ln x\,dx$
+      - >-
+        $u=\ln x$ y $dv=x^6\,dx$
+      - >-
+        $u=x^6\ln x$ y $dv=dx$
+      - >-
+        $u=1$ y $dv=x^6\ln x\,dx$
+    correcta: 1
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        ¿Cuál de los dos factores sabes integrar con la tabla, y cuál se simplifica al derivarlo? Con cada elección, ¿qué queda dentro de $\int v\,du$?
+    explicacion: >-
+      Con $u=\ln x$ y $dv=x^6\,dx$: $du=\frac{dx}{x}$ y $v=\frac{x^7}{7}$, así que $\int v\,du=\int\frac{x^7}{7}\cdot\frac1x\,dx=\frac17\int x^6\,dx$, de la tabla, y el resultado es $\frac{x^7}{7}\ln x-\frac{x^7}{49}+C$. Las demás no simplifican. Con $u=x^6$ y $dv=\ln x\,dx$, primero hay que integrar $\ln x$ ($v=x\ln x-x$), y $\int v\,du=\int6x^5(x\ln x-x)\,dx=6\int x^6\ln x\,dx-6\int x^6\,dx$ trae de vuelta la original, multiplicada por 6: se podría despejar, como en las cíclicas, pero no es más sencilla. Con $u=x^6\ln x$ y $dv=dx$, $v=x$ y $\int v\,du=\int x\left(6x^5\ln x+x^5\right)dx$, que también trae la original (también se despejaría, como en las cíclicas). Con $u=1$, $du=0$ y para tener $v$ habría que resolver la integral original: no avanza. El ln se simplifica al derivarlo y cuesta integrarlo; por eso conviene como $u$.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (encontrar la función de adentro sin que se la den) · R1
+  # verificar: la integral de sympy.
+  - id: calc-08-010
+    tipo: simbolico
+    dificultad: 2
+    conceptos: [integracion-sustitucion]
+    enunciado: >-
+      Calcula $\int xe^{-x^2/2}\,dx$. Escribe solo la expresión, sin $+C$ (si la pones, con $C$ mayúscula). Cada producto lleva `*` y el exponente de $e$ va entre paréntesis, como `e^(3*x)`.
+    respuesta: "-exp(-x^2/2)"
+    variables: [x]
+    salvo_constante: true
+    verificar: { sympy: "integrate(x*exp(-x**2/2), x)" }
+    pistas:
+      - >-
+        ¿Hay una función de adentro cuya derivada, salvo un factor constante, esté multiplicando? ¿Cuánto vale su $du$?
+    explicacion: >-
+      La función de adentro es el exponente: $u=-\frac{x^2}{2}$, con $du=-x\,dx$, así que $x\,dx=-du$. Entonces $\int e^u\,(-du)=-e^u+C=-e^{-x^2/2}+C$. Revisa: por la cadena, $\left(-e^{-x^2/2}\right)'=-e^{-x^2/2}\cdot(-x)=xe^{-x^2/2}$, el integrando. Sin la $x$ de afuera no se podría: $\int e^{-x^2/2}\,dx$ no tiene antiderivada elemental. Si te salió $e^{-x^2/2}$ sin el menos, perdiste el signo de $du$.
+    tiempo_estimado_s: 50
+
+  # razonamiento: espacial (leer en la gráfica de f = F' el crecimiento y la concavidad de F) · R1
+  # verificar: una antiderivada de sympy; críticos de F con F'' < 0 (máximo) y F'' > 0 (mínimo), y el cero de F''.
+  - id: calc-08-011
+    tipo: completar
+    dificultad: 3
+    conceptos: [antiderivada]
+    visual: { id: grafica, f: "x^2 - 5*x + 4", dominio: "-0.5, 5.5" }
+    enunciado: >-
+      La gráfica es la de $f(x)=x^2-5x+4$. Sea $F$ una antiderivada de $f$ en todo $\mathbb R$ (cualquiera: no hace falta su fórmula). ¿En qué $x$ tiene $F$ su máximo local y en qué $x$ su mínimo local? ¿Y con qué $c$, el más chico posible, es $F$ convexa (∪) en $(c,\infty)$? Escribe los tres valores como números.
+    texto: >-
+      Máximo local de $F$ en $x=$ ___ · mínimo local de $F$ en $x=$ ___ · $c=$ ___
+    respuestas: ["1", "4", "2.5"]
+    verificar: { sympy: "(lambda F: [s for s in solve(diff(F, x), x) if diff(F, x, 2).subs(x, s) < 0] + [s for s in solve(diff(F, x), x) if diff(F, x, 2).subs(x, s) > 0] + solve(diff(F, x, 2), x))(integrate(x**2 - 5*x + 4, x))" }
+    pistas:
+      - >-
+        Si $F'=f$, ¿qué te dice el signo de $f$ sobre $F$? ¿Dónde cambia de signo $f$ en la gráfica, y en qué sentido?
+      - >-
+        ¿Qué es $F''$ en términos de $f$? ¿En qué tramo la gráfica de $f$ va subiendo?
+    explicacion: >-
+      **Tipo.** No hay que integrar: como $F'=f$, la gráfica de $f$ es la de la pendiente de $F$. **Extremos.** $f(x)=(x-1)(x-4)$ es positiva antes de 1, negativa entre 1 y 4 y positiva después: $F$ sube, baja y vuelve a subir. Por el criterio de la primera derivada (unidad 07) aplicado a $F$, hay un máximo local en $x=1$ y un mínimo local en $x=4$. **Concavidad.** $F''=f'(x)=2x-5$, positiva para $x>2.5$: ahí $F$ es convexa (∪). En la gráfica, es donde $f$ crece, a la derecha de su vértice. Las respuestas no dependen de la constante: todas las antiderivadas son la misma curva movida en vertical. Revisa: una antiderivada es $F(x)=\frac{x^3}{3}-\frac52x^2+4x$, y al derivarla sale $x^2-5x+4$; además, $F''(1)=-3<0$ y $F''(4)=3>0$.
+    tiempo_estimado_s: 90
+
+  # razonamiento: analógico (transferencia a IA: el gradiente fija la pérdida salvo una constante) · R1
+  # verificar: dsolve de sympy con cada dato, en el símbolo w; el mínimo con solve de J'.
+  - id: calc-08-012
+    tipo: completar
+    dificultad: 3
+    conceptos: [antiderivada-condicion-inicial]
+    enunciado: >-
+      Supón que de una función de pérdida $J(w)$ solo conoces el gradiente (aquí, la derivada), $J'(w)=2w-6$, y un valor, $J(5)=6$. Encuentra $J$ (sin $C$: el dato la fija), su mínimo y dónde estaría el mínimo con otro dato.
+    texto: >-
+      $J(w)=w^2-6w+$ ___ · el mínimo está en $w=$ ___ y vale ___ · si el dato fuera $J(5)=10$, el mínimo estaría en $w=$ ___
+    respuestas: ["11", "3", "2", "3"]
+    verificar: { sympy: "(lambda W, f: (lambda J, J10: [J.subs(W, 0), solve(diff(J, W), W)[0], J.subs(W, solve(diff(J, W), W)[0]), solve(diff(J10, W), W)[0]])(dsolve(Eq(f(W).diff(W), 2*W - 6), f(W), ics={f(5): 6}).rhs, dsolve(Eq(f(W).diff(W), 2*W - 6), f(W), ics={f(5): 10}).rhs))(Symbol('w'), Function('f'))" }
+    pistas:
+      - >-
+        Recorre el triaje en orden y quédate con la primera pregunta que diga «sí»: ¿se vuelve tabla al desarrollar, simplificar o dividir? ¿Hay una función de adentro cuya derivada, salvo un factor constante, esté multiplicando? ¿Es un producto de dos tipos de función, o un ln o un arctan solos? Con la familia que salga, ¿qué ecuación para la constante da $J(5)=6$?
+      - >-
+        ¿Dónde se anula $J'$? Si cambias el dato, ¿qué cambia en $J$: su forma o solo su altura?
+    explicacion: >-
+      **Tipo.** Condición inicial con una integral de la tabla. **Integra.** $J(w)=w^2-6w+C$. **El dato.** $J(5)=25-30+C=6$, así que $C=11$. **El mínimo.** $J'(w)=0$ en $w=3$ y $J''=2>0$: es un mínimo, con $J(3)=9-18+11=2$. **Otro dato.** Con $J(5)=10$, $C=15$ y la curva sube 4, pero $J'$ es la misma: el mínimo sigue en $w=3$ (ahora vale 6). Por eso al descenso de gradiente le basta $J'$: el paso $w\leftarrow w-\eta J'(w)$ no usa $C$, y la $C$ mueve el valor del mínimo, no su lugar. Revisa: $(w^2-6w+11)'=2w-6$ y $J(5)=25-30+11=6$.
+    tiempo_estimado_s: 120
+
+  # razonamiento: abductivo (revisar derivando un resultado ajeno y localizar el error de «dividir entre 2x») · R1
+  # verificar: la derivada de sympy del resultado de Ana en 1, el integrando en 1 y el coeficiente de x⁵ en la
+  # integral de sympy.
+  - id: calc-08-013
+    tipo: completar
+    dificultad: 3
+    conceptos: [integracion-sustitucion]
+    enunciado: >-
+      Ana calculó $\int(x^2+1)^4\,dx=\dfrac{(x^2+1)^5}{10x}+C$, con este razonamiento: «es como $\int u^4\,du$ con $u=x^2+1$, y divido entre la derivada de adentro, $2x$». Revisa su resultado sin integrar: compara su derivada con el integrando en $x=1$. Después, encuentra el coeficiente de $x^5$ en una antiderivada correcta. Escribe decimales sin redondear o fracciones como `1/6`.
+    texto: >-
+      La derivada del resultado de Ana en $x=1$ vale ___ · el integrando en $x=1$ vale ___ · en una antiderivada correcta, el coeficiente de $x^5$ es ___
+    respuestas: ["12.8", "16", "6/5"]
+    verificar: { sympy: "[diff((x**2 + 1)**5/(10*x), x).subs(x, 1), ((x**2 + 1)**4).subs(x, 1), Poly(integrate((x**2 + 1)**4, x), x).coeff_monomial(x**5)]" }
+    pistas:
+      - >-
+        ¿Qué te piden primero: integrar o revisar lo que hizo Ana? Para revisar sin integrar, ¿qué tendría que pasar al derivar su resultado? Para la integral correcta, recorre el triaje en orden: ¿se vuelve tabla al desarrollar, o hay una función de adentro cuya derivada esté multiplicando?
+      - >-
+        Para derivar el resultado de Ana, ¿qué regla pide un cociente? Si la derivada de adentro no está multiplicando, ¿qué otra salida tienes con una potencia cuarta?
+    explicacion: >-
+      **Tipo.** No es sustitución: la derivada de adentro, $2x$, no está multiplicando, y una $x$ no se puede sacar de la integral como si fuera constante. Lo que sirve es desarrollar: queda una suma de potencias de la tabla. **Revisa a Ana.** Por el cociente, $\frac{d}{dx}\frac{(x^2+1)^5}{10x}=\frac{5(x^2+1)^4\cdot2x\cdot10x-(x^2+1)^5\cdot10}{100x^2}$, que en $x=1$ vale $\frac{1600-320}{100}=12.8$; el integrando vale $2^4=16$. Como no coinciden, su resultado está mal: un punto basta para descartar, aunque no para confirmar. **Una antiderivada correcta.** $(x^2+1)^4=x^8+4x^6+6x^4+4x^2+1$, así que $\int(x^2+1)^4\,dx=\frac{x^9}{9}+\frac{4x^7}{7}+\frac{6x^5}{5}+\frac{4x^3}{3}+x+C$, y el coeficiente de $x^5$ es $\frac65$. Revisa: al derivar $\frac65x^5$ sale $6x^4$, el término del desarrollo, y lo mismo pasa con cada término.
+    tiempo_estimado_s: 120
+
+  # razonamiento: algorítmico (elegir u y dv por el criterio de fondo y cuidar los dos signos) · R1
+  # verificar: la integral de sympy.
+  - id: calc-08-014
+    tipo: simbolico
+    dificultad: 3
+    conceptos: [integracion-partes]
+    enunciado: >-
+      Calcula $\int(2x+1)e^{-x}\,dx$. Escribe solo la expresión, sin $+C$ (si la pones, con $C$ mayúscula). Cada producto lleva `*` y el exponente de $e$ va entre paréntesis, como `e^(3*x)`.
+    respuesta: "-(2*x + 3)*exp(-x)"
+    variables: [x]
+    salvo_constante: true
+    verificar: { sympy: "integrate((2*x + 1)*exp(-x), x)" }
+    pistas:
+      - >-
+        Recorre el triaje en orden y quédate con la primera pregunta que diga «sí»: ¿se vuelve tabla al desarrollar, simplificar o dividir? ¿Hay una función de adentro cuya derivada, salvo un factor constante, esté multiplicando? ¿Es un producto de dos tipos de función, o un ln o un arctan solos?
+      - >-
+        ¿Cuál de los dos factores se simplifica al derivarlo, y cuál sabes integrar? Al restar $\int v\,du$, ¿qué signo queda, si $v$ ya trae uno?
+    explicacion: >-
+      **Tipo.** Producto de un polinomio por una exponencial: partes. **Elección.** $u=2x+1$, porque su derivada es una constante, y $dv=e^{-x}\,dx$. **$du$ y $v$.** $du=2\,dx$ y $v=-e^{-x}$. **Fórmula.** $-(2x+1)e^{-x}-\int\left(-e^{-x}\right)\cdot2\,dx=-(2x+1)e^{-x}+2\int e^{-x}\,dx=-(2x+1)e^{-x}-2e^{-x}+C=-(2x+3)e^{-x}+C$. El error típico es perder un signo: $v$ ya lleva un menos y la fórmula resta otra vez. Revisa: $\left[-(2x+3)e^{-x}\right]'=-2e^{-x}+(2x+3)e^{-x}=(2x+1)e^{-x}$, el integrando.
+    tiempo_estimado_s: 120
+
+  # razonamiento: analógico (clasificar por tipología: pares que se parecen y piden técnicas distintas) · R2
+  # Revisión manual. La clasificación sigue el triaje de la lección (el número de la primera pregunta que dice «sí»), no
+  # «cualquier técnica que funcione»: con u = x², ∫x ln x dx = ¼∫ln u du también sale, pero la pregunta 2 dice no.
+  # Comprobado con sympy: ∫xe^(x²) = e^(x²)/2, ∫xe^(2x) = (2x - 1)e^(2x)/4,
+  # ∫x/(x² + 1) = ln(x² + 1)/2, ∫(x² + 1)/x = x²/2 + ln x, ∫ln x/x = (ln x)²/2 y ∫x ln x = x²(2 ln x - 1)/4.
+  - id: calc-08-015
+    tipo: completar
+    dificultad: 3
+    conceptos: [integrales-inmediatas, integracion-sustitucion, integracion-partes]
+    enunciado: >-
+      Sin resolverlas, pasa cada integral (con $x>0$) por el triaje de la lección y escribe el número de la primera pregunta que diga «sí»: 1 si es inmediata, o lo es al desarrollar, simplificar o dividir; 2 si hay una función de adentro cuya derivada, salvo un factor constante, multiplica al resto; 3 si es un producto de dos tipos de función distintos, o un ln o un arctan solos. Una forma que reconoces de memoria, como $\int\frac{g'}{g}\,dx$ o $\int g^ng'\,dx$, cuenta como 2.
+    texto: >-
+      $\int xe^{x^2}dx$: ___ · $\int xe^{2x}dx$: ___ · $\int\frac{x}{x^2+1}dx$: ___ · $\int\frac{x^2+1}{x}dx$: ___ · $\int\frac{\ln x}{x}dx$: ___ · $\int x\ln x\,dx$: ___
+    respuestas: ["2", "3", "2", "1", "2", "3"]
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        Con cada una, recorre el triaje en orden y quédate con la primera pregunta que diga «sí»: ¿se vuelve tabla al desarrollar, simplificar o dividir? ¿Hay una función de adentro cuya derivada, salvo un factor constante, esté multiplicando? ¿Es un producto de dos tipos de función, o un ln o un arctan solos?
+      - >-
+        Los pares se parecen mucho. ¿En cuál de cada par la derivada de la función de adentro aparece multiplicando? ¿Cuál se vuelve una suma de renglones al dividir?
+    explicacion: >-
+      **Tipo.** Es el triaje mismo. $xe^{x^2}$: la función de adentro es $x^2$, y su derivada, $2x$, está multiplicando salvo el factor 2; sustitución (2), da $\frac12e^{x^2}$. También es un producto de dos tipos, pero la sustitución va antes en el triaje, y por partes se complica. $xe^{2x}$: no es inmediata, y la 2 dice no: la función de adentro es $2x$, y su derivada es un número, así que la $x$ de afuera no se absorbe (con $u=2x$ queda $\frac14\int ue^u\,du$, que todavía pide partes); es un polinomio por una exponencial, partes (3). $\frac{x}{x^2+1}$: la derivada del denominador, $2x$, está arriba salvo el factor 2; sustitución (2), da $\frac12\ln(x^2+1)$. $\frac{x^2+1}{x}$: al dividir queda $x+\frac1x$, inmediata (1). $\frac{\ln x}{x}$: con $u=\ln x$, $du=\frac{dx}{x}$; sustitución (2), da $\frac12(\ln x)^2$ (por partes también sale, pero no hace falta). Es un ln por una potencia, pero, otra vez, la sustitución va antes. $x\ln x$: no hay una función de adentro con su derivada al lado (la de $\ln x$ es $x$, cuya derivada, 1, no explica la $x$ de afuera), así que la 2 dice no; es un polinomio por un logaritmo: partes (3), con $u=\ln x$. Revisa: al derivar $\frac{(2x-1)e^{2x}}{4}$ sale $xe^{2x}$, y al derivar $\frac{x^2\ln x}{2}-\frac{x^2}{4}$ sale $x\ln x$.
+    tiempo_estimado_s: 90
+
+  # razonamiento: deductivo (en x < 0 hace falta ln|x|: ln x ni siquiera existe ahí) · R1
+  # verificar: la integral definida de sympy de -1 a -e³ más el dato (Teorema Fundamental: otra vía).
+  - id: calc-08-016
+    tipo: numerico
+    dificultad: 3
+    conceptos: [antiderivada-condicion-inicial]
+    enunciado: >-
+      Sea $F$ la función definida para $x<0$ con $F'(x)=\dfrac{2}{x}$ y $F(-1)=5$. Calcula $F\left(-e^3\right)$. Escribe la respuesta exacta.
+    respuesta: 11
+    tolerancia: 0
+    verificar: { sympy: "integrate(2/x, (x, -1, -exp(3))) + 5" }
+    pistas:
+      - >-
+        Recorre el triaje en orden y quédate con la primera pregunta que diga «sí»: ¿se vuelve tabla al desarrollar, simplificar o dividir? ¿Hay una función de adentro cuya derivada, salvo un factor constante, esté multiplicando? ¿Es un producto de dos tipos de función, o un ln o un arctan solos? Si es un renglón de la tabla, ¿vale tal cual para $x<0$?
+      - >-
+        Para $x<0$, ¿existe $\ln x$? ¿Qué antiderivada de $\frac1x$ sirve ahí, y cuánto vale en $x=-1$?
+    explicacion: >-
+      **Tipo.** Condición inicial con una integral de la tabla, $\int\frac{dx}{x}$, pero en $x<0$. **Integra.** $F(x)=2\ln\lvert x\rvert+C=2\ln(-x)+C$; con $\ln x$ no se puede, porque no existe para $x<0$. **El dato.** $F(-1)=2\ln1+C=C=5$. **Evalúa.** $F\left(-e^3\right)=2\ln\left(e^3\right)+5=6+5=11$. Revisa: para $x<0$, $\left[2\ln(-x)\right]'=2\cdot\frac{-1}{-x}=\frac2x$.
+    tiempo_estimado_s: 90
+
+  # razonamiento: abductivo (encontrar el error plantado: falta el factor de du) · R1
+  # Revisión manual (opción múltiple conceptual). Comprobado con sympy: d/dx tan(x³) = 3x²·sec²(x³), el triple del
+  # integrando.
+  - id: calc-08-017
+    tipo: opcion_multiple
+    dificultad: 3
+    conceptos: [integracion-sustitucion]
+    enunciado: >-
+      Memo escribió $\int x^2\sec^2\left(x^3\right)dx=\tan\left(x^3\right)+C$. ¿Qué error cometió?
+    opciones:
+      - >-
+        Con $u=x^3$, $du=3x^2\,dx$, y en el integrando solo hay $x^2\,dx=\frac{du}{3}$: le faltó el $\frac13$.
+      - >-
+        No se podía por sustitución: era por partes, con $u=x^2$ y $dv=\sec^2\left(x^3\right)dx$.
+      - >-
+        Regresó a $x$, y no debía: el resultado se deja en términos de $u$.
+      - >-
+        La $u$ correcta era $\sec\left(x^3\right)$, no $x^3$.
+    correcta: 0
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        Recorre el triaje en orden y quédate con la primera pregunta que diga «sí»: ¿se vuelve tabla al desarrollar, simplificar o dividir? ¿Hay una función de adentro cuya derivada, salvo un factor constante, esté multiplicando? ¿Es un producto de dos tipos de función, o un ln o un arctan solos?
+      - >-
+        Deriva el resultado de Memo: ¿te devuelve el integrando, o algo proporcional a él?
+    explicacion: >-
+      **Tipo.** Sustitución: la función de adentro es $x^3$, y su derivada, $3x^2$, está multiplicando salvo el 3. Con $u=x^3$, $du=3x^2\,dx$, así que $x^2\,dx=\frac{du}{3}$ e $\int\sec^2u\,\frac{du}{3}=\frac13\tan\left(x^3\right)+C$: Memo no ajustó la constante. Las otras fallan: partes con $dv=\sec^2\left(x^3\right)dx$ pide integrar algo que no sale con lo de esta unidad; regresar a $x$ no es un error, es lo que se pide; con $u=\sec\left(x^3\right)$, $du=3x^2\sec\left(x^3\right)\tan\left(x^3\right)dx$, que no aparece en el integrando. Revisa: $\left[\tan\left(x^3\right)\right]'=3x^2\sec^2\left(x^3\right)$, el triple del integrando, y $\left[\frac13\tan\left(x^3\right)\right]'=x^2\sec^2\left(x^3\right)$.
+    tiempo_estimado_s: 90
+
+  # razonamiento: algorítmico (la x que sobra se despeja de u y la fracción se parte en potencias de u) · R2
+  # Pistas modelo de arquitecto-razonamiento (esquema-08), en lugar del triaje.
+  # verificar: la integral de sympy (da 2x√(x + 4)/3 - 16√(x + 4)/3, la misma función).
+  - id: calc-08-018
+    tipo: simbolico
+    dificultad: 4
+    conceptos: [integracion-sustitucion]
+    enunciado: >-
+      Calcula $\int\dfrac{x}{\sqrt{x+4}}\,dx$, para $x>-4$. Escribe solo la expresión, sin $+C$ (si la pones, con $C$ mayúscula). Cada producto lleva `*`, $\sqrt w$ se escribe `sqrt(w)` y un exponente fraccionario va entre paréntesis, como en `2^(1/3)`.
+    respuesta: "2*(x + 4)^(3/2)/3 - 8*sqrt(x + 4)"
+    variables: [x]
+    salvo_constante: true
+    verificar: { sympy: "integrate(x/sqrt(x + 4), x)" }
+    pistas:
+      - >-
+        ¿Qué parte del integrando te estorba más? Si la llamas $u$, ¿cuánto vale $du$ y qué queda sin traducir?
+      - >-
+        ¿Puedes escribir la $x$ que sobra con la misma igualdad que define a $u$? Ya todo en $u$, ¿cómo partes la fracción en potencias de $u$?
+      - >-
+        Antes de regresar a $x$, ¿cada término es una potencia de la tabla? Deriva tu resultado: ¿te devuelve el integrando? Si no, ¿en qué paso se perdió un factor?
+    explicacion: >-
+      **Tipo.** Hay una función de adentro, $x+4$, con derivada 1, pero sobra una $x$ que $du$ no absorbe: sustitución, despejando esa $x$. **Elige.** $u=x+4$, así que $du=dx$ y $x=u-4$. **Reescribe.** $\int\frac{u-4}{\sqrt u}\,du=\int\left(u^{1/2}-4u^{-1/2}\right)du$. **Integra.** $\frac23u^{3/2}-8u^{1/2}$. **Regresa.** $\frac23(x+4)^{3/2}-8\sqrt{x+4}+C$, o factorizada, $\frac23(x-8)\sqrt{x+4}+C$. Por partes también sale ($u=x$, $dv=(x+4)^{-1/2}dx$), en una forma equivalente: $2x\sqrt{x+4}-\frac43(x+4)^{3/2}+C$. Revisa: $\left[\frac23(x+4)^{3/2}\right]'=(x+4)^{1/2}$ y $\left[-8(x+4)^{1/2}\right]'=-\frac{4}{\sqrt{x+4}}$; juntos, $\frac{(x+4)-4}{\sqrt{x+4}}=\frac{x}{\sqrt{x+4}}$.
+    tiempo_estimado_s: 180
+
+  # razonamiento: deductivo (llevar el integrando al renglón 1/(1 + u²) sacando el 4 y eligiendo u = 3x/2) · R2
+  # verificar: una antiderivada de sympy evaluada en 2/3 menos su valor en 0 (así cumple F(0) = 0).
+  - id: calc-08-019
+    tipo: numerico
+    dificultad: 4
+    conceptos: [integracion-sustitucion]
+    enunciado: >-
+      Sea $F$ la antiderivada de $f(x)=\dfrac{1}{4+9x^2}$ en $\mathbb R$ con $F(0)=0$. Calcula $F\left(\frac23\right)$. Escribe la respuesta exacta (como `2*sqrt(7)`; π se escribe `pi`) o redondeada a 3 decimales al final.
+    respuesta: "pi/24"
+    tolerancia: 0.0005
+    verificar: { sympy: "(lambda F: F.subs(x, Rational(2, 3)) - F.subs(x, 0))(integrate(1/(4 + 9*x**2), x))" }
+    pistas:
+      - >-
+        Recorre el triaje en orden y quédate con la primera pregunta que diga «sí»: ¿se vuelve tabla al desarrollar, simplificar o dividir? ¿Hay una función de adentro cuya derivada, salvo un factor constante, esté multiplicando? ¿Es un producto de dos tipos de función, o un ln o un arctan solos?
+      - >-
+        ¿Qué renglón de la tabla se parece a $\frac{1}{4+9x^2}$? Si sacas el 4 como factor, ¿qué queda elevado al cuadrado en lugar de $x$?
+      - >-
+        Con esa $u$, ¿cuánto vale $du$ y qué constante sobra? Revisa: ¿tu $F$ cumple $F(0)=0$, y al derivarla te devuelve $f$?
+    explicacion: >-
+      **Tipo.** Se parece al renglón $\frac{1}{1+u^2}$: sustitución, después de sacar el 4. **Reescribe.** $4+9x^2=4\left(1+\frac{9x^2}{4}\right)=4\left(1+\left(\frac{3x}{2}\right)^2\right)$. **Sustituye.** $u=\frac{3x}{2}$, $du=\frac32\,dx$, así que $dx=\frac23\,du$: $\int\frac{dx}{4(1+u^2)}=\frac14\cdot\frac23\int\frac{du}{1+u^2}=\frac16\arctan u$. **Regresa.** $F(x)=\frac16\arctan\frac{3x}{2}+C$, y $F(0)=0$ da $C=0$. **Evalúa.** $F\left(\frac23\right)=\frac16\arctan1=\frac16\cdot\frac\pi4=\frac{\pi}{24}\approx0.131$. Revisa: $\left[\frac16\arctan\frac{3x}{2}\right]'=\frac16\cdot\frac{3/2}{1+\frac{9x^2}{4}}=\frac14\cdot\frac{4}{4+9x^2}=\frac{1}{4+9x^2}$.
+    tiempo_estimado_s: 180
+
+  # razonamiento: deductivo (un arctan solo: partes con dv = dx y luego una sustitución) · R2
+  # verificar: la integral de sympy con manual=True (forma estable para el arctan); da ln(x²/4 + 1), que difiere de la
+  # respuesta en la constante ln 4.
+  - id: calc-08-020
+    tipo: simbolico
+    dificultad: 4
+    conceptos: [integracion-partes]
+    enunciado: >-
+      Calcula $\int\arctan\dfrac{x}{2}\,dx$. Escribe solo la expresión, sin $+C$ (si la pones, con $C$ mayúscula). Cada producto lleva `*` y los argumentos van entre paréntesis, como `sen(3*x)`; $\arctan u$ se escribe `arctan(u)` o `atan(u)`, y $\ln u$, `ln(u)`. Si usas valor absoluto, $\ln\lvert u\rvert$ se escribe `ln(abs(u))` o `ln(|u|)`, nunca `ln|u|`.
+    respuesta: "x*atan(x/2) - ln(x^2 + 4)"
+    variables: [x]
+    salvo_constante: true
+    verificar: { sympy: "integrate(atan(x/2), x, manual=True)" }
+    pistas:
+      - >-
+        Recorre el triaje en orden y quédate con la primera pregunta que diga «sí»: ¿se vuelve tabla al desarrollar, simplificar o dividir? ¿Hay una función de adentro cuya derivada, salvo un factor constante, esté multiplicando? ¿Es un producto de dos tipos de función, o un ln o un arctan solos?
+      - >-
+        Si no hay producto a la vista, ¿qué $dv$ puedes elegir para que $u$ sea el arcotangente? ¿Cuánto valen $du$ y $v$?
+      - >-
+        En $\int v\,du$, ¿hay una función de adentro con su derivada al lado? Al final, deriva: ¿te devuelve $\arctan\frac x2$?
+    explicacion: >-
+      **Tipo.** Un arctan solo: partes con $dv=dx$. **Elige.** $u=\arctan\frac x2$ y $dv=dx$. **$du$ y $v$.** Por la cadena, $du=\frac{1/2}{1+x^2/4}\,dx=\frac{2}{x^2+4}\,dx$, y $v=x$. **Fórmula.** $x\arctan\frac x2-\int\frac{2x}{x^2+4}\,dx$. **La que queda.** Por sustitución, con $w=x^2+4$ y $dw=2x\,dx$: $\int\frac{dw}{w}=\ln\left(x^2+4\right)$, sin barras porque $x^2+4>0$. **Resultado.** $x\arctan\frac x2-\ln\left(x^2+4\right)+C$. Otra forma correcta es $x\arctan\frac x2-\ln\left(1+\frac{x^2}{4}\right)+C$: difiere de la anterior en la constante $\ln4$. Revisa: $\left[x\arctan\frac x2\right]'=\arctan\frac x2+\frac{2x}{x^2+4}$ y $\left[\ln\left(x^2+4\right)\right]'=\frac{2x}{x^2+4}$; la resta da $\arctan\frac x2$.
+    tiempo_estimado_s: 180
+
+  # razonamiento: metacognitivo (planear la elección de u y dv, ejecutar y revisar derivando, como en el examen) · R3
+  # Rúbrica de arquitecto-razonamiento, tal cual: 4 criterios, todos obligatorios (se aprueba con ceil(0.8·4) = 4).
+  # Pista 1 de pedagogo y linguista; explicación de la linguista, con la prueba en x = e (3e² + 1 ≈ 23.17, con sympy).
+  # Comprobado con sympy: ∫(3x² + 1) ln x dx = (x³ + x) ln x - x³/3 - x.
+  - id: calc-08-021
+    tipo: autoevaluacion
+    dificultad: 4
+    conceptos: [integracion-partes]
+    enunciado: >-
+      Calcula la integral indefinida $\int(3x^2+1)\ln x\,dx$, para $x>0$. Resuélvela como en el examen: di qué técnica usas y por qué, escribe $u$, $dv$, $du$ y $v$, aplica la fórmula, integra lo que quede y revisa tu resultado derivándolo.
+    rubrica:
+      - >-
+        Identifica el tipo (un logaritmo por un polinomio) y elige partes. Justifica $u$ y $dv$ con el criterio de fondo, no solo con la sigla: $u=\ln x$ porque su derivada, $\frac1x$, es más sencilla, y $dv=(3x^2+1)\,dx$ porque se integra con la tabla. Otra elección vale si explica cómo obtiene $v$ y llega al final.
+      - >-
+        Escribe $du=\frac{dx}{x}$ y una $v$ con $v'=3x^2+1$, como $v=x^3+x$ (no necesita constante), y aplica $\int u\,dv=uv-\int v\,du$ con el signo menos: $(x^3+x)\ln x-\int\frac{x^3+x}{x}\,dx$.
+      - >-
+        Simplifica antes de integrar, $\frac{x^3+x}{x}=x^2+1$, y llega a $(x^3+x)\ln x-\frac{x^3}{3}-x+C$ o a una forma equivalente, con $+C$ porque se pide la integral indefinida. Con $x>0$, $\ln x$ y $\ln\lvert x\rvert$ son lo mismo.
+      - >-
+        Revisa derivando su resultado, con la cuenta escrita y no solo «comprobé». Con la forma de arriba: $(3x^2+1)\ln x+(x^3+x)\cdot\frac1x-x^2-1=(3x^2+1)\ln x$, que es el integrando (si usó otra forma equivalente, la misma cuenta con ella).
+    respuesta_modelo: >-
+      Es un logaritmo por un polinomio: uso partes. Elijo $u=\ln x$ porque su derivada, $\frac1x$, es más sencilla, y $dv=(3x^2+1)\,dx$ porque lo integro con la tabla; al revés necesitaría $\int\ln x\,dx$, que también sale por partes, pero es más largo. Entonces $du=\frac{dx}{x}$ y $v=x^3+x$; no pongo constante en $v$, porque cualquier $v$ con $v'=3x^2+1$ funciona. Por la fórmula: $\int(3x^2+1)\ln x\,dx=(x^3+x)\ln x-\int\frac{x^3+x}{x}\,dx=(x^3+x)\ln x-\int(x^2+1)\,dx=(x^3+x)\ln x-\frac{x^3}{3}-x+C$. Como $x>0$, $\ln x$ no necesita valor absoluto. Reviso derivando: $(3x^2+1)\ln x+(x^3+x)\cdot\frac1x-x^2-1=(3x^2+1)\ln x+x^2+1-x^2-1=(3x^2+1)\ln x$, que es el integrando.
+    pistas:
+      - >-
+        ¿Qué tipo de integrando es, en el orden del triaje: algo que conviene reescribir, una función de adentro con su derivada al lado, o un producto de dos tipos de función? ¿Cuál de los dos factores se vuelve más sencillo al derivarlo?
+      - >-
+        Con tu elección, ¿cuánto valen $du$ y $v$? En la integral nueva, ¿puedes simplificar el cociente antes de integrar?
+      - >-
+        ¿Cómo compruebas, sin ver la respuesta, que tu resultado es correcto? Al derivarlo, ¿qué términos deberían cancelarse?
+    explicacion: >-
+      Un paso que se suele omitir es la revisión. Al derivar $uv$ por el producto salen dos términos, $(3x^2+1)\ln x$ y $(x^3+x)\cdot\frac1x$, y el segundo tiene que cancelarse con la derivada de lo que restaste. Si no se cancela, revisa el signo de $-\int v\,du$ o tu $v$. Revisa: en $x=e$ el integrando vale $(3e^2+1)\ln e=3e^2+1\approx23.17$, y la derivada de tu resultado en $x=e$ también debe dar eso. En $x=1$ la prueba es débil: como $\ln1=0$, un error como $v=6x$ (derivar en vez de integrar) también da 0.
+    tarjeta: false
+    tiempo_estimado_s: 270
+
+  # razonamiento: abductivo (buscar contraejemplos derivando el lado derecho de cada regla) · R2
+  # verificar: True = la regla falla. Las cuatro que fallan se comprueban con un contraejemplo concreto (f = g = x;
+  # f = x² + 1; f = 2x con n = 2; f = x²). Las dos que valen solo se prueban en una familia de funciones (no las
+  # demuestra), como en la 07. Que lo mire la resolución a ciegas.
+  - id: calc-08-022
+    tipo: seleccion_multiple
+    dificultad: 4
+    conceptos: [antiderivada]
+    enunciado: >-
+      Marca las reglas que **fallan**: las que tienen al menos un caso que las contradice. Las igualdades se entienden salvo una constante; $f$ y $g$ son continuas, $f$ es derivable, $f$ y $f'$ no se anulan donde se divide entre ellas, y $n\neq-1$. Puede haber varias.
+    opciones:
+      - >-
+        $\int f(x)\,g(x)\,dx=\left(\int f(x)\,dx\right)\left(\int g(x)\,dx\right)$
+      - >-
+        $\int\left[f(x)+g(x)\right]dx=\int f(x)\,dx+\int g(x)\,dx$
+      - >-
+        $\int\dfrac{dx}{f(x)}=\ln\lvert f(x)\rvert$
+      - >-
+        $\int k\,f(x)\,dx=k\int f(x)\,dx$, con $k\neq0$ constante
+      - >-
+        $\int\left[f(x)\right]^n\,dx=\dfrac{\left[f(x)\right]^{n+1}}{n+1}$
+      - >-
+        $\int e^{f(x)}\,dx=\dfrac{e^{f(x)}}{f'(x)}$
+    correctas: [0, 2, 4, 5]
+    verificar: { sympy: "[simplify(diff(integrate(x, x)*integrate(x, x), x) - x*x) != 0, any(simplify(diff(integrate(F, x) + integrate(G, x), x) - (F + G)) != 0 for F, G in [(x**2, cos(x)), (exp(3*x), 1/(1 + x**2)), (sqrt(x), sin(2*x))]), simplify(diff(log(x**2 + 1), x) - 1/(x**2 + 1)) != 0, any(simplify(diff(k*integrate(F, x), x) - k*F) != 0 for F in [x**2, cos(x), exp(3*x), 1/(1 + x**2)]), simplify(diff((2*x)**3/3, x) - (2*x)**2) != 0, simplify(diff(exp(x**2)/(2*x), x) - exp(x**2)) != 0]" }
+    pistas:
+      - >-
+        Para tumbar una regla basta un caso: ¿qué pasa si pruebas con funciones sencillas, como $x$, $2x$ o $x^2$, y derivas el lado derecho?
+      - >-
+        ¿Qué regla de derivación, leída al revés, justificaría cada igualdad? Al derivar el lado derecho de la de la potencia, ¿qué factor de la cadena aparece?
+      - >-
+        En las que creas que valen, ¿derivar el lado derecho devuelve el integrando para cualquier $f$ y $g$, no solo para las que probaste?
+    explicacion: >-
+      **Tipo.** Revisar reglas derivando el lado derecho. Fallan cuatro. La del producto: con $f=g=x$, $\int x^2\,dx=\frac{x^3}{3}$, pero $\frac{x^2}{2}\cdot\frac{x^2}{2}=\frac{x^4}{4}$ deriva a $x^3$. La del recíproco: con $f=x^2+1$, $\ln\left(x^2+1\right)$ deriva a $\frac{2x}{x^2+1}$, no a $\frac{1}{x^2+1}$ (una antiderivada es $\arctan x$); la regla buena es $\int\frac{f'}{f}=\ln\lvert f\rvert$, con $f'$ arriba. La de la potencia: con $f=2x$ y $n=2$, $\frac{(2x)^3}{3}$ deriva a $(2x)^2\cdot2$, el doble del integrando; falta el factor $f'$ de la cadena. La de la exponencial: con $f=x^2$, en $x>0$, por el cociente, $\frac{e^{x^2}}{2x}$ deriva a $e^{x^2}-\frac{e^{x^2}}{2x^2}$, no a $e^{x^2}$; dividir entre la derivada de adentro solo funciona si es constante. Valen dos, la de la suma y la de la constante: si $F'=f$ y $G'=g$, entonces $(F+G)'=f+g$ y $(kF)'=kf$, sean cuales sean $f$ y $g$. Revisa: en las que fallan, derivar el lado derecho deja un factor o un término de más; en las que valen, devuelve el integrando exacto.
+    tiempo_estimado_s: 150
+
+  # razonamiento: algorítmico (partes cíclicas: dos rondas con el mismo tipo de u, despejar la integral) · R2
+  # 2026-11-12 (originalidad, experto-matematicas): sen(3x) en lugar de sen(2x), que chocaba con el workbook de Stewart 7.1.
+  # verificar: los coeficientes de sen(3x) y cos(3x) en la integral de sympy dividida entre e^(-x).
+  - id: calc-08-023
+    tipo: completar
+    dificultad: 5
+    conceptos: [integracion-partes]
+    enunciado: >-
+      Calcula $\int e^{-x}\operatorname{sen}(3x)\,dx$. El resultado tiene la forma $e^{-x}\left(a\operatorname{sen}(3x)+b\cos(3x)\right)+C$. Escribe $a$ y $b$ con su signo, como decimales sin redondear o como fracciones (como `-0.75` o `-3/4`).
+    texto: >-
+      $a=$ ___ · $b=$ ___
+    respuestas: ["-0.1", "-0.3"]
+    verificar: { sympy: "(lambda R: [R.coeff(sin(3*x)), R.coeff(cos(3*x))])(expand(simplify(integrate(exp(-x)*sin(3*x), x)/exp(-x))))" }
+    pistas:
+      - >-
+        Recorre el triaje en orden y quédate con la primera pregunta que diga «sí»: ¿se vuelve tabla al desarrollar, simplificar o dividir? ¿Hay una función de adentro cuya derivada, salvo un factor constante, esté multiplicando? ¿Es un producto de dos tipos de función, o un ln o un arctan solos?
+      - >-
+        Después de una ronda, ¿la integral nueva es más fácil o del mismo tipo? Si haces otra ronda con el mismo tipo de $u$, ¿qué integral reaparece?
+      - >-
+        Si llamas $I$ a la integral original, ¿qué ecuación te queda para $I$? Revisa: deriva tu resultado; ¿te devuelve $e^{-x}\operatorname{sen}(3x)$?
+    explicacion: >-
+      **Tipo.** Producto de una exponencial por una trigonométrica: partes, y es cíclica. Sea $I$ la integral. **Primera ronda**, con $u=\operatorname{sen}(3x)$ y $dv=e^{-x}\,dx$: $du=3\cos(3x)\,dx$ y $v=-e^{-x}$, así que $I=-e^{-x}\operatorname{sen}(3x)+3\int e^{-x}\cos(3x)\,dx$. **Segunda ronda**, con el mismo tipo de $u$, $u=\cos(3x)$ y $dv=e^{-x}\,dx$: $\int e^{-x}\cos(3x)\,dx=-e^{-x}\cos(3x)-3\int e^{-x}\operatorname{sen}(3x)\,dx=-e^{-x}\cos(3x)-3I$. **Despeja.** $I=-e^{-x}\operatorname{sen}(3x)-3e^{-x}\cos(3x)-9I$, así que $10I=-e^{-x}\left(\operatorname{sen}(3x)+3\cos(3x)\right)$ e $I=e^{-x}\left(-\frac1{10}\operatorname{sen}(3x)-\frac3{10}\cos(3x)\right)+C$: $a=-0.1$ y $b=-0.3$. Si en la segunda ronda cambias a $u=e^{-x}$, deshaces la primera y llegas a $I=I$. Revisa: la derivada de $e^{-x}\left(a\operatorname{sen}(3x)+b\cos(3x)\right)$ es $e^{-x}\left[(-a-3b)\operatorname{sen}(3x)+(3a-b)\cos(3x)\right]$, y con estos valores, $-a-3b=0.1+0.9=1$ y $3a-b=-0.3+0.3=0$: sale $e^{-x}\operatorname{sen}(3x)$.
+    tiempo_estimado_s: 240
+
+  # razonamiento: deductivo (evaluar planes antes de ejecutarlos; la sigla LIATE falla aquí) · R2
+  # Revisión manual (planes). Comprobado con sympy: ∫x⁵e^(x³) dx = (x³ - 1)e^(x³)/3; con w = x³, (1/3)∫we^w dw =
+  # (w - 1)e^w/3; partes con u = x³ da lo mismo; ∫e^(x³) dx sale con lowergamma (no es elemental); con u = e^(x³) y
+  # dv = x⁵dx, v·du = x⁸e^(x³)/2 dx, que sale con w = x³ y dos rondas de partes, pero es más complicada que la original.
+  - id: calc-08-024
+    tipo: seleccion_multiple
+    dificultad: 5
+    conceptos: [integracion-partes]
+    enunciado: >-
+      ¿Qué planes resuelven $\int x^5e^{x^3}\,dx$ con lo de esta unidad? Un plan resuelve si cada integral que te deja (en partes, también la que da $v$) sale con lo de esta unidad y ninguna es más complicada que la original (por ejemplo, con una potencia de $x$ más alta). Puede haber varios.
+    opciones:
+      - >-
+        Partes, con $u=x^5$ y $dv=e^{x^3}\,dx$.
+      - >-
+        Partes, con $u=x^3$ y $dv=x^2e^{x^3}\,dx$.
+      - >-
+        Sustitución, con $w=x^5$.
+      - >-
+        Sustitución con $w=x^3$, y luego partes en la integral que queda, $\frac13\int we^w\,dw$.
+      - >-
+        Partes, con $u=e^{x^3}$ y $dv=x^5\,dx$.
+    correctas: [1, 3]
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        Recorre el triaje en orden y quédate con la primera pregunta que diga «sí»: ¿se vuelve tabla al desarrollar, simplificar o dividir? ¿Hay una función de adentro cuya derivada, salvo un factor constante, esté multiplicando? ¿Es un producto de dos tipos de función, o un ln o un arctan solos?
+      - >-
+        En cada plan de partes, ¿puedes integrar el $dv$ propuesto? ¿La $\int v\,du$ que sale tiene una potencia menor o mayor que la original?
+      - >-
+        Con $w=x^3$, ¿cuánto vale $dw$, y cómo escribes $x^5\,dx$ en términos de $w$? Revisa: deriva el resultado al que llegues.
+    explicacion: >-
+      **Tipo.** Una potencia por una exponencial compuesta. La sigla LIATE diría $u=x^5$ (algebraica antes que exponencial), y aquí falla. **Los que resuelven.** Partes con $u=x^3$ y $dv=x^2e^{x^3}\,dx$: $v=\frac13e^{x^3}$ (por sustitución), $du=3x^2\,dx$ e $\int v\,du=\int x^2e^{x^3}\,dx=\frac13e^{x^3}$; el resultado es $\frac{x^3e^{x^3}}{3}-\frac{e^{x^3}}{3}+C=\frac{(x^3-1)e^{x^3}}{3}+C$. Con $w=x^3$, $dw=3x^2\,dx$ y $x^5\,dx=x^3\cdot x^2\,dx=\frac w3\,dw$: queda $\frac13\int we^w\,dw=\frac13(w-1)e^w$, lo mismo. **Los que no.** $dv=e^{x^3}\,dx$ no se puede integrar con funciones elementales. Con $w=x^5$, $dw=5x^4\,dx$, y lo que sobra, $\frac15xe^{x^3}$, en $w$ trae raíces quintas: no queda nada de la tabla. Con $u=e^{x^3}$ y $dv=x^5\,dx$, $\int v\,du=\int\frac{x^6}{6}\cdot3x^2e^{x^3}\,dx=\frac12\int x^8e^{x^3}\,dx$: se puede hacer (con $w=x^3$ y dos rondas de partes), pero es más difícil que la original, así que el plan no avanza. De la lista, funcionan estos dos (fuera de ella puede haber otros). Revisa: $\left[\frac{(x^3-1)e^{x^3}}{3}\right]'=x^2e^{x^3}+(x^3-1)x^2e^{x^3}=x^5e^{x^3}$.
+    tiempo_estimado_s: 210
+
+  # razonamiento: abductivo (contraejemplo R4: «difieren en una constante» pide un intervalo) · R2
+  # Pistas modelo de arquitecto-razonamiento (esquema-08), en lugar del triaje.
+  # verificar: el Teorema Fundamental en cada intervalo por separado: G(e) = G(1) + ∫ de 1 a e y G(-e) = G(-1) + ∫ de
+  # -1 a -e, con la integral definida de sympy.
+  - id: calc-08-025
+    tipo: completar
+    dificultad: 5
+    conceptos: [antiderivada]
+    enunciado: >-
+      La regla «dos antiderivadas de la misma función difieren en una constante» solo vale en un **intervalo**. Construye una antiderivada $G$ de $\frac1x$ en todo su dominio, $x\neq0$, con $G(1)=0$ y $G(-1)=5$, y calcula $G(e)$ y $G(-e)$.
+    texto: >-
+      $G(e)=$ ___ · $G(-e)=$ ___
+    respuestas: ["1", "6"]
+    verificar: { sympy: "[integrate(1/x, (x, 1, E)) + 0, integrate(1/x, (x, -1, -E)) + 5]" }
+    pistas:
+      - >-
+        ¿Te piden una función o un número? Con una sola fórmula $\ln\lvert x\rvert+C$, ¿puedes cumplir a la vez $G(1)=0$ y $G(-1)=5$?
+      - >-
+        El dominio $x\neq0$ son dos intervalos separados. ¿La regla de «difieren en una constante» te obliga a usar la misma constante en los dos?
+      - >-
+        Revisa: en cada lado, ¿la derivada de tu $G$ es $\frac1x$? ¿Se cumplen las dos condiciones?
+    explicacion: >-
+      **Tipo.** Una antiderivada en un dominio que no es un intervalo. $x\neq0$ son dos intervalos, $(-\infty,0)$ y $(0,\infty)$, y la regla de «difieren en una constante» vale en cada uno por separado. Con una sola fórmula, $\ln\lvert x\rvert+C$, no se pueden cumplir las dos condiciones, porque $\ln\lvert1\rvert=\ln\lvert-1\rvert=0$. Pero $G(x)=\ln x$ para $x>0$ y $G(x)=\ln(-x)+5$ para $x<0$ sí: es una antiderivada de $\frac1x$ en todo $x\neq0$, con una constante distinta en cada lado. Entonces $G(e)=\ln e=1$ y $G(-e)=\ln e+5=6$. Por eso «la» antiderivada con un dato solo tiene sentido en un intervalo: en $x\neq0$ hacen falta dos datos, uno por lado. Revisa: en cada lado, $G'=\frac1x$ (para $x<0$, $\left[\ln(-x)\right]'=\frac{-1}{-x}$), $G(1)=0$ y $G(-1)=5$.
+    tiempo_estimado_s: 180

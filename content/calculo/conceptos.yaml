@@ -188,7 +188,7 @@ conceptos:
     prerequisitos: [reglas-basicas-derivacion]
   - id: integrales-inmediatas
     nombre: "Integrales inmediatas"
-    prerequisitos: [antiderivada, derivada-trigonometrica, derivada-exponencial-logaritmica, derivada-trig-inversa]
+    prerequisitos: [antiderivada, derivada-trigonometrica, derivada-hiperbolica, derivada-exponencial-logaritmica, derivada-trig-inversa]
   - id: antiderivada-condicion-inicial
     nombre: "Antiderivadas con condición inicial"
     prerequisitos: [antiderivada]

@@ -1,0 +1,22 @@
+unidad: calculo/08-antiderivadas
+nombre: "El Rastreador de Primitivas"
+vidas: 3
+# tiempo_segundos: suma de los tiempo_estimado_s de las 11 preguntas más 10 %. Propias: 007 (60) + 011 (90) +
+# 013 (120) + 014 (120) + 016 (90) + 018 (180) + 020 (180) + 023 (240) = 1080. Repaso, con su tiempo propio:
+# calc-05-010 (40) + calc-07-016 (150) + calc-06-019 (180) = 370. Total 1450; con el 10 %, 1595, redondeado a
+# 1600 s (26.7 min).
+tiempo_segundos: 1600
+aprobado_minimo: 0.8
+preguntas:
+  # d2: 007 · d3: 011, 013, 014, 016 · d4: 018, 020 · d5: 023. Sin autoevaluación ni opción múltiple conceptual
+  # (fuera el 015, el 021, el 022 y el 024). Los cinco conceptos: II (007), AD (011), SU (013, 018), PA (014, 020,
+  # 023) y CI (016).
+  propias: [calc-08-007, calc-08-011, calc-08-013, calc-08-014, calc-08-016, calc-08-018, calc-08-020, calc-08-023]
+  # 3 de 11 (27 %), de unidades con número menor, ninguna usada antes como repaso y que la lección y los ejercicios no
+  # citan: derivar 5^√(x² + 1) (05, d2), el mínimo absoluto de x/2 + cos x en [0, 2π] (07, d3) y la razón del ángulo
+  # de elevación al elevador (06, d4).
+  # Oleadas 3/5/3 (waveSizes(11) del motor: 3.3/4.4/3.3, el sobrante a la de mayor residuo), por dificultad:
+  # 1.ª = los dos d2 (007 y calc-05-010) y uno de los cinco d3 (al azar); 2.ª = los otros cuatro d3 (de 011, 013,
+  # 014, 016 y calc-07-016) y uno de los tres d4 (al azar); 3.ª = los otros dos d4 (de 018, 020 y calc-06-019) y 023.
+  repaso_de: [calc-05-010, calc-07-016, calc-06-019]
+recompensa: { xp: 300, insignia: "rastreador-de-primitivas" }

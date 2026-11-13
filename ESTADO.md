@@ -129,6 +129,18 @@ Brainstorm con Claude en modo plan; plan aprobado el mismo día.
   - En un `conjunto`, un elemento con `±` (`(0, ±sqrt(3))`) se compara como texto y se califica mal sin aviso (`sets.ts:44-51`). Conviene un error explícito: «escribe cada punto por separado». La 05 lo advierte en el enunciado.
 - [ ] Separador de miles (revisión de la 07, 2026-11-12): `evaluateNumber` (`math.ts:137-138`) lee «10,000» como 10 y lo califica como incorrecto, sin avisar. En México se escribe así, de modo que afecta a cualquier respuesta de 1000 o más. Propuesta: que `^\d{1,3}(,\d{3})+$` dé «inválido» con el mensaje «¿Es separador de miles? Escribe 10000». Mientras tanto, los enunciados lo advierten (07-014).
 - [ ] Visual `grafica` en ejercicios (revisión del esquema de la 07, 2026-11-12): el pie siempre dice «Gráfica de $f(x)=$…» y muestra la fórmula (`visuals.ts:248-253`). Si se pregunta por $f'$, el pie lo contradice, y además regala la fórmula. Mientras tanto, la 07 llama $f$ a la función dibujada y $g$ a la incógnita ($g'=f$). Propuesta para el motor: un parámetro de etiqueta (`f'`) y uno para ocultar la fórmula. Es un cambio de código: va por `/equipo` (dev-interfaz o dev-motor), con su prueba y el ajuste en `docs/05`.
+- [ ] Propuestas de la 08 y del esquema de la 09 (2026-11-12):
+  - La app no tiene `asec`, `arcsec`, `arccsc`, `arccot` ni `acoth`, así que la 09 no puede pedir respuestas con arcsec. En su lugar usa formas con atan o ln, válidas en el intervalo más grande.
+  - En un `numerico`, la frase «con el π de la calculadora, no 3.14» no se puede hacer cumplir si el error de usar 3.14 es menor que la tolerancia (08-019). Ahí se quitó la frase y la tolerancia bajó a 0.0005.
+  - `workedExampleFor`: si falla un ancla y no hay otro ejercicio de d1 del mismo concepto, muestra uno más difícil. Por ejemplo, al fallar el 08-001 sale el 08-011, que es d3.
+  - Un visual de triángulo rectángulo para la sustitución trigonométrica (no existe en `docs/05`). Es cambio de código: va por `/equipo`.
+  - En `verify_content.py`, un `integrate` que devuelve Piecewise tiene que elegir la rama con un punto del intervalo; `.args[0][0]` puede tomar la equivocada. Conviene documentarlo en `docs/07`.
+- [ ] Simulacro del parcial (propuesta de `pedagogo`, sin tocar código):
+  - D−6 (≈ 17 nov): `/materias/calculo/simulacro` con las unidades 03–07.
+  - D−5: la 01, la 02, la 08 y la 09.
+  - En papel: las autoevaluaciones de cada unidad, con reloj y su rúbrica, porque el parcial califica el procedimiento.
+  - D−2 o D−3: un simulacro completo, que es el que lee `calibration_report`.
+  - Falta que Carlo lo confirme.
 - [ ] Inversas de sech, csch y coth: el programa (1.3.4) no las excluye y la 05 no las cubre. arcsec, arccsc y arccot entraron solo en la tabla de la 05, con nota de convención (decisión de Carlo, 2026-11-12). Falta saber qué convención de rango usa su curso.
 - [ ] Mientras no exista la 00, el mapa de maestría marca `regla-cadena`, `derivada-trig-inversa` y `derivada-hiperbolica-inversa` como bloqueados por `composicion-funciones`, `trigonometricas-inversas` y `hiperbolicas-inversas`. Es el mismo síntoma que con la 02.
   - `parse_expr` de `verify_content.py` no conoce `sen`, `senh`, `e` ni `log10`: la `respuesta` oficial va en sintaxis de sympy (`sin`, `exp(x)`, `log(x, 10)`). Conviene alinearlo con los alias de la app.
@@ -204,7 +216,8 @@ Plan (2026-10-13, rama `fase-3-calculo-discretas`): 0) rama y registro · 1) pru
   - [x] 05-cadena-implicita (2026-11-12)
   - [x] 07-maximos-minimos (2026-11-12)
   - [x] 06-razones-diferencial (2026-11-12)
-  - [ ] 08 · [ ] 09 · [ ] 02
+  - [x] 08-antiderivadas (2026-11-12)
+  - [ ] 09 · [ ] 02
 - [ ] Matemáticas discretas
 - [ ] Cierre formal: sesión real de ~20 min de Carlo y etiqueta `fase-3`
 
@@ -312,6 +325,41 @@ Complementan los ADR-001 a 008 de `docs/02`. Cada uno se escribe en el commit de
 **ADR-013 · Nomenclatura** (paso 1, decisión D1). Código, tablas y campos de IndexedDB en inglés, con equivalencias en `docs/02`. Las claves de YAML y del front matter siguen en español (son el formato de contenido). Los componentes MDX conservan su nombre en español porque son la API del contenido (`Predice` se implementa como `PredictPrompt`). Las URL van en español porque son interfaz. `APP_ID = 'cortex'` es inmutable (nombre de la base y marca de los respaldos); renombrar la app solo cambia `APP_NAME`. *Descartado:* todo en español (contradice `CLAUDE.md`) o una capa de traducción.
 
 ## Bitácora
+- 2026-11-12 · **Unidad `calculo/08-antiderivadas`** (sprint del parcial; Unidad IV, 4.1 antiderivada, 4.2 sustitución y 4.3 partes).
+  - **Esquema:** objeción sin bloqueo de matemáticas, pedagogía y razonamiento.
+    - Competencia del programa: «resuelve la integral a partir de su tipología». Por eso la lección cierra con un **triaje** de 3 preguntas en orden (tabla → sustitución → partes) que la 09 extiende a 6.
+    - Primera unidad con `salvo_constante`. Reglas de formato:
+      - `variables: [x]` y C mayúscula;
+      - argumentos de ln positivos o con intervalo dado, y `ln(abs(u))`;
+      - la respuesta en la forma del intervalo más grande;
+      - el valor absoluto se califica con numéricos en $x<0$ y con el contraejemplo de las dos constantes (025).
+  - **Contenido (lo escribió `autor-contenido`):**
+    - 25 ejercicios: 10 completar, 7 simbólicos, 3 de selección múltiple, 2 de opción múltiple, 2 numéricos y 1 autoevaluación.
+    - Escalera 5/5/7/5/3; los 5 conceptos tienen 3 o más ejercicios.
+    - Anclas 001–005 con un solo concepto.
+    - Lección de 1,698 palabras con front matter (tope 1,700).
+    - Jefe con 8 propias y 3 de repaso (calc-05-010, calc-07-016 y calc-06-019; la 06 y la 07 entran por primera vez a un repaso), 1600 s y oleadas 3/5/3.
+  - **`/revisar-contenido`:**
+    - **A ciegas:** 24/24. Después de los arreglos, 14/14, y otra vez el 015 y el 024. La app acepta todas las formas del resolutor (`+0.5`, la forma factorizada del 018 y `64/5`).
+    - **Checklist:** los tres dieron objeción, sin respuestas erróneas.
+    - **Arreglos aplicados con el sí de Carlo («Errores + mejoras»):**
+      - criterios con sus dos mitades en el 009 y el 024, y el 015 amarrado a «la primera pregunta del triaje que diga sí»;
+      - la opción del 017 que se contradecía;
+      - la hipótesis $f'\neq0$ en el 022;
+      - ln|x| + C en cada intervalo, con constantes que pueden ser distintas de cada lado;
+      - el Predice con «los dos»;
+      - el 023 pasó a $e^{-x}\operatorname{sen}3x$, porque $e^{-\theta}\cos2\theta$ es de Stewart 7.1;
+      - el triaje con orden explícito y «salvo un factor constante»;
+      - «no se integra factor por factor»;
+      - desvanecidos que piden un paso real;
+      - el 021 revisado en $x=e$;
+      - senh practicado en el 002;
+      - tolerancia de 0.0005 en el 019.
+    - En `conceptos.yaml`, `integrales-inmediatas` suma el prerrequisito `derivada-hiperbolica`.
+  - **Evidencia:**
+    - `content:check content/calculo` en verde: 174 ejercicios, 141 por código y 33 manuales.
+    - `test:content` 313/313 y `real-answers` 271/271.
+    - En `localhost:3000`: 206 fórmulas KaTeX sin error, y los 6 huecos de los dos desvanecidos se califican bien.
 - 2026-11-12 · **Unidad `calculo/06-razones-diferencial`** (sprint del parcial; 3.3 razones de cambio relacionadas y 3.4 diferencial).
   - **Esquema:** objeción sin bloqueo de matemáticas, pedagogía y razonamiento.
     - Lección con presupuesto por sección; quedó en 1,633 palabras, unos 25 min.
