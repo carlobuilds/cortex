@@ -70,6 +70,43 @@ Carlo aprobó el temario alineado con `curriculum/programas/calculo.pdf` (IIA, p
 - Como en el programa, todas las técnicas de integración van antes de la integral definida.
 - **Logaritmos siempre con base:** en lo que ve y escribe el estudiante (enunciados, opciones, pistas, explicaciones, lecciones y respuestas oficiales) nunca va `log` solo: se escribe `ln`, `log10`, `log2` o `log(x, b)`, salvo en notación asintótica ($O(\log n)$), donde la base no importa. Motivo: la app y sympy leen `log` como logaritmo natural, pero en clase y en Stewart `log x` es base 10. No cambia código; la regla está en `docs/05` y en la `notacion` de Cálculo.
 
+## Decisiones tomadas (Carlo, 2026-11-13 · temario de Discretas)
+Puerta de temario del paso 9, en la sesión de Discretas (worktree `discretas-857e48`, rama `claude/discretas-857e48`), contra `curriculum/programas/matematicas-discretas.pdf` (sin versionar). `/consejo` con `experto-matematicas`, `pedagogo` y `arquitecto-razonamiento`: los tres «aprobado con cambios».
+- **Temario: 21 unidades + 2 extra** (`content/matematicas-discretas/conceptos.yaml`, 132 conceptos). Entre paréntesis, la sección del programa:
+  - **I Lógica:** 01 proposiciones (1.1.1) · 02 equivalencias, álgebra y variantes de la condicional (1.1.2 a 1.1.4) · 03 inferencias y demostración directa (1.2.1) · 04 demostración condicional e indirecta (1.2.2) · 05 predicados y cuantificadores (1.3.1 y 1.3.2) · 06 inferencias con cuantificadores (1.3.3).
+  - **II Conjuntos:** 07 conjuntos (2.1) · 08 cardinalidad, potencia y producto cartesiano (2.2 y 2.3).
+  - **III Enteros:** 09 divisibilidad (3.1, 3.2.1 y 3.2.2) · 10 mcd, Euclides, Bézout y TFA (3.2.3 a 3.2.5) · 11 inducción (3.3) · 12 sistemas de numeración (3.4).
+  - **IV Estructuras discretas:** 13 álgebra booleana (4.1.1 a 4.1.3) · 14 circuitos y Karnaugh (4.1.4 y 4.1.5) · 15 relaciones y funciones (4.2.1 a 4.2.3) · 16 propiedades y orden (4.2.4, 4.3.1 y 4.3.2) · 17 equivalencia (4.3.3 y 4.3.4) · 18 módulo n (4.4) · 19 grafos, Euler y Hamilton (4.5.1 y 4.5.2) · 20 BFS, DFS y Dijkstra (4.5.3 y 4.5.4) · 21 árboles binarios (4.5.5; jefe final del programa).
+  - **Extra, fuera del programa** (Carlo los quiso al final): 22 conteo y combinatoria · 23 recurrencias. El programa no los trae, aunque `docs/01` los mencionaba.
+- **Cómo se cortó:** nada de fusiones, porque con 3 ejercicios por concepto y un tope de 25 caben unas 8 ideas por unidad. Carlo eligió 21 sobre las 19 de `experto-matematicas`: relaciones y grafos van en tres unidades cada uno. La contrapositiva va a la 02 porque se justifica con ≡. La demostración directa cierra la 03, y la 04 enseña un solo esquema: «supón, deriva, descarga». Las inferencias con cuantificadores (práctica oficial 1) tienen unidad propia.
+- **Se agrega al programa, avisado:** Euclides extendido y Bézout (los necesitan el inverso módulo n y la unicidad del TFA), inducción fuerte (un concepto) y cuantificadores anidados (los usan inyectiva y suprayectiva).
+- **Notación** (la línea completa está en `notacion`):
+  - S∘R = «primero R, luego S», como g∘f. Carlo pidió «la más común»; es la de Rosen.
+  - ⊆ y ⊊, nunca ⊂; ℕ incluye el 0 y ℤ⁺ no.
+  - Reglas de inferencia con abreviatura (MP, MT, SH, SD…).
+  - Álgebra booleana con +, · y x̄; sus tablas van en 0/1 desde 000.
+  - Grafos: camino, recorrido, trayectoria, circuito y ciclo, cada uno con su significado.
+- **3.er parcial de Discretas:** Unidad IV, semana del 23 al 27 de noviembre de 2026, la misma del de Cálculo.
+  - Se escriben las 9 unidades de la IV **en el orden del programa** (13 → 21), una tras otra, con el visto bueno de Carlo al esquema y a los arreglos de cada una.
+  - A fondo solo se estudian 3 o 4 (de la 13 a la 16); las demás sirven para práctica y simulacro.
+  - Las 01–12, 22 y 23 van después del parcial.
+- **Mientras falten las unidades I a III:**
+  - cada lección de la IV recuerda en pocas líneas lo previo: las leyes de la lógica para la 13, el producto cartesiano para la 15 y Euclides extendido para la 18;
+  - el mapa de maestría mostrará bloqueados esos prerrequisitos, el mismo síntoma que con la 00 y la 02 de Cálculo.
+- **Huecos de la plataforma.** El contenido los esquiva; son propuestas para `/equipo` después del parcial, junto a la deuda de la Fase 3.5:
+  - **Tabla de verdad:** la convención es una sola para toda la app (`convention.ts`), así que no puede ser V/F para la lógica y 0/1 desde 000 para el álgebra booleana. La 13 y la 14 no usan `tabla_verdad`: las tablas van en la lección y las respuestas son un conjunto de índices de minitérminos, un número o una opción.
+  - **Gramática de fórmulas:** no lee `+`, `·`, `x̄` ni la yuxtaposición, y lee `^` como ∧ (`formula.ts:50`), cuando en C y en Python es XOR.
+  - **`conjunto`:** no acepta conjuntos de conjuntos (`sets.ts:60`). No sirve para 𝒫(A), el conjunto cociente ni las particiones.
+  - **Visual `grafo`:** dibuja en círculo y sin pesos. Falta uno por niveles (Hasse y árboles binarios) y uno con pesos (Dijkstra).
+  - **`ordenar`:** no se verifica por código (`verify_content.py:660`) y acepta un solo orden. Los órdenes de visita van como `completar` con `verificar.python`.
+  - **Tipos nuevos que propone `arquitecto-razonamiento`:**
+    - `derivacion`: bloques con grafo de dependencias, donde cuenta cualquier orden válido;
+    - `justificar`: la regla se elige de un menú y las líneas se dan como números;
+    - `formula`: comparar por equivalencia lógica con el parser de `src/engine/logic/`;
+    - `testigo`: acepta cualquier valor que cumpla un predicado.
+  - **Jefe final:** la app anuncia así al jefe de la última unidad que exista (`boss-runner.tsx:71`). Mientras se escribe la IV será la última escrita, y cuando existan las extra será la 23, no la 21.
+  - **Sigue pendiente de Carlo:** la convención de la tabla de verdad de su clase (`TODO(Carlo)` en `convention.ts`).
+
 ## Decisiones tomadas (Carlo, 2026-11-10 · equipo, coach, KPIs, iPad y sync)
 Brainstorm con Claude en modo plan; plan aprobado el mismo día.
 - **Equipo de agentes** (ADR-024): subagentes de Claude Code que asesoran y desarrollan, **todos en Opus**, invocados solo por nombre, en **un solo worktree** (un escritor a la vez). La app sigue **sin IA en tiempo de ejecución**.
@@ -236,6 +273,10 @@ Plan (2026-10-13, rama `fase-3-calculo-discretas`): 0) rama y registro · 1) pru
   - [x] 08-antiderivadas (2026-11-12)
   - [ ] 09 · [ ] 02
 - [ ] Matemáticas discretas
+  - [x] Puerta de temario (paso 9, 2026-11-13): el programa oficial en `curriculum/programas/matematicas-discretas.pdf`, el temario aprobado por Carlo y `conceptos.yaml` completo (132 conceptos en 23 unidades: 21 del programa y 2 extra)
+  - [ ] Unidad IV para el 3.er parcial, en orden 13 → 21: [ ] 13 · [ ] 14 · [ ] 15 · [ ] 16 · [ ] 17 · [ ] 18 · [ ] 19 · [ ] 20 · [ ] 21
+  - [ ] Unidades 01 a 12, después del parcial
+  - [ ] Extra: 22 conteo · 23 recurrencias
 - [ ] Cierre formal: sesión real de ~20 min de Carlo y etiqueta `fase-3`
 
 ### v1 · Equipo y coach (2026-11-10)
@@ -342,6 +383,29 @@ Complementan los ADR-001 a 008 de `docs/02`. Cada uno se escribe en el commit de
 **ADR-013 · Nomenclatura** (paso 1, decisión D1). Código, tablas y campos de IndexedDB en inglés, con equivalencias en `docs/02`. Las claves de YAML y del front matter siguen en español (son el formato de contenido). Los componentes MDX conservan su nombre en español porque son la API del contenido (`Predice` se implementa como `PredictPrompt`). Las URL van en español porque son interfaz. `APP_ID = 'cortex'` es inmutable (nombre de la base y marca de los respaldos); renombrar la app solo cambia `APP_NAME`. *Descartado:* todo en español (contradice `CLAUDE.md`) o una capa de traducción.
 
 ## Bitácora
+- 2026-11-13 · **F3 paso 9: puerta de temario de Matemáticas discretas** (sesión de Discretas, worktree `discretas-857e48`, rama `claude/discretas-857e48`; corre en paralelo con el sprint del parcial de Cálculo).
+  - *Rama:* el worktree se había cortado de `7f150cb`, 21 commits detrás de `fase-3-calculo-discretas`. Como no tenía commits propios, se adelantó por fast-forward a `1ddb6fd`.
+  - *Programa:* `matematicas-discretas.pdf`, con el mismo sha256 que registró el paso 7 (`a41a6a17…6c03db`). Se leyó con un extractor de zlib, porque no hay `pdftoppm`. Las horas suman T 81, P 27 y AA 32; hay un 3.3.4 y un 3.3.5 que en realidad son de 3.2, y un 4.4.5 que es de 4.5.
+  - *Cuadernillo de clase de Carlo* (`0IPN/Matemáticas discretas/Cuadernillo1 2026.pdf`): son imágenes escaneadas. PDFKit las convierte a PNG desde `osascript -l JavaScript`. Es la Unidad I: derivaciones por método directo, demostración condicional e indirecto, y argumentos en español para formalizar. Mezcla `~`/`¬` y `&`/`∧`. Sus ejercicios vienen de libros y no se copian.
+  - *`/consejo`:* `experto-matematicas`, `pedagogo` y `arquitecto-razonamiento` dieron los tres «aprobado con cambios»:
+    - no fusionar unidades;
+    - partir la de cuantificadores;
+    - pasar la demostración directa a la 03;
+    - Bézout entra, avisado;
+    - corregir las horas del borrador, que sumaban 117 en lugar de 108;
+    - faltaban hipótesis: mcd·mcm = |ab|, Euler exige un grafo conexo y `%` falla con negativos;
+    - en la plataforma faltan piezas para la Unidad IV.
+  - *Choque:* 19 unidades (`experto-matematicas`) contra 21 (`pedagogo`). Carlo eligió 21 y las 2 extra.
+  - *Decisiones de Carlo:* el 3.er parcial es de la Unidad IV, en la semana del 23 al 27 de noviembre; las unidades se escriben en el orden del programa, todas; la composición con la convención más común. El detalle está en «Decisiones tomadas · temario de Discretas».
+  - *Hecho:*
+    - `content/matematicas-discretas/conceptos.yaml`, con 132 conceptos, la `notacion` y un bloque por unidad con su sección del programa;
+    - un prerrequisito entre materias: `calculo:composicion-funciones`;
+    - en `docs/01`, la línea de Discretas, alineada con el programa.
+  - *Evidencia:*
+    - `pnpm content:check content/matematicas-discretas` en verde (0 errores y 0 avisos);
+    - `pnpm content:check` sin ruta en verde (19 unidades y 410 ejercicios; los 12 avisos son los `programa_ref` pendientes de Programación, que ya estaban);
+    - la materia sin unidades no aparece en la app (`hasContent` es falso).
+  - *Notas de la sesión:* borrador, programa en texto y esquemas en `~/Library/Application Support/Claude/side-session-notes/local_a6e0852a-c7ca-4753-87c7-0928b0b431e1/`.
 - 2026-11-12 · **Unidad `calculo/08-antiderivadas`** (sprint del parcial; Unidad IV, 4.1 antiderivada, 4.2 sustitución y 4.3 partes).
   - **Esquema:** objeción sin bloqueo de matemáticas, pedagogía y razonamiento.
     - Competencia del programa: «resuelve la integral a partir de su tipología». Por eso la lección cierra con un **triaje** de 3 preguntas en orden (tabla → sustitución → partes) que la 09 extiende a 6.

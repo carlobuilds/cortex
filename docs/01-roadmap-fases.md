@@ -83,7 +83,7 @@ Carlo pidió empezar por **bases duras, fundamentos económicos y fundamentos de
 ## Fase 3 · Cálculo + Matemáticas discretas
 
 - **Cálculo:** límites, continuidad, derivadas (reglas, cadena, implícita), aplicaciones (optimización, razones relacionadas, aproximación lineal), integral definida e indefinida, Teorema Fundamental, técnicas de integración, aplicaciones de la integral. Alinear con el programa oficial.
-- **Matemáticas discretas:** lógica proposicional y de predicados, conjuntos, relaciones y funciones, conteo y combinatoria, inducción, recurrencias, teoría de grafos básica.
+- **Matemáticas discretas:** las 4 unidades del programa oficial: I lógica (equivalencias, inferencias y demostraciones, cuantificadores), II conjuntos (álgebra, cardinalidad, potencia y producto cartesiano), III enteros (divisibilidad, Euclides, inducción, sistemas de numeración) y IV estructuras discretas (álgebra booleana y Karnaugh, relaciones, orden y equivalencia, módulo n, grafos y árboles). En Cortex son 21 unidades. Conteo y recurrencias no están en el programa; entran al final como extra (unidades 22 y 23). Temario en `ESTADO.md`.
 - Plataforma nueva: visualizaciones interactivas con Mafs (pendiente, secante→tangente, área bajo curva); simulador de tablas de verdad.
 - **DoH:** ambas materias jugables con jefe por unidad y un jefe final cada una; simulacro de examen disponible.
 
