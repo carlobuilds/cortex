@@ -111,6 +111,25 @@ Brainstorm con Claude en modo plan; plan aprobado el mismo día.
 - [ ] Confirmar el semestre actual (se asumió 1º; Carlo cursa Cálculo este semestre).
 - [x] Sprint del parcial: temas, fecha y orden de escritura decididos por Carlo el 2026-11-10 (ver «Decisiones tomadas · sprint del parcial de Cálculo»).
 - [ ] Unidad 00 (funciones): escribirla después del parcial, o antes como diagnóstico en papel si Carlo lo pide.
+- [ ] Simulacro del parcial (propuesta de `pedagogo`, sin tocar código):
+  - D−6 (≈ 17 nov): `/materias/calculo/simulacro` con las unidades 03–07.
+  - D−5: la 01, la 02, la 08 y la 09.
+  - En papel: las autoevaluaciones de cada unidad, con reloj y su rúbrica, porque el parcial califica el procedimiento.
+  - D−2 o D−3: un simulacro completo, que es el que lee `calibration_report`.
+  - Falta que Carlo lo confirme.
+- [ ] Inversas de sech, csch y coth: el programa (1.3.4) no las excluye y la 05 no las cubre. arcsec, arccsc y arccot entraron solo en la tabla de la 05, con nota de convención (decisión de Carlo, 2026-11-12). Falta saber qué convención de rango usa su curso.
+- [ ] Mientras no exista la 00, el mapa de maestría marca `regla-cadena`, `derivada-trig-inversa` y `derivada-hiperbolica-inversa` como bloqueados por `composicion-funciones`, `trigonometricas-inversas` y `hiperbolicas-inversas`. Es el mismo síntoma que con la 02.
+- [ ] Mientras no exista la 02, el mapa de maestría muestra `derivabilidad-continuidad` como bloqueado por `continuidad-punto` (`src/engine/mastery.ts:59`). Solo es visual, pero confunde durante el sprint.
+- [x] Arreglos de `01-limites` que propuso `/revisar-contenido`: Carlo los aprobó y se aplicaron el 2026-11-10 (ver bitácora).
+- [ ] Pulido de `01-limites` que quedó fuera de esos arreglos: aceptar sinónimos en `completar` (p. ej. «divisor» por «factor» en 011) o dejar huecos de una sola respuesta; cerrar el gancho del auto con la velocidad de $s(t)=t^2$; la pista de 003, que casi regala la respuesta; 009 y 020 etiquetados como `0/0` aunque son $\infty-\infty$ e $\infty\cdot0$; `duracion_min: 25` con 4 ejemplos más.
+- [ ] `weeklyVerdict` (aporte de Carlo): umbrales de semana «sólida», «para ajustar» y «de alerta».
+- [ ] Niveles de rigor formal R0–R4 (propuesta de `arquitecto-razonamiento`): aprobarlos o ajustarlos antes del recomendador de proyectos.
+- [ ] Ruta IA: módulos, prefijo de ids y ritmo (sesión de diseño con `/consejo`).
+- [ ] Para la Fase 3.5: dominio o subdominio del VPS; si `fase-3-calculo-discretas` se fusiona a `main` antes; si la pizarra se activa por defecto en la Mac; cuánto tiempo se guarda la tinta; regla del cofre cuando dos dispositivos lo abren sin conexión.
+- [ ] Vía nativa del iPad: espacio para Xcode y cuenta de Apple (gratis caduca cada 7 días; Developer Program 99 USD/año).
+
+## Para la Fase 3.5 · deuda del sprint del parcial (motor, verificador y visuales)
+Carlo decidió el 2026-11-13 pasar estas propuestas a la siguiente fase del plan (`docs/01`, Fase 3.5, antes del paso 1). Durante el sprint, el contenido las esquiva desde el enunciado. Cada arreglo va por `/equipo` con su prueba. Si un cambio afecta cómo se califica, hay que volver a correr `pnpm content:check` y `real-answers` sobre todo el contenido.
 - [ ] Propuestas para el motor que salieron de la revisión de `03-derivada` (2026-11-11):
   - que un `simbolico` acepte el prefijo «y =» (hoy mathjs lo lee como asignación y la app responde con un mensaje confuso; la 03 lo esquiva en el enunciado);
   - que `asNumber` (`src/engine/answers/text.ts:20`) acepte el signo «−» tipográfico (U+2212), como ya hace `math.ts`: hoy un «−4» pegado en un hueco de `completar` se califica mal;
@@ -135,23 +154,21 @@ Brainstorm con Claude en modo plan; plan aprobado el mismo día.
   - `workedExampleFor`: si falla un ancla y no hay otro ejercicio de d1 del mismo concepto, muestra uno más difícil. Por ejemplo, al fallar el 08-001 sale el 08-011, que es d3.
   - Un visual de triángulo rectángulo para la sustitución trigonométrica (no existe en `docs/05`). Es cambio de código: va por `/equipo`.
   - En `verify_content.py`, un `integrate` que devuelve Piecewise tiene que elegir la rama con un punto del intervalo; `.args[0][0]` puede tomar la equivocada. Conviene documentarlo en `docs/07`.
-- [ ] Simulacro del parcial (propuesta de `pedagogo`, sin tocar código):
-  - D−6 (≈ 17 nov): `/materias/calculo/simulacro` con las unidades 03–07.
-  - D−5: la 01, la 02, la 08 y la 09.
-  - En papel: las autoevaluaciones de cada unidad, con reloj y su rúbrica, porque el parcial califica el procedimiento.
-  - D−2 o D−3: un simulacro completo, que es el que lee `calibration_report`.
-  - Falta que Carlo lo confirme.
-- [ ] Inversas de sech, csch y coth: el programa (1.3.4) no las excluye y la 05 no las cubre. arcsec, arccsc y arccot entraron solo en la tabla de la 05, con nota de convención (decisión de Carlo, 2026-11-12). Falta saber qué convención de rango usa su curso.
-- [ ] Mientras no exista la 00, el mapa de maestría marca `regla-cadena`, `derivada-trig-inversa` y `derivada-hiperbolica-inversa` como bloqueados por `composicion-funciones`, `trigonometricas-inversas` y `hiperbolicas-inversas`. Es el mismo síntoma que con la 02.
+- [ ] Alinear `verify_content.py` con la app (revisión de la 05):
   - `parse_expr` de `verify_content.py` no conoce `sen`, `senh`, `e` ni `log10`: la `respuesta` oficial va en sintaxis de sympy (`sin`, `exp(x)`, `log(x, 10)`). Conviene alinearlo con los alias de la app.
-- [ ] Mientras no exista la 02, el mapa de maestría muestra `derivabilidad-continuidad` como bloqueado por `continuidad-punto` (`src/engine/mastery.ts:59`). Solo es visual, pero confunde durante el sprint.
-- [x] Arreglos de `01-limites` que propuso `/revisar-contenido`: Carlo los aprobó y se aplicaron el 2026-11-10 (ver bitácora).
-- [ ] Pulido de `01-limites` que quedó fuera de esos arreglos: aceptar sinónimos en `completar` (p. ej. «divisor» por «factor» en 011) o dejar huecos de una sola respuesta; cerrar el gancho del auto con la velocidad de $s(t)=t^2$; la pista de 003, que casi regala la respuesta; 009 y 020 etiquetados como `0/0` aunque son $\infty-\infty$ e $\infty\cdot0$; `duracion_min: 25` con 4 ejemplos más.
-- [ ] `weeklyVerdict` (aporte de Carlo): umbrales de semana «sólida», «para ajustar» y «de alerta».
-- [ ] Niveles de rigor formal R0–R4 (propuesta de `arquitecto-razonamiento`): aprobarlos o ajustarlos antes del recomendador de proyectos.
-- [ ] Ruta IA: módulos, prefijo de ids y ritmo (sesión de diseño con `/consejo`).
-- [ ] Para la Fase 3.5: dominio o subdominio del VPS; si `fase-3-calculo-discretas` se fusiona a `main` antes; si la pizarra se activa por defecto en la Mac; cuánto tiempo se guarda la tinta; regla del cofre cuando dos dispositivos lo abren sin conexión.
-- [ ] Vía nativa del iPad: espacio para Xcode y cuenta de Apple (gratis caduca cada 7 días; Developer Program 99 USD/año).
+- [ ] Propuestas de la revisión de la 09 y del esquema de la 02 (2026-11-12 y 2026-11-13):
+  - `tan^(-1)` también se lee como $1/\tan$ sin avisar (`math.ts:45` y `:72`), igual que `sen^(-1)`. La 09 lo advierte en el cierre de cada `simbolico`.
+  - En `completar`, ∞ en un hueco solo pasa si se escribe `oo` literal. `∞`, `inf` o `-∞` salen incorrectos sin aviso, y `verify_content.py` no lo detecta (`text.ts:19-23`). Propuesta: que `asNumber` acepte ∞. Mientras tanto, la 02 pide ∞ solo en `numerico`.
+  - `numerico` acepta `1/0` y `10^400` como ∞.
+  - Los visuales `grafica` y `limite` no dibujan funciones por partes (`math.ts:13-20`).
+  - `grafica` solo detecta huecos en múltiplos de 1/2 del dominio y no ve saltos chicos.
+  - `limite` con $e^{1/x}$ en 0 se desborda y dice «no se acerca a ningún valor».
+  - `FadedInteractive` (`lesson-interactive.tsx:73`) muestra todos los pasos a la vez, así que un paso posterior puede regalar un hueco anterior. Propuesta: revelarlos uno por uno.
+  - sympy 1.14: `limit(Piecewise, x, a, '-')` devuelve $f(a)$, y `limit` sin dirección calcula solo el lateral derecho. Hay que documentarlo en `docs/07`; mientras tanto, los laterales se verifican con $x=a\pm h$ y $h$ positivo.
+- [ ] Contenido, después del sprint:
+  - la regla de la 08 «en la segunda ronda usa el mismo tipo de $u$» no detecta el bucle del 09-023;
+  - el 08-015 (códigos 1-2-3) convive en el repaso con el triaje de 6 preguntas de la 09. Hay que valorar con `cientifico-memoria` si confunde;
+  - el pulido de `01-limites` que sigue en «Decisiones pendientes».
 
 ## Prefijos de ids de ejercicio
 | Materia | Prefijo |

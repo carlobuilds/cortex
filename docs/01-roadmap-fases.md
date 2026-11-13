@@ -98,6 +98,28 @@ Carlo tiene parcial de Cálculo en menos de 4 semanas. Antes de la Fase 3.5:
 
 ## Fase 3.5 · v1.1 · iPad (PWA), Pizarra, Sync y coach vivo
 Se planea en detalle al arrancarla (modo plan + `/consejo`). Visión y catálogo de ideas en `docs/09`. Esqueleto:
+
+**0. Deuda del sprint del parcial (antes del paso 1).** En las revisiones de las unidades 03 a 09 y del esquema de la 02 salieron arreglos que hoy el contenido esquiva desde el enunciado. Se pasaron aquí por decisión de Carlo el 2026-11-13. La lista detallada está en `ESTADO.md`, sección «Para la Fase 3.5 · deuda del sprint del parcial».
+- **Entrada de respuestas** (`src/engine/answers/`):
+  - `sen^(-1)` y `tan^(-1)` se leen como el recíproco, y `cos x^2` como $\cos(x)^2$, sin avisar;
+  - con `\b` en los alias fallan las funciones pegadas a un número (`2sen(x)`);
+  - el «−» tipográfico no se reconoce en los huecos, y los huecos de `completar` no aceptan ∞;
+  - el separador de miles se lee mal;
+  - faltan alias y funciones (`asec`, `acoth`, `ctg`…);
+  - `±` en un `conjunto`;
+  - la $y'$ implícita se compara fuera de la curva.
+- **Verificador:** `verify_content.py` tiene que leer las respuestas igual que la app (alias y precedencia), y hay que documentar en `docs/07` las trampas de sympy (laterales de Piecewise y ramas de `integrate`).
+- **Visuales y lección interactiva:**
+  - etiqueta y fórmula ocultable en `grafica`;
+  - funciones por partes;
+  - huecos y saltos que hoy no se detectan;
+  - `limite` con $e^{1/x}$;
+  - un triángulo para la sustitución trigonométrica;
+  - un `<Desvanecido>` que revele los pasos uno por uno.
+- **Motor de práctica:** el ejemplo resuelto de `workedExampleFor` debe preferir el mismo tipo y el primer concepto, y no ofrecer uno más difícil que el ancla.
+
+Este paso entra antes de los spikes porque el spike B (respuesta en el iPad) usa la misma entrada de respuestas. Cada arreglo va por `/equipo` con su prueba. Si cambia cómo se califica, hay que volver a correr `pnpm content:check` y `real-answers` sobre todo el contenido.
+
 1. **VPS y build del iPad:**
    - VPS base: Caddy, TLS y firewall con 22, 80 y 443;
    - `pnpm build:pwa`, export estático **sin el runner de C** (`api/run-c` pasa a `route.local.ts`).
