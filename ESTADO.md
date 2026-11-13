@@ -234,7 +234,8 @@ Plan (2026-10-13, rama `fase-3-calculo-discretas`): 0) rama y registro · 1) pru
   - [x] 07-maximos-minimos (2026-11-12)
   - [x] 06-razones-diferencial (2026-11-12)
   - [x] 08-antiderivadas (2026-11-12)
-  - [ ] 09 · [ ] 02
+  - [x] 09-tecnicas-integracion (2026-11-13)
+  - [ ] 02
 - [ ] Matemáticas discretas
 - [ ] Cierre formal: sesión real de ~20 min de Carlo y etiqueta `fase-3`
 
@@ -342,6 +343,38 @@ Complementan los ADR-001 a 008 de `docs/02`. Cada uno se escribe en el commit de
 **ADR-013 · Nomenclatura** (paso 1, decisión D1). Código, tablas y campos de IndexedDB en inglés, con equivalencias en `docs/02`. Las claves de YAML y del front matter siguen en español (son el formato de contenido). Los componentes MDX conservan su nombre en español porque son la API del contenido (`Predice` se implementa como `PredictPrompt`). Las URL van en español porque son interfaz. `APP_ID = 'cortex'` es inmutable (nombre de la base y marca de los respaldos); renombrar la app solo cambia `APP_NAME`. *Descartado:* todo en español (contradice `CLAUDE.md`) o una capa de traducción.
 
 ## Bitácora
+- 2026-11-13 · **Unidad `calculo/09-tecnicas-integracion`** (sprint del parcial; Unidad IV, 4.4 integrales trigonométricas, 4.5 sustitución trigonométrica y 4.6 fracciones parciales).
+  - **Esquema:** objeción sin bloqueo de matemáticas, pedagogía y razonamiento. Carlo decidió:
+    - el **triaje versión 2**, de 6 preguntas, con partes al final: tabla → sustitución → fracciones parciales → trigonométricas → sustitución trigonométrica → partes;
+    - en 4.4, sen/cos en el nivel A, tan/sec en el B y los productos con ángulos distintos en el C.
+  - **Contenido (lo escribió `autor-contenido`):**
+    - 25 ejercicios: 8 simbólicos, 7 completar, 4 de opción múltiple, 3 numéricos, 1 de selección múltiple, 1 conjunto y 1 autoevaluación.
+    - Escalera 5/5/7/5/3; los 4 conceptos tienen 5 o más ejercicios.
+    - Anclas 001–005 con un solo concepto.
+    - Lección de 1,700 palabras con front matter (tope 1,700). No usa conceptos nuevos en `conceptos.yaml`.
+    - Jefe con 8 propias (dos por concepto) y 3 de repaso de la 08 (calc-08-014, calc-08-017 y calc-08-018), 1617 s y oleadas 3/5/3.
+    - Sin arcsec en las respuestas (la app no lo tiene): se piden formas con atan o ln, válidas en el intervalo más grande.
+  - **`/revisar-contenido`:**
+    - **A ciegas:** 24/24.
+      - Hubo lecturas literales del triaje: la pregunta 2 con una función de adentro lineal ($x^2e^{3x}$), $\cos^3x$ entre las preguntas 2 y 4, y la sustitución del 024.
+      - Después de los arreglos, 15/15 en los 15 ejercicios que cambiaron. La app acepta todas las formas del resolutor: `e^x`, `exp(x)`, `-csc(x)`, `sen^3(x)`, `ln(abs(…))` y `0.04`.
+    - **Checklist:** los tres dieron objeción, sin respuestas erróneas.
+    - **Arreglos aplicados con el sí de Carlo («Errores + mejoras»):**
+      - el triaje versión 2 aclara tres preguntas: la 1 («¿ya está en la tabla…?»), la 2 (sin identidades; una función de adentro lineal no absorbe la $x$ de afuera) y la 4 (si la $u$ solo aparece tras una identidad, es esta); el recuadro cierra con «Si ninguna dice «sí»»;
+      - el 004 y el 017 traen en el enunciado las reglas para clasificar; el 004 suma $\int\frac{dx}{\sqrt{25-x^2}}$;
+      - el 014 pasa a `simbolico` (`asin((x - 3)/4)`);
+      - el 015 nuevo evalúa el factor lineal repetido y entra al jefe en lugar del 016;
+      - el 007, el 023 y el 024 se reescribieron;
+      - los desvanecidos piden un paso real;
+      - los `simbolico` cierran con una regla de sintaxis única («`arcsen(w)`, nunca `^(-1)`»);
+      - tolerancia de 0.0005 en el 011, el 016 y el 019;
+      - $\int\tan x\,dx$ se explica como $g'/g$;
+      - se ajustaron el Predice, el miniejemplo, el Ojo, el Resumen y la Conexión.
+      - Para respetar el tope de palabras, el autor hizo tres recortes pequeños que no estaban en la lista, sin cambiar el contenido.
+  - **Evidencia:**
+    - `content:check content/calculo` en verde: 199 ejercicios, 160 por código y 39 manuales.
+    - `test:content` 313/313 y `real-answers` 295/295.
+    - En `localhost:3000`: 193 fórmulas KaTeX sin error, y los 9 huecos de los tres desvanecidos se califican bien.
 - 2026-11-12 · **Unidad `calculo/08-antiderivadas`** (sprint del parcial; Unidad IV, 4.1 antiderivada, 4.2 sustitución y 4.3 partes).
   - **Esquema:** objeción sin bloqueo de matemáticas, pedagogía y razonamiento.
     - Competencia del programa: «resuelve la integral a partir de su tipología». Por eso la lección cierra con un **triaje** de 3 preguntas en orden (tabla → sustitución → partes) que la 09 extiende a 6.

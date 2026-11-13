@@ -1,0 +1,154 @@
+---
+titulo: "Técnicas de integración: reescribir hasta llegar a la tabla"
+materia: calculo
+unidad: 09-tecnicas-integracion
+duracion_min: 25
+prerrequisitos: [integracion-sustitucion, integracion-partes, integrales-inmediatas, derivada-trigonometrica, trigonometricas-inversas]
+conceptos: [integrales-trigonometricas, sustitucion-trigonometrica, fracciones-parciales, eleccion-tecnica-integracion]
+programa_ref: "Cálculo, Unidad IV, 4.4 (integrales trigonométricas y sustitución trigonométrica) y 4.5 (integrales de funciones racionales por fracciones parciales)"
+---
+
+## El problema
+
+Cuatro integrales que no están en la tabla: $\int\frac{x}{\sqrt{9-x^2}}\,dx$, $\int\sqrt{9-x^2}\,dx$, $\int\frac{dx}{x^2-9}$ e $\int\operatorname{sen}^5x\,dx$. Con las técnicas de la 08, ¿hasta dónde llegas?
+
+<Predice pregunta="Sin integrar y sin usar identidades: ¿cuáles salen ya con una sustitución de la 08, y qué les estorba a las demás?" revela="Solo la primera: con $u=9-x^2$, $du=-2x\,dx$ absorbe la $x$ de arriba. En la segunda estorba la raíz, y no hay $x$ afuera; con $x=3\operatorname{sen}\theta$, la raíz se vuelve $3\cos\theta$. En la tercera estorba que arriba no está $2x$; como abajo hay $(x-3)(x+3)$, se descompone en dos fracciones con denominador lineal. En la cuarta estorba la potencia: nada de afuera es la derivada de lo de adentro; con la identidad, $\operatorname{sen}^5x=(1-\cos^2x)^2\operatorname{sen}x$, y queda una sustitución con $u=\cos x$. Las tres técnicas nuevas reescriben la integral hasta dejarla en algo que la 08 ya resuelve." />
+
+## Integrales trigonométricas
+
+<Concepto titulo="Potencias de seno y coseno">
+En $\int\operatorname{sen}^mx\cos^nx\,dx$:
+
+- **Si una potencia es impar y positiva** (la otra puede ser cualquiera, incluso negativa), guarda un factor de la impar, que será parte de $du$, y convierte el resto de esa potencia con $\operatorname{sen}^2x+\cos^2x=1$. Si guardas un $\cos x$, $u=\operatorname{sen}x$; si guardas un $\operatorname{sen}x$, $u=\cos x$.
+- **Si las dos son pares y no negativas** (0 cuenta como par), baja el grado con $\operatorname{sen}^2\theta=\frac{1-\cos2\theta}{2}$, $\cos^2\theta=\frac{1+\cos2\theta}{2}$ y $\operatorname{sen}\theta\cos\theta=\frac12\operatorname{sen}2\theta$.
+</Concepto>
+
+Con tangente y secante se usa $1+\tan^2x=\sec^2x$: si la potencia de $\sec$ es par (al menos 2), guarda $\sec^2x$ y toma $u=\tan x$; si la de $\tan$ es impar y hay al menos un $\sec$, guarda $\sec x\tan x$ y toma $u=\sec x$. Dos datos, en cada intervalo con $\cos x\neq0$: $\int\tan x\,dx=\ln\lvert\sec x\rvert+C$, que sale de la forma $\frac{g'}{g}$ de la 08, porque $\tan x=-\frac{(\cos x)'}{\cos x}$, e $\int\sec x\,dx=\ln\lvert\sec x+\tan x\rvert+C$, que va a la tabla. Los productos como $\operatorname{sen}mx\cos nx$ se vuelven suma con $\operatorname{sen}\alpha\cos\beta=\frac12[\operatorname{sen}(\alpha-\beta)+\operatorname{sen}(\alpha+\beta)]$.
+
+<Ejemplo titulo="Una potencia impar">
+Calcula $\int\operatorname{sen}^3(2x)\cos^2(2x)\,dx$.
+
+1. **Tipo.** Solo potencias de seno y coseno, y la del seno es impar: guarda un $\operatorname{sen}(2x)$.
+2. **Convierte.** $\operatorname{sen}^3(2x)=\left(1-\cos^2(2x)\right)\operatorname{sen}(2x)$. Con $u=\cos(2x)$, $du=-2\operatorname{sen}(2x)\,dx$, así que $\operatorname{sen}(2x)\,dx=-\frac{du}{2}$.
+3. **Integra.** $-\frac12\int(1-u^2)u^2\,du=-\frac12\int(u^2-u^4)\,du=-\frac{u^3}{6}+\frac{u^5}{10}$.
+4. **Regresa.** $-\frac{\cos^3(2x)}{6}+\frac{\cos^5(2x)}{10}+C$.
+5. **Revisa.** Por la cadena, la derivada es $\cos^2(2x)\operatorname{sen}(2x)-\cos^4(2x)\operatorname{sen}(2x)=\cos^2(2x)\operatorname{sen}(2x)\left(1-\cos^2(2x)\right)$, el integrando.
+</Ejemplo>
+
+<Desvanecido titulo="Ahora tú: dos potencias pares" pasos={[
+  "Calcula $\\int\\operatorname{sen}^2(3x)\\cos^2(3x)\\,dx$. Las dos potencias son pares: baja el grado.",
+  "Con $\\operatorname{sen}\\theta\\cos\\theta=\\frac12\\operatorname{sen}2\\theta$ y $\\theta=3x$, el integrando es ___ $\\operatorname{sen}^2(6x)$.",
+  "Con $\\operatorname{sen}^2\\theta=\\frac{1-\\cos2\\theta}{2}$, el integrando queda como un número por $1-\\cos(kx)$, con $k=$ ___ .",
+  "Integra: en el resultado, el término con seno es $-\\frac{\\operatorname{sen}(kx)}{m}$, con tu $k$ y $m=$ ___ . Revisa: deriva tu resultado."
+]} respuestas={["1/4", "12", "96"]} />
+
+## Sustitución trigonométrica
+
+<Concepto titulo="La raíz se vuelve un lado del triángulo">
+Con $a>0$, una identidad pitagórica vuelve cada raíz un solo término:
+
+| Forma | Sustitución | Rango de $\theta$ | La raíz queda |
+|---|---|---|---|
+| $\sqrt{a^2-x^2}$ | $x=a\operatorname{sen}\theta$ | $\left[-\frac\pi2,\frac\pi2\right]$ | $a\cos\theta$ |
+| $\sqrt{a^2+x^2}$ | $x=a\tan\theta$ | $\left(-\frac\pi2,\frac\pi2\right)$ | $a\sec\theta$ |
+| $\sqrt{x^2-a^2}$, con $x>a$ | $x=a\sec\theta$ | $\left(0,\frac\pi2\right)$ | $a\tan\theta$ |
+
+En cada rango, lo que queda no es negativo: la raíz sale sin valor absoluto. Si la raíz va en el denominador, el rango del seno es abierto. También cambia $dx$: con $x=a\operatorname{sen}\theta$, $dx=a\cos\theta\,d\theta$. Para regresar a $x$, dibuja un triángulo rectángulo con la razón de la sustitución ($\operatorname{sen}\theta=\frac xa$: cateto opuesto $x$ e hipotenusa $a$); el tercer lado sale por Pitágoras.
+</Concepto>
+
+Con un cuadrático, completa el cuadrado: $x^2+4x+13=(x+2)^2+9$, y con $u=x+2$ aparece $u^2+9$. Dos renglones más para la tabla (salen con $u=\frac xa$): $\int\frac{dx}{x^2+a^2}=\frac1a\arctan\frac xa+C$ e $\int\frac{dx}{\sqrt{a^2-x^2}}=\operatorname{arcsen}\frac xa+C$, para $\lvert x\rvert<a$.
+
+<Ejemplo titulo="Una raíz de a² − x² en el denominador">
+Calcula $\int\frac{dx}{(4-x^2)^{3/2}}$ para $-2<x<2$.
+
+1. **Tipo.** No es tabla, y la pregunta 2 dice no: la derivada de $4-x^2$ es $-2x$, y arriba no hay $x$. Es la forma $a^2-x^2$, con $a=2$.
+2. **Sustituye.** $x=2\operatorname{sen}\theta$, con $\theta\in\left(-\frac\pi2,\frac\pi2\right)$ (abierto, porque la raíz va abajo), y $dx=2\cos\theta\,d\theta$.
+3. **La potencia.** $4-4\operatorname{sen}^2\theta=4\cos^2\theta$, y como $\cos\theta>0$, $\left(4\cos^2\theta\right)^{3/2}=8\cos^3\theta$.
+4. **Integra.** $\int\frac{2\cos\theta\,d\theta}{8\cos^3\theta}=\frac14\int\sec^2\theta\,d\theta=\frac14\tan\theta+C$.
+5. **El triángulo.** $\operatorname{sen}\theta=\frac x2$: cateto opuesto $x$, hipotenusa 2 y, por Pitágoras, cateto adyacente $\sqrt{4-x^2}$. Entonces $\tan\theta=\frac{x}{\sqrt{4-x^2}}$.
+6. **Regresa.** $\frac{x}{4\sqrt{4-x^2}}+C$.
+7. **Revisa.** Por el cociente, la derivada es $\frac14\cdot\frac{\sqrt{4-x^2}+\frac{x^2}{\sqrt{4-x^2}}}{4-x^2}=\frac14\cdot\frac{4}{(4-x^2)^{3/2}}$, el integrando.
+</Ejemplo>
+
+<Desvanecido titulo="Ahora tú: sustitución trigonométrica" pasos={[
+  "Calcula $\\int\\frac{dx}{(x^2+9)^{3/2}}$ con $x=3\\tan\\theta$ y $\\theta\\in\\left(-\\frac\\pi2,\\frac\\pi2\\right)$.",
+  "Deriva la sustitución: $dx=$ ___ $\\sec^2\\theta\\,d\\theta$. Abajo, $9\\tan^2\\theta+9=9\\sec^2\\theta$, y como $\\sec\\theta>0$ en el rango, su potencia $\\frac32$ es $27\\sec^3\\theta$.",
+  "Simplifica el cociente: la integral es ___ $\\int\\cos\\theta\\,d\\theta$.",
+  "Integra y regresa a $x$ con el triángulo de $\\tan\\theta=\\frac x3$ (catetos $x$ y 3; la hipotenusa, por Pitágoras). Para revisar tu triángulo: en $x=4$, $\\operatorname{sen}\\theta=$ ___ . Revisa: deriva tu resultado."
+]} respuestas={["3", "1/9", "4/5"]} />
+
+## Fracciones parciales
+
+<Concepto titulo="Descomponer un cociente de polinomios">
+Un cociente de polinomios es **propio** si arriba el grado es menor que abajo. Si es impropio, primero divide: queda un polinomio más una fracción propia. Luego factoriza el denominador; cada factor aporta sus términos:
+
+- $x-a$ aporta $\frac{A}{x-a}$;
+- $(x-a)^2$ aporta $\frac{A}{x-a}+\frac{B}{(x-a)^2}$;
+- un cuadrático sin raíces reales (discriminante negativo), como $x^2+9$, aporta $\frac{Px+Q}{x^2+9}$.
+
+Usa letras distintas ($A$, $B$, $D$, $P$, $Q$) y nunca $C$: la $C$ es la constante de integración.
+
+**Método de tapar.** Para hallar $A$ en $\frac{A}{x-a}$, multiplica todo por $x-a$ y evalúa en $x=a$: los demás términos se anulan y queda $A$: el integrando sin el factor $x-a$, evaluado en $a$. Con un factor repetido, tapar solo da el coeficiente de la potencia más alta; los demás salen comparando coeficientes.
+</Concepto>
+
+<Ejemplo titulo="Dos factores lineales distintos">
+Calcula $\int\frac{x+7}{x^2-x-6}\,dx$.
+
+1. **Tipo.** Polinomio entre polinomio, y la pregunta 2 dice no: la derivada de abajo es $2x-1$, y $x+7$ no es un múltiplo de ella. Es propia (grado 1 entre grado 2): no hay que dividir.
+2. **Factoriza.** $x^2-x-6=(x-3)(x+2)$, así que $\frac{x+7}{(x-3)(x+2)}=\frac{A}{x-3}+\frac{B}{x+2}$.
+3. **Tapa.** Para $A$, tapa $x-3$ y evalúa lo demás en $x=3$: $A=\frac{3+7}{3+2}=2$. Para $B$, tapa $x+2$ y evalúa en $x=-2$: $B=\frac{-2+7}{-2-3}=-1$.
+4. **Integra.** Cada término sale con $u=x-a$: $\int\frac{2}{x-3}\,dx=2\ln\lvert x-3\rvert$ e $\int\frac{-1}{x+2}\,dx=-\ln\lvert x+2\rvert$.
+5. **Resultado.** $2\ln\lvert x-3\rvert-\ln\lvert x+2\rvert+C$, en cada intervalo que no contenga a 3 ni a $-2$ (la $C$ puede ser distinta en cada uno).
+6. **Revisa.** $\frac{2}{x-3}-\frac{1}{x+2}=\frac{2(x+2)-(x-3)}{(x-3)(x+2)}=\frac{x+7}{x^2-x-6}$: la derivada del resultado devuelve el integrando.
+</Ejemplo>
+
+<Desvanecido titulo="Ahora tú: un factor repetido" pasos={[
+  "Calcula $\\int\\frac{x+1}{x(x-1)^2}\\,dx$, con $\\frac{x+1}{x(x-1)^2}=\\frac Ax+\\frac B{x-1}+\\frac D{(x-1)^2}$.",
+  "Tapa $x$ y evalúa en $x=0$: $A=$ ___ .",
+  "Tapa $(x-1)^2$ y evalúa en $x=1$: $D=$ ___ .",
+  "Tapar no da $B$. Sin denominadores, $x+1=A(x-1)^2+Bx(x-1)+Dx$; compara los coeficientes de $x^2$ en los dos lados: $B=$ ___ . Revisa: integra cada término y deriva."
+]} respuestas={["1", "2", "-1"]} />
+
+**Con un cuadrático irreducible.** Tapando y comparando coeficientes, $\frac{2x^2+4x+12}{(x+1)(x^2+9)}=\frac{1}{x+1}+\frac{x+3}{x^2+9}$, y el resultado es $\ln\lvert x+1\rvert+\frac12\ln(x^2+9)+\arctan\frac x3+C$.
+En $\frac{Px+Q}{x^2+9}$, la parte $Px$ da un ln (con $w=x^2+9$) y la $Q$, un arctan.
+
+## ¿Qué técnica uso? (versión 2)
+
+La pregunta de partes, que en la 08 era la 3, ahora es la 6: las tres técnicas nuevas se reconocen a la vista y van antes. Si un repaso de la 08 te pide el número de la pregunta, usa la lista de tres que trae su enunciado.
+
+<Concepto titulo="El triaje, versión 2">
+Pregunta en este orden y quédate con la primera que diga «sí» (suele ser el camino más corto). Si te queda otra integral, pásala otra vez por el triaje, desde la 1.
+
+1. ¿Ya está en la tabla, o llega a ella al desarrollar, al simplificar o, si arriba el grado es mayor o igual, al dividir? → la tabla.
+2. ¿Hay una función de adentro cuya derivada, salvo un factor constante, multiplica al resto? → sustitución. Míralo sin usar identidades trigonométricas (esas son de la 4); y si la función de adentro es lineal, como $3x$, su derivada es un número y no absorbe una $x$ de afuera. Va antes que las nuevas: $\int\frac{x}{\sqrt{9-x^2}}\,dx$ tiene la raíz, pero sale con $u=9-x^2$.
+3. ¿Polinomio entre polinomio? → fracciones parciales.
+4. ¿Solo potencias de sen y cos, o de tan y sec? → integrales trigonométricas. Si la $u$ solo aparece después de usar una identidad, es esta y no la 2.
+5. ¿$\sqrt{a^2-x^2}$, $\sqrt{a^2+x^2}$ o $\sqrt{x^2-a^2}$ (o su potencia), quizá al completar el cuadrado? → sustitución trigonométrica.
+6. ¿Un producto de dos tipos de función distintos (de los de LIATE), o un ln o un arctan solos? → partes.
+
+Si ninguna dice «sí», prueba una sustitución que simplifique lo que estorba, como en la 08 (por ejemplo, despejar la $x$ que sobra). Siempre: deriva para revisar.
+</Concepto>
+
+Las cuatro integrales del principio se detienen en las preguntas 2, 5, 3 y 4, en ese orden.
+
+## Errores comunes
+
+<Ojo>
+- $\int\operatorname{sen}^2x\,dx\neq\frac{\operatorname{sen}^3x}{3}$: la regla de la potencia pide $\cos x\,dx$ al lado. Con potencias pares, baja el grado.
+- En la sustitución trigonométrica también cambia $dx$, y al final se regresa a $x$ con el triángulo.
+- Si la fracción es impropia, primero divide.
+- Con un factor repetido, tapar solo da el coeficiente de la potencia más alta.
+</Ojo>
+
+<Conexion materia="Inteligencia artificial">
+La sigmoide, $p=\sigma(z)=\frac{1}{1+e^{-z}}$, convierte un puntaje $z$ en una probabilidad y cumple $\frac{dp}{dz}=p(1-p)$, la regla que usa la retropropagación. Al revés, $\frac{dz}{dp}=\frac{1}{p(1-p)}=\frac1p+\frac1{1-p}$ por fracciones parciales, y como $\sigma(0)=\frac12$, sale el *logit* de la regresión logística: $z=\ln\frac{p}{1-p}$, para $0<p<1$.
+</Conexion>
+<Resumen>
+- Triaje, versión 2: tabla, sustitución, fracciones parciales, trigonométricas, sustitución trigonométrica y partes; la primera que diga «sí», y la integral que quede vuelve a pasar por el triaje.
+- Trigonométricas: con una potencia impar, guarda un factor y convierte el resto; con las dos pares, baja el grado. Sustitución trigonométrica: la raíz se vuelve un lado del triángulo, y con el triángulo regresas a $x$.
+- Fracciones parciales: divide si es impropia, factoriza, da a cada factor sus términos y tapa; con un factor repetido, compara coeficientes.
+- Siempre: revisa derivando.
+</Resumen>
+<Feynman>
+Explícale a un amigo por qué $\frac{x}{\sqrt{9-x^2}}$ y $\sqrt{9-x^2}$ piden técnicas distintas, y por qué tapar no da todos los coeficientes cuando hay un factor repetido. Si te trabas, vuelve a «¿Qué técnica uso? (versión 2)» o a «Fracciones parciales».
+</Feynman>
