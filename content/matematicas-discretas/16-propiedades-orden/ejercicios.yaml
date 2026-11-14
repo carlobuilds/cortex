@@ -1,0 +1,653 @@
+# Unidad 16 · Propiedades y orden (Unidad IV, 4.2.4, 4.3.1 y 4.3.2). Para el 3.er parcial (semana del 23 al 27 de
+# noviembre de 2026). Equivalencia y clases van en la 17.
+# Esquema v1 aprobado por Carlo el 2026-11-14 (esquema-16), revisado por experto-matematicas, pedagogo y
+# arquitecto-razonamiento. Datos de experto-matematicas, verificados por la sesión principal.
+# Ids en el orden de la tabla del v1, escalera 6/5/7/4/3: d1 001–006, d2 007–011, d3 012–018, d4 019–022, d5 023–025.
+# Anclas (primer ejercicio de cada concepto, workedExampleFor): 001 PR, 002 VP, 003 OP, 004 DH, 005 OT y 006 EX, con
+# explicación completa y con lo que se pide escrito en el enunciado (WorkedExample muestra solo enunciado y explicación).
+# Un solo concepto por ejercicio, salvo los tres d5 que el v1 cruza (023 OP y OT, 024 EX y OT, 025 DH y EX): ahí
+# workedExampleFor muestra el ancla d1 de cualquiera de los dos, y las dos son de d1.
+# Abreviaturas: PR propiedades-relaciones · VP verificar-propiedades · OP orden-parcial · DH diagrama-hasse ·
+# OT orden-total · EX extremos-orden.
+# Hipótesis escritas (v1, experto-matematicas): ∣ va en ℤ⁺ (en ℤ falla la antisimetría), ⊆ en 𝒫(S), «finito no vacío»
+# en el 024, y la convención de cobertura en cada enunciado que la usa: «(a, b) significa que b cubre a a: a va abajo».
+# Hasse: las respuestas son la lista de cobertura en `conjunto`; el dibujo de Beto (013) va como su lista de líneas, sin
+# el visual `grafo`, que va en círculo y borra «abajo y arriba». Las relaciones reflexivas van como matriz o lista (el
+# `grafo` no dibuja lazos).
+# `verificar`: los de experto-matematicas (herramientas/m16/verificar-16.py), en Python puro, desde la definición y por
+# enumeración; se cambiaron el 001 (arma R desde la matriz), el 022 (nuevo en el v1) y el 025 (letra e por t).
+# `conjunto`: pares escritos "(1, 2)"; el ejemplo de formato de cada enunciado no contiene elementos de la respuesta.
+# `completar`: huecos fuera de KaTeX y solo enteros.
+# Pistas como preguntas, sin valores intermedios: 1 en d1–2, 2 en d3 (el 013 lleva 3, las de arquitecto-razonamiento)
+# y 3 en d4–5. Desde d3, la explicación cierra con «Revisa:», con una comprobación que no repite el cálculo. Las
+# explicaciones de selección múltiple dicen cuáles son las correctas, porque WorkedExample no muestra las opciones.
+# Manuales: solo el 020 (autoevaluación).
+# Textos con LaTeX en bloques `>-` (o `|-` si llevan una matriz en bloque): así no hay que escapar comillas ni barras.
+unidad: matematicas-discretas/16-propiedades-orden
+ejercicios:
+  # razonamiento: espacial (leer cada propiedad en la diagonal y en las casillas espejo) · R1
+  # Ancla de PR. Opciones en el orden de experto-matematicas.
+  # verificar: arma R desde la matriz y prueba las cinco definiciones.
+  - id: disc-16-001
+    tipo: seleccion_multiple
+    dificultad: 1
+    conceptos: [propiedades-relaciones]
+    enunciado: |-
+      Sobre $\{1,2,3\}$, con filas y columnas en ese orden, la relación $R$ tiene esta matriz:
+
+      $$M_R=\begin{array}{c|ccc} & 1 & 2 & 3\\\hline 1 & 1 & 0 & 1\\ 2 & 0 & 0 & 0\\ 3 & 1 & 0 & 1\end{array}$$
+
+      ¿Cuáles de estas propiedades tiene $R$: reflexiva, irreflexiva, simétrica, antisimétrica o transitiva? Puede haber varias.
+    opciones:
+      - "Reflexiva"
+      - "Irreflexiva"
+      - "Simétrica"
+      - "Antisimétrica"
+      - "Transitiva"
+    correctas: [2, 4]
+    verificar: { python: "(lambda A, M: (lambda R: [all((a, a) in R for a in A), all((a, a) not in R for a in A), all((b, a) in R for (a, b) in R), all(a == b or (b, a) not in R for (a, b) in R), all((a, d) in R for (a, b) in R for (c, d) in R if b == c)])({(A[i], A[j]) for i in range(3) for j in range(3) if M[i][j]}))([1, 2, 3], [[1, 0, 1], [0, 0, 0], [1, 0, 1]])" }
+    pistas:
+      - >-
+        ¿Qué casillas de la matriz mira cada propiedad: la diagonal, las casillas espejo o los pares encadenados?
+    explicacion: >-
+      Es simétrica y transitiva; no es reflexiva, ni irreflexiva, ni antisimétrica. Todo se lee en la matriz. **Reflexiva** pide la diagonal toda en 1, y la entrada $(2,2)$ vale 0: el 2 es el testigo. **Irreflexiva** pide la diagonal toda en 0, y la entrada $(1,1)$ vale 1. **Simétrica:** la matriz es igual a su transpuesta; fuera de la diagonal solo valen 1 las casillas espejo $(1,3)$ y $(3,1)$, y valen 1 las dos. **Antisimétrica:** esas mismas casillas, con $1\neq3$, la tumban. **Transitiva:** $R=\{(1,1),(1,3),(3,1),(3,3)\}$ es todo $\{1,3\}\times\{1,3\}$, así que dos pares encadenados cualesquiera, $(a,b)$ y $(b,c)$, se quedan en $\{1,3\}$ y su $(a,c)$ está; el 2 no se relaciona con nadie y no está en ningún par. No ser reflexiva ni irreflexiva no es contradicción: basta un 1 y un 0 en la diagonal.
+    tiempo_estimado_s: 45
+
+  # razonamiento: deductivo (seguir los pares encadenados (a, b), (b, c) y buscar su (a, c)) · R1
+  # Ancla de VP.
+  # verificar: los (a, c) que piden dos pares encadenados y no están; da el par si es uno solo.
+  - id: disc-16-002
+    tipo: completar
+    dificultad: 1
+    conceptos: [verificar-propiedades]
+    enunciado: >-
+      Sobre $\{1,2,3,4\}$, sea $R=\{(1,4),(4,2),(1,2),(2,3),(4,3)\}$. Revisa si es transitiva: busca un par $(a,c)$ que no esté en $R$ aunque $R$ tenga $(a,b)$ y $(b,c)$. Hay uno solo; escríbelo.
+    texto: >-
+      Falta el par (___, ___)
+    respuestas: ["1", "3"]
+    verificar: { python: "(lambda R: (lambda F: list(F[0]) if len(F) == 1 else [])(sorted({(a,d) for (a,b) in R for (c,d) in R if b == c and (a,d) not in R})))({(1,4),(4,2),(1,2),(2,3),(4,3)})" }
+    pistas:
+      - >-
+        Para cada par $(a,b)$, ¿qué pares de $R$ empiezan en $b$, y qué par piden juntos?
+    explicacion: >-
+      Se revisan los pares encadenados: para cada $(a,b)$, los pares que salen de $b$. $(1,4)$ sigue con $(4,2)$, que pide $(1,2)$, y está; y con $(4,3)$, que pide $(1,3)$, y no está. $(4,2)$ sigue con $(2,3)$ y pide $(4,3)$: está. $(1,2)$ sigue con $(2,3)$ y vuelve a pedir $(1,3)$. $(2,3)$ y $(4,3)$ no siguen, porque del 3 no sale nada. El testigo es $(1,4)$ y $(4,3)$ sin $(1,3)$: $R$ no es transitiva. Con $(1,3)$ agregado sí lo sería: el par nuevo no forma cadenas, porque del 3 no sale nada y al 1 no llega nada.
+    tiempo_estimado_s: 45
+
+  # razonamiento: deductivo (aplicar las tres condiciones y tumbar con un testigo) · R1
+  # Ancla de OP.
+  # verificar: las tres propiedades por definición, en ventanas finitas de ℤ y ℤ⁺ (0 ∣ y solo si y = 0) y en 𝒫({1, 2}).
+  - id: disc-16-003
+    tipo: seleccion_multiple
+    dificultad: 1
+    conceptos: [orden-parcial]
+    enunciado: >-
+      Un orden parcial es una relación reflexiva, antisimétrica y transitiva. ¿Cuáles de estas relaciones son órdenes parciales? Puede haber varias.
+    opciones:
+      - >-
+        $\le$ en $\mathbb Z$
+      - >-
+        $<$ en $\mathbb Z$
+      - >-
+        $\mid$ en $\mathbb Z^+$
+      - >-
+        $\mid$ en $\mathbb Z$
+      - >-
+        $\subseteq$ en $\mathcal P(\{1,2\})$
+      - >-
+        «$x$ y $y$ tienen la misma paridad», en $\mathbb Z$
+    correctas: [0, 2, 4]
+    verificar: { python: "(lambda po, Z, P, S: [po(Z, lambda x, y: x <= y), po(Z, lambda x, y: x < y), po(P, lambda x, y: y % x == 0), po(Z, lambda x, y: (y == 0) if x == 0 else y % x == 0), po(S, lambda X, Y: X <= Y), po(Z, lambda x, y: (x - y) % 2 == 0)])(lambda A, r: all(r(a,a) for a in A) and all(a == b or not (r(a,b) and r(b,a)) for a in A for b in A) and all(r(a,c) for a in A for b in A for c in A if r(a,b) and r(b,c)), range(-6,7), range(1,13), [frozenset(c) for k in range(3) for c in itertools.combinations([1,2], k)])" }
+    pistas:
+      - >-
+        En cada una, ¿falla alguna de las tres propiedades? ¿Qué testigo lo muestra?
+    explicacion: >-
+      Son órdenes parciales $\le$ en $\mathbb Z$, $\mid$ en $\mathbb Z^+$ y $\subseteq$ en $\mathcal P(\{1,2\})$; las otras tres no. Basta que falle una de las tres propiedades. $<$ no es reflexiva: $1<1$ es falso. $\mid$ en $\mathbb Z$ no es antisimétrica: $2\mid-2$ y $-2\mid2$, con $2\neq-2$; en $\mathbb Z^+$ eso no puede pasar, porque si $a\mid b$ y $b\mid a$, los dos positivos, entonces $a\le b\le a$. «Misma paridad» tampoco es antisimétrica: 1 y 3 tienen la misma paridad en los dos sentidos y son distintos. Las tres buenas cumplen todo: $a\le a$, $a\mid a$ y $X\subseteq X$; si van los dos sentidos, son iguales; y las tres son transitivas.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (listar los pares y quitar los que tienen intermedio) · R0
+  # Ancla de DH.
+  # verificar: las coberturas por definición (a ∣ b, a ≠ b, sin c intermedio en A).
+  - id: disc-16-004
+    tipo: conjunto
+    dificultad: 1
+    conceptos: [diagrama-hasse]
+    enunciado: >-
+      Sea $A=\{1,2,3,12\}$ con $\mid$. Escribe las líneas de su diagrama de Hasse como lista de cobertura, donde $(a,b)$ significa que $b$ cubre a $a$: $a$ va abajo. Escríbela como `(5, 10), (10, 20)`.
+    respuesta: ["(1, 2)", "(1, 3)", "(2, 12)", "(3, 12)"]
+    verificar: { python: "(lambda A: {(a,b) for a in A for b in A if a != b and b % a == 0 and not any(c != a and c != b and c % a == 0 and b % c == 0 for c in A)})([1,2,3,12])" }
+    pistas:
+      - >-
+        ¿Qué pares $a\mid b$ hay con $a\neq b$? ¿Alguno tiene un elemento de $A$ en medio?
+    explicacion: >-
+      **Los pares** de $\mid$ con $a\neq b$ son $(1,2)$, $(1,3)$, $(1,12)$, $(2,12)$ y $(3,12)$. **Quitar los de transitividad:** $(1,12)$ sobra, porque $1\mid2\mid12$; se recupera subiendo por el 2 (o por el 3). Los otros cuatro no tienen intermedio: entre 2 y 12 iría un múltiplo de 2 que divida a 12, y en $A$ solo están el 2 y el 12; lo mismo entre 3 y 12, y entre el 1 y el 2 o el 3. **Por niveles:** el 1 abajo, el 2 y el 3 en medio, y el 12 arriba, como un rombo. Sin lazos, sin $(1,12)$ y sin puntas.
+    tiempo_estimado_s: 45
+
+  # razonamiento: deductivo (todo par comparable; negar con un par concreto) · R1
+  # Ancla de OT. Las cinco son órdenes parciales.
+  # verificar: orden parcial y todo par comparable, por definición, en cada opción.
+  - id: disc-16-005
+    tipo: seleccion_multiple
+    dificultad: 1
+    conceptos: [orden-total]
+    enunciado: >-
+      Las cinco relaciones son órdenes parciales. Un orden total es uno en el que todo par de elementos se compara. ¿Cuáles son órdenes totales? Puede haber varias.
+    opciones:
+      - >-
+        $\ge$ en $\mathbb Z$
+      - >-
+        $\mid$ en $\{1,3,9,27\}$
+      - >-
+        $\mid$ en $\{1,2,3,4\}$
+      - >-
+        $\subseteq$ en $\mathcal P(\{1,2\})$
+      - >-
+        $\subseteq$ en $\{\varnothing,\{5\},\{5,7\}\}$
+    correctas: [0, 1, 4]
+    verificar: { python: "(lambda tot, d: [tot(range(-6,7), lambda x, y: x >= y), tot([1,3,9,27], d), tot([1,2,3,4], d), tot([frozenset(c) for k in range(3) for c in itertools.combinations([1,2], k)], lambda X, Y: X <= Y), tot([frozenset(), frozenset({5}), frozenset({5,7})], lambda X, Y: X <= Y)])(lambda A, r: all(r(a,a) for a in A) and all(a == b or not (r(a,b) and r(b,a)) for a in A for b in A) and all(r(a,c) for a in A for b in A for c in A if r(a,b) and r(b,c)) and all(r(a,b) or r(b,a) for a in A for b in A), lambda x, y: y % x == 0)" }
+    pistas:
+      - >-
+        En cada una, ¿hay dos elementos que no se comparen en ningún sentido?
+    explicacion: >-
+      Son totales $\ge$ en $\mathbb Z$, $\mid$ en $\{1,3,9,27\}$ y $\subseteq$ en $\{\varnothing,\{5\},\{5,7\}\}$; las otras dos no. Un orden total pide que cualquier par $a,b$ cumpla $a\preceq b$ o $b\preceq a$. **$\ge$:** de dos enteros, uno es mayor o igual que el otro. **$\{1,3,9,27\}$:** son las potencias $3^0$ a $3^3$, y la menor divide a la mayor. **$\{\varnothing,\{5\},\{5,7\}\}$:** cada conjunto está dentro del siguiente. **Las que no**, con un par concreto: en $\{1,2,3,4\}$, ni $2\mid3$ ni $3\mid2$; en $\mathcal P(\{1,2\})$, ni $\{1\}\subseteq\{2\}$ ni $\{2\}\subseteq\{1\}$. Para negar «todo par se compara» basta un par que no se compare.
+    tiempo_estimado_s: 45
+
+  # razonamiento: espacial (quién queda debajo de quién) · R0
+  # Ancla de EX.
+  # verificar: los m de A que ningún otro elemento de A divide.
+  - id: disc-16-006
+    tipo: conjunto
+    dificultad: 1
+    conceptos: [extremos-orden]
+    enunciado: >-
+      Sea $A=\{6,7,12,14,36\}$ con $\mid$. Un elemento es minimal si ningún otro elemento de $A$ queda debajo de él, es decir, si ningún otro lo divide. Escribe el conjunto de los minimales de $A$, como `2, 5`.
+    respuesta: ["6", "7"]
+    verificar: { python: "(lambda A: {m for m in A if not any(x != m and m % x == 0 for x in A)})([6,7,12,14,36])" }
+    pistas:
+      - >-
+        Para cada elemento, ¿hay otro elemento de $A$ que lo divida?
+    explicacion: >-
+      Un minimal no tiene a nadie debajo: ningún otro elemento de $A$ lo divide. Al 6 no lo divide ningún otro elemento de $A$ (el 1, el 2 y el 3 no están), y al 7 tampoco. El 12 tiene debajo al 6; el 14, al 7; y el 36, al 6 y al 12. El conjunto de los minimales es $\{6,7\}$. No hay mínimo: 6 y 7 no se comparan, así que ninguno divide a todos.
+    tiempo_estimado_s: 30
+
+  # razonamiento: espacial (probar cada propiedad sobre la recta: x < y ≤ 2x) · R1
+  # verificar: las cinco definiciones en la ventana {1, …, 40} de ℤ⁺.
+  - id: disc-16-007
+    tipo: seleccion_multiple
+    dificultad: 2
+    conceptos: [propiedades-relaciones]
+    enunciado: >-
+      Sobre $\mathbb Z^+$, sea $xRy$ si y solo si $x<y\le2x$. ¿Cuáles de estas propiedades tiene $R$? Puede haber varias.
+    opciones:
+      - "Reflexiva"
+      - "Irreflexiva"
+      - "Simétrica"
+      - "Antisimétrica"
+      - "Transitiva"
+    correctas: [1, 3]
+    verificar: { python: "(lambda A: (lambda R: [all((a,a) in R for a in A), all((a,a) not in R for a in A), all((b,a) in R for (a,b) in R), all(a == b or (b,a) not in R for (a,b) in R), all((a,d) in R for (a,b) in R for (c,d) in R if b == c)])({(x,y) for x in A for y in A if x < y <= 2*x}))(range(1,41))" }
+    pistas:
+      - >-
+        ¿Puede pasar $x<x$? Si encadenas dos pasos, cada uno de hasta el doble, ¿el total sigue sin pasar del doble?
+    explicacion: >-
+      Es irreflexiva y antisimétrica; no es reflexiva, ni simétrica, ni transitiva. **Irreflexiva:** $x<x$ nunca pasa, así que ningún $(x,x)$ está; por lo mismo, no es reflexiva. **Antisimétrica:** $xRy$ y $yRx$ pedirían $x<y$ y $y<x$ a la vez, que nunca pasa: se cumple por vacuidad. **Simétrica no:** $1R2$, porque $1<2\le2$, pero no $2R1$. **Transitiva no:** $1R2$ y $2R3$ ($2<3\le4$), pero no $1R3$, porque $3>2\cdot1$.
+    tiempo_estimado_s: 60
+
+  # razonamiento: deductivo (elegir el testigo que tumba cada propiedad) · R2
+  # R nuevo (arreglos de /revisar-contenido, 2026-11-14): el anterior se parecía a un ejemplo de libro. La explicación
+  # dice que R es transitiva; el verificar lo comprueba.
+  # verificar: el único a sin (a, a), el único par sin inverso y el único par con inverso y a < b; da [] si alguno no es
+  # único o si R no es transitiva.
+  - id: disc-16-008
+    tipo: completar
+    dificultad: 2
+    conceptos: [verificar-propiedades]
+    enunciado: >-
+      Sobre $\{1,2,3,4\}$, sea $R=\{(1,1),(1,3),(3,1),(3,3),(2,2),(4,2)\}$. No es reflexiva, ni simétrica, ni antisimétrica. Escribe el testigo de cada una; en los tres casos hay uno solo.
+    texto: >-
+      No es reflexiva: falta $(a,a)$ para $a=$ ___ · no es simétrica: está (___, ___) y no su inverso · no es antisimétrica: están un par y su inverso, con coordenadas distintas, y el de primera coordenada menor es (___, ___)
+    respuestas: ["4", "4", "2", "1", "3"]
+    verificar: { python: "(lambda A, R: (lambda f, s, c: (f + list(s[0]) + list(c[0])) if len(f) == 1 and len(s) == 1 and len(c) == 1 and all((a,d) in R for (a,b) in R for (c2,d) in R if b == c2) else [])([a for a in A if (a,a) not in R], [(a,b) for (a,b) in sorted(R) if (b,a) not in R], [(a,b) for (a,b) in sorted(R) if a < b and (b,a) in R]))([1,2,3,4], {(1,1),(1,3),(3,1),(3,3),(2,2),(4,2)})" }
+    pistas:
+      - >-
+        ¿Qué tumba cada propiedad: un elemento sin su $(a,a)$, un par sin su inverso, o un par con su inverso y coordenadas distintas?
+    explicacion: >-
+      **Reflexiva:** están $(1,1)$, $(2,2)$ y $(3,3)$, pero falta $(4,4)$: el testigo es el 4. **Simétrica:** $(1,3)$ y $(3,1)$ van juntos, pero $(4,2)$ está y $(2,4)$ no: el testigo es $(4,2)$. **Antisimétrica:** $(1,3)$ y $(3,1)$ están los dos, con $1\neq3$: el testigo es ese par, y el de primera coordenada menor es $(1,3)$. Los pares de la diagonal, como $(1,1)$, son su propio inverso, pero no cuentan, porque sus coordenadas son iguales. Un mismo $R$ puede no ser simétrico ni antisimétrico: cada propiedad cae con un testigo distinto. En cambio, sí es transitiva: todos los pares encadenados cierran, como $(1,3)$ y $(3,1)$ con $(1,1)$, $(3,1)$ y $(1,3)$ con $(3,3)$, o $(4,2)$ y $(2,2)$ con $(4,2)$.
+    tiempo_estimado_s: 60
+
+  # razonamiento: deductivo (agregar lo que pide cada propiedad, y nada más) · R1
+  # verificar: la intersección de todos los órdenes parciales sobre {1, 2, 3, 4} que contienen a R, menos R.
+  - id: disc-16-009
+    tipo: conjunto
+    dificultad: 2
+    conceptos: [orden-parcial]
+    enunciado: >-
+      Sobre $\{1,2,3,4\}$, sea $R=\{(1,2),(2,3),(4,3)\}$. Escribe los pares que hay que agregarle para obtener el orden parcial más chico que contiene a $R$, como `(2, 4), (4, 1)`.
+    respuesta: ["(1, 1)", "(2, 2)", "(3, 3)", "(4, 4)", "(1, 3)"]
+    verificar: { python: "(lambda A, R0, off: sorted(set.intersection(*[S for S in ({(a,a) for a in A} | {off[i] for i in range(12) if m >> i & 1} for m in range(4096)) if R0 <= S and all(a == b or (b,a) not in S for (a,b) in S) and all((a,d) in S for (a,b) in S for (c,d) in S if b == c)]) - R0))([1,2,3,4], {(1,2),(2,3),(4,3)}, [(a,b) for a in [1,2,3,4] for b in [1,2,3,4] if a != b])" }
+    pistas:
+      - >-
+        ¿Qué pares obliga cada una de las tres propiedades? ¿Agregar uno obliga a agregar otro?
+    explicacion: >-
+      Faltan los cuatro pares $(a,a)$ y $(1,3)$. **Reflexiva:** un orden sobre $\{1,2,3,4\}$ necesita $(1,1)$, $(2,2)$, $(3,3)$ y $(4,4)$. **Transitiva:** $(1,2)$ y $(2,3)$ piden $(1,3)$. Con eso, todos los pares encadenados cierran: $(2,3)$, $(4,3)$ y $(1,3)$ terminan en el 3, del que solo sale $(3,3)$. **Antisimétrica:** ni con $(1,3)$ hay un par y su inverso con coordenadas distintas; si lo hubiera, ningún orden parcial contendría a $R$. Todo orden parcial que contenga a $R$ tiene esos cinco pares, y con ellos ya es orden: es el más chico.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (pares de ∣, quitar los de transitividad, armar niveles) · R1
+  # verificar: las coberturas por definición.
+  - id: disc-16-010
+    tipo: conjunto
+    dificultad: 2
+    conceptos: [diagrama-hasse]
+    enunciado: >-
+      Sea $A=\{3,6,9,18,27,54\}$ con $\mid$. Escribe la lista de cobertura de su diagrama de Hasse, donde $(a,b)$ significa que $b$ cubre a $a$: $a$ va abajo. Escríbela como `(2, 4), (4, 8)`.
+    respuesta: ["(3, 6)", "(3, 9)", "(6, 18)", "(9, 18)", "(9, 27)", "(18, 54)", "(27, 54)"]
+    verificar: { python: "(lambda A: {(a,b) for a in A for b in A if a != b and b % a == 0 and not any(c != a and c != b and c % a == 0 and b % c == 0 for c in A)})([3,6,9,18,27,54])" }
+    pistas:
+      - >-
+        Para cada par $a\mid b$ con $a\neq b$, ¿hay un elemento de $A$ que sea múltiplo de $a$ y divida a $b$?
+    explicacion: >-
+      **Los pares**, sin lazos: el 3 divide a 6, 9, 18, 27 y 54; el 6, a 18 y 54; el 9, a 18, 27 y 54; el 18, a 54; y el 27, a 54. Son 12. **Quitar los de transitividad:** $(3,18)$, por el 6 o el 9; $(3,27)$, por el 9; $(3,54)$, por cualquiera de los de en medio; y $(6,54)$ y $(9,54)$, por el 18. Quedan 7 coberturas: $(3,6)$, $(3,9)$, $(6,18)$, $(9,18)$, $(9,27)$, $(18,54)$ y $(27,54)$. **Por niveles**, de arriba abajo: 54; luego 18 y 27; luego 6 y 9; y el 3 abajo. Entre 18 y 54 no hay nadie, porque el 27 no es múltiplo de 18.
+    tiempo_estimado_s: 60
+
+  # razonamiento: espacial (quién queda arriba de quién; un aislado es minimal y maximal) · R1
+  # verificar: los m de A que no dividen a ningún otro elemento de A.
+  - id: disc-16-011
+    tipo: conjunto
+    dificultad: 2
+    conceptos: [extremos-orden]
+    enunciado: >-
+      Sea $A=\{3,4,7,8,12\}$ con $\mid$. Escribe el conjunto de sus maximales, como `5, 9`.
+    respuesta: ["7", "8", "12"]
+    verificar: { python: "(lambda A: {m for m in A if not any(x != m and x % m == 0 for x in A)})([3,4,7,8,12])" }
+    pistas:
+      - >-
+        Para cada elemento, ¿divide a algún otro elemento de $A$?
+    explicacion: >-
+      Un maximal no tiene a nadie arriba: no divide a ningún otro elemento de $A$. El 3 divide al 12, y el 4, al 8 y al 12: no son maximales. El 7, el 8 y el 12 no dividen a ningún otro, así que el conjunto de los maximales es $\{7,8,12\}$. El 7 no se compara con nadie, y aun así es maximal (y también minimal). No hay máximo: 8 y 12 no se comparan.
+    tiempo_estimado_s: 40
+
+  # razonamiento: abductivo (de una afirmación con un error plantado a la causa: leer «anti» como «no») · R1
+  # Distractores: lo que dice Ana y dos generalizaciones falsas. La explicación no usa ∅ como ejemplo de «simétrica y
+  # antisimétrica», porque ∅ es la respuesta del 022 y los dos van en el jefe; usa la igualdad, como la lección.
+  # verificar: las afirmaciones sobre R y las generales con las 512 relaciones sobre {1, 2, 3}.
+  - id: disc-16-012
+    tipo: seleccion_multiple
+    dificultad: 3
+    conceptos: [verificar-propiedades]
+    enunciado: >-
+      Sobre $\{1,2,3\}$, sea $R=\{(1,2),(2,1),(2,3)\}$. Ana dice: «$R$ no es simétrica, así que es antisimétrica». ¿Cuáles de estas afirmaciones son ciertas? Puede haber varias.
+    opciones:
+      - >-
+        $R$ no es simétrica.
+      - >-
+        $R$ es antisimétrica.
+      - >-
+        $(1,2)$ y $(2,1)$ refutan la antisimetría de $R$.
+      - >-
+        Ninguna relación es simétrica y antisimétrica a la vez.
+      - >-
+        Toda relación que no es simétrica es antisimétrica.
+    correctas: [0, 2]
+    verificar: { python: "(lambda sym, anti, R, rels: [not sym(R), anti(R), (1,2) in R and (2,1) in R, not any(sym(S) and anti(S) for S in rels), all(anti(S) for S in rels if not sym(S))])(lambda R: all((b,a) in R for (a,b) in R), lambda R: all(a == b or (b,a) not in R for (a,b) in R), {(1,2),(2,1),(2,3)}, [{p for i, p in enumerate([(a,b) for a in [1,2,3] for b in [1,2,3]]) if m >> i & 1} for m in range(512)])" }
+    pistas:
+      - >-
+        ¿Qué testigo tumba la simetría y cuál la antisimetría? ¿Tiene $R$ alguno de los dos?
+      - >-
+        Para las afirmaciones generales, ¿conoces una relación que sea las dos cosas, o una que no sea ninguna?
+    explicacion: >-
+      Son ciertas «$R$ no es simétrica» y «$(1,2)$ y $(2,1)$ refutan la antisimetría de $R$»; las otras tres son falsas. Ana leyó «antisimétrica» como «no simétrica». **No es simétrica:** $(2,3)$ está y $(3,2)$ no. **No es antisimétrica:** $(1,2)$ y $(2,1)$ están, con $1\neq2$. Así, $R$ no es ninguna de las dos, y eso tumba «toda la que no es simétrica es antisimétrica». **Las dos a la vez sí se puede:** la igualdad sobre $\{1,2,3\}$, $\{(1,1),(2,2),(3,3)\}$, es simétrica, porque cada par es su propio inverso, y antisimétrica, porque no tiene pares con $a\neq b$. Revisa: la simetría exige el inverso de cada par y la antisimetría lo prohíbe fuera de la diagonal; los pares de la diagonal no cuentan para ninguna de las dos.
+    tiempo_estimado_s: 75
+
+  # razonamiento: metacognitivo (revisar un Hasse ajeno en las dos direcciones, no solo «es un par de ∣») · R2
+  # De arquitecto-razonamiento y experto-matematicas. El dibujo va como lista de líneas, sin visual (el `grafo` va en
+  # círculo). Pistas de arquitecto-razonamiento, con «línea» en lugar de «flecha», como en la lección.
+  # verificar: las coberturas por definición, comparadas con las líneas de Beto; da la que sobra y la que falta.
+  - id: disc-16-013
+    tipo: completar
+    dificultad: 3
+    conceptos: [diagrama-hasse]
+    enunciado: >-
+      Beto dibujó el Hasse de $\mid$ sobre $A=\{3,6,7,12,21,42,84\}$ con estas líneas, donde $(a,b)$ significa que $b$ cubre a $a$: $(3,6)$, $(6,12)$, $(6,42)$, $(7,21)$, $(21,42)$, $(12,84)$, $(42,84)$ y $(6,84)$. Revisó que cada línea fuera un par de $\mid$ y lo dio por bueno. Le sobra exactamente una línea y le falta exactamente una.
+    texto: >-
+      Sobra la línea (___, ___) · falta la línea (___, ___)
+    respuestas: ["6", "84", "3", "21"]
+    verificar: { python: "(lambda A, beto: (lambda C: (list(sorted(beto - C)[0]) + list(sorted(C - beto)[0])) if len(beto - C) == 1 and len(C - beto) == 1 else [])({(a,b) for a in A for b in A if a != b and b % a == 0 and not any(c != a and c != b and c % a == 0 and b % c == 0 for c in A)}))([3,6,7,12,21,42,84], {(3,6),(6,12),(6,42),(7,21),(21,42),(12,84),(42,84),(6,84)})" }
+    pistas:
+      - >-
+        ¿Qué línea mala pasaría la revisión de Beto?
+      - >-
+        En cada línea de $a$ a $b$, ¿hay un $c\in A$, distinto de ambos, con $a\mid c$ y $c\mid b$?
+      - >-
+        ¿Revisaste también que no falte ninguna cobertura?
+    explicacion: >-
+      **Lo que revisó Beto no basta.** $(6,84)$ sí es un par de $\mid$, pero no es cobertura: $6\mid12\mid84$ (y $6\mid42\mid84$), así que se sube del 6 al 84 por el 12 o por el 42, y esa línea sobra. **Lo que no revisó:** que no falte ninguna cobertura. El 3 divide al 21, y entre ellos no hay nadie: un intermedio sería múltiplo de 3 y divisor de 21, y en $A$ solo lo son el 3 y el 21 (el 6 no divide al 21). Sin $(3,21)$, el dibujo dice que el 3 no está debajo del 21. Las otras siete líneas sí son coberturas. **La revisión de siempre** va en las dos direcciones: en cada línea, ¿hay un intermedio?, y en cada par $a\prec b$ sin línea, ¿se sube de $a$ a $b$? ¿Qué revisión harás tú siempre al terminar un Hasse? Revisa: con la corrección, del 3 se sube al 84 por el 6 y el 12, por el 6 y el 42, o por el 21 y el 42.
+    tiempo_estimado_s: 120
+
+  # razonamiento: espacial (la transitividad en la matriz: M_R ⊙ M_R contra M_R) · R1
+  # Hace par con disc-15-009 (el producto booleano de dos relaciones). Va en el jefe desde los arreglos de
+  # /revisar-contenido (2026-11-14), en lugar del 018, para que ese par se cruce en el jefe. En esos arreglos se
+  # reetiquetó la matriz (1→3, 2→4, 3→2, 4→1): la anterior pedía (2, 4) por (2, 1) y (1, 4), los mismos pares
+  # encadenados que la explicación del 15-022, que también va en el jefe.
+  # verificar: la única entrada con 1 en M_R ⊙ M_R y 0 en M_R, su intermedio y los unos tras agregarla; el último hueco
+  # solo sale si la matriz nueva es de un orden parcial (si no, da −1).
+  - id: disc-16-014
+    tipo: completar
+    dificultad: 3
+    conceptos: [propiedades-relaciones]
+    enunciado: |-
+      Sobre $\{1,2,3,4\}$, con filas y columnas en ese orden, la relación $R$ tiene esta matriz:
+
+      $$M_R=\begin{array}{c|cccc} & 1 & 2 & 3 & 4\\\hline 1 & 1 & 0 & 0 & 0\\ 2 & 1 & 1 & 1 & 0\\ 3 & 1 & 0 & 1 & 0\\ 4 & 0 & 0 & 1 & 1\end{array}$$
+
+      Calcula el producto booleano $M_R\odot M_R$ y compáralo con $M_R$: hay una sola entrada en la que $M_R\odot M_R$ vale 1 y $M_R$ vale 0. Agrégale ese 1 a $M_R$.
+    texto: >-
+      La entrada está en la fila ___ y la columna ___ · su intermedio, el $b$ con $aRb$ y $bRc$ para esa entrada $(a,c)$, es el ___ · con ese 1 agregado, $M_R$ tiene ___ unos
+    respuestas: ["4", "1", "3", "9"]
+    verificar: { python: "(lambda M, n: (lambda F: (lambda i, j: (lambda N: [i + 1, j + 1] + [k + 1 for k in range(n) if M[i][k] and M[k][j]] + [sum(map(sum, N)) if all(N[a][a] for a in range(n)) and all(a == b or not (N[a][b] and N[b][a]) for a in range(n) for b in range(n)) and all(N[a][c] for a in range(n) for b in range(n) for c in range(n) if N[a][b] and N[b][c]) else -1])([[1 if (a, b) == (i, j) else M[a][b] for b in range(n)] for a in range(n)]))(*F[0]) if len(F) == 1 else [])([(i,j) for i in range(n) for j in range(n) if not M[i][j] and any(M[i][k] and M[k][j] for k in range(n))]))([[1,0,0,0],[1,1,1,0],[1,0,1,0],[0,0,1,1]], 4)" }
+    pistas:
+      - >-
+        ¿Qué dice un 1 en la entrada $(a,c)$ de $M_R\odot M_R$? ¿Qué pide entonces la transitividad?
+      - >-
+        Para la entrada $(a,c)$, ¿qué fila y qué columna de $M_R$ comparas, y en qué posición coinciden?
+    explicacion: >-
+      Un 1 en la entrada $(a,c)$ de $M_R\odot M_R$ dice que hay un intermedio $b$ con $aRb$ y $bRc$; la transitividad pide entonces $aRc$. Por eso $R$ es transitiva si y solo si cada 1 del producto ya está en $M_R$. **La entrada que falta:** la fila 4 de $M_R$ es 0011 y la columna 1, de arriba abajo, es 1110; coinciden en la posición 3, porque $4R3$ y $3R1$. Pero $M_R$ tiene 0 en $(4,1)$. Es la única: como la diagonal va en 1, cada 1 de $M_R$ sale también en el producto, y el producto tiene 9 unos, los 8 de $M_R$ y el de $(4,1)$. **Al agregarlo**, $M_R$ pasa de 8 a 9 unos, y la relación queda reflexiva, antisimétrica y transitiva: es un orden parcial. Revisa: por pares, $(4,3)$ y $(3,1)$ piden $(4,1)$, y son los únicos pares encadenados que no cierran.
+    tiempo_estimado_s: 120
+
+  # razonamiento: deductivo (orden parcial más todo par comparable; el que no es orden queda fuera) · R2
+  # El lexicográfico y el producto se definen en el enunciado. x² ≤ y² compara todo, pero no es antisimétrica.
+  # verificar: orden parcial y todo par comparable, por definición, en cada opción (ℤ en la ventana −6…6).
+  - id: disc-16-015
+    tipo: seleccion_multiple
+    dificultad: 3
+    conceptos: [orden-total]
+    enunciado: >-
+      Un orden total es un orden parcial en el que todo par se compara. En $\{0,1,2\}^2$, el orden **lexicográfico** es $(a,b)\preceq(c,d)$ si $a<c$, o si $a=c$ y $b\le d$; el orden **producto** es $(a,b)\preceq(c,d)$ si $a\le c$ y $b\le d$. ¿Cuáles de estas relaciones son órdenes totales? Puede haber varias.
+    opciones:
+      - >-
+        El orden lexicográfico en $\{0,1,2\}^2$
+      - >-
+        El orden producto en $\{0,1,2\}^2$
+      - >-
+        $\mid$ en $\{1,3,6,18,36\}$
+      - >-
+        $xRy$ si $x^2\le y^2$, en $\mathbb Z$
+      - >-
+        $\subseteq$ en $\{\varnothing,\{1\},\{2\},\{1,2\}\}$
+    correctas: [0, 2]
+    verificar: { python: "(lambda tot, G: [tot(G, lambda p, q: p[0] < q[0] or (p[0] == q[0] and p[1] <= q[1])), tot(G, lambda p, q: p[0] <= q[0] and p[1] <= q[1]), tot([1,3,6,18,36], lambda x, y: y % x == 0), tot(range(-6,7), lambda x, y: x*x <= y*y), tot([frozenset(c) for k in range(3) for c in itertools.combinations([1,2], k)], lambda X, Y: X <= Y)])(lambda A, r: all(r(a,a) for a in A) and all(a == b or not (r(a,b) and r(b,a)) for a in A for b in A) and all(r(a,c) for a in A for b in A for c in A if r(a,b) and r(b,c)) and all(r(a,b) or r(b,a) for a in A for b in A), [(a,b) for a in range(3) for b in range(3)])" }
+    pistas:
+      - >-
+        ¿Qué dos cosas pide «orden total»? ¿Alguna opción compara todo, pero no es orden parcial?
+      - >-
+        En las que dudas, ¿qué par concreto no se compara?
+    explicacion: >-
+      Son totales el lexicográfico y $\mid$ en $\{1,3,6,18,36\}$; los otros tres no. **Lexicográfico:** como en el diccionario, si las primeras coordenadas difieren decide la menor, y si son iguales decide la segunda; dos pares siempre se comparan. **$\{1,3,6,18,36\}$:** cada número divide al siguiente, así que es una cadena. **Producto:** $(0,1)$ y $(1,0)$ no se comparan, porque cada uno gana en una coordenada y pierde en la otra. **$x^2\le y^2$:** todo par se compara, pero no es orden: $1R-1$ y $-1R1$, con $1\neq-1$, así que falla la antisimetría. **$\subseteq$:** $\{1\}$ y $\{2\}$ no se comparan. Revisa: el lexicográfico pone los 9 pares en una sola fila, $(0,0)$, $(0,1)$, $(0,2)$, $(1,0)$, …, $(2,2)$, y cada uno queda antes de todos los que le siguen.
+    tiempo_estimado_s: 90
+
+  # razonamiento: inductivo (qué tendría que cumplir un mínimo o un máximo: mcd y mcm) · R2
+  # verificar: busca, entre 1 y 199, los x que al agregarse dan un mínimo o un máximo, y da el menor de cada uno.
+  - id: disc-16-016
+    tipo: completar
+    dificultad: 3
+    conceptos: [extremos-orden]
+    enunciado: >-
+      Sea $A=\{6,10,15\}$ con $\mid$, como orden sobre enteros positivos. Así como está, no tiene mínimo ni máximo. Vas a agregarle a $A$ un solo entero positivo nuevo. Cada hueco es un caso aparte; «el menor» es con el orden usual.
+    texto: >-
+      El menor que, agregado, hace que haya mínimo es ___ · el menor que, agregado, hace que haya máximo es ___
+    respuestas: ["1", "30"]
+    verificar: { python: "(lambda A: [min(x for x in range(1,200) if x not in A and any(all(b % m == 0 for b in A + [x]) for m in A + [x])), min(x for x in range(1,200) if x not in A and any(all(m % b == 0 for b in A + [x]) for m in A + [x]))])([6,10,15])" }
+    pistas:
+      - >-
+        Un mínimo, ¿con quiénes tiene que compararse y de qué lado? ¿Puede serlo uno de los tres que ya están?
+      - >-
+        Si el nuevo número es el mínimo, ¿qué relación tiene con $\mathrm{mcd}(6,10,15)$? Y si es el máximo, ¿con el mcm?
+    explicacion: >-
+      **Mínimo.** Tendría que dividir a todos. No puede ser el 6, el 10 ni el 15, porque ninguno divide a los otros dos; tendría que ser el nuevo $x$, con $x\mid6$, $x\mid10$ y $x\mid15$, es decir, $x\mid\mathrm{mcd}(6,10,15)=1$. El único es $x=1$. **Máximo.** Tendría que ser múltiplo de todos. Tampoco puede serlo el 6, el 10 ni el 15, porque ninguno es múltiplo de los otros dos; tendría que ser el nuevo $x$, múltiplo de 6, de 10 y de 15, o sea de $\mathrm{mcm}(6,10,15)=30$. El menor es 30. Un número que divide a solo dos de ellos no basta: el 2 divide al 6 y al 10, pero no al 15. Revisa: $30=6\cdot5=10\cdot3=15\cdot2$, y el 1 divide a todo entero.
+    tiempo_estimado_s: 75
+
+  # razonamiento: deductivo (probar las tres propiedades o tumbar una con un testigo) · R2
+  # «Potencia de 2» se escribe como y = 2ᵏx con k ≥ 0 entero, para que no haya dos lecturas.
+  # La opción C va en ℤ − {0} (arreglos de /revisar-contenido, 2026-11-14): la bibliografía del programa pide a ≠ 0
+  # para «a divide a b», y en ℤ la opción dependía de 0 ∣ 0.
+  # verificar: las tres propiedades por definición, en ventanas finitas (ℤ de −8 a 8, ℤ − {0} de −8 a 8 sin el 0,
+  # ℤ⁺ de 1 a 32, 𝒫({1, 2, 3})).
+  - id: disc-16-017
+    tipo: seleccion_multiple
+    dificultad: 3
+    conceptos: [orden-parcial]
+    enunciado: >-
+      ¿Cuáles de estas relaciones son órdenes parciales (reflexivas, antisimétricas y transitivas)? Puede haber varias.
+    opciones:
+      - >-
+        En $\mathbb Z^+$: $xRy$ si $y=2^kx$ para algún entero $k\ge0$
+      - >-
+        En $\mathbb Z$: $xRy$ si $x\le y+1$
+      - >-
+        En $\mathbb Z-\{0\}$: $xRy$ si $x\mid y$ y $x\le y$
+      - >-
+        En $\mathcal P(\{1,2,3\})$: $XRY$ si $\lvert X\rvert\le\lvert Y\rvert$
+      - >-
+        En $\mathbb Z^+$: $xRy$ si $x\mid y$ o $y\mid x$
+    correctas: [0, 2]
+    verificar: { python: "(lambda po, Z, P: [po(P, lambda x, y: y % x == 0 and (y // x) & (y // x - 1) == 0), po(Z, lambda x, y: x <= y + 1), po([z for z in range(-8,9) if z], lambda x, y: y % x == 0 and x <= y), po([frozenset(c) for k in range(4) for c in itertools.combinations([1,2,3], k)], lambda X, Y: len(X) <= len(Y)), po(P, lambda x, y: y % x == 0 or x % y == 0)])(lambda A, r: all(r(a,a) for a in A) and all(a == b or not (r(a,b) and r(b,a)) for a in A for b in A) and all(r(a,c) for a in A for b in A for c in A if r(a,b) and r(b,c)), range(-8,9), range(1,33))" }
+    pistas:
+      - >-
+        En cada una, ¿hay dos elementos distintos relacionados en los dos sentidos?
+      - >-
+        En la de $x\mid y$ y $x\le y$, ¿qué hace la segunda condición con un entero y su opuesto?
+    explicacion: >-
+      Son órdenes parciales «$y=2^kx$ con $k\ge0$», en $\mathbb Z^+$, y «$x\mid y$ y $x\le y$», en $\mathbb Z-\{0\}$; las otras tres no. **$y=2^kx$:** reflexiva con $k=0$; si $y=2^kx$ y $x=2^my$, entonces $2^{k+m}=1$, así que $k=m=0$ y $x=y$; y si además $z=2^jy$, entonces $z=2^{j+k}x$. **$x\mid y$ y $x\le y$:** en $\mathbb Z-\{0\}$, $\mid$ sola no es antisimétrica, pero el «y $x\le y$» deja un solo sentido: si van los dos, $x\le y\le x$. Es reflexiva y transitiva porque lo son sus dos partes. **Las que no**, con un testigo contra la antisimetría: con $x\le y+1$, $1R0$ y $0R1$; con $\lvert X\rvert\le\lvert Y\rvert$, $\{1\}R\{2\}$ y $\{2\}R\{1\}$; con «$x\mid y$ o $y\mid x$», $1R2$ y $2R1$, y tampoco es transitiva: $2R1$ y $1R3$, pero ni $2\mid3$ ni $3\mid2$. Revisa: en la de $x\mid y$ y $x\le y$, $-2R2$, porque $-2\mid2$ y $-2\le2$, pero no $2R-2$, porque $2>-2$.
+    tiempo_estimado_s: 90
+
+  # razonamiento: algorítmico (barrer las ternas a, b, c y quedarse con los intermedios) · R2
+  # verificar: todas las ternas de {2, …, 10} con mcd(a, b) > 1, mcd(b, c) > 1 y mcd(a, c) = 1; da sus b.
+  - id: disc-16-018
+    tipo: conjunto
+    dificultad: 3
+    conceptos: [verificar-propiedades]
+    enunciado: >-
+      Sobre $A=\{2,3,\dots,10\}$, sea $xRy$ si y solo si $\mathrm{mcd}(x,y)>1$. $R$ no es transitiva. Un contraejemplo es una terna $a,b,c\in A$ con $aRb$ y $bRc$, pero sin $aRc$; $b$ es su intermedio. Escribe el conjunto de los $b$ que son intermedio de algún contraejemplo, como `3, 8`.
+    respuesta: ["6", "10"]
+    verificar: { python: "(lambda A: {b for a in A for b in A for c in A if math.gcd(a,b) > 1 and math.gcd(b,c) > 1 and math.gcd(a,c) == 1})(range(2,11))" }
+    pistas:
+      - >-
+        Si $b$ tiene un solo factor primo $p$, ¿qué tienen en común $a$ y $c$?
+      - >-
+        Entonces, ¿cuántos factores primos distintos necesita $b$? ¿Qué números de $A$ los tienen?
+    explicacion: >-
+      Para que $aRb$ y $bRc$ sin $aRc$, $b$ comparte un primo con $a$ y otro con $c$, y $a$ y $c$ no comparten ninguno: $b$ necesita **dos primos distintos**. En $\{2,\dots,10\}$, los únicos con dos factores primos distintos son $6=2\cdot3$ y $10=2\cdot5$. Con el 6: $2R6$, $6R3$ y $\mathrm{mcd}(2,3)=1$. Con el 10: $2R10$, $10R5$ y $\mathrm{mcd}(2,5)=1$. Los demás no sirven: el 4 y el 8 solo tienen al 2, así que $a$ y $c$ serían pares y $aRc$; el 9, solo al 3; y el 2, el 3, el 5 y el 7 son primos. Revisa: $R$ sí es reflexiva en $A$, porque $\mathrm{mcd}(a,a)=a>1$, y simétrica; solo falla la transitividad, y solo pasando por el 6 o el 10.
+    tiempo_estimado_s: 90
+
+  # razonamiento: algorítmico (contar casillas libres y amarradas de la matriz) · R2
+  # Pistas de arquitecto-razonamiento, tal cual. El «Revisa:» no enumera sobre {1, 2}, para no tocar los conteos del
+  # 022, que va en el mismo jefe.
+  # verificar: enumera las 512 relaciones sobre {1, 2, 3} y cuenta por definición.
+  - id: disc-16-019
+    tipo: completar
+    dificultad: 4
+    conceptos: [propiedades-relaciones]
+    enunciado: >-
+      Cuenta las relaciones sobre $\{1,2,3\}$ que son reflexivas, las que son antisimétricas y las que son las dos cosas a la vez.
+    texto: >-
+      Reflexivas: ___ · antisimétricas: ___ · reflexivas y antisimétricas: ___
+    respuestas: ["64", "216", "27"]
+    verificar: { python: "(lambda rels: [sum(1 for R in rels if all((a,a) in R for a in [1,2,3])), sum(1 for R in rels if all(a == b or (b,a) not in R for (a,b) in R)), sum(1 for R in rels if all((a,a) in R for a in [1,2,3]) and all(a == b or (b,a) not in R for (a,b) in R))])([{p for i, p in enumerate([(a,b) for a in [1,2,3] for b in [1,2,3]]) if m >> i & 1} for m in range(512)])" }
+    pistas:
+      - >-
+        En la matriz, ¿qué casillas toca cada propiedad?
+      - >-
+        Enumera primero sobre $\{1,2\}$: ¿qué casillas quedan libres y cuáles van amarradas?
+      - >-
+        ¿Tu regla reproduce lo que enumeraste? ¿Contaste cada pareja $\{i,j\}$, con $i\neq j$, una sola vez?
+    explicacion: >-
+      Piensa en la matriz de $3\times3$: 9 casillas, 3 en la diagonal y 6 fuera, que forman 3 parejas espejo, $(i,j)$ y $(j,i)$. **Reflexivas:** la diagonal va amarrada en 1 y las 6 de fuera quedan libres: $2^6=64$. **Antisimétricas:** la diagonal queda libre, $2^3=8$, y en cada pareja espejo se vale ninguna o una, pero no las dos: 3 opciones por pareja, $3^3=27$. Total, $8\cdot27=216$. **Las dos:** la diagonal amarrada y 3 opciones por pareja: 27. Revisa: las antisimétricas se reparten parejo entre las 8 diagonales posibles, así que las que tienen la diagonal toda en 1 son $216/8=27$.
+    tiempo_estimado_s: 150
+
+  # razonamiento: deductivo (demostrar las tres propiedades con la definición de ∣; negar «total» con un par) · R3
+  # Rúbrica, enunciado y pistas de arquitecto-razonamiento (esquema-16), tal cual. Revisión manual. La respuesta modelo
+  # parte de la del esquema y se completó para que cumpla cada criterio de su rúbrica: escribe la definición (1), dice
+  # dónde usa ℤ⁺ con el ejemplo de 2 y −2 (2), nombra el testigo km (3) y revisa los dos sentidos (4).
+  - id: disc-16-020
+    tipo: autoevaluacion
+    dificultad: 4
+    conceptos: [orden-parcial]
+    enunciado: >-
+      En papel, demuestra que $\mid$ es un orden parcial sobre $\mathbb Z^+$ y que no es un orden total. Escribe la definición de $a\mid b$ antes de usarla.
+    rubrica:
+      - >-
+        Escribe «$a\mid b$ si existe $k\in\mathbb Z$ con $b=ak$». Prueba la reflexiva para un $a$ cualquiera, no con ejemplos.
+      - >-
+        En la antisimétrica llega a $km=1$. Dice dónde usa $\mathbb Z^+$: en $\mathbb Z$, $2\mid-2$ y $-2\mid2$.
+      - >-
+        En la transitiva llega a $c=a(km)$ y nombra el testigo. Usa una letra por testigo: con la misma $k$ en ambos, solo probó un caso.
+      - >-
+        Niega «todo par es comparable» con un par concreto. Revisa los dos sentidos: $(2,4)$ falla en uno solo y no sirve.
+    respuesta_modelo: >-
+      Uso la definición: $a\mid b$ si existe $k\in\mathbb Z$ con $b=ak$. Sean $a,b,c\in\mathbb Z^+$ cualesquiera. **Reflexiva:** $a=a\cdot1$, con $1\in\mathbb Z$, así que $a\mid a$. **Antisimétrica:** si $a\mid b$ y $b\mid a$, hay $k,m\in\mathbb Z$ con $b=ak$ y $a=bm$; entonces $a=a(km)$ y, como $a\neq0$, $km=1$. Como $a$ y $b$ son positivos, $k=b/a>0$, así que $k$ y $m$ son enteros positivos con producto 1: $k=m=1$, y $a=b$. Aquí uso $\mathbb Z^+$: en $\mathbb Z$, $2\mid-2$ y $-2\mid2$ (con $k=m=-1$), aunque $2\neq-2$. **Transitiva:** si $b=ak$ y $c=bm$, con $k,m\in\mathbb Z$, entonces $c=(ak)m=a(km)$, y el testigo es $km\in\mathbb Z$: $a\mid c$. Así, $\mid$ es un orden parcial sobre $\mathbb Z^+$. **No es total:** la negación de «todo par es comparable» es «existe un par que no se compara en ningún sentido». El 2 y el 3: $3/2$ no es entero, así que $2\nmid3$, y $2/3$ tampoco, así que $3\nmid2$.
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        ¿Qué dice $a\mid b$ con un «existe»? Escríbelo antes que nada.
+      - >-
+        Al sustituir una igualdad en la otra, ¿usaste un testigo distinto para cada una?
+      - >-
+        ¿Tu antisimétrica valdría en $\mathbb Z$? Si sí, ¿dónde usas que son positivos?
+    explicacion: >-
+      **La definición primero:** $a\mid b$ si existe $k\in\mathbb Z$ con $b=ak$; todo sale de ese «existe». **Reflexiva:** $a=a\cdot1$. **Antisimétrica:** de $b=ak$ y $a=bm$ sale $a=a(km)$, y como $a\neq0$, $km=1$. En $\mathbb Z$, $km=1$ también se cumple con $k=m=-1$, que es justo $2\mid-2$ y $-2\mid2$; en $\mathbb Z^+$, $k=b/a$ es positivo y solo queda $k=m=1$. Sin decir dónde entra la positividad, la demostración valdría en $\mathbb Z$, donde la conclusión es falsa. **Transitiva:** con dos testigos distintos, $b=ak$ y $c=bm$, sale $c=a(km)$. Usar la misma $k$ en los dos solo prueba el caso en que los dos cocientes son iguales. **No total:** basta un par que no se compare en ningún sentido, como 2 y 3. El par 2 y 4 no sirve: $2\mid4$. Revisa: tu demostración usó «positivo» exactamente en la antisimétrica, y tu par no se compara en ninguno de los dos sentidos.
+    tarjeta: false
+    tiempo_estimado_s: 300
+
+  # razonamiento: espacial (la frontera de arriba en el orden producto) · R1
+  # Hace par con disc-14-019: un implicante primo es un maximal entre los implicantes, ordenados por ⊆.
+  # verificar: los p de A que ningún otro q de A domina en las dos coordenadas.
+  - id: disc-16-021
+    tipo: conjunto
+    dificultad: 4
+    conceptos: [extremos-orden]
+    enunciado: >-
+      Sea $A=\{(a,b)\in\mathbb N^2: a+b\le3\}$, con $\mathbb N=\{0,1,2,\dots\}$, ordenado con el orden producto: $(a,b)\preceq(c,d)$ si $a\le c$ y $b\le d$. Escribe el conjunto de sus maximales, como `(0, 1), (1, 1)`.
+    respuesta: ["(0, 3)", "(1, 2)", "(2, 1)", "(3, 0)"]
+    verificar: { python: "(lambda A: {p for p in A if not any(q != p and p[0] <= q[0] and p[1] <= q[1] for q in A)})([(a,b) for a in range(4) for b in range(4) if a + b <= 3])" }
+    pistas:
+      - >-
+        ¿Qué significa que un par de $A$ quede arriba de $(a,b)$ en el orden producto?
+      - >-
+        Si $a+b<3$, ¿hay en $A$ un par justo arriba de $(a,b)$?
+      - >-
+        ¿Tu respuesta tiene dos pares que se comparen entre sí? ¿Pueden dos maximales distintos compararse?
+    explicacion: >-
+      Un maximal no tiene a nadie arriba. **Si $a+b<3$**, el par $(a+1,b)$ sigue en $A$ y queda arriba de $(a,b)$, así que $(a,b)$ no es maximal. **Si $a+b=3$**, un $(c,d)$ distinto con $c\ge a$ y $d\ge b$ tendría $c+d>3$, y no está en $A$. Los maximales son los de suma 3: $(0,3)$, $(1,2)$, $(2,1)$ y $(3,0)$. Ninguno se compara con otro: al pasar de uno a otro, una coordenada sube y la otra baja. Revisa: $A$ tiene 10 pares (1, 2, 3 y 4 con suma 0, 1, 2 y 3), y los cuatro de suma 3 son la fila de arriba de su Hasse.
+    tiempo_estimado_s: 120
+
+  # razonamiento: deductivo (encontrar la suposición oculta de una «demostración») · R4
+  # Error plantado (pedagogo, v1). Verificado por la sesión principal: las simétricas y transitivas no reflexivas sobre
+  # {1, 2} son ∅, {(1, 1)} y {(2, 2)}; la más chica es ∅.
+  # verificar: enumera las 16 relaciones sobre {1, 2}; cuenta las simétricas, transitivas y no reflexivas, y da el
+  # menor número de pares entre ellas.
+  - id: disc-16-022
+    tipo: completar
+    dificultad: 4
+    conceptos: [verificar-propiedades]
+    enunciado: >-
+      Luis «demuestra» que toda relación simétrica y transitiva es reflexiva: «Si $aRb$, por simetría $bRa$, y de $aRb$ y $bRa$, por transitividad, sale $aRa$». Su conclusión es falsa. Busca contraejemplos sobre $\{1,2\}$.
+    texto: >-
+      Sobre $\{1,2\}$ hay ___ relaciones simétricas y transitivas que no son reflexivas · la que tiene menos pares tiene ___ pares
+    respuestas: ["3", "0"]
+    verificar: { python: "(lambda A: (lambda S: [len(S), min(len(R) for R in S)])([R for R in [{p for i, p in enumerate([(a, b) for a in A for b in A]) if m >> i & 1} for m in range(2 ** (len(A) ** 2))] if all((b, a) in R for (a, b) in R) and all((a, d) in R for (a, b) in R for (c, d) in R if b == c) and not all((a, a) in R for a in A)]))([1, 2])" }
+    pistas:
+      - >-
+        ¿Qué supone Luis al escribir «si $aRb$»? ¿Para qué elementos $a$ vale su argumento?
+      - >-
+        Sobre $\{1,2\}$, si está $(1,2)$, ¿qué otros pares obligan la simetría y la transitividad?
+      - >-
+        ¿Contaste la relación más chica posible? ¿Qué propiedades se cumplen por vacuidad?
+    explicacion: >-
+      **Dónde falla:** Luis supone que todo $a$ tiene algún $b$ con $aRb$. Si un elemento no se relaciona con nadie, la simetría y la transitividad no dicen nada de él, y su $(a,a)$ puede faltar. **Sobre $\{1,2\}$:** si está $(1,2)$, la simetría pide $(2,1)$ y la transitividad, $(1,1)$ y $(2,2)$: sale la relación total. Sin $(1,2)$ ni $(2,1)$, cualquier parte de la diagonal sirve. Así, las simétricas y transitivas son $\varnothing$, $\{(1,1)\}$, $\{(2,2)\}$, $\{(1,1),(2,2)\}$ y la total; las dos últimas son reflexivas y las otras 3 no. La más chica es $\varnothing$, con 0 pares: es simétrica y transitiva por vacuidad, y no es reflexiva porque le falta $(1,1)$. **Lo que sí vale:** si $a$ se relaciona con alguien, entonces $aRa$. Revisa: en $\{(1,1)\}$, el 2 no se relaciona con nadie, y por eso falta $(2,2)$.
+    tiempo_estimado_s: 120
+
+  # razonamiento: algorítmico (contar relaciones por forma de Hasse y etiquetados) · R2
+  # Pistas de arquitecto-razonamiento, tal cual. No va en el jefe: su conteo tocaría las reflexivas del 019.
+  # verificar: enumera las 512 relaciones sobre {1, 2, 3}; cuenta los órdenes parciales y, de ellos, los totales.
+  - id: disc-16-023
+    tipo: completar
+    dificultad: 5
+    conceptos: [orden-parcial, orden-total]
+    enunciado: >-
+      Cuenta las relaciones sobre $\{1,2,3\}$ que son órdenes parciales y, de ellas, las que son órdenes totales.
+    texto: >-
+      Órdenes parciales: ___ · órdenes totales: ___
+    respuestas: ["19", "6"]
+    verificar: { python: "(lambda A, rels: (lambda pos: [len(pos), sum(1 for R in pos if all((a,b) in R or (b,a) in R for a in A for b in A))])([R for R in rels if all((a,a) in R for a in A) and all(a == b or (b,a) not in R for (a,b) in R) and all((a,d) in R for (a,b) in R for (c,d) in R if b == c)]))([1,2,3], [{p for i, p in enumerate([(a,b) for a in [1,2,3] for b in [1,2,3]]) if m >> i & 1} for m in range(512)])" }
+    pistas:
+      - >-
+        ¿Cuentas relaciones o dibujos? El mismo Hasse con otras etiquetas, ¿es otro orden?
+      - >-
+        ¿Cuántos hay sobre $\{1,2\}$? Luego dibuja sin etiquetas las formas de Hasse con 3 elementos.
+      - >-
+        En cada forma, ¿cuántos etiquetados dan relaciones distintas? ¿Repetiste alguna?
+    explicacion: >-
+      Se cuentan relaciones: el mismo Hasse con otras etiquetas puede ser otra relación. Con 3 elementos hay cinco formas de Hasse. **Tres sueltos:** solo la igualdad, 1. **Una línea y uno suelto:** el suelto se elige de 3 maneras, y la línea sube en uno de 2 sentidos: 6. **Una V**, uno abajo y dos arriba: se elige el de abajo, 3. **Una Λ**, dos abajo y uno arriba: se elige el de arriba, 3. **Una cadena:** el orden de los tres, $3!=6$. Total, $1+6+3+3+6=19$. Los totales son las cadenas, 6: uno por cada manera de poner los tres en fila. Revisa: sobre $\{1,2\}$, las mismas ideas dan la igualdad y las dos cadenas, 3 órdenes, de los que 2 son totales, y se comprueba enumerando las 16 relaciones.
+    tiempo_estimado_s: 210
+
+  # razonamiento: deductivo (tumbar un «siempre» con un orden concreto o demostrarlo bajando) · R4
+  # Afirmaciones y demostraciones de experto-matematicas, todas con «finito no vacío»; pistas de
+  # arquitecto-razonamiento, tal cual. Hace par con disc-15-013 en el jefe (tumbar un «siempre»). Sus contraejemplos,
+  # {6, 7} y {3, 6, 15, 30}, no son datos de otra pregunta del jefe.
+  # verificar: todos los órdenes parciales sobre {0, …, n − 1}, n = 1 a 4 (1 + 3 + 19 + 219).
+  - id: disc-16-024
+    tipo: seleccion_multiple
+    dificultad: 5
+    conceptos: [extremos-orden, orden-total]
+    enunciado: >-
+      Sea $(A,\preceq)$ un orden parcial con $A$ finito y no vacío. ¿Cuáles de estas afirmaciones valen siempre? Puede haber varias.
+    opciones:
+      - >-
+        $A$ tiene al menos un minimal.
+      - >-
+        Si $A$ tiene un solo minimal, ese minimal es el mínimo.
+      - >-
+        Si el orden es total, $A$ tiene mínimo.
+      - >-
+        Si $A$ tiene mínimo, ese mínimo es el único minimal.
+      - >-
+        Todo minimal de $A$ es mínimo.
+      - >-
+        Si $A$ tiene un solo minimal y un solo maximal, el orden es total.
+    correctas: [0, 1, 2, 3]
+    verificar: { python: "(lambda P: (lambda mins, mn, maxs, tot: [all(len(mins(A, R)) >= 1 for (A, R) in P), all(mn(A, R) == mins(A, R) for (A, R) in P if len(mins(A, R)) == 1), all(len(mn(A, R)) == 1 for (A, R) in P if tot(A, R)), all(mins(A, R) == mn(A, R) for (A, R) in P if mn(A, R)), all(mins(A, R) == mn(A, R) for (A, R) in P), all(tot(A, R) for (A, R) in P if len(mins(A, R)) == 1 and len(maxs(A, R)) == 1)])(lambda A, R: [m for m in A if not any(x != m and (x, m) in R for x in A)], lambda A, R: [m for m in A if all((m, x) in R for x in A)], lambda A, R: [m for m in A if not any(x != m and (m, x) in R for x in A)], lambda A, R: all((a,b) in R or (b,a) in R for a in A for b in A)))([(list(range(n)), S) for n in range(1,5) for off in [[(a,b) for a in range(n) for b in range(n) if a != b]] for S in ({(a,a) for a in range(n)} | {off[i] for i in range(len(off)) if m >> i & 1} for m in range(2 ** len(off))) if all(a == b or (b,a) not in S for (a,b) in S) and all((a,d) in S for (a,b) in S for (c,d) in S if b == c)])" }
+    pistas:
+      - >-
+        ¿Qué basta para tumbar un «siempre», y qué hace falta para aceptarlo?
+      - >-
+        Dibuja Hasse de hasta 4 elementos: ¿en cuál falla cada afirmación dudosa?
+      - >-
+        En las que no tumbaste: si bajas mientras haya alguien debajo, ¿qué garantiza que te detengas?
+    explicacion: >-
+      Valen siempre las cuatro primeras: hay un minimal; un único minimal es el mínimo; un orden total tiene mínimo; y si hay mínimo, es el único minimal. Fallan «todo minimal es mínimo» y «un solo minimal y un solo maximal hacen total el orden». **Bajar:** desde cualquier $x$, si alguien está debajo, se baja a él, y así sucesivamente. No se puede volver a un elemento ya visitado: por transitividad, dos elementos distintos del camino quedarían cada uno debajo del otro, contra la antisimetría; como $A$ es finito, el descenso se detiene, y se detiene en un minimal que está debajo de $x$. **Hay un minimal:** $A$ no es vacío, así que hay un $x$ de dónde bajar. **Un solo minimal $m$:** desde cualquier $x$ se baja hasta un minimal, que tiene que ser $m$; así, $m\preceq x$ para todo $x$, y $m$ es el mínimo. **Total:** un minimal $m$ se compara con todos, y como nadie distinto queda debajo, $m\preceq x$ para todo $x$. **Con mínimo $m$:** $m$ es minimal: si $x\preceq m$, como también $m\preceq x$, la antisimetría da $x=m$. Y si $x$ es minimal, $m\preceq x$ y nadie distinto de $x$ está debajo de $x$, así que $x=m$. **Las que fallan**, con un orden concreto: en $\{6,7\}$ con $\mid$, el 6 es minimal y no es mínimo, porque no divide al 7; en $\{3,6,15,30\}$ con $\mid$, el único minimal es el 3 y el único maximal, el 30, pero el 6 y el 15 no se comparan. Revisa: las hipótesis importan; en $\varnothing$ no hay minimales, y en $(\mathbb Z,\le)$, que es infinito, tampoco.
+    tiempo_estimado_s: 180
+
+  # razonamiento: analógico (traducir un plan de tareas a orden, extremos, cadena más larga y Hasse) · R2
+  # Transferencia, hipotético. Dependencias de experto-matematicas; solo cambia la letra de «entrenar» (e en lugar de t),
+  # para que cada tarea vaya con su inicial. La explicación no dice que un único maximal sea el máximo, porque es la
+  # dual de una opción del 024 y los dos van en el jefe.
+  # verificar: las tareas sin flechas de llegada y sin flechas de salida, la cadena más larga en la cerradura transitiva
+  # (por fuerza bruta sobre subconjuntos) y las dependencias que se recuperan sin ellas.
+  - id: disc-16-025
+    tipo: completar
+    dificultad: 5
+    conceptos: [diagrama-hasse, extremos-orden]
+    enunciado: >-
+      Supón un proyecto de aprendizaje automático con nueve tareas: $r$ recolectar datos, $l$ limpiarlos, $d$ dividirlos en entrenamiento y prueba, $n$ normalizar, $a$ elegir la arquitectura, $e$ entrenar, $v$ validar, $g$ hacer gráficas exploratorias e $i$ escribir el informe. Cada dependencia $x\to y$ dice que $y$ no puede empezar hasta que termine $x$: $r\to l$, $l\to d$, $d\to n$, $n\to e$, $e\to v$, $v\to i$, $l\to g$, $g\to i$, $a\to e$, $r\to d$, $d\to e$ y $l\to i$. Ordénalas con «$x\preceq y$ si $x=y$, o si $y$ espera a $x$, directa o indirectamente». Cada tarea dura un día, y el mismo día se pueden hacer varias, sin límite.
+    texto: >-
+      Número de tareas que pueden empezar sin esperar a ninguna: ___ · número de tareas finales, a las que ninguna espera: ___ · menor número de días para terminar las nueve: ___ · número de dependencias de la lista que no son líneas del Hasse: ___
+    respuestas: ["2", "1", "7", "3"]
+    verificar: { python: "(lambda T, E: (lambda clo: (lambda C: [sum(1 for x in T if not any(b == x for (a,b) in E)), sum(1 for x in T if not any(a == x for (a,b) in E)), max(len(S) for k in range(1, len(T) + 1) for S in itertools.combinations(T, k) if all(x == y or (x,y) in C or (y,x) in C for x in S for y in S)), sum(1 for p in E if p in clo(E - {p}))])(clo(E)))(lambda S: (lambda f: f(f(f(f(S)))))(lambda Q: Q | {(a,d) for (a,b) in Q for (c,d) in Q if b == c})))(list('rldnevgia'), {('r','l'),('l','d'),('d','n'),('n','e'),('e','v'),('v','i'),('l','g'),('g','i'),('a','e'),('r','d'),('d','e'),('l','i')})" }
+    pistas:
+      - >-
+        ¿Qué son, en el orden, las tareas que no esperan a ninguna y las que ninguna espera?
+      - >-
+        Si cada tarea dura un día, ¿qué te obliga a tardar más: el número de tareas o la cadena de esperas más larga?
+      - >-
+        Para cada dependencia $x\to y$, ¿hay otro camino de $x$ a $y$ en la lista?
+    explicacion: >-
+      **El orden** es como el de las materias de la lección: reflexivo por el «$x=y$», transitivo por el «indirectamente» y antisimétrico porque no hay esperas en círculo. **Empiezan sin esperar** los minimales, las tareas a las que no llega ninguna flecha: $r$ y $a$, 2. **Finales** son los maximales, de los que no sale ninguna flecha: solo $i$, 1. **Días:** la cadena más larga, $r\to l\to d\to n\to e\to v\to i$, tiene 7 tareas, y cada una espera a la anterior, así que no baja de 7 días. Y 7 alcanzan: el día $k$ se hacen las tareas cuya cadena más larga hasta ellas tiene $k$ tareas (día 1, $r$ y $a$; día 2, $l$; día 3, $d$ y $g$; días 4 a 7, $n$, $e$, $v$ e $i$). **Sobran en el Hasse** las que salen por transitividad: $r\to d$, por $l$; $d\to e$, por $n$; y $l\to i$, por $g$: 3. Las otras 9 son coberturas. Revisa: con las 9 coberturas se recuperan las 3 que sobraron subiendo, y la cadena de 7 usa solo coberturas.
+    tiempo_estimado_s: 180

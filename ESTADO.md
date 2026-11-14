@@ -274,7 +274,7 @@ Plan (2026-10-13, rama `fase-3-calculo-discretas`): 0) rama y registro · 1) pru
   - [ ] 09 · [ ] 02
 - [ ] Matemáticas discretas
   - [x] Puerta de temario (paso 9, 2026-11-13): el programa oficial en `curriculum/programas/matematicas-discretas.pdf`, el temario aprobado por Carlo y `conceptos.yaml` completo (132 conceptos en 23 unidades: 21 del programa y 2 extra)
-  - [ ] Unidad IV para el 3.er parcial, en orden 13 → 21: [x] 13 (2026-11-13) · [x] 14 (2026-11-14) · [x] 15 (2026-11-14) · [ ] 16 · [ ] 17 · [ ] 18 · [ ] 19 · [ ] 20 · [ ] 21
+  - [ ] Unidad IV para el 3.er parcial, en orden 13 → 21: [x] 13 (2026-11-13) · [x] 14 (2026-11-14) · [x] 15 (2026-11-14) · [x] 16 (2026-11-14) · [ ] 17 · [ ] 18 · [ ] 19 · [ ] 20 · [ ] 21
   - [ ] Deuda: los jefes de la IV no tienen el 25–35 % de repaso de las unidades I–III, porque aún no existen. Cuando se escriban, se agrega sin cambiar ids.
   - [ ] Unidades 01 a 12, después del parcial
   - [ ] Extra: 22 conteo · 23 recurrencias
@@ -384,6 +384,31 @@ Complementan los ADR-001 a 008 de `docs/02`. Cada uno se escribe en el commit de
 **ADR-013 · Nomenclatura** (paso 1, decisión D1). Código, tablas y campos de IndexedDB en inglés, con equivalencias en `docs/02`. Las claves de YAML y del front matter siguen en español (son el formato de contenido). Los componentes MDX conservan su nombre en español porque son la API del contenido (`Predice` se implementa como `PredictPrompt`). Las URL van en español porque son interfaz. `APP_ID = 'cortex'` es inmutable (nombre de la base y marca de los respaldos); renombrar la app solo cambia `APP_NAME`. *Descartado:* todo en español (contradice `CLAUDE.md`) o una capa de traducción.
 
 ## Bitácora
+- 2026-11-14 · **Unidad `matematicas-discretas/16-propiedades-orden`** (3.er parcial; Unidad IV, 4.2.4, 4.3.1 y 4.3.2). Sesión nueva de Discretas: worktree `objective-stonebraker-808a0b`, rama `claude/objective-stonebraker-808a0b`, adelantada por fast-forward a `ad076b5`.
+  - *Esquema:* v1, aprobado por Carlo; revisado por M, P y A.
+    - Las cinco propiedades se refutan con un testigo.
+    - Orden parcial y total.
+    - Hasse por niveles en KaTeX, porque el visual `grafo` va en círculo.
+    - Extremos, con la hipótesis «finito no vacío» escrita.
+  - *Escrita* por `autor-contenido`: lección de 25 min (1,662 palabras), 25 ejercicios 6/5/7/4/3 (24 por código y 1 manual) y jefe de 10 más 4 de repaso de la 14 y la 15 (`disc-15-009`, `disc-15-022`, `disc-15-013` y `disc-14-019`), con 1,840 s.
+  - *`/revisar-contenido`:*
+    - a ciegas, 24/24, con dos lecturas dobles: los huecos del 025 pedían un número pero se leían como lista, y el 017 dependía de que $0\mid0$;
+    - checklist M, L y P con objeción: «el Hasse vale *solo* en finitos», que es falso; un paso del desvanecido de §9 se contestaba con la gramática; el 008 se parecía al $R_1$ de Rosen.
+  - *Arreglos:* Carlo aprobó «errores + mejoras» (`arreglos-16.md`). Entre ellos:
+    - la opción del 017 pasa a $\mathbb Z-\{0\}$;
+    - un $R$ nuevo en el 008;
+    - una demostración corta con $\subseteq$ en §5;
+    - «cadena» queda solo para el subconjunto totalmente ordenado;
+    - el 014 entra al jefe en lugar del 018, para que el par de intercalado con el 15-009 quede completo. Su matriz se reetiquetó para no repetir la cadena $(2,1),(1,4)\to(2,4)$ del 15-022.
+
+    Segunda ronda a ciegas: 8/8.
+  - *Evidencia:*
+    - `pnpm content:check` en verde (4 unidades, 100 ejercicios, 90 por código);
+    - `pnpm test`: 1134;
+    - `pnpm lint`;
+    - lección en el puerto 3200: 164 fórmulas, 0 `.katex-error` y sin errores de consola;
+    - el jefe arranca con 14 preguntas en 3 oleadas.
+  - *Para la 09:* fijar en la `notacion` si $a\mid b$ exige $a\neq0$ (la bibliografía del programa lo exige), porque el 003 y el 017 de la 16 dependen de eso.
 - 2026-11-14 · **Unidad `matematicas-discretas/15-relaciones`** (3.er parcial; Unidad IV, 4.2.1 a 4.2.3).
   - *Esquema:* v1, aprobado por Carlo; revisado por M, P y A.
     - Convención: $S\circ R$ = «primero $R$», y su matriz es $M_R\odot M_S$.
