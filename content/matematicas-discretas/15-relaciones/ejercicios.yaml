@@ -1,0 +1,645 @@
+# Unidad 15 · Relaciones y funciones (Unidad IV, 4.2.1 a 4.2.3; práctica oficial 7, «Relaciones»). Para el 3.er
+# parcial (semana del 23 al 27 de noviembre de 2026). Las propiedades de las relaciones (4.2.4) van en la 16.
+# Esquema v1 aprobado por Carlo (esquema-15), revisado por experto-matematicas, pedagogo y arquitecto-razonamiento.
+# Ids en el orden de la tabla del v1, escalera 7/5/7/3/3: d1 001–007, d2 008–012, d3 013–019, d4 020–022, d5 023–025.
+# Anclas (primer ejercicio de cada concepto, workedExampleFor): 001 RB, 002 RR, 003 RI, 004 CR, 005 FR, 006 IS y 007 CF,
+# con explicación completa.
+# Un solo concepto por ejercicio, porque workedExampleFor muestra el más fácil de CUALQUIER concepto compartido.
+# Abreviaturas: RB relacion-binaria · RR representaciones-relacion · RI relacion-inversa · CR composicion-relaciones ·
+# FR funcion-como-relacion · IS funcion-inyectiva-suprayectiva · CF composicion-inversa-funciones.
+# Convenciones (también en la `notacion`, y repetidas en cada enunciado que las usa): S∘R es «primero R, luego S»,
+# como g∘f, y M_{S∘R} = M_R ⊙ M_S; las matrices llevan filas y columnas en el orden listado; Dom e Im son las primeras
+# y las segundas coordenadas de los pares.
+# `verificar` en Python puro, por enumeración y desde la definición. La composición siempre es
+# {(a, c) for (a, b) in R for (b2, c) in S if b == b2}, que da S∘R (primero R). Las afirmaciones «siempre» se prueban
+# con todas las relaciones sobre {0, 1} (013) o con todas las funciones chicas (021). Las opciones múltiples
+# verificables llevan `valores: ["0", "1", "2", "3"]` y un `verificar` que devuelve el índice de la única opción buena.
+# `conjunto`: pares escritos "(1, 2)", con el guion `-` como signo menos y sin `e`, `E` ni `pi` (la app los lee como
+# constantes). El ejemplo de formato de cada enunciado no contiene elementos de la respuesta.
+# `completar`: huecos fuera de KaTeX y solo enteros; en los de sí o no, 1 o 0.
+# Pistas como preguntas, sin valores intermedios: 1 en d1–2, 2 en d3 y 3 en d4–5 (el 013 lleva 3, las de
+# arquitecto-razonamiento; docs/05 permite hasta 3). Desde d3, la explicación cierra con «Revisa:», con una comprobación
+# que no repite el cálculo. Las explicaciones de opción y selección múltiple dicen cuáles son las correctas, porque
+# WorkedExample no muestra las opciones.
+# Manuales: solo el 020 (autoevaluación).
+# Textos con LaTeX en bloques `>-` (o `|-` si llevan una matriz en bloque): así no hay que escapar comillas ni barras.
+unidad: matematicas-discretas/15-relaciones
+ejercicios:
+  # razonamiento: algorítmico (revisar los pares x < y uno por uno con la condición) · R0
+  # Ancla de RB. Original: no repite la divisibilidad de Rosen (experto-matematicas).
+  # verificar: los pares con x < y cuya suma no tiene divisores entre 2 y x + y − 1.
+  - id: disc-15-001
+    tipo: conjunto
+    dificultad: 1
+    conceptos: [relacion-binaria]
+    enunciado: >-
+      Sea $A=\{1,2,3,4,5,6\}$ y sea $R$ la relación sobre $A$ dada por $xRy$ si y solo si $x<y$ y $x+y$ es primo (las dos a la vez). Escribe $R$ como lista de pares, como `(3, 6), (4, 5)`.
+    respuesta: ["(1, 2)", "(1, 4)", "(1, 6)", "(2, 3)", "(2, 5)", "(3, 4)", "(5, 6)"]
+    verificar: { python: "{(x, y) for x in range(1, 7) for y in range(1, 7) if x < y and all((x + y) % d for d in range(2, x + y))}" }
+    pistas:
+      - >-
+        Con $x<y$ en $A$, ¿qué sumas pueden salir, y cuáles de ellas son primas?
+    explicacion: >-
+      Una relación sobre $A$ es un subconjunto de $A\times A$: aquí, los pares $(x,y)$ que cumplen las dos condiciones a la vez. Con $x<y$ en $\{1,\dots,6\}$ hay 15 pares; sus sumas van de 3 a 11, y las primas son 3, 5, 7 y 11. Suma 3: $(1,2)$. Suma 5: $(1,4)$ y $(2,3)$. Suma 7: $(1,6)$, $(2,5)$ y $(3,4)$. Suma 11: $(5,6)$. Son 7 pares. El orden importa: $(2,1)$ no está, porque $2<1$ es falso, aunque $2+1=3$ sea primo.
+    tiempo_estimado_s: 60
+
+  # razonamiento: espacial (ubicar cada par en su fila y su columna) · R0
+  # Ancla de RR.
+  # verificar: la fila 2 de la matriz armada desde la definición.
+  - id: disc-15-002
+    tipo: completar
+    dificultad: 1
+    conceptos: [representaciones-relacion]
+    enunciado: >-
+      Sea $R=\{(1,2),(2,2),(3,1)\}$ sobre $\{1,2,3\}$. En su matriz $M_R$, las filas y las columnas van en el orden 1, 2, 3, y la entrada de la fila $a$ y la columna $b$ vale 1 si $(a,b)\in R$ y 0 si no. Escribe la fila 2.
+    texto: >-
+      Columna 1: ___ · columna 2: ___ · columna 3: ___
+    respuestas: ["0", "1", "0"]
+    verificar: { python: "(lambda R: [int((2, b) in R) for b in (1, 2, 3)])({(1, 2), (2, 2), (3, 1)})" }
+    pistas:
+      - >-
+        ¿Qué pares de $R$ tienen al 2 como primera coordenada? ¿En qué columna va cada uno?
+    explicacion: |-
+      La fila 2 dice con quién está relacionado el 2, una entrada por columna. De los pares de $R$, solo $(2,2)$ empieza en 2, así que la fila 2 tiene un 1 en la columna 2 y 0 en las demás: 0, 1, 0. La matriz completa es
+
+      $$M_R=\begin{array}{c|ccc} & 1 & 2 & 3\\\hline 1 & 0 & 1 & 0\\ 2 & 0 & 1 & 0\\ 3 & 1 & 0 & 0\end{array}$$
+
+      Cada 1 es un par: 3 unos y 3 pares. El $(3,1)$ va en la fila 3 y la columna 1, no al revés. El $(2,2)$ cae en la diagonal; en el digrafo sería un lazo, una flecha del 2 a sí mismo.
+    tiempo_estimado_s: 30
+
+  # razonamiento: algorítmico (voltear cada par) · R0
+  # Ancla de RI. No dice que la inversa intercambia dominio e imagen: lo descubre el 010 (arquitecto-razonamiento).
+  # verificar: la definición de R⁻¹ sobre la lista.
+  - id: disc-15-003
+    tipo: conjunto
+    dificultad: 1
+    conceptos: [relacion-inversa]
+    enunciado: >-
+      Sea $R=\{(1,5),(2,4),(3,5)\}$, de $\{1,2,3\}$ en $\{4,5\}$. Escribe su inversa $R^{-1}$ como lista de pares, como `(4, 1), (5, 2)`.
+    respuesta: ["(5, 1)", "(4, 2)", "(5, 3)"]
+    verificar: { python: "{(b, a) for (a, b) in [(1, 5), (2, 4), (3, 5)]}" }
+    pistas:
+      - >-
+        ¿Qué le hace la inversa a cada par? ¿Cuántos pares debe tener?
+    explicacion: >-
+      $R^{-1}$ tiene los mismos pares, volteados: $(a,b)\in R$ si y solo si $(b,a)\in R^{-1}$. Así, $(1,5)$ da $(5,1)$, $(2,4)$ da $(4,2)$ y $(3,5)$ da $(5,3)$: $R^{-1}=\{(5,1),(4,2),(5,3)\}$, de $\{4,5\}$ en $\{1,2,3\}$, con 3 pares, como $R$. En la matriz, $M_{R^{-1}}$ es la transpuesta de $M_R$; en el diagrama de flechas, cada flecha cambia de sentido. No es el complemento: los pares que le faltan a $R$, como $(1,4)$, no entran.
+    tiempo_estimado_s: 30
+
+  # razonamiento: algorítmico (buscar el intermedio de cada par) · R0
+  # Ancla de CR. Trampa: R∘S da ∅.
+  # verificar: la composición por pares, primero R.
+  - id: disc-15-004
+    tipo: conjunto
+    dificultad: 1
+    conceptos: [composicion-relaciones]
+    enunciado: >-
+      Sean $R=\{(1,3),(1,4),(2,4)\}$ y $S=\{(3,5),(4,6)\}$. Escribe $S\circ R$ (primero $R$, luego $S$) como lista de pares, como `(2, 5), (3, 6)`.
+    respuesta: ["(1, 5)", "(1, 6)", "(2, 6)"]
+    verificar: { python: "{(a, c) for (a, b) in [(1, 3), (1, 4), (2, 4)] for (b2, c) in [(3, 5), (4, 6)] if b == b2}" }
+    pistas:
+      - >-
+        Para cada par $(a,b)$ de $R$, ¿qué pares de $S$ empiezan en $b$?
+    explicacion: >-
+      Un par $(a,c)$ está en $S\circ R$ si hay un intermedio $b$ con $(a,b)\in R$ y $(b,c)\in S$. Se sigue cada par de $R$ y se ve a dónde lo manda $S$: $(1,3)$ y $(3,5)$ dan $(1,5)$; $(1,4)$ y $(4,6)$ dan $(1,6)$; $(2,4)$ y $(4,6)$ dan $(2,6)$. Entonces $S\circ R=\{(1,5),(1,6),(2,6)\}$. Al revés no sale nada: $R\circ S$ pide seguir primero $S$, que llega a 5 o a 6, y de ahí $R$ no sale, así que $R\circ S=\varnothing$. El orden de la notación es al revés del recorrido: en $S\circ R$, la $R$ va a la derecha y se usa primero.
+    tiempo_estimado_s: 45
+
+  # razonamiento: deductivo (aplicar «exactamente una imagen» a cada elemento) · R1
+  # Ancla de FR.
+  # verificar: cada par cae en A × B y cada elemento de A aparece exactamente una vez como primera coordenada.
+  - id: disc-15-005
+    tipo: seleccion_multiple
+    dificultad: 1
+    conceptos: [funcion-como-relacion]
+    enunciado: >-
+      ¿Cuáles de estas relaciones son funciones de $\{1,2,3\}$ en $\{4,5\}$? Puede haber varias.
+    opciones:
+      - >-
+        $\{(1,4),(3,5)\}$
+      - >-
+        $\{(1,4),(2,5),(3,4)\}$
+      - >-
+        $\{(4,1),(5,2),(4,3)\}$
+      - >-
+        $\{(1,5),(2,5),(3,5)\}$
+      - >-
+        $\{(1,4),(2,4),(2,5),(3,5)\}$
+    correctas: [1, 3]
+    verificar: { python: "[all(x in (1, 2, 3) and y in (4, 5) for x, y in F) and all(sum(1 for x, _ in F if x == a) == 1 for a in (1, 2, 3)) for F in [[(1, 4), (3, 5)], [(1, 4), (2, 5), (3, 4)], [(4, 1), (5, 2), (4, 3)], [(1, 5), (2, 5), (3, 5)], [(1, 4), (2, 4), (2, 5), (3, 5)]]]" }
+    pistas:
+      - >-
+        En cada opción, ¿cuántas imágenes tienen el 1, el 2 y el 3? ¿Los pares van de $\{1,2,3\}$ a $\{4,5\}$?
+    explicacion: >-
+      Son funciones $\{(1,4),(2,5),(3,4)\}$ y $\{(1,5),(2,5),(3,5)\}$; las otras tres no. Una función de $A$ en $B$ le da a cada elemento de $A$ exactamente una imagen en $B$, así que tiene $\lvert A\rvert=3$ pares, uno por cada primera coordenada. Las dos buenas cumplen eso; que dos elementos compartan imagen, o que el 4 se quede sin usar, no importa. $\{(1,4),(3,5)\}$ deja al 2 sin imagen. $\{(1,4),(2,4),(2,5),(3,5)\}$ le da dos al 2. $\{(4,1),(5,2),(4,3)\}$ tiene los pares volteados: es una relación de $\{4,5\}$ en $\{1,2,3\}$.
+    tiempo_estimado_s: 45
+
+  # razonamiento: deductivo (buscar una imagen repetida) · R1
+  # Ancla de IS.
+  # verificar: imágenes distintas para elementos distintos, en cada función.
+  - id: disc-15-006
+    tipo: seleccion_multiple
+    dificultad: 1
+    conceptos: [funcion-inyectiva-suprayectiva]
+    enunciado: >-
+      Estas son funciones de $\{1,2,3\}$ en $\{4,5,6,7\}$. ¿Cuáles son inyectivas? Puede haber varias.
+    opciones:
+      - >-
+        $\{(1,5),(2,5),(3,6)\}$
+      - >-
+        $\{(1,4),(2,6),(3,7)\}$
+      - >-
+        $\{(1,6),(2,7),(3,6)\}$
+      - >-
+        $\{(1,4),(2,4),(3,4)\}$
+      - >-
+        $\{(1,7),(2,6),(3,5)\}$
+    correctas: [1, 4]
+    verificar: { python: "[all(f[a] != f[b] for a in f for b in f if a != b) for f in map(dict, [[(1, 5), (2, 5), (3, 6)], [(1, 4), (2, 6), (3, 7)], [(1, 6), (2, 7), (3, 6)], [(1, 4), (2, 4), (3, 4)], [(1, 7), (2, 6), (3, 5)]])]" }
+    pistas:
+      - >-
+        ¿Qué pide «inyectiva» a dos elementos distintos? En cada opción, ¿se repite alguna imagen?
+    explicacion: >-
+      Son inyectivas $\{(1,4),(2,6),(3,7)\}$ y $\{(1,7),(2,6),(3,5)\}$; las otras tres no. Inyectiva quiere decir que elementos distintos van a imágenes distintas: ninguna imagen se repite. En las dos buenas, las tres imágenes son distintas. $\{(1,5),(2,5),(3,6)\}$ junta al 1 y al 2 en el 5; $\{(1,6),(2,7),(3,6)\}$ junta al 1 y al 3 en el 6; y $\{(1,4),(2,4),(3,4)\}$, la constante, junta a los tres. Ninguna es suprayectiva: 3 imágenes no alcanzan a cubrir los 4 elementos de $\{4,5,6,7\}$.
+    tiempo_estimado_s: 45
+
+  # razonamiento: algorítmico (evaluar de adentro hacia afuera) · R0
+  # Ancla de CF. Trampa: componer al revés da 3 y 1.
+  # verificar: las dos composiciones como relaciones, evaluadas en 2.
+  - id: disc-15-007
+    tipo: completar
+    dificultad: 1
+    conceptos: [composicion-inversa-funciones]
+    enunciado: >-
+      Sean $f=\{(1,2),(2,3),(3,1)\}$ y $g=\{(1,3),(2,2),(3,1)\}$, funciones de $\{1,2,3\}$ en sí mismo. Calcula $(g\circ f)(2)$ y $(f\circ g)(2)$.
+    texto: >-
+      $(g\circ f)(2)=$ ___ · $(f\circ g)(2)=$ ___
+    respuestas: ["1", "3"]
+    verificar: { python: "(lambda f, g, o: [[c for a, c in o(f, g) if a == 2][0], [c for a, c in o(g, f) if a == 2][0]])([(1, 2), (2, 3), (3, 1)], [(1, 3), (2, 2), (3, 1)], lambda R, S: {(a, c) for (a, b) in R for (b2, c) in S if b == b2})" }
+    pistas:
+      - >-
+        En $g\circ f$, ¿qué función se aplica primero? ¿Cuánto vale $f(2)$?
+    explicacion: >-
+      $g\circ f$ es primero $f$, luego $g$: $(g\circ f)(2)=g(f(2))$. Como $f(2)=3$ y $g(3)=1$, vale 1. Al revés, $(f\circ g)(2)=f(g(2))=f(2)=3$. Las dos composiciones dan distinto: el orden importa. Como relaciones, $(2,3)\in f$ y $(3,1)\in g$ dan el par $(2,1)$ de $g\circ f$, con el 3 de intermedio. Si te salió 3 y 1, compusiste al revés.
+    tiempo_estimado_s: 40
+
+  # razonamiento: espacial (del digrafo a la matriz: filas, columnas y diagonal) · R1
+  # Desviación del esquema v1: el v1 pedía los 5 pares del digrafo, pero el pie del visual en un ejercicio
+  # (describeVisual, que ExerciseVisual pone debajo del dibujo) ya los lista como «aristas (1, 2), (2, 3)…» y regalaría
+  # la respuesta. Se queda el mismo digrafo, el concepto, la d2 y el razonamiento; pasa de `conjunto` a `completar`.
+  # verificar: arma M_R desde las aristas del visual; fila con más unos (única), unos de la columna 2 y de la diagonal.
+  - id: disc-15-008
+    tipo: completar
+    dificultad: 2
+    conceptos: [representaciones-relacion]
+    enunciado: >-
+      Este digrafo representa una relación $R$ sobre $\{1,2,3,4\}$: cada flecha $a\to b$ es un par $(a,b)$. Piensa en su matriz $M_R$, con filas y columnas en el orden 1, 2, 3, 4.
+    visual: { id: grafo, vertices: "1, 2, 3, 4", aristas: "1-2, 2-3, 3-1, 3-4, 4-2", dirigido: "si" }
+    texto: >-
+      La fila de $M_R$ con más unos es la del ___ · la columna 2 tiene ___ unos · la diagonal tiene ___ unos
+    respuestas: ["3", "2", "0"]
+    verificar: { python: "(lambda R: (lambda M: [(lambda s: s.index(max(s)) + 1 if s.count(max(s)) == 1 else None)([sum(r) for r in M]), sum(M[a][1] for a in range(4)), sum(M[a][a] for a in range(4))])([[int((a, b) in R) for b in range(1, 5)] for a in range(1, 5)]))({tuple(int(v) for v in e.split('-')) for e in '1-2, 2-3, 3-1, 3-4, 4-2'.split(', ')})" }
+    pistas:
+      - >-
+        En $M_R$, ¿qué coordenada del par es la fila? Entonces, ¿qué flechas cuentan los unos de una fila, cuáles los de una columna y qué sería un 1 en la diagonal?
+    explicacion: >-
+      Cada flecha $a\to b$ es un 1 en la fila $a$ y la columna $b$. **Filas:** los unos de la fila $a$ son las flechas que **salen** de $a$. Del 3 salen dos, $3\to1$ y $3\to4$; del 1, del 2 y del 4, una de cada uno: $1\to2$, $2\to3$ y $4\to2$. La fila del 3 es la que más tiene. **Columnas:** los unos de la columna $b$ son las flechas que **llegan** a $b$. Al 2 llegan $1\to2$ y $4\to2$: 2 unos. **Diagonal:** la entrada $(a,a)$ es un lazo, una flecha de $a$ a sí mismo, y aquí no hay ninguno: 0. En total, $M_R$ tiene 5 unos, uno por flecha.
+    tiempo_estimado_s: 45
+
+  # razonamiento: algorítmico (fila de M_R contra columna de M_S) · R1
+  # Trampa: M_S ⊙ M_R da 0, 0, 1.
+  # verificar: S∘R por pares, a partir de las matrices, y sus tres entradas.
+  - id: disc-15-009
+    tipo: completar
+    dificultad: 2
+    conceptos: [composicion-relaciones]
+    enunciado: |-
+      Sobre $\{1,2,3\}$, con filas y columnas en ese orden, las relaciones $R$ y $S$ tienen estas matrices:
+
+      $$M_R=\begin{array}{c|ccc} & 1 & 2 & 3\\\hline 1 & 1 & 0 & 1\\ 2 & 0 & 1 & 0\\ 3 & 1 & 1 & 0\end{array}\qquad M_S=\begin{array}{c|ccc} & 1 & 2 & 3\\\hline 1 & 0 & 1 & 0\\ 2 & 0 & 0 & 1\\ 3 & 1 & 0 & 0\end{array}$$
+
+      Calcula tres entradas de $M_{S\circ R}=M_R\odot M_S$, el producto booleano.
+    texto: >-
+      Entrada $(1,1)$: ___ · entrada $(2,3)$: ___ · entrada $(3,1)$: ___
+    respuestas: ["1", "1", "0"]
+    verificar: { python: "(lambda MR, MS, o: (lambda Q: [int((1, 1) in Q), int((2, 3) in Q), int((3, 1) in Q)])(o({(i + 1, j + 1) for i in range(3) for j in range(3) if MR[i][j]}, {(i + 1, j + 1) for i in range(3) for j in range(3) if MS[i][j]})))([[1, 0, 1], [0, 1, 0], [1, 1, 0]], [[0, 1, 0], [0, 0, 1], [1, 0, 0]], lambda R, S: {(a, c) for (a, b) in R for (b2, c) in S if b == b2})" }
+    pistas:
+      - >-
+        Para la entrada $(i,j)$, ¿qué fila de $M_R$ y qué columna de $M_S$ miras? ¿Hay alguna posición en la que las dos tengan un 1 a la vez?
+    explicacion: >-
+      La entrada $(i,j)$ de $M_R\odot M_S$ vale 1 si y solo si la fila $i$ de $M_R$ y la columna $j$ de $M_S$ tienen un 1 en la misma posición. **(1,1):** fila 1 de $M_R$, 101; columna 1 de $M_S$, 001. Coinciden en la tercera posición, así que vale 1, con el 3 de intermedio: $1R3$ y $3S1$. **(2,3):** fila 010 y columna 010; vale 1, con intermedio 2. **(3,1):** fila 110 y columna 001; no coinciden en ninguna posición, así que vale 0. Si te salió 0, 0, 1, calculaste $M_S\odot M_R$, que es la matriz de $R\circ S$.
+    tiempo_estimado_s: 60
+
+  # razonamiento: inductivo (del caso, el patrón Dom R⁻¹ = Im R e Im R⁻¹ = Dom R) · R1
+  # verificar: R⁻¹ por definición; su dominio, el de B que falta y el de A que falta en su imagen.
+  - id: disc-15-010
+    tipo: completar
+    dificultad: 2
+    conceptos: [relacion-inversa]
+    enunciado: >-
+      Sea $R=\{(1,6),(3,6),(4,5),(4,8)\}$, de $A=\{1,2,3,4\}$ en $B=\{5,6,7,8\}$. El dominio de una relación es el **conjunto** de las primeras coordenadas de sus pares, y la imagen, el de las segundas.
+    texto: >-
+      $\lvert\mathrm{Dom}\,R^{-1}\rvert=$ ___ · el elemento de $B$ que no está en $\mathrm{Dom}\,R^{-1}$ es ___ · el elemento de $A$ que no está en $\mathrm{Im}\,R^{-1}$ es ___
+    respuestas: ["3", "7", "2"]
+    verificar: { python: "(lambda Ri: [len({x for x, _ in Ri}), [b for b in range(5, 9) if b not in {x for x, _ in Ri}][0], [a for a in range(1, 5) if a not in {y for _, y in Ri}][0]])({(b, a) for (a, b) in [(1, 6), (3, 6), (4, 5), (4, 8)]})" }
+    pistas:
+      - >-
+        ¿Cuáles son los pares de $R^{-1}$? ¿Qué coordenadas forman su dominio y cuáles su imagen?
+    explicacion: >-
+      $R^{-1}=\{(6,1),(6,3),(5,4),(8,4)\}$. Su dominio son las primeras coordenadas, $\{5,6,8\}$, con 3 elementos; de $B$ falta el 7. Su imagen son las segundas, $\{1,3,4\}$; de $A$ falta el 2. Fíjate en el patrón: $\mathrm{Dom}\,R^{-1}=\mathrm{Im}\,R$ e $\mathrm{Im}\,R^{-1}=\mathrm{Dom}\,R$, porque voltear cada par intercambia sus coordenadas. El 6 aparece dos veces en $R$, pero en el dominio de $R^{-1}$ cuenta una vez.
+    tiempo_estimado_s: 60
+
+  # razonamiento: deductivo (relación = cualquier subconjunto de A × B) · R1
+  # Distractores: un par volteado y un par con una coordenada fuera de B (pedagogo).
+  # verificar: si cada opción es subconjunto de A × B.
+  - id: disc-15-011
+    tipo: seleccion_multiple
+    dificultad: 2
+    conceptos: [relacion-binaria]
+    enunciado: >-
+      Sean $A=\{1,2\}$ y $B=\{3,4\}$. ¿Cuáles de estos conjuntos son relaciones de $A$ en $B$? Puede haber varias.
+    opciones:
+      - >-
+        $\{(3,1)\}$
+      - >-
+        $\varnothing$
+      - >-
+        $\{(1,4)\}$
+      - >-
+        $\{(1,2)\}$
+      - >-
+        $A\times B$
+    correctas: [1, 2, 4]
+    verificar: { python: "(lambda P: [set(F) <= P for F in [[(3, 1)], [], [(1, 4)], [(1, 2)], list(P)]])(set(itertools.product([1, 2], [3, 4])))" }
+    pistas:
+      - >-
+        ¿Qué tiene que cumplir un conjunto para ser una relación de $A$ en $B$? ¿Hay un mínimo de pares?
+    explicacion: >-
+      Son relaciones $\varnothing$, $\{(1,4)\}$ y $A\times B$; no lo son $\{(3,1)\}$ ni $\{(1,2)\}$. Una relación de $A$ en $B$ es cualquier subconjunto de $A\times B=\{(1,3),(1,4),(2,3),(2,4)\}$, incluidos el vacío y el total. $\{(1,4)\}$ está dentro. $\{(3,1)\}$ tiene el par volteado: es una relación de $B$ en $A$. $\{(1,2)\}$ no, porque el 2 no está en $B$.
+    tiempo_estimado_s: 45
+
+  # razonamiento: algorítmico (evaluar y quitar repetidos) · R1
+  # verificar: la imagen por enumeración.
+  - id: disc-15-012
+    tipo: conjunto
+    dificultad: 2
+    conceptos: [funcion-como-relacion]
+    enunciado: >-
+      Sea $f(x)=x^2$, de $A=\{-2,-1,0,1,2,3\}$ en $B=\{0,1,2,\dots,9\}$. Escribe su imagen $f(A)$, como `2, 5`.
+    respuesta: ["0", "1", "4", "9"]
+    verificar: { python: "{x ** 2 for x in range(-2, 4)}" }
+    pistas:
+      - >-
+        ¿Cuánto vale $f$ en cada elemento de $A$? ¿Cuentas dos veces un valor repetido?
+    explicacion: >-
+      La imagen son los valores que $f$ toma de verdad: $f(-2)=4$, $f(-1)=1$, $f(0)=0$, $f(1)=1$, $f(2)=4$ y $f(3)=9$. Sin repetir, $f(A)=\{0,1,4,9\}$. El codominio $B$ tiene 10 elementos, pero la imagen solo 4: no son lo mismo. Como $-2$ y $2$ van al 4, $f$ no es inyectiva, y como nadie va al 2, tampoco es suprayectiva.
+    tiempo_estimado_s: 40
+
+  # razonamiento: deductivo (demostrar las que valen y tumbar las otras con un contraejemplo) · R2
+  # Contraejemplos de experto-matematicas en {0, 1}; pistas modelo de arquitecto-razonamiento (esquema-15), tal cual.
+  # verificar: las 16³ ternas de relaciones sobre {0, 1}; o(R, S) = S∘R. Para las que valen es una comprobación, no una
+  # demostración: la demostración va en la explicación.
+  - id: disc-15-013
+    tipo: seleccion_multiple
+    dificultad: 3
+    conceptos: [composicion-relaciones]
+    enunciado: >-
+      Sean $R$, $S$ y $T$ relaciones sobre un mismo conjunto, donde $S\circ R$ es primero $R$ y luego $S$. ¿Cuáles de estas igualdades valen siempre? Puede haber varias.
+    opciones:
+      - >-
+        $S\circ R=R\circ S$
+      - >-
+        $(S\circ R)^{-1}=R^{-1}\circ S^{-1}$
+      - >-
+        $S\circ(R\cap T)=(S\circ R)\cap(S\circ T)$
+      - >-
+        $T\circ(S\circ R)=(T\circ S)\circ R$
+      - >-
+        $(S\circ R)^{-1}=S^{-1}\circ R^{-1}$
+      - >-
+        $S\circ(R\cup T)=(S\circ R)\cup(S\circ T)$
+    correctas: [1, 3, 5]
+    verificar: { python: "(lambda o, i, rels: [all(f(R, S, T) for R in rels for S in rels for T in rels) for f in [lambda R, S, T: o(R, S) == o(S, R), lambda R, S, T: i(o(R, S)) == o(i(S), i(R)), lambda R, S, T: o(R & T, S) == o(R, S) & o(T, S), lambda R, S, T: o(o(R, S), T) == o(R, o(S, T)), lambda R, S, T: i(o(R, S)) == o(i(R), i(S)), lambda R, S, T: o(R | T, S) == o(R, S) | o(T, S)]])(lambda R, S: frozenset((a, c) for (a, b) in R for (b2, c) in S if b == b2), lambda R: frozenset((b, a) for (a, b) in R), [frozenset(p for p, k in zip([(0, 0), (0, 1), (1, 0), (1, 1)], bits) if k) for bits in itertools.product((0, 1), repeat=4)])" }
+    pistas:
+      - >-
+        ¿Qué basta para tumbar un «siempre», y qué hace falta para aceptarlo?
+      - >-
+        Sigue un par de $(S\circ R)^{-1}$: ¿qué intermedio existe y en qué orden recorres $R$ y $S$ al volver?
+      - >-
+        ¿Probaste las dudosas con relaciones sobre $\{0,1\}$, leyendo «primero $R$, luego $S$» en ambos lados?
+    explicacion: >-
+      Valen siempre $(S\circ R)^{-1}=R^{-1}\circ S^{-1}$, la asociativa $T\circ(S\circ R)=(T\circ S)\circ R$ y $S\circ(R\cup T)=(S\circ R)\cup(S\circ T)$; las otras tres fallan. **Las que valen.** $(c,a)\in(S\circ R)^{-1}$ si y solo si hay $b$ con $aRb$ y $bSc$, que es lo mismo que $cS^{-1}b$ y $bR^{-1}a$: primero $S^{-1}$, luego $R^{-1}$. En la asociativa, los dos lados son los $(a,d)$ con un camino $aRb$, $bSc$, $cTd$. Y $(a,c)\in S\circ(R\cup T)$ si y solo si hay $b$ con ($aRb$ o $aTb$) y $bSc$, es decir, $(a,c)\in S\circ R$ o $(a,c)\in S\circ T$. **Las que fallan**, en $\{0,1\}$. Con $R=\{(0,1)\}$ y $S=\{(1,1)\}$: $S\circ R=\{(0,1)\}$, pero $R\circ S=\varnothing$; y $(S\circ R)^{-1}=\{(1,0)\}$, pero $S^{-1}\circ R^{-1}=\varnothing$. Con $R=\{(0,0)\}$, $T=\{(0,1)\}$ y $S=\{(0,0),(1,0)\}$: $R\cap T=\varnothing$, así que $S\circ(R\cap T)=\varnothing$, pero $(S\circ R)\cap(S\circ T)=\{(0,0)\}$, porque el 0 llega al 0 por dos intermedios distintos. Con la intersección sí vale la contención $S\circ(R\cap T)\subseteq(S\circ R)\cap(S\circ T)$, porque un intermedio común sirve para los dos lados. Revisa: con las mismas $R=\{(0,1)\}$ y $S=\{(1,1)\}$, $R^{-1}\circ S^{-1}=\{(1,0)\}$ sí coincide con $(S\circ R)^{-1}$.
+    tiempo_estimado_s: 120
+
+  # razonamiento: metacognitivo (revisar un resultado ajeno con otra representación, sin rehacerlo por pares) · R2
+  # Original de arquitecto-razonamiento. Rosa calculó R∘S.
+  # verificar: el producto booleano de las matrices armadas desde las reglas, comparado con lo de Rosa.
+  - id: disc-15-014
+    tipo: completar
+    dificultad: 3
+    conceptos: [composicion-relaciones]
+    enunciado: >-
+      Sobre $\{1,2,3,4\}$, sean $R=\{(x,y):y=x+1\}$ y $S=\{(x,y):y<x\}$. Rosa calculó $S\circ R$ (primero $R$, luego $S$) y obtuvo $\{(2,2),(3,2),(3,3),(4,2),(4,3),(4,4)\}$. Sin rehacerlo por pares, arma $M_R$ y $M_S$ con filas y columnas en el orden 1, 2, 3, 4, calcula $M_R\odot M_S$ y compara con lo de Rosa.
+    texto: >-
+      A Rosa le sobran ___ pares y le faltan ___ · el que le falta con la menor primera coordenada es (___, ___)
+    respuestas: ["3", "3", "1", "1"]
+    verificar: { python: "(lambda U, rosa: (lambda MR, MS: (lambda Q: [len(rosa - Q), len(Q - rosa), *min(Q - rosa)])({(U[i], U[j]) for i in range(4) for j in range(4) if any(MR[i][k] and MS[k][j] for k in range(4))}))([[int(b == a + 1) for b in U] for a in U], [[int(b < a) for b in U] for a in U]))([1, 2, 3, 4], {(2, 2), (3, 2), (3, 3), (4, 2), (4, 3), (4, 4)})" }
+    pistas:
+      - >-
+        ¿Cuántos unos tiene cada fila de $M_R$? Si la fila $a$ tiene un solo 1, ¿qué fila de $M_S$ termina siendo la fila $a$ del producto?
+      - >-
+        ¿Lo de Rosa se parece más a seguir primero $R$ o primero $S$? ¿Qué tiene su fila 4 y qué tiene la tuya?
+    explicacion: |-
+      **La matriz.** Las filas 1 a 3 de $M_R$ tienen un solo 1, en la columna $a+1$, y la 4 va vacía; por eso, para $a\le3$, la fila $a$ del producto es la fila $a+1$ de $M_S$, y la fila 4 queda en ceros:
+
+      $$M_R\odot M_S=\begin{array}{c|cccc} & 1 & 2 & 3 & 4\\\hline 1 & 1 & 0 & 0 & 0\\ 2 & 1 & 1 & 0 & 0\\ 3 & 1 & 1 & 1 & 0\\ 4 & 0 & 0 & 0 & 0\end{array}$$
+
+      $S\circ R=\{(1,1),(2,1),(2,2),(3,1),(3,2),(3,3)\}$: desde $a$ se sube a $a+1$ y luego se baja a cualquier número menor, así que se llega a todo $c\le a$, con $a\le3$. **Comparar.** Coinciden $(2,2)$, $(3,2)$ y $(3,3)$. A Rosa le sobran $(4,2)$, $(4,3)$ y $(4,4)$, y le faltan $(1,1)$, $(2,1)$ y $(3,1)$; el de menor primera coordenada es $(1,1)$. **Qué pasó.** Rosa calculó $R\circ S$: primero bajó con $S$ y luego subió uno con $R$. Por eso su fila 4 está llena y su fila 1, vacía. Revisa: el producto tiene 6 unos y $S\circ R$ tiene 6 pares; lo de Rosa es $M_S\odot M_R$.
+    tiempo_estimado_s: 150
+
+  # razonamiento: deductivo (en un conjunto finito en sí mismo, inyectiva ⇔ suprayectiva) · R2
+  # verificar: si los 6 residuos son distintos, en cada regla.
+  - id: disc-15-015
+    tipo: seleccion_multiple
+    dificultad: 3
+    conceptos: [funcion-inyectiva-suprayectiva]
+    enunciado: >-
+      Cada regla define una función de $\{0,1,2,3,4,5\}$ en sí mismo: se calcula la expresión y se toma su residuo módulo 6 (por ejemplo, con $x+4$, $f(5)=9\bmod6=3$). ¿Cuáles son biyectivas? Puede haber varias.
+    opciones:
+      - >-
+        $2x$
+      - >-
+        $x+2$
+      - >-
+        $x^3$
+      - >-
+        $3x+1$
+      - >-
+        $5x$
+      - >-
+        $x^2$
+    correctas: [1, 2, 4]
+    verificar: { python: "[len({f(x) % 6 for x in range(6)}) == 6 for f in [lambda x: 2 * x, lambda x: x + 2, lambda x: x ** 3, lambda x: 3 * x + 1, lambda x: 5 * x, lambda x: x ** 2]]" }
+    pistas:
+      - >-
+        ¿Qué valores toma cada regla en $0,1,\dots,5$? ¿Se repite alguno?
+      - >-
+        Si la función va de un conjunto de 6 elementos en sí mismo, ¿basta con revisar una de las dos condiciones?
+    explicacion: >-
+      Son biyectivas $x+2$, $5x$ y $x^3$; $2x$, $x^2$ y $3x+1$ no. Como la función va de un conjunto de 6 elementos en sí mismo, es inyectiva si y solo si es suprayectiva: basta ver si los 6 valores son distintos. $x+2$ da 2, 3, 4, 5, 0, 1. $5x$ da 0, 5, 4, 3, 2, 1. $x^3$ da 0, 1, 2, 3, 4, 5, porque $8\bmod6=2$, $27\bmod6=3$, $64\bmod6=4$ y $125\bmod6=5$: es la identidad. $2x$ da 0, 2, 4, 0, 2, 4; $x^2$ da 0, 1, 4, 3, 4, 1; y $3x+1$ da 1, 4, 1, 4, 1, 4: repiten valores. Revisa: cada biyectiva se deshace: $x+2$ con $x+4$, $5x$ consigo misma ($25\bmod 6=1$), y $x^3$ es la identidad.
+    tiempo_estimado_s: 90
+
+  # razonamiento: deductivo (una relación es un subconjunto: 2 opciones por par) · R1
+  # verificar: enumera los subconjuntos de A × B como tuplas de bits.
+  - id: disc-15-016
+    tipo: completar
+    dificultad: 3
+    conceptos: [relacion-binaria]
+    enunciado: >-
+      Sean $A=\{1,2\}$ y $B=\{1,2,3,4,5\}$. Cuenta los pares de $A\times B$, las relaciones de $A$ en $B$ y, de ellas, las que contienen el par $(1,1)$.
+    texto: >-
+      $\lvert A\times B\rvert=$ ___ · relaciones de $A$ en $B$: ___ · relaciones que contienen el par $(1,1)$: ___
+    respuestas: ["10", "1024", "512"]
+    verificar: { python: "(lambda P: [len(P), sum(1 for b in itertools.product((0, 1), repeat=len(P))), sum(1 for b in itertools.product((0, 1), repeat=len(P)) if b[P.index((1, 1))])])(list(itertools.product([1, 2], [1, 2, 3, 4, 5])))" }
+    pistas:
+      - >-
+        ¿Qué es una relación de $A$ en $B$, como conjunto? ¿Cuántos subconjuntos tiene un conjunto de $n$ elementos?
+      - >-
+        Si el par $(1,1)$ tiene que estar, ¿cuántos pares quedan por decidir?
+    explicacion: >-
+      **Producto.** $A\times B$ tiene $\lvert A\rvert\cdot\lvert B\rvert=2\cdot5=10$ pares. **Relaciones.** Una relación de $A$ en $B$ es cualquier subconjunto de $A\times B$: cada uno de los 10 pares está o no está, así que hay $2^{10}=1024$. **Con $(1,1)$.** Ese par ya está, y los otros 9 se deciden libres: $2^9=512$, la mitad. Revisa: con $A=B=\{1\}$, $A\times B$ tiene 1 par y hay $2^1=2$ relaciones, $\varnothing$ y $\{(1,1)\}$; solo una contiene a $(1,1)$, y la cuenta da $2^0=1$.
+    tiempo_estimado_s: 75
+
+  # razonamiento: abductivo (de una afirmación con un error plantado a la causa: la definición) · R1
+  # Distractores: lo que dice Luis, un dato falso y un dato cierto que no es la razón (es de inyectividad).
+  # verificar: los elementos de A que no tienen exactamente una imagen; da 1 si el único es el 1 con imágenes {4, 5}.
+  - id: disc-15-017
+    tipo: opcion_multiple
+    dificultad: 3
+    conceptos: [funcion-como-relacion]
+    enunciado: >-
+      Luis dice que $F=\{(1,4),(2,4),(3,5),(1,5)\}$ es una función de $A=\{1,2,3\}$ en $B=\{4,5\}$, «porque cada $x$ tiene imagen». ¿Qué diagnóstico es correcto?
+    opciones:
+      - >-
+        Luis tiene razón: $F$ es una función de $A$ en $B$.
+      - >-
+        No es función: el 1 tiene dos imágenes, el 4 y el 5.
+      - >-
+        No es función: algún elemento de $A$ se queda sin imagen.
+      - >-
+        No es función: el 4 es imagen de dos elementos, el 1 y el 2.
+    valores: ["0", "1", "2", "3"]
+    correcta: 1
+    verificar: { python: "(lambda F, A: (lambda img: (lambda bad: 0 if not bad else 1 if bad == [1] and img(1) == {4, 5} else 2 if all(not img(a) for a in bad) else None)([a for a in A if len(img(a)) != 1]))(lambda a: {b for x, b in F if x == a}))([(1, 4), (2, 4), (3, 5), (1, 5)], [1, 2, 3])" }
+    pistas:
+      - >-
+        ¿Qué pide la definición de función a cada elemento de $A$: al menos una imagen, o exactamente una?
+      - >-
+        ¿Cuántas imágenes tienen el 1, el 2 y el 3? Lo que dice cada opción, ¿es lo que pide la definición de función o lo que pide otra propiedad?
+    explicacion: >-
+      El diagnóstico correcto es «no es función: el 1 tiene dos imágenes, el 4 y el 5». Una función pide **exactamente una** imagen por elemento de $A$, no «al menos una». Luis revisó la mitad: el 2 y el 3 tienen una sola imagen, pero el 1 aparece en $(1,4)$ y en $(1,5)$. Las otras: Luis no tiene razón, por lo mismo; ningún elemento se queda sin imagen; y que el 4 sea imagen del 1 y del 2 es cierto, pero eso impediría que una función fuera inyectiva, no que fuera función. Revisa: una función de $A$ tiene $\lvert A\rvert=3$ pares, y $F$ tiene 4.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (despejar x de y = f(x)) · R1
+  # verificar: sympy resuelve y = f(x) para x y cambia y por x.
+  - id: disc-15-018
+    tipo: simbolico
+    dificultad: 3
+    conceptos: [composicion-inversa-funciones]
+    enunciado: >-
+      La función $f(x)=\dfrac{2x+3}{x-1}$, de $\mathbb R\setminus\{1\}$ en $\mathbb R\setminus\{2\}$, es biyectiva. Encuentra $f^{-1}(x)$, escrita con $x$ como variable.
+    respuesta: "(x + 3)/(x - 2)"
+    verificar: { sympy: "solve(Eq(y, (2*x + 3)/(x - 1)), x)[0].subs(y, x)" }
+    pistas:
+      - >-
+        Si escribes $y=f(x)$, ¿puedes despejar $x$ en términos de $y$? ¿Qué haces primero con el denominador?
+      - >-
+        Ya despejada, ¿cómo compruebas tu fórmula con un número?
+    explicacion: >-
+      Se escribe $y=\dfrac{2x+3}{x-1}$ y se despeja $x$. Multiplicando por $x-1$: $yx-y=2x+3$. Juntando los términos con $x$: $yx-2x=y+3$, es decir, $x(y-2)=y+3$, y como $y\neq2$, $x=\dfrac{y+3}{y-2}$. Ese $x$ es $f^{-1}(y)$; con $x$ como variable, $f^{-1}(x)=\dfrac{x+3}{x-2}$. Por eso el codominio es $\mathbb R\setminus\{2\}$: el 2 no tiene preimagen. Revisa: $f^{-1}(5)=\frac83$ y $f\left(\frac83\right)=\dfrac{\frac{16}{3}+3}{\frac83-1}=\dfrac{25/3}{5/3}=5$.
+    tiempo_estimado_s: 90
+
+  # razonamiento: espacial (cada par en su fila y su columna; distinguir la matriz de sus transformaciones) · R1
+  # Distractores: la transpuesta (M_{R⁻¹}), el complemento y las filas de abajo hacia arriba (filas mal etiquetadas).
+  # Los pares van desordenados a propósito.
+  # verificar: arma M_R desde los pares y devuelve el índice de la única opción igual.
+  - id: disc-15-019
+    tipo: opcion_multiple
+    dificultad: 3
+    conceptos: [representaciones-relacion]
+    enunciado: >-
+      Sea $R=\{(2,3),(1,1),(3,2),(2,1)\}$ sobre $\{1,2,3\}$. ¿Cuál es su matriz $M_R$, con filas y columnas en el orden 1, 2, 3?
+    opciones:
+      - >-
+        $\begin{array}{c|ccc} & 1 & 2 & 3\\\hline 1 & 1 & 1 & 0\\ 2 & 0 & 0 & 1\\ 3 & 0 & 1 & 0\end{array}$
+      - >-
+        $\begin{array}{c|ccc} & 1 & 2 & 3\\\hline 1 & 0 & 1 & 1\\ 2 & 0 & 1 & 0\\ 3 & 1 & 0 & 1\end{array}$
+      - >-
+        $\begin{array}{c|ccc} & 1 & 2 & 3\\\hline 1 & 1 & 0 & 0\\ 2 & 1 & 0 & 1\\ 3 & 0 & 1 & 0\end{array}$
+      - >-
+        $\begin{array}{c|ccc} & 1 & 2 & 3\\\hline 1 & 0 & 1 & 0\\ 2 & 1 & 0 & 1\\ 3 & 1 & 0 & 0\end{array}$
+    valores: ["0", "1", "2", "3"]
+    correcta: 2
+    verificar: { python: "(lambda R: (lambda L: L[0] if len(L) == 1 else None)([i for i, X in enumerate([[[1, 1, 0], [0, 0, 1], [0, 1, 0]], [[0, 1, 1], [0, 1, 0], [1, 0, 1]], [[1, 0, 0], [1, 0, 1], [0, 1, 0]], [[0, 1, 0], [1, 0, 1], [1, 0, 0]]]) if X == [[int((a, b) in R) for b in (1, 2, 3)] for a in (1, 2, 3)]]))({(2, 3), (1, 1), (3, 2), (2, 1)})" }
+    pistas:
+      - >-
+        ¿Qué coordenada del par dice la fila, y cuál la columna?
+      - >-
+        ¿Cuántos unos debe tener cada fila? ¿Cuántos pares de $R$ empiezan en 1, en 2 y en 3?
+    explicacion: >-
+      La correcta es la de filas 100, 101 y 010. En $M_R$, la fila es la primera coordenada y la columna, la segunda: $(1,1)$ va en la fila 1, columna 1; $(2,1)$ y $(2,3)$, en la fila 2, columnas 1 y 3; y $(3,2)$, en la fila 3, columna 2. Las otras: la de filas 110, 001 y 010 es la transpuesta, $M_{R^{-1}}$, que pone la primera coordenada en la columna; la de filas 011, 010 y 101 es el complemento, con un 1 en cada par que **no** está en $R$; y la de filas 010, 101 y 100 tiene las filas de abajo hacia arriba, como en el plano cartesiano. Revisa: $M_R$ tiene 4 unos, uno por par, y su fila 1 solo tiene el de $(1,1)$.
+    tiempo_estimado_s: 75
+
+  # razonamiento: deductivo (demostrar con cuantificadores; negar «suprayectiva» con un y concreto) · R3
+  # Enunciado, rúbrica y pistas de arquitecto-razonamiento (esquema-15), tal cual. Revisión manual. La respuesta modelo es
+  # la de experto-matematicas en la revisión del 2026-11-14, tal cual: la anterior no cumplía su rúbrica.
+  # Comprobado (sesión principal): la imagen de 3x + 2 en ℤ son los enteros con residuo 2 al dividir entre 3.
+  - id: disc-15-020
+    tipo: autoevaluacion
+    dificultad: 4
+    conceptos: [funcion-inyectiva-suprayectiva]
+    enunciado: >-
+      Sea $f:\mathbb Z\to\mathbb Z$, $f(x)=3x+2$. En papel, demuestra que $f$ es inyectiva y que no es suprayectiva. Escribe cada definición con sus cuantificadores antes de usarla.
+    rubrica:
+      - >-
+        Escribe "para todo $x_1,x_2\in\mathbb Z$, si $f(x_1)=f(x_2)$, entonces $x_1=x_2$", y parte de $x_1,x_2$ cualesquiera, no de un ejemplo.
+      - >-
+        Pasa de $3x_1+2=3x_2+2$ a $x_1=x_2$ con un paso por renglón (resta 2; cancela el 3, que no es 0), y concluye para todos los $x_1,x_2$.
+      - >-
+        Niega la definición: "existe $y\in\mathbb Z$ tal que, para todo $x\in\mathbb Z$, $f(x)\neq y$". Da un $y$ concreto, sin decir que ningún $y$ tiene preimagen ($y=2$ sí la tiene).
+      - >-
+        Demuestra que ningún entero va a ese $y$, y dice dónde usó $\mathbb Z$: en $\mathbb R\to\mathbb R$, la misma regla es suprayectiva.
+    respuesta_modelo: >-
+      Inyectiva: para todo $x_1,x_2\in\mathbb Z$, si $f(x_1)=f(x_2)$, entonces $x_1=x_2$. Sean $x_1,x_2\in\mathbb Z$ cualesquiera con $f(x_1)=f(x_2)$: $3x_1+2=3x_2+2$; restando 2, $3x_1=3x_2$; como $3\neq0$, $x_1=x_2$. Suprayectiva sería "para todo $y\in\mathbb Z$ existe $x\in\mathbb Z$ con $f(x)=y$"; su negación es "existe $y\in\mathbb Z$ tal que, para todo $x\in\mathbb Z$, $f(x)\neq y$". Con $y=0$, $3x+2=0$ da $x=-\frac23\notin\mathbb Z$, así que no es suprayectiva. Aquí entra $\mathbb Z$: en $\mathbb R\to\mathbb R$, $x=\frac{y-2}{3}$ siempre existe. Revisa: $f(-1)=-1$, $f(0)=2$ y $f(1)=5$ van de 3 en 3.
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        ¿Qué dice "inyectiva" con cuantificadores? ¿Partes de números o de $x_1,x_2$ cualesquiera?
+      - >-
+        ¿Cómo se niega "para todo $y$ existe $x$"? Si despejas $x$ de $f(x)=y$, ¿siempre cae en $\mathbb Z$?
+      - >-
+        ¿Tu argumento valdría igual en $\mathbb R\to\mathbb R$? Si sí, ¿dónde te falta usar $\mathbb Z$?
+    explicacion: >-
+      **Inyectiva.** La definición es «para todo $x_1,x_2\in\mathbb Z$, si $f(x_1)=f(x_2)$, entonces $x_1=x_2$», así que se parte de dos enteros cualesquiera, no de ejemplos. De $3x_1+2=3x_2+2$, restar 2 da $3x_1=3x_2$, y como $3\neq0$, se cancela: $x_1=x_2$. **No suprayectiva.** Negar «para todo $y$ existe $x$ con $f(x)=y$» da «existe $y$ tal que, para todo $x$, $f(x)\neq y$»: basta un $y$ concreto. Con $y=0$, $3x+2=0$ pide $x=-\frac23$, que no es entero. No sirve decir que ningún $y$ tiene preimagen: $y=2$ la tiene, con $x=0$. **Dónde entra $\mathbb Z$.** En $\mathbb R\to\mathbb R$, la misma regla es suprayectiva, porque $x=\frac{y-2}{3}$ siempre es real; en $\mathbb Z$, solo es entero si 3 divide a $y-2$. Revisa: los valores $-1$, 2, 5, 8 van de 3 en 3 y dejan residuo 2 al dividir entre 3; el 0 deja residuo 0.
+    tarjeta: false
+    tiempo_estimado_s: 300
+
+  # razonamiento: deductivo (demostrar dos implicaciones y refutar dos con el contraejemplo mínimo) · R4
+  # Enunciado y pistas de arquitecto-razonamiento (esquema-15); demostraciones de experto-matematicas. En la revisión del
+  # 2026-11-14 cambiaron la última frase del enunciado y el texto de los huecos, y el contraejemplo de la (2) pasó a
+  # f(1) = 2, f(2) = 3, g(1) = g(2) = 1, g(3) = 2, para no dar respuestas del 024 en el jefe.
+  # verificar: enumera todas las f: A → B y g: B → C con |A| = 2 y |B|, |C| de 1 a 4. Para cada afirmación k, cex(k, a, b)
+  # dice si hay contraejemplo; da, en cada pareja, la única que falla y el menor |B| con contraejemplo. Antes comprueba
+  # que (1) y (3) no fallan con |A|, |B| y |C| de 1 a 3 (si fallaran, da None).
+  - id: disc-15-021
+    tipo: completar
+    dificultad: 4
+    conceptos: [composicion-inversa-funciones]
+    enunciado: >-
+      Sean $f:A\to B$ y $g:B\to C$, con conjuntos finitos no vacíos. Si $g\circ f$ es inyectiva: (1) $f$ lo es; (2) $g$ lo es. Si $g\circ f$ es suprayectiva: (3) $g$ lo es; (4) $f$ lo es. En papel, demuestra las que siempre valen y construye un contraejemplo para las otras. En los huecos, usa $\lvert A\rvert=2$, elige $C$ del tamaño que quieras (puede tener un solo elemento) y escribe solo el número de la afirmación.
+    texto: >-
+      Entre (1) y (2), la que no siempre vale es la ___, y el menor $\lvert B\rvert$ con contraejemplo es ___ · entre (3) y (4), la que no siempre vale es la ___, y su menor $\lvert B\rvert$ es ___
+    respuestas: ["2", "3", "4", "2"]
+    verificar: { python: "(lambda F, inj, sur: (lambda cex: (lambda one: [one((1, 2)), min(b for b in range(1, 5) if cex(one((1, 2)), 2, b)), one((3, 4)), min(b for b in range(1, 5) if cex(one((3, 4)), 2, b))] if not any(cex(k, a, b) for k in (1, 3) for a in range(1, 4) for b in range(1, 4)) else None)(lambda ks: (lambda L: L[0] if len(L) == 1 else None)([k for k in ks if any(cex(k, 2, b) for b in range(1, 5))])))(lambda k, a, b: any((lambda gf: [inj(gf) and not inj(f), inj(gf) and not inj(g), sur(gf, c) and not sur(g, c), sur(gf, c) and not sur(f, b)][k - 1])({x: g[f[x]] for x in range(a)}) for c in range(1, 5) for f in F(a, b) for g in F(b, c))))(lambda n, m: [dict(enumerate(v)) for v in itertools.product(range(m), repeat=n)], lambda h: len(set(h.values())) == len(h), lambda h, m: set(h.values()) == set(range(m)))" }
+    pistas:
+      - >-
+        ¿Qué basta para tumbar un "si…, entonces…"? En tu contraejemplo, ¿qué se cumple y qué falla?
+      - >-
+        ¿Qué elementos de $B$ no toca $f$? ¿Qué ve $g\circ f$ de lo que $g$ hace con ellos?
+      - >-
+        ¿Por qué no sale con un elemento menos en $B$? ¿Te sirve alguna de las que valen?
+    explicacion: >-
+      **Las que valen.** (1) Si $f(x_1)=f(x_2)$, al aplicar $g$ queda $g(f(x_1))=g(f(x_2))$, y como $g\circ f$ es inyectiva, $x_1=x_2$: $f$ es inyectiva. (3) Dado $c\in C$, como $g\circ f$ es suprayectiva, hay $a\in A$ con $g(f(a))=c$, así que $b=f(a)$ cumple $g(b)=c$: $g$ es suprayectiva. **Las que fallan: la (2) y la (4).** $g\circ f$ solo ve lo que hace $g$ en la imagen de $f$; fuera de ella, $g$ puede juntar elementos, y a esos elementos $f$ no llega. Para la (2), con $A=\{1,2\}$: $f(1)=2$ y $f(2)=3$ en $B=\{1,2,3\}$, y $g(1)=g(2)=1$, $g(3)=2$ en $C=\{1,2\}$; $g\circ f$ es inyectiva y $g$ no. No basta $\lvert B\rvert=2$: por (1), $f$ sería inyectiva de 2 en 2 elementos, o sea biyectiva, y $g=(g\circ f)\circ f^{-1}$ sería inyectiva. Para la (4) basta $\lvert B\rvert=2$: $f(1)=f(2)=1$, $C=\{1\}$ y $g$ constante; $g\circ f$ es suprayectiva y $f$ no. Con $\lvert B\rvert=1$, toda $f$ es suprayectiva. Un solo contraejemplo tumba las dos: $A=\{1\}$, $B=\{1,2\}$ y $C=\{1\}$. Revisa: en cada contraejemplo, la hipótesis se cumple y la conclusión falla.
+    tiempo_estimado_s: 240
+
+  # razonamiento: algorítmico (componer en el orden correcto y luego voltear) · R2
+  # Trampa: (R∘S)⁻¹ = {(1, 2), (2, 1), (1, 4)}, disjunta de la respuesta. La explicación no usa la identidad
+  # (S∘R)⁻¹ = R⁻¹∘S⁻¹, porque es una opción del 013 y los dos van en el jefe.
+  # verificar: R⁻¹∘S⁻¹ por pares, solo si coincide con la inversa de S∘R (si no, da None).
+  - id: disc-15-022
+    tipo: conjunto
+    dificultad: 4
+    conceptos: [relacion-inversa]
+    enunciado: >-
+      Sobre $\{1,2,3,4\}$, sean $R=\{(2,1),(2,4),(3,1),(4,2)\}$ y $S=\{(1,4),(2,3),(4,3)\}$, donde $S\circ R$ es primero $R$ y luego $S$. Escribe $(S\circ R)^{-1}$ como lista de pares, como `(1, 1), (2, 2)`.
+    respuesta: ["(3, 2)", "(4, 2)", "(3, 4)", "(4, 3)"]
+    verificar: { python: "(lambda R, S, o, i: o(i(S), i(R)) if o(i(S), i(R)) == i(o(R, S)) else None)([(2, 1), (2, 4), (3, 1), (4, 2)], [(1, 4), (2, 3), (4, 3)], lambda R, S: {(a, c) for (a, b) in R for (b2, c) in S if b == b2}, lambda R: {(b, a) for (a, b) in R})" }
+    pistas:
+      - >-
+        ¿Qué calculas primero, la composición o la inversa? En $S\circ R$, ¿qué relación recorres primero?
+      - >-
+        Para cada par de $R$, ¿a dónde lo manda $S$? ¿Hay pares de $R$ que no siguen?
+      - >-
+        ¿Cuántos pares debe tener tu respuesta, comparada con $S\circ R$? ¿Volteaste todos?
+    explicacion: >-
+      **Primero la composición.** $S\circ R$ es primero $R$, luego $S$: $(2,1)$ y $(1,4)$ dan $(2,4)$; $(2,4)$ y $(4,3)$ dan $(2,3)$; $(3,1)$ y $(1,4)$ dan $(3,4)$; $(4,2)$ y $(2,3)$ dan $(4,3)$. Entonces $S\circ R=\{(2,3),(2,4),(3,4),(4,3)\}$. **Luego la inversa:** se voltea cada par, y $(S\circ R)^{-1}=\{(3,2),(4,2),(4,3),(3,4)\}$. Si compusiste al revés, $R\circ S=\{(1,2),(2,1),(4,1)\}$, y su inversa, $\{(2,1),(1,2),(1,4)\}$, no comparte ni un par con la correcta. Revisa: tu respuesta tiene 4 pares, como $S\circ R$, y $(3,2)$ viene de $(2,3)$, que pasa por el 4: $(2,4)\in R$ y $(4,3)\in S$.
+    tiempo_estimado_s: 120
+
+  # razonamiento: algorítmico (contar por la forma de la función o por complemento) · R2
+  # verificar: enumera las 3⁴ funciones como tuplas y cuenta las que usan las tres imágenes.
+  - id: disc-15-023
+    tipo: numerico
+    dificultad: 5
+    conceptos: [funcion-inyectiva-suprayectiva]
+    enunciado: >-
+      ¿Cuántas funciones suprayectivas hay de $A=\{1,2,3,4\}$ en $B=\{1,2,3\}$?
+    respuesta: 36
+    tolerancia: 0
+    verificar: { python: "sum(1 for f in itertools.product(range(3), repeat=4) if set(f) == {0, 1, 2})" }
+    pistas:
+      - >-
+        ¿Cuántas funciones hay en total de $A$ en $B$? ¿Cuáles no son suprayectivas?
+      - >-
+        Si una función es suprayectiva, ¿cuántos elementos de $A$ comparten imagen? ¿De cuántas maneras eliges cuáles, y luego a dónde va cada grupo?
+      - >-
+        ¿Contaste dos veces las funciones que no llegan a dos elementos de $B$? ¿Tu método da bien de 3 en 2, donde puedes enumerarlas todas?
+    explicacion: >-
+      **Por la forma.** Con 4 elementos y 3 imágenes, una suprayectiva usa las 3, así que exactamente dos elementos de $A$ comparten imagen y los otros dos van solos. Los dos que comparten se eligen de $\binom42=6$ maneras; quedan tres grupos (la pareja y los dos solos), que se reparten las 3 imágenes sin repetir de $3!=6$ maneras. Total: $6\cdot6=36$. **Por complemento.** Hay $3^4=81$ funciones. Las que no usan una imagen dada son $2^4=16$, y hay 3 imágenes: $3\cdot16=48$. Pero así las constantes, que no usan dos imágenes, se restaron dos veces, y hay 3: $81-48+3=36$. Revisa: de 3 en 2 hay $2^3=8$ funciones, y solo las 2 constantes no son suprayectivas; por la forma, $\binom32\cdot2!=6=8-2$.
+    tiempo_estimado_s: 150
+
+  # razonamiento: deductivo (componer de adentro hacia afuera y ver qué parte de g usa g∘f) · R2
+  # De experto-matematicas. La explicación no usa la notación g⁻¹(1) para un conjunto (la imagen inversa está fuera de
+  # la unidad) ni dice qué afirmación general tumba este caso.
+  # verificar: el de B fuera de Im f, los dos que g junta, si g∘f es biyectiva y quién va al 1.
+  - id: disc-15-024
+    tipo: completar
+    dificultad: 5
+    conceptos: [composicion-inversa-funciones]
+    enunciado: >-
+      Sean $f=\{(1,2),(2,4),(3,5),(4,1)\}$, de $A=\{1,2,3,4\}$ en $B=\{1,2,3,4,5\}$, y $g=\{(1,3),(2,1),(3,1),(4,4),(5,2)\}$, de $B$ en $C=\{1,2,3,4\}$. En el hueco de sí o no, escribe 1 (sí) o 0 (no).
+    texto: >-
+      El elemento de $B$ que no está en $\mathrm{Im}\,f$ es ___ · los dos elementos de $B$ que $g$ manda a la misma imagen son ___ y ___ (de menor a mayor) · ¿$g\circ f$ es biyectiva? ___ · $(g\circ f)^{-1}(1)=$ ___
+    respuestas: ["3", "2", "3", "1", "1"]
+    verificar: { python: "(lambda f, g: (lambda h: [[b for b in range(1, 6) if b not in f.values()][0], *sorted(b for b in g if sum(1 for c in g if g[c] == g[b]) == 2), int(sorted(h.values()) == [1, 2, 3, 4]), [a for a in h if h[a] == 1][0]])({a: g[f[a]] for a in f}))({1: 2, 2: 4, 3: 5, 4: 1}, {1: 3, 2: 1, 3: 1, 4: 4, 5: 2})" }
+    pistas:
+      - >-
+        ¿Qué elementos de $B$ toca $f$? ¿Qué hace $g$ con cada elemento de $B$?
+      - >-
+        Si calculas $g(f(a))$ para cada $a\in A$, ¿se repite algún valor? ¿Falta alguno de $C$?
+      - >-
+        Si $g$ junta dos elementos, ¿por qué $g\circ f$ podría no notarlo? ¿Leíste $(g\circ f)^{-1}(1)$ como «quién va al 1»?
+    explicacion: >-
+      **$f$** toca el 2, el 4, el 5 y el 1: el 3 queda fuera de $\mathrm{Im}\,f$. **$g$** manda el 2 y el 3 al 1, y los demás a 3, 4 y 2. **$g\circ f$**, primero $f$: $1\to2\to1$, $2\to4\to4$, $3\to5\to2$ y $4\to1\to3$. Las cuatro imágenes, 1, 4, 2 y 3, son distintas y cubren $C$: es biyectiva, 1. El que va al 1 es el 1, así que $(g\circ f)^{-1}(1)=1$. **La clave:** $g$ junta el 2 y el 3, pero $f$ nunca llega al 3, así que $g\circ f$ solo pasa por el 2. Revisa: $g\circ f$ tiene 4 pares, uno por elemento de $A$, y su imagen también tiene 4 elementos, tantos como $A$.
+    tiempo_estimado_s: 150
+
+  # razonamiento: analógico (traducir el contexto nuevo a operaciones de la unidad: S∘R − R) · R2
+  # Hipotético. Pistas modelo de arquitecto-razonamiento (esquema-15), tal cual. Cada par de S∘R tiene un solo
+  # intermedio, así que «un vuelo y después un tren» no admite la lectura de «una sola manera».
+  # Trampas: S∘R completa (5 pares, con (1, 3)) y R∘S − R = {(2, 5), (3, 1), (5, 2), (5, 3)}.
+  # verificar: S∘R por pares menos R.
+  - id: disc-15-025
+    tipo: conjunto
+    dificultad: 5
+    conceptos: [composicion-relaciones]
+    enunciado: >-
+      Supón cinco ciudades, numeradas del 1 al 5. Los vuelos directos son $R=\{(1,2),(1,3),(2,4),(3,5),(4,1)\}$ y los trenes directos, $S=\{(2,3),(3,4),(4,5),(5,1),(2,5)\}$, donde $(a,b)$ va de $a$ a $b$. ¿Qué pares (origen, destino) se pueden cubrir con un vuelo y después un tren, un trayecto de cada uno y en ese orden, pero sin vuelo directo del origen al destino? Un vuelo del destino al origen no lo descarta, y da igual si hay tren directo. Escribe la lista de pares, como `(2, 1), (5, 4)`.
+    respuesta: ["(1, 4)", "(1, 5)", "(2, 5)", "(3, 1)"]
+    verificar: { python: "(lambda R, S: {(a, c) for (a, b) in R for (b2, c) in S if b == b2} - R)({(1, 2), (1, 3), (2, 4), (3, 5), (4, 1)}, {(2, 3), (3, 4), (4, 5), (5, 1), (2, 5)})" }
+    pistas:
+      - >-
+        ¿Qué se pide? Escribe la regla con operaciones de la unidad: ¿qué armas y qué le quitas?
+      - >-
+        Caso más simple: desde una ciudad, ¿a dónde vuelas y a dónde llega el tren desde ahí?
+      - >-
+        ¿Quedó algún par que ya era vuelo directo? ¿Tus pares van en el sentido de la flecha?
+    explicacion: >-
+      **La regla.** «Un vuelo y después un tren» es $S\circ R$: primero $R$, luego $S$. «Sin vuelo directo del origen al destino» le quita $R$: se pide $S\circ R-R$. **$S\circ R$**, ciudad por ciudad. Desde el 1 se vuela al 2 y al 3; del 2 salen trenes al 3 y al 5, y del 3, al 4: $(1,3)$, $(1,5)$ y $(1,4)$. Desde el 2 se vuela al 4, y de ahí el tren va al 5: $(2,5)$. Desde el 3 se vuela al 5, y el tren va al 1: $(3,1)$. Desde el 4 se vuela al 1, de donde no sale ningún tren. $S\circ R=\{(1,3),(1,4),(1,5),(2,5),(3,1)\}$. **Quitar $R$.** $(1,3)$ ya es vuelo directo, y queda $\{(1,4),(1,5),(2,5),(3,1)\}$. Si dejaste $(1,3)$, no le quitaste $R$; si te salieron $(5,2)$ y $(5,3)$, tomaste primero el tren ($R\circ S$). Revisa: cada par tiene su intermedio, como $(1,4)$, que pasa por el 3 (vuelo $(1,3)$ y tren $(3,4)$), y ninguno de los cuatro está en $R$.
+    tiempo_estimado_s: 150
