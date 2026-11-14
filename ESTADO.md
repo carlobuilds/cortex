@@ -274,7 +274,8 @@ Plan (2026-10-13, rama `fase-3-calculo-discretas`): 0) rama y registro · 1) pru
   - [ ] 09 · [ ] 02
 - [ ] Matemáticas discretas
   - [x] Puerta de temario (paso 9, 2026-11-13): el programa oficial en `curriculum/programas/matematicas-discretas.pdf`, el temario aprobado por Carlo y `conceptos.yaml` completo (132 conceptos en 23 unidades: 21 del programa y 2 extra)
-  - [ ] Unidad IV para el 3.er parcial, en orden 13 → 21: [ ] 13 · [ ] 14 · [ ] 15 · [ ] 16 · [ ] 17 · [ ] 18 · [ ] 19 · [ ] 20 · [ ] 21
+  - [ ] Unidad IV para el 3.er parcial, en orden 13 → 21: [x] 13 (2026-11-13) · [ ] 14 (esquema aprobado, con «no importa») · [ ] 15 · [ ] 16 · [ ] 17 · [ ] 18 · [ ] 19 · [ ] 20 · [ ] 21
+  - [ ] Deuda: los jefes de la IV no tienen el 25–35 % de repaso de las unidades I–III, porque aún no existen. Cuando se escriban, se agrega sin cambiar ids.
   - [ ] Unidades 01 a 12, después del parcial
   - [ ] Extra: 22 conteo · 23 recurrencias
 - [ ] Cierre formal: sesión real de ~20 min de Carlo y etiqueta `fase-3`
@@ -383,6 +384,30 @@ Complementan los ADR-001 a 008 de `docs/02`. Cada uno se escribe en el commit de
 **ADR-013 · Nomenclatura** (paso 1, decisión D1). Código, tablas y campos de IndexedDB en inglés, con equivalencias en `docs/02`. Las claves de YAML y del front matter siguen en español (son el formato de contenido). Los componentes MDX conservan su nombre en español porque son la API del contenido (`Predice` se implementa como `PredictPrompt`). Las URL van en español porque son interfaz. `APP_ID = 'cortex'` es inmutable (nombre de la base y marca de los respaldos); renombrar la app solo cambia `APP_NAME`. *Descartado:* todo en español (contradice `CLAUDE.md`) o una capa de traducción.
 
 ## Bitácora
+- 2026-11-13 · **Unidad `matematicas-discretas/13-algebra-booleana`** (3.er parcial de Discretas; Unidad IV, 4.1.1 a 4.1.3).
+  - *Esquema:* revisado por `experto-matematicas`, `pedagogo` y `arquitecto-razonamiento`, los tres «aprobado con cambios»; v1 aprobada por Carlo. Notas en `esquema-13.md`, en la carpeta de notas del grupo.
+  - *Cambios del esquema:*
+    - el ejemplo de la sección 5, el 007 y el 022 se cambiaron para no repetir el Ejemplo 2.1 de Mano;
+    - un distractor del 022 resultó verdadero por sustitución;
+    - al 021 le faltaba la conmutativa;
+    - el jefe no cubría `funcion-booleana`.
+  - *Escrita* por `autor-contenido`: lección de 25 min (1,686 palabras), 25 ejercicios 5/5/7/5/3 (19 verificados por código, por enumeración, y 6 manuales) y jefe de 10 sin repaso, porque no hay unidades previas de Discretas.
+  - *Formato:*
+    - sin `tabla_verdad`, porque su convención V/F choca con el 0/1 del álgebra booleana;
+    - respuestas como índices de minitérminos, columnas 0/1 u opciones;
+    - el 024 se verifica en 𝒫({a,b,c}), no solo en {0,1}.
+  - *`/revisar-contenido`:*
+    - a ciegas, 24/24 sin discrepancias;
+    - checklist de M (objeción por originalidad: el 015 era el Ejemplo 2.4 de Mano y el 014 usaba la función del 2.5), L (objeción por la redacción del 023, con dos lecturas que cambiaban la respuesta) y P (el 008 no decía cuáles eran las correctas, porque `WorkedExample` no muestra las opciones).
+  - *Arreglos:* Carlo aprobó «errores + mejoras» (`arreglos-13.md`, 15 puntos). Segunda ronda a ciegas de los 8 ejercicios cambiados: 8/8.
+  - *Pruebas:* el contenido de Discretas obligó a actualizar las pruebas que fijan qué materias tienen contenido (`loader.test.ts`, `server.test.ts`, `home-model.test.ts`, `src/app/materias/page.test.tsx` y `e2e/smoke.spec.ts`). Solo cambian de 2 a 3 materias; no cambia la app.
+  - *Evidencia:*
+    - `pnpm content:check` en verde;
+    - `pnpm test`: 1053;
+    - `pnpm lint`;
+    - e2e: 12/12 en smoke, study y exam;
+    - lección y práctica en el puerto 3200: 200 fórmulas KaTeX, 0 `.katex-error` y sin errores de consola.
+  - *Hallazgo, no de Discretas:* `e2e/exam.spec.ts` falla de vez en cuando cuando el simulacro de Cálculo saca el `ordenar` de arcsenh de la 05. `plain()` de `e2e/answer.ts:63` no reconoce el texto de KaTeX. Falló en la primera corrida completa y pasó al repetir. Arreglo pendiente, por `/equipo` con `dev-interfaz`.
 - 2026-11-13 · **F3 paso 9: puerta de temario de Matemáticas discretas** (sesión de Discretas, worktree `discretas-857e48`, rama `claude/discretas-857e48`; corre en paralelo con el sprint del parcial de Cálculo).
   - *Rama:* el worktree se había cortado de `7f150cb`, 21 commits detrás de `fase-3-calculo-discretas`. Como no tenía commits propios, se adelantó por fast-forward a `1ddb6fd`.
   - *Programa:* `matematicas-discretas.pdf`, con el mismo sha256 que registró el paso 7 (`a41a6a17…6c03db`). Se leyó con un extractor de zlib, porque no hay `pdftoppm`. Las horas suman T 81, P 27 y AA 32; hay un 3.3.4 y un 3.3.5 que en realidad son de 3.2, y un 4.4.5 que es de 4.5.

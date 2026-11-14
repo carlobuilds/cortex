@@ -71,11 +71,11 @@ test("1 - el inicio: plan 2020, HUD del perfil, teclado y movimiento reducido", 
   expect(duration).toBeLessThanOrEqual(0.001);
   await page.emulateMedia({ reducedMotion: "no-preference" });
 
-  // El plan completo: 45 entradas, 2 con contenido.
+  // El plan completo: 45 entradas, 3 con contenido (cálculo, discretas y programación).
   await page.goto("/materias");
   await expect(page.getByRole("heading", { level: 2, name: /^Mapa del plan/ })).toBeVisible();
   await expect(page.locator("[data-has-content]")).toHaveCount(45);
-  await expect(page.locator('[data-has-content="true"]')).toHaveCount(2);
+  await expect(page.locator('[data-has-content="true"]')).toHaveCount(3);
   await expect(page.getByRole("navigation", { name: "Principal" }).getByRole("link", { name: "Materias" })).toHaveAttribute("aria-current", "page");
 
   // Recorrido solo con teclado: inicio → materia → lección.

@@ -19,7 +19,7 @@ describe("getContentIndex (lo que usa `next build`)", () => {
   it("con el contenido real devuelve el índice aunque haya avisos", async () => {
     const { getContentIndex } = await freshServer();
     const index = getContentIndex();
-    expect(index.subjects.filter((s) => s.hasContent).map((s) => s.id)).toEqual(["programacion", "calculo"]);
+    expect(index.subjects.filter((s) => s.hasContent).map((s) => s.id)).toEqual(["programacion", "matematicas-discretas", "calculo"]);
   });
 
   it("con un error de contenido lanza ContentValidationError (el build falla)", async () => {

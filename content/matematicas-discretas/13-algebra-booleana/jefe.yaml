@@ -1,0 +1,23 @@
+unidad: matematicas-discretas/13-algebra-booleana
+nombre: "La Esfinge del Uno más Uno"
+vidas: 3
+# tiempo_segundos: suma de los tiempo_estimado_s de las 10 preguntas más 10 %. 011 (90) + 012 (120) + 013 (90) +
+# 016 (75) + 018 (150) + 019 (120) + 020 (90) + 022 (150) + 023 (210) + 024 (240) = 1335; con el 10 %, 1468.5,
+# redondeado hacia arriba a 1470 s (24.5 min).
+tiempo_segundos: 1470
+aprobado_minimo: 0.8
+preguntas:
+  # d3: 011, 012, 013, 016 · d4: 018, 019, 020, 022 · d5: 023, 024. Seis son de d4–5 y cubren los seis conceptos:
+  # MI (023), SI (011, 012, 018), DU (013, 022), MA (016, 019), FB (020) y AB (024).
+  # El 011 entró en lugar del 009 (aprobado por Carlo el 2026-11-13) porque el examen pide demostrar citando leyes.
+  # Es de revisión manual, pero sus respuestas son los números de las leyes, que la app califica sola.
+  # Sin autoevaluación ni opción múltiple de revisión manual (fuera el 002, el 005, el 007, el 017 y el 021); el 015
+  # se quedó fuera para que entrara FB con el 020. Si se retira el 022 por falta de tiempo, entra el 015 en su lugar.
+  # Oleadas 3/4/3 (waveSizes(10) del motor: apportion(10, [0.3, 0.4, 0.3]) da 3/4/3 exactos, sin residuos), por
+  # dificultad y con desempate al azar: 1.ª = tres de los cuatro d3; 2.ª = el d3 que queda y tres de los cuatro d4;
+  # 3.ª = el d4 que queda, 023 y 024.
+  propias: [disc-13-011, disc-13-012, disc-13-013, disc-13-016, disc-13-018, disc-13-019, disc-13-020, disc-13-022, disc-13-023, disc-13-024]
+  # Vacío a propósito: es la primera unidad escrita de Discretas y no existe ninguna unidad previa (01 a 12) de la que
+  # tomar repaso. Deuda para ESTADO.md: cuando existan, agregar de 25 a 35 % de repaso de unidades con número menor.
+  repaso_de: []
+recompensa: { xp: 300, insignia: "uno-mas-uno-es-uno" }
