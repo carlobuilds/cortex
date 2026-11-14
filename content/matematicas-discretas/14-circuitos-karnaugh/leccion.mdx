@@ -1,0 +1,168 @@
+---
+titulo: "Circuitos y mapas de Karnaugh: juntar a los vecinos"
+materia: matematicas-discretas
+unidad: 14-circuitos-karnaugh
+duracion_min: 25
+prerrequisitos: [funcion-booleana, minterminos, simplificar-booleana]
+conceptos: [compuertas-logicas, circuitos-combinatorios, mapas-karnaugh, agrupar-karnaugh, sop-minima, sintesis-circuitos]
+programa_ref: "Matemáticas discretas, Unidad IV, 4.1.4 (representación en circuitos combinatorios) y 4.1.5 (reducción por mapas de Karnaugh)"
+---
+
+## El problema
+
+Supón que el invernadero de la unidad anterior suma un tanque. Sus sensores, en orden y con 1 = sí: $w$ (hay agua en el tanque), $s$ (suelo seco), $r$ (llueve) y $n$ (es de noche); $w$ es el bit más significativo. Con agua, riega si el suelo está seco; sin agua, usa la red si y solo si es de noche, no llueve y el suelo está seco (las tres a la vez):
+
+$$F=ws+\bar ws\bar rn=\Sigma m(5,12,13,14,15).$$
+
+<Predice pregunta="¿Qué par de minitérminos se junta en un término más corto: $m_{12}$ con $m_{13}$, o $m_5$ con $m_{12}$?" revela="$m_{12}=ws\bar r\bar n$ y $m_{13}=ws\bar rn$ difieren solo en $n$ y se juntan en $ws\bar r$ ($ab+a\bar b=a$). $m_5=\bar ws\bar rn$ y $m_{12}$ difieren en $w$ y en $n$: no se juntan." />
+
+## Compuertas
+
+<Concepto titulo="Compuertas lógicas">
+Una **compuerta** calcula una operación booleana:
+
+| $(x,y)$ | AND $xy$ | OR $x+y$ | NAND $\overline{xy}$ | NOR $\overline{x+y}$ | XOR $x\oplus y$ |
+|---|---|---|---|---|---|
+| 00 | 0 | 0 | 1 | 1 | 0 |
+| 01 | 0 | 1 | 1 | 0 | 1 |
+| 10 | 0 | 1 | 1 | 0 | 1 |
+| 11 | 1 | 1 | 0 | 0 | 0 |
+
+AND, OR, XOR y $\mathrm{NOT}(x)=\bar x$ son $\land$, $\lor$, $\oplus$ y $\lnot$. AND y OR aceptan más entradas: $\mathrm{AND}(x,y,z)=xyz$.
+</Concepto>
+
+## Circuitos
+
+<Concepto titulo="Circuito combinatorio">
+Un **circuito combinatorio** no tiene memoria: su salida solo depende de las entradas. Se escribe como **lista de compuertas**; la última da la salida: $g_1=\mathrm{NOT}(x)$, $g_2=\mathrm{AND}(g_1,y)$.
+
+Una suma de productos (SOP) va en **dos niveles**: AND y luego OR. **Conteo:** una NOT por variable complementada distinta, una AND por término de más de una literal y una OR si hay más de un término.
+
+NAND es **universal**: sola arma cualquier circuito; $\mathrm{NOT}(x)=\mathrm{NAND}(x,x)$.
+</Concepto>
+
+<Ejemplo titulo="De la lista a la expresión">
+Lee $g_1=\mathrm{NAND}(x,y)$, $g_2=\mathrm{OR}(g_1,z)$, $F=\mathrm{AND}(g_2,x)$.
+
+1. **Compuerta por compuerta.** $g_1=\overline{xy}=\bar x+\bar y$ (De Morgan), $g_2=\bar x+\bar y+z$ y $F=x(\bar x+\bar y+z)$.
+2. **Simplifica.** $F=x\bar x+x\bar y+xz=x\bar y+xz$, porque $x\bar x=0$.
+3. **Filas.** $F=x(\bar y+z)$ pide $x=1$ y $(y,z)\neq(1,0)$: filas 100, 101 y 111, así que $F=\Sigma m(4,5,7)$.
+4. **Cuenta.** Son 3 compuertas; la SOP $x\bar y+xz$ usa 4 (una NOT, dos AND y una OR): la SOP mínima no siempre da el circuito con menos compuertas; uno de más niveles puede ganarle.
+</Ejemplo>
+
+## Mapas de Karnaugh
+
+<Concepto titulo="Mapa de Karnaugh">
+Un **mapa de Karnaugh** acomoda la tabla de verdad en una cuadrícula, una celda por fila. Filas y columnas van en **orden de Gray**, 00, 01, 11, 10: dos etiquetas seguidas difieren en un bit. Así, dos celdas **vecinas** (lado con lado) difieren en una variable, y sus minitérminos se juntan como en $ab+a\bar b=a$.
+
+El mapa **da la vuelta**: la primera y la última columna son vecinas (00 y 10 difieren en un bit), y con 4 variables, también la primera y la última fila. Una esquina no es vecina de la opuesta ($m_0$ y $m_{10}$ difieren en 2 bits), pero las cuatro esquinas se juntan (lo verás en «Grupos»).
+
+Con 2 variables $(x,y)$: arriba $m_0\;m_1$, abajo $m_2\;m_3$. Con 3, filas $x$ y columnas $yz$:
+
+| $x\backslash yz$ | 00 | 01 | 11 | 10 |
+|---|---|---|---|---|
+| 0 | $m_0$ | $m_1$ | $m_3$ | $m_2$ |
+| 1 | $m_4$ | $m_5$ | $m_7$ | $m_6$ |
+
+Con 4, filas $wx$ y columnas $yz$:
+
+| $wx\backslash yz$ | 00 | 01 | 11 | 10 |
+|---|---|---|---|---|
+| 00 | $m_0$ | $m_1$ | $m_3$ | $m_2$ |
+| 01 | $m_4$ | $m_5$ | $m_7$ | $m_6$ |
+| 11 | $m_{12}$ | $m_{13}$ | $m_{15}$ | $m_{14}$ |
+| 10 | $m_8$ | $m_9$ | $m_{11}$ | $m_{10}$ |
+</Concepto>
+
+<Concepto titulo="Grupos, primos y SOP mínima">
+Un **grupo** es un rectángulo de $2^k$ celdas (1, 2, 4, 8 o 16) que puede dar la vuelta; para la SOP, de puros 1. Su producto lleva las variables que **no cambian** en el grupo, sin barra si valen 1 y con barra si valen 0. Las cuatro esquinas de 4 variables dan $\bar x\bar z$: no cambian $x=0$ ni $z=0$.
+
+- **Implicante primo:** un grupo de puros 1 que no cabe en otro de puros 1 más grande.
+- **Esencial:** un primo que es el único en cubrir cierta celda con 1.
+- **SOP mínima:** una SOP con el menor número de literales (cada aparición cuenta).
+
+**Procedimiento:** (1) marca los 1; (2) toma los esenciales; (3) cubre los 1 que falten con los menos grupos posibles, cada uno lo más grande que se pueda. Así la SOP se arma con primos, empezando por los esenciales; si en el paso 3 hay dos maneras igual de cortas, hay más de una mínima.
+
+**«No importa».** Las celdas $d(\dots)$ son entradas que nunca ocurren o cuya salida da igual: $F=\Sigma m(\dots)+d(\dots)$. Una d se toma como 1 solo si agranda un grupo, y nunca hace falta cubrirla. En $\Sigma m(1,3)+d(5,7)$, de $(x,y,z)$, las d completan el grupo $z$; sin ellas, $F=\bar xz$.
+</Concepto>
+
+<Ejemplo titulo="Un mapa de 3 variables">
+Minimiza $F=\Sigma m(0,2,3,7)$, de $(x,y,z)$.
+
+| $x\backslash yz$ | 00 | 01 | 11 | 10 |
+|---|---|---|---|---|
+| 0 | 1 | 0 | 1 | 1 |
+| 1 | 0 | 0 | 1 | 0 |
+
+1. **Primos.** $\{m_0,m_2\}$ da la vuelta (columnas 00 y 10): no cambian $x=0$ ni $z=0$, y da $\bar x\bar z$. En $\{m_3,m_7\}$ no cambian $y=1$ ni $z=1$: $yz$. $\{m_2,m_3\}$ da $\bar xy$. No cabe ningún grupo de 4: son los tres primos.
+2. **Esenciales.** $m_0$ solo está en $\bar x\bar z$, y $m_7$ solo en $yz$.
+3. **Lo que falta.** Esos dos ya cubren 0, 2, 3 y 7: $\bar xy$ es primo, pero sobra.
+
+$F=\bar x\bar z+yz$, con 4 literales. Revisa en la fila 2 (010): $\bar0\cdot\bar0+1\cdot0=1$.
+</Ejemplo>
+
+<Desvanecido titulo="Ahora tú: tres variables" pasos={[
+  "Minimiza $F=\\Sigma m(1,3,4,5)$, de $(x,y,z)$.",
+  "$\\{m_1,m_3\\}$: $x=0$ y $z=1$ no cambian; $y$ sí. Da $\\bar xz$.",
+  "En $\\{m_4,m_5\\}$, $x$ vale ___ y $y$ vale ___ en las dos celdas, y $z$ cambia.",
+  "$\\bar yz$, que junta $m_1$ y $m_5$, también es primo, pero sobra: los otros dos ya cubren todo. La mínima tiene ___ literales."
+]} respuestas={["1", "0", "4"]} />
+
+<Ejemplo titulo="Cuatro variables: cuando hace falta el paso 3">
+Minimiza $F=\Sigma m(0,1,2,6,12,14)$, de $(w,x,y,z)$.
+
+| $wx\backslash yz$ | 00 | 01 | 11 | 10 |
+|---|---|---|---|---|
+| 00 | 1 | 1 | 0 | 1 |
+| 01 | 0 | 0 | 0 | 1 |
+| 11 | 1 | 0 | 0 | 1 |
+| 10 | 0 | 0 | 0 | 0 |
+
+1. **Esenciales.** $m_1$ solo cabe en $\{m_0,m_1\}$: $\bar w\bar x\bar y$. $m_{12}$ solo cabe en $\{m_{12},m_{14}\}$, que da la vuelta entre las columnas 00 y 10: $wx\bar z$. En los dos casos, las demás vecinas valen 0.
+2. **Lo que falta.** Quedan $m_2$ y $m_6$. Tres primos las tocan: $\bar w\bar x\bar z$ ($m_0$ y $m_2$), $\bar wy\bar z$ ($m_2$ y $m_6$) y $xy\bar z$ ($m_6$ y $m_{14}$). Solo $\bar wy\bar z$ cubre las dos.
+3. **Resultado.** $F=\bar w\bar x\bar y+wx\bar z+\bar wy\bar z$, con 9 literales, y es la única mínima: con $\bar w\bar x\bar z$ y $xy\bar z$ en lugar de $\bar wy\bar z$ saldrían 12.
+
+Revisa en $m_6$ (0110): $\bar wy\bar z=1\cdot1\cdot1=1$.
+</Ejemplo>
+
+<Desvanecido titulo="Ahora tú: el paso 3" pasos={[
+  "Minimiza $F=\\Sigma m(0,1,2,6,7,9)$, de $(w,x,y,z)$.",
+  "Esenciales: $\\bar wxy$ ($m_6$ y $m_7$; solo él cubre $m_7$) y $\\bar x\\bar yz$ ($m_1$ y $m_9$, que da la vuelta entre las filas 00 y 10; solo él cubre $m_9$).",
+  "De menor a mayor, quedan sin cubrir las celdas ___ y ___ .",
+  "Cúbrelas con el paso 3: la mínima tiene ___ términos y ___ literales."
+]} respuestas={["0", "2", "3", "9"]} />
+
+## Síntesis
+
+<Concepto titulo="Del enunciado al circuito">
+1. **Entradas:** una variable por condición, su orden y qué significa el 1.
+2. **Tabla:** la salida de cada fila, con cuidado en «excepto», «pero nunca» y «solo si».
+3. **Mapa** y **SOP mínima**.
+4. **Lista de compuertas**, y revisa una fila contra la frase, no contra tu tabla.
+
+El invernadero: en el mapa de $\Sigma m(5,12,13,14,15)$ (filas $ws$, columnas $rn$), la fila $ws=11$ da $ws$, y $m_5$ se junta con $m_{13}$ (filas 01 y 11, vecinas) en $s\bar rn$. Los dos son esenciales: $F=ws+s\bar rn$. Circuito: $g_1=\mathrm{NOT}(r)$, $g_2=\mathrm{AND}(w,s)$, $g_3=\mathrm{AND}(s,g_1,n)$, $F=\mathrm{OR}(g_2,g_3)$. Son 4 compuertas; el de la $\Sigma m$ usaba 9: tres NOT (de $w$, $r$ y $n$), cinco AND y una OR.
+</Concepto>
+
+## Errores comunes
+
+<Ojo>
+- **Fuera de orden:** usa siempre el orden de Gray.
+- **Grupos de 3 o 6 celdas** no existen.
+- **Olvidar la vuelta** deja grupos chicos en las orillas.
+- **Un primo que sobra:** si otros cubren sus celdas, quítalo.
+- Agrupar ceros da la POS mínima; no se pide.
+</Ojo>
+
+<Conexion materia="Inteligencia artificial">
+Una neurona con función escalón da 1 si $a_1x+a_2y\ge\theta$: es una **compuerta de umbral**. Con pesos 1 y $\theta=2$ hace AND; con $\theta=1$, OR. XOR no: sus 1 (01 y 10) no se separan de sus 0 (00 y 11) con una recta, y necesita dos capas: dos neuronas, una para $\bar xy$ y otra para $x\bar y$, cada una con un peso negativo (como $-x+y\ge1$), y luego una OR.
+</Conexion>
+
+<Resumen>
+- Un circuito es una lista de compuertas; una SOP usa AND y luego OR.
+- En el mapa, las vecinas (con la vuelta) difieren en una variable; un grupo da el producto de las que no cambian.
+- SOP mínima: los esenciales y luego pocos grupos grandes; las d, solo si ayudan.
+</Resumen>
+
+<Feynman>
+Explícale a un amigo por qué juntar celdas vecinas ahorra compuertas. Si te trabas, vuelve a «Mapa de Karnaugh» o a «Grupos, primos y SOP mínima».
+</Feynman>

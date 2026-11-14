@@ -274,7 +274,7 @@ Plan (2026-10-13, rama `fase-3-calculo-discretas`): 0) rama y registro · 1) pru
   - [ ] 09 · [ ] 02
 - [ ] Matemáticas discretas
   - [x] Puerta de temario (paso 9, 2026-11-13): el programa oficial en `curriculum/programas/matematicas-discretas.pdf`, el temario aprobado por Carlo y `conceptos.yaml` completo (132 conceptos en 23 unidades: 21 del programa y 2 extra)
-  - [ ] Unidad IV para el 3.er parcial, en orden 13 → 21: [x] 13 (2026-11-13) · [ ] 14 (esquema aprobado, con «no importa») · [ ] 15 · [ ] 16 · [ ] 17 · [ ] 18 · [ ] 19 · [ ] 20 · [ ] 21
+  - [ ] Unidad IV para el 3.er parcial, en orden 13 → 21: [x] 13 (2026-11-13) · [x] 14 (2026-11-14) · [ ] 15 (esquema aprobado) · [ ] 16 · [ ] 17 · [ ] 18 · [ ] 19 · [ ] 20 · [ ] 21
   - [ ] Deuda: los jefes de la IV no tienen el 25–35 % de repaso de las unidades I–III, porque aún no existen. Cuando se escriban, se agrega sin cambiar ids.
   - [ ] Unidades 01 a 12, después del parcial
   - [ ] Extra: 22 conteo · 23 recurrencias
@@ -384,6 +384,28 @@ Complementan los ADR-001 a 008 de `docs/02`. Cada uno se escribe en el commit de
 **ADR-013 · Nomenclatura** (paso 1, decisión D1). Código, tablas y campos de IndexedDB en inglés, con equivalencias en `docs/02`. Las claves de YAML y del front matter siguen en español (son el formato de contenido). Los componentes MDX conservan su nombre en español porque son la API del contenido (`Predice` se implementa como `PredictPrompt`). Las URL van en español porque son interfaz. `APP_ID = 'cortex'` es inmutable (nombre de la base y marca de los respaldos); renombrar la app solo cambia `APP_NAME`. *Descartado:* todo en español (contradice `CLAUDE.md`) o una capa de traducción.
 
 ## Bitácora
+- 2026-11-14 · **Unidad `matematicas-discretas/14-circuitos-karnaugh`** (3.er parcial; Unidad IV, 4.1.4 y 4.1.5).
+  - *Esquema:* v1, aprobado por Carlo, revisado por M, P y A. Los datos salen de un minimizador por fuerza bruta (implicantes primos y todas las coberturas mínimas) y M los rehízo con el suyo.
+  - *Originalidad (M):* se cambiaron el Ejemplo 3.5 de Mano y el hexágono cíclico de los libros, que aparecían como ejercicio. El invernadero de 6 minitérminos que se había pensado era imposible.
+  - *«No importa»:* Carlo confirmó que su clase usa las condiciones d(…). Entran un párrafo y el 014.
+  - *Escrita:* lección de 25 min (1,697 palabras), 25 ejercicios 6/5/7/4/3 (23 por código, con la plantilla `K` de M en Python puro, y 2 manuales) y jefe de 11 propias más 4 de repaso de la 13 (27 %).
+  - *`/revisar-contenido`:*
+    - a ciegas, 24/24;
+    - checklist M, L y P, los tres con objeción:
+      - en el jefe, la explicación del 024 regalaba el 023 (el jefe muestra la explicación después de cada respuesta);
+      - el desvanecido del paso 3 regalaba la elección;
+      - «solo si» admitía dos lecturas en el 020;
+      - el «excepto» en el 025;
+      - «literales» podía leerse como literales distintas.
+  - *Arreglos:* Carlo aprobó «errores + mejoras» (`arreglos-14.md`, 16 puntos). Sale el 024 del jefe y entran el 018 y el 014. Segunda ronda a ciegas: 7/7.
+  - *Evidencia:*
+    - `pnpm content:check` en verde;
+    - `pnpm test`: 1080;
+    - `pnpm lint`;
+    - lección y jefe en el puerto 3200: 178 fórmulas, 0 `.katex-error` y sin errores de consola.
+  - *Huecos de la plataforma nuevos (se suman a los de la sección de Discretas):*
+    - no hay visual de circuitos (van como lista de compuertas);
+    - el jefe muestra la explicación de cada pregunta antes de la siguiente, así que dos ejercicios cuyo contenido se cruza no pueden ir en el mismo jefe.
 - 2026-11-13 · **Unidad `matematicas-discretas/13-algebra-booleana`** (3.er parcial de Discretas; Unidad IV, 4.1.1 a 4.1.3).
   - *Esquema:* revisado por `experto-matematicas`, `pedagogo` y `arquitecto-razonamiento`, los tres «aprobado con cambios»; v1 aprobada por Carlo. Notas en `esquema-13.md`, en la carpeta de notas del grupo.
   - *Cambios del esquema:*

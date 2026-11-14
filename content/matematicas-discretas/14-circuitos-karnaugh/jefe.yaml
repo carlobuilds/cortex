@@ -1,0 +1,29 @@
+unidad: matematicas-discretas/14-circuitos-karnaugh
+nombre: "El Cartógrafo de Gray"
+vidas: 3
+# tiempo_segundos: suma de los tiempo_estimado_s de las 15 preguntas más 10 %.
+# Propias: 012 (75) + 013 (75) + 014 (90) + 015 (90) + 016 (75) + 018 (150) + 019 (120) + 020 (120) + 022 (150) +
+# 023 (210) + 025 (210) = 1365. Repaso: 13-012 (120) + 13-015 (90) + 13-018 (150) + 13-019 (120) = 480. Total 1845; con
+# el 10 %, 2029.5, redondeado hacia arriba a 2030 s (33.8 min). No cambia con los arreglos del 2026-11-14: sale el 024
+# (240) y entran el 018 (150) y el 014 (90), que suman lo mismo.
+tiempo_segundos: 2030
+aprobado_minimo: 0.8
+preguntas:
+  # Propias, 11: d3: 012, 013, 014, 015, 016, 020 · d4: 018, 019, 022 · d5: 023, 025. Cubren los seis conceptos: CL (016),
+  # CC (012, 022), MK (013), AK (014, 019), SM (015, 018, 023) y SC (020, 025). Sin manuales ni autoevaluación: fuera
+  # el 017 y el 021; el 015 y el 016 se verifican por código.
+  # Arreglos del 2026-11-14 (Carlo): sale el 024, porque el jefe muestra la explicación tras cada respuesta
+  # (boss-runner.tsx) y la suya resuelve el 023, que cae en la misma oleada. Entran el 018 (minimizar con 4 variables,
+  # d4) y el 014 («no importa», que la clase de Carlo usa).
+  propias: [disc-14-012, disc-14-013, disc-14-014, disc-14-015, disc-14-016, disc-14-018, disc-14-019, disc-14-020, disc-14-022, disc-14-023, disc-14-025]
+  # Repaso: 4 de 15 (27 %), de la 13, elegidos a mano entre pares que se confunden (esquema v1):
+  # 13-018 (simplificar con leyes contra con el mapa, d4), 13-019 (ΠM de F̄: agrupar unos contra ceros, d4),
+  # 13-012 (revisar con una fila, par del 015, d3) y 13-015 (de un término a sus celdas, d3). Comprobado el
+  # 2026-11-13: los cuatro ids existen tras los arreglos de la 13 (el 015 ya es ȳ + xz) y la lección de la 14 no cita
+  # sus resultados.
+  repaso_de: [disc-13-018, disc-13-019, disc-13-012, disc-13-015]
+  # Oleadas 4/6/5 (waveSizes(15) del motor: apportion(15, [0.3, 0.4, 0.3]) da 4.5/6/4.5 → 4/6/4; el residuo empata
+  # entre la 1.ª y la 3.ª y va a la más difícil), por dificultad y con desempate al azar. Hay 8 de d3 (seis propias,
+  # 13-012 y 13-015), 5 de d4 (018, 019, 022, 13-018 y 13-019) y 2 de d5: 1.ª = cuatro de los ocho d3; 2.ª = los cuatro
+  # d3 que quedan y dos de los cinco d4; 3.ª = los tres d4 que quedan, 023 y 025.
+recompensa: { xp: 300, insignia: "vecinos-de-gray" }

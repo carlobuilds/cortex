@@ -1,0 +1,649 @@
+# Unidad 14 · Circuitos y mapas de Karnaugh (Unidad IV, 4.1.4 y 4.1.5; práctica oficial 5, «Síntesis de circuitos
+# combinatorios»). Para el 3.er parcial (semana del 23 al 27 de noviembre de 2026).
+# Esquema v1 aprobado por Carlo el 2026-11-13 (esquema-14), revisado por experto-matematicas, pedagogo y
+# arquitecto-razonamiento. Carlo confirmó que su clase usa las condiciones de «no importa»: entran en la lección, en el 014 y en el jefe.
+# Ids en el orden de la tabla del esquema: el 020 es de d3 y va después del 017; el 018 y el 019 son de d4.
+# Anclas (primer ejercicio de cada concepto, workedExampleFor): 001 CL, 002 CC, 003 MK, 004 AK, 005 SM y 006 SC, con
+# explicación completa; la del 005 y la del 006 llegan hasta la lista de compuertas.
+# Un solo concepto por ejercicio, porque workedExampleFor muestra el más fácil de CUALQUIER concepto compartido.
+# Abreviaturas: CL compuertas-logicas · CC circuitos-combinatorios · MK mapas-karnaugh · AK agrupar-karnaugh ·
+# SM sop-minima · SC sintesis-circuitos.
+# Convenciones (también en la `notacion`, y repetidas en cada enunciado que las usa): filas de 0 a 2ⁿ − 1 con la primera
+# variable como bit más significativo; mapas con filas x (3 variables) o wx (4 variables) y columnas yz, en orden de Gray
+# 00, 01, 11, 10. Implicante primo: un grupo de puros 1 que no cabe en otro de puros 1 más grande. Esencial: un primo que
+# es el único en cubrir cierta celda con 1. SOP mínima: una SOP con el menor número de literales, donde cada aparición
+# cuenta (en las 65,536 funciones de 4 variables coincide con «menos términos y, a empate, menos literales»). Conteo de compuertas de una SOP en dos niveles: una NOT por variable complementada distinta,
+# una AND por término de más de una literal, una OR si hay más de un término, sin límite de entradas.
+# `verificar`: solo |, &, ^ y 1 - x sobre 0 y 1 (nunca + ni ~). Las SOP mínimas salen por fuerza bruta con la plantilla
+# K(n, F) de experto-matematicas, copiada en cada ejercicio que la usa: los términos son cadenas de '0', '1' y '-' (una
+# por variable), y K devuelve (primos, esenciales, coberturas mínimas por literales). El 014 usa KD(n, F, D), que deja a
+# los implicantes cubrir celdas de F ∪ D y solo exige cubrir F. Las opciones múltiples verificables llevan
+# `valores: ["0", "1", "2", "3"]` y un `verificar` que devuelve el índice de la única opción buena.
+# `completar`: huecos fuera de KaTeX y solo enteros. `conjunto`: «escribe los índices separados por comas», con un
+# ejemplo de formato que no está en la respuesta.
+# Síntesis (006, 020, 021 y 025): cada regla lleva un «solo», un «excepto» o un «pero», y la explicación dice qué
+# conjunto sale con la mala lectura; en el 020 y el 025, el primer hueco es justo el caso en palabras donde esa mala
+# lectura cambia la salida.
+# Pistas como preguntas, sin valores intermedios: 1 en d1–2, 2 en d3 (el 017 lleva 3) y 3 en d4–5. Desde d3, la explicación cierra con
+# «Revisa:». Las explicaciones de opción y selección múltiple dicen cuáles son las correctas, porque WorkedExample no
+# muestra las opciones.
+# Manuales: 017 y 021.
+unidad: matematicas-discretas/14-circuitos-karnaugh
+ejercicios:
+  # razonamiento: algorítmico (evaluar cada compuerta con su tabla) · R0
+  # verificar: los operadores de bits de Python sobre 1 y 0.
+  - id: disc-14-001
+    tipo: completar
+    dificultad: 1
+    conceptos: [compuertas-logicas]
+    enunciado: >-
+      Evalúa cada compuerta con las entradas $x=1$ y $y=0$.
+    texto: >-
+      $\mathrm{AND}(1,0)=$ ___ · $\mathrm{OR}(1,0)=$ ___ · $\mathrm{NAND}(1,0)=$ ___ · $\mathrm{NOR}(1,0)=$ ___ · $\mathrm{XOR}(1,0)=$ ___
+    respuestas: ["0", "1", "1", "0", "1"]
+    verificar: { python: "[1 & 0, 1 | 0, 1 - (1 & 0), 1 - (1 | 0), 1 ^ 0]" }
+    pistas:
+      - >-
+        ¿Qué operación booleana hace cada compuerta? NAND y NOR, ¿qué le hacen al resultado de AND y al de OR?
+    explicacion: >-
+      AND es el producto: $1\cdot0=0$, porque necesita que las dos entradas valgan 1. OR es la suma: $1+0=1$, porque basta que una valga 1. NAND es AND negada: $\overline{1\cdot0}=\bar0=1$. NOR es OR negada: $\overline{1+0}=\bar1=0$. XOR vale 1 cuando las entradas son distintas: $1\oplus0=1$. Fíjate en las parejas: con cualquier entrada, NAND da lo contrario de AND y NOR lo contrario de OR.
+    tiempo_estimado_s: 40
+
+  # razonamiento: algorítmico (aplicar la convención de conteo término por término) · R0
+  # verificar: cuenta sobre los términos escritos como cadenas, solo si esas cadenas cubren exactamente las filas de
+  # x̄y + xz (si no, da None y falla).
+  - id: disc-14-002
+    tipo: completar
+    dificultad: 1
+    conceptos: [circuitos-combinatorios]
+    enunciado: >-
+      Cuenta las compuertas del circuito de dos niveles de la SOP $F=\bar xy+xz$, con la convención de la lección: una NOT por cada variable complementada distinta, una AND por cada término de más de una literal y una OR si hay más de un término.
+    texto: >-
+      AND: ___ · OR: ___ · NOT: ___
+    respuestas: ["2", "1", "1"]
+    verificar: { python: "(lambda S, cov: [sum(1 for t in S if 3 - t.count('-') > 1), int(len(S) > 1), len({j for t in S for j, c in enumerate(t) if c == '0'})] if set().union(*[cov(t) for t in S]) == {i for i, (x, y, z) in enumerate(itertools.product((0, 1), repeat=3)) if ((1 - x) & y) | (x & z)} else None)(['01-', '1-1'], lambda t: {i for i, b in enumerate(itertools.product((0, 1), repeat=3)) if all(c == '-' or int(c) == v for c, v in zip(t, b))})" }
+    pistas:
+      - >-
+        ¿Cuántos términos tiene la suma, y cuántas literales tiene cada uno? ¿Qué variables llevan barra?
+    explicacion: >-
+      Los términos son $\bar xy$ y $xz$, los dos de dos literales: 2 AND. Hay más de un término, así que 1 OR los suma. La única variable con barra es $x$: 1 NOT. La lista: $g_1=\mathrm{NOT}(x)$, $g_2=\mathrm{AND}(g_1,y)$, $g_3=\mathrm{AND}(x,z)$, $F=\mathrm{OR}(g_2,g_3)$, con 4 compuertas en total. Las AND forman el primer nivel y la OR el segundo; la NOT solo prepara la entrada $\bar x$.
+    tiempo_estimado_s: 40
+
+  # razonamiento: espacial (ubicar la celda y sus lados, con la vuelta) · R0
+  # verificar: arma la cuadrícula con el código de Gray i ^ (i >> 1) y busca las celdas a un paso, con la vuelta.
+  - id: disc-14-003
+    tipo: conjunto
+    dificultad: 1
+    conceptos: [mapas-karnaugh]
+    enunciado: >-
+      En el mapa de Karnaugh de 3 variables $(x,y,z)$, con filas $x=0,1$ y columnas $yz=00,01,11,10$, ¿qué celdas son vecinas de $m_4$? Cuenta la vuelta. Escribe los índices separados por comas, como `2, 7`.
+    respuesta: ["0", "5", "6"]
+    verificar: { python: "(lambda g: (lambda G: {G[(r + dr) % 2][(c + dc) % 4] for r in range(2) for c in range(4) if G[r][c] == 4 for dr, dc in [(1, 0), (-1, 0), (0, 1), (0, -1)]})([[4 * r + g[c] for c in range(4)] for r in range(2)]))([i ^ (i >> 1) for i in range(4)])" }
+    pistas:
+      - >-
+        ¿En qué fila y columna está $m_4$? ¿Qué celdas tocan sus lados, y cuál queda del otro lado del mapa por la vuelta?
+    explicacion: >-
+      $4=100$: $m_4$ está en la fila $x=1$ y la columna $yz=00$. Sus vecinas son, arriba, $m_0$ (000); a la derecha, $m_5$ (101); y, por la vuelta, la celda de la última columna de su fila, $m_6$ (110), porque las columnas 00 y 10 difieren en un bit. Cada vecina difiere de 100 en una sola variable: $m_0$ en $x$, $m_5$ en $z$ y $m_6$ en $y$. Con 3 variables, cada celda tiene 3 vecinas, una por variable. $m_7$ (111) no es vecina: difiere en dos.
+    tiempo_estimado_s: 40
+
+  # razonamiento: espacial (de un producto a su grupo de celdas) · R0
+  # Término yz̄ y no x̄z, porque la lección ya resuelve x̄z = {m1, m3} dos veces (§6 y el primer desvanecido).
+  # verificar: las filas donde yz̄ vale 1, por enumeración.
+  - id: disc-14-004
+    tipo: conjunto
+    dificultad: 1
+    conceptos: [agrupar-karnaugh]
+    enunciado: >-
+      En el mapa de 3 variables $(x,y,z)$, ¿qué celdas forman el grupo del término $y\bar z$? Las celdas se numeran con $x$ como bit más significativo (la 101 es la 5). Escribe los índices separados por comas, como `0, 4`.
+    respuesta: ["2", "6"]
+    verificar: { python: "{i for i, (x, y, z) in enumerate(itertools.product((0, 1), repeat=3)) if y & (1 - z)}" }
+    pistas:
+      - >-
+        ¿Qué variables fija $y\bar z$, y en qué valor? ¿Cuál queda libre, y cuántas celdas salen?
+    explicacion: >-
+      $y\bar z$ fija $y=1$ y $z=0$, y deja libre a $x$, así que cubre $2^1=2$ celdas: 010 y 110, es decir, $m_2$ y $m_6$. En el mapa están en la columna $yz=10$, en las filas $x=0$ y $x=1$: son vecinas, porque solo cambia $x$. Al revés funciona igual: de un grupo se lee el producto con las variables que no cambian. Cada variable que falta en el término duplica las celdas del grupo.
+    tiempo_estimado_s: 35
+
+  # razonamiento: espacial (ver el grupo de 4 y leer la variable que no cambia) · R0
+  # Explicación completa hasta la lista de compuertas (ancla de SM). Nombra los tres pasos del procedimiento, porque es
+  # el ejemplo resuelto que se muestra al fallar cualquier ejercicio de SOP mínima.
+  # verificar: plantilla K de M; términos y literales de la única cobertura mínima.
+  - id: disc-14-005
+    tipo: completar
+    dificultad: 1
+    conceptos: [sop-minima]
+    enunciado: >-
+      Sea $F(x,y,z)=\Sigma m(4,5,6,7)$. Con el mapa de 3 variables, encuentra su SOP mínima.
+    texto: >-
+      Términos: ___ · literales: ___
+    respuestas: ["1", "1"]
+    verificar: { python: "(lambda r: [len(r[2][0]), sum(3 - t.count('-') for t in r[2][0])] if len(r[2]) == 1 else None)((lambda n, F: (lambda R: (lambda cov: (lambda P: (lambda E, C: (P, E, [S for S in C if sum(n - t.count('-') for t in S) == min(sum(n - t.count('-') for t in T) for T in C)]))([p for p in P if any(sum(1 for q in P if i in cov(q)) == 1 for i in cov(p))], [S for k in range(1, len(P) + 1) for S in itertools.combinations(P, k) if set().union(*[cov(t) for t in S]) == F]))((lambda I: [p for p in I if not any(q != p and cov(p) < cov(q) for q in I)])([''.join(t) for t in itertools.product('01-', repeat=n) if cov(''.join(t)) and cov(''.join(t)) <= F])))(lambda t: {i for i, r in enumerate(R) if all(c == '-' or int(c) == b for c, b in zip(t, r))}))(list(itertools.product((0, 1), repeat=n))))(3, {4, 5, 6, 7}))" }
+    pistas:
+      - >-
+        ¿Dónde quedan esas cuatro celdas en el mapa? ¿Qué variable vale lo mismo en las cuatro?
+    explicacion: >-
+      **(1) Marca los 1.** Las cuatro celdas, 100, 101, 111 y 110, son toda la fila $x=1$: un grupo de 4 en el que solo $x$ no cambia, y $y$ y $z$ toman todos sus valores. Primo: la fila $x=1$, que no cabe en un grupo de 8 porque la fila $x=0$ vale 0. **(2) Esencial:** $x$, el único primo. **(3) No falta nada.** El producto es $x$: 1 término con 1 literal, y $F=x$. **El circuito:** una literal sola no necesita AND, y con un solo término no hace falta OR, así que la lista queda vacía: la salida es el alambre de la entrada $x$, con 0 compuertas. Sin agrupar, la $\Sigma m$ tendría 4 términos de 3 literales.
+    tiempo_estimado_s: 40
+
+  # razonamiento: deductivo (traducir la regla con el alcance del «solo») · R1
+  # Explicación completa hasta la lista de compuertas (ancla de SC). Caso hipotético y original.
+  # verificar: la regla traducida, (z + x)ȳ, evaluada en las 8 filas.
+  - id: disc-14-006
+    tipo: conjunto
+    dificultad: 1
+    conceptos: [sintesis-circuitos]
+    enunciado: >-
+      Supón la alarma de una bodega con tres sensores, en este orden: $x$ (la puerta está abierta), $y$ (es horario laboral) y $z$ (hay movimiento), cada uno con 1 = sí. La regla: «suena si hay movimiento o si la puerta está abierta (basta una de las dos), pero en los dos casos solo fuera del horario laboral». ¿En qué filas vale 1? Numera de 0 a 7 con $x$ como bit más significativo y escribe los índices separados por comas, como `2, 6`.
+    respuesta: ["1", "4", "5"]
+    verificar: { python: "{i for i, (x, y, z) in enumerate(itertools.product((0, 1), repeat=3)) if (z | x) & (1 - y)}" }
+    pistas:
+      - >-
+        ¿Qué parte de la regla es un «o», y a qué parte le toca el «solo fuera del horario»?
+    explicacion: >-
+      **Traduce.** «Movimiento o puerta abierta» es $z+x$, y «solo fuera del horario» multiplica todo por $\bar y$: $F=(x+z)\bar y$. **Filas.** Con $y=0$ y al menos uno de $x$ y $z$ en 1: 001, 100 y 101, es decir, 1, 4 y 5. **SOP mínima.** En el mapa, $\{m_4,m_5\}$ da $x\bar y$ y $\{m_1,m_5\}$ da $\bar yz$; los dos son esenciales y $F=x\bar y+\bar yz$. **Circuito:** $g_1=\mathrm{NOT}(y)$, $g_2=\mathrm{AND}(x,g_1)$, $g_3=\mathrm{AND}(g_1,z)$, $F=\mathrm{OR}(g_2,g_3)$. Si el «solo fuera del horario» tocara solo a la puerta, saldría $x\bar y+z$, con las filas 1, 3, 4, 5 y 7.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (evaluar cada compuerta en 00) · R1
+  # verificar: cada compuerta como función de bits, evaluada en (0, 0) (True = da 1).
+  - id: disc-14-007
+    tipo: seleccion_multiple
+    dificultad: 2
+    conceptos: [compuertas-logicas]
+    enunciado: >-
+      ¿Cuáles compuertas dan 1 con las entradas $x=0$ y $y=0$? Puede haber varias.
+    opciones:
+      - "OR"
+      - "NAND"
+      - "AND"
+      - "XOR"
+      - "NOR"
+    correctas: [1, 4]
+    verificar: { python: "[f(0, 0) == 1 for f in [lambda x, y: x | y, lambda x, y: 1 - (x & y), lambda x, y: x & y, lambda x, y: x ^ y, lambda x, y: 1 - (x | y)]]" }
+    pistas:
+      - >-
+        Con las dos entradas en 0, ¿cuánto valen $xy$, $x+y$ y $x\oplus y$? ¿Qué cambia al negar?
+    explicacion: >-
+      Dan 1 NAND y NOR; AND, OR y XOR dan 0. Con $x=y=0$: AND es $0\cdot0=0$, OR es $0+0=0$ y XOR es $0\oplus0=0$, porque las entradas son iguales. NAND niega a AND: $\overline{0\cdot0}=1$. NOR niega a OR: $\overline{0+0}=1$. En 00 solo encienden las negadas; en 11, en cambio, NAND y NOR dan 0.
+    tiempo_estimado_s: 40
+
+  # razonamiento: algorítmico (seguir la lista compuerta por compuerta) · R1
+  # verificar: NAND y NOR como funciones de bits, y F = OR de las dos en los tres puntos.
+  - id: disc-14-008
+    tipo: completar
+    dificultad: 2
+    conceptos: [circuitos-combinatorios]
+    enunciado: >-
+      Un circuito con entradas $(x,y,z)$: $g_1=\mathrm{NAND}(x,y)$, $g_2=\mathrm{NOR}(y,z)$ y $F=\mathrm{OR}(g_1,g_2)$. Evalúa $F$ en tres entradas.
+    texto: >-
+      $F(1,1,0)=$ ___ · $F(1,1,1)=$ ___ · $F(0,0,0)=$ ___
+    respuestas: ["0", "0", "1"]
+    verificar: { python: "(lambda N, R: (lambda F: [F(1, 1, 0), F(1, 1, 1), F(0, 0, 0)])(lambda x, y, z: N(x, y) | R(y, z)))(lambda a, b: 1 - (a & b), lambda a, b: 1 - (a | b))" }
+    pistas:
+      - >-
+        ¿Cuánto vale cada compuerta, en orden, con la primera entrada? ¿Cuándo da 0 una NAND, y cuándo da 1 una NOR?
+    explicacion: >-
+      Se evalúa compuerta por compuerta. **(1,1,0):** $g_1=\overline{1\cdot1}=0$, $g_2=\overline{1+0}=0$ y $F=0+0=0$. **(1,1,1):** $g_1=0$, $g_2=\overline{1+1}=0$ y $F=0$. **(0,0,0):** $g_1=\overline{0\cdot0}=1$, y con eso $F=1$, sin importar $g_2$ (que también vale 1). Como expresión, $F=\overline{xy}+\overline{y+z}=\bar x+\bar y+\bar y\bar z=\bar x+\bar y$: vale 0 solo si $x=y=1$, como en las dos primeras entradas.
+    tiempo_estimado_s: 50
+
+  # razonamiento: espacial (ubicar la celda en el mapa de 4 y sus cuatro lados) · R1
+  # verificar: cuadrícula de 4 × 4 con el código de Gray i ^ (i >> 1) en filas y columnas, y la vuelta en las dos.
+  - id: disc-14-009
+    tipo: conjunto
+    dificultad: 2
+    conceptos: [mapas-karnaugh]
+    enunciado: >-
+      En el mapa de Karnaugh de 4 variables $(w,x,y,z)$, con filas $wx=00,01,11,10$ y columnas $yz=00,01,11,10$, ¿qué celdas son vecinas de $m_5$? Cuenta la vuelta. Escribe los índices separados por comas, como `0, 2`.
+    respuesta: ["1", "4", "7", "13"]
+    verificar: { python: "(lambda g: (lambda G: {G[(r + dr) % 4][(c + dc) % 4] for r in range(4) for c in range(4) if G[r][c] == 5 for dr, dc in [(1, 0), (-1, 0), (0, 1), (0, -1)]})([[4 * g[r] + g[c] for c in range(4)] for r in range(4)]))([i ^ (i >> 1) for i in range(4)])" }
+    pistas:
+      - >-
+        ¿En qué fila y columna está $m_5$? ¿Cuántas vecinas tiene una celda con 4 variables?
+    explicacion: >-
+      $5=0101$: fila $wx=01$ y columna $yz=01$. Sus cuatro vecinas, una por variable, son: arriba, $m_1$ (0001, cambia $x$); abajo, $m_{13}$ (1101, cambia $w$; la fila de abajo es la 11, no la 10); a la izquierda, $m_4$ (0100, cambia $z$); y a la derecha, $m_7$ (0111, cambia $y$). Aquí no hace falta la vuelta, pero con 4 variables toda celda tiene 4 vecinas, con vuelta o sin ella. Si pusiste $m_9$, leíste las filas en orden de conteo, y si pusiste $m_6$, las columnas: 1001 y 0110 difieren de 0101 en dos bits.
+    tiempo_estimado_s: 45
+
+  # razonamiento: espacial (un grupo es el conjunto de celdas de un producto) · R1
+  # verificar: para cada conjunto, si es exactamente el de las celdas de alguno de los 81 productos de 4 variables.
+  - id: disc-14-010
+    tipo: seleccion_multiple
+    dificultad: 2
+    conceptos: [agrupar-karnaugh]
+    enunciado: >-
+      En un mapa de Karnaugh de 4 variables (filas $wx$ y columnas $yz$ en orden de Gray), ¿cuáles de estos conjuntos de celdas son un grupo válido, es decir, un rectángulo de $2^k$ celdas que puede dar la vuelta? Puede haber varias.
+    opciones:
+      - >-
+        $\{m_1,m_3,m_5\}$
+      - >-
+        $\{m_0,m_2,m_8,m_{10}\}$
+      - >-
+        $\{m_3,m_{11}\}$
+      - >-
+        $\{m_5,m_6\}$
+      - >-
+        $\{m_0,m_1,m_4,m_5\}$
+      - >-
+        $\{m_0,m_1,m_3,m_2\}$
+    correctas: [1, 2, 4, 5]
+    verificar: { python: "[any({i for i, b in enumerate(itertools.product((0, 1), repeat=4)) if all(c == '-' or int(c) == v for c, v in zip(''.join(t), b))} == g for t in itertools.product('01-', repeat=4)) for g in [{1, 3, 5}, {0, 2, 8, 10}, {3, 11}, {5, 6}, {0, 1, 4, 5}, {0, 1, 3, 2}]]" }
+    pistas:
+      - >-
+        ¿Cuántas celdas tiene cada conjunto? En los de tamaño correcto, ¿hay variables que no cambien en ninguna de sus celdas?
+    explicacion: >-
+      Son grupos $\{m_0,m_1,m_3,m_2\}$, $\{m_0,m_2,m_8,m_{10}\}$, $\{m_0,m_1,m_4,m_5\}$ y $\{m_3,m_{11}\}$; no lo son $\{m_1,m_3,m_5\}$ ni $\{m_5,m_6\}$. Un grupo válido es justo el conjunto de celdas de un producto. $\{m_0,m_1,m_3,m_2\}$ es la fila 00: $\bar w\bar x$. $\{m_0,m_2,m_8,m_{10}\}$ son las cuatro esquinas, que se juntan por las dos vueltas: $\bar x\bar z$. $\{m_0,m_1,m_4,m_5\}$ es un cuadrado de $2\times2$: $\bar w\bar y$. $\{m_3,m_{11}\}$ está en las filas 00 y 10 de la columna 11, vecinas por la vuelta: $\bar xyz$. $\{m_1,m_3,m_5\}$ tiene 3 celdas, y 3 no es potencia de 2. $m_5$ y $m_6$ (0101 y 0110) difieren en dos variables: no son vecinas.
+    tiempo_estimado_s: 50
+
+  # razonamiento: espacial (el grupo de 8 y el cuadrado encimado) · R1
+  # Distractores, uno por error: grupo no máximo (4 literales), no juntar dos filas (6) y dejar fuera una celda.
+  # verificar: plantilla K de M; índice de la única opción igual a F con el mínimo de literales.
+  - id: disc-14-011
+    tipo: opcion_multiple
+    dificultad: 2
+    conceptos: [sop-minima]
+    enunciado: >-
+      ¿Cuál es la SOP mínima de $F(w,x,y,z)=\Sigma m(0,1,4,5,6,7,12,13,14,15)$?
+    opciones:
+      - >-
+        $\bar wx+wx+\bar w\bar y$
+      - >-
+        $x+\bar w\bar y\bar z$
+      - >-
+        $x+\bar w\bar y$
+      - >-
+        $x+\bar w\bar x\bar y$
+    valores: ["0", "1", "2", "3"]
+    correcta: 2
+    verificar: { python: "(lambda F, cov: (lambda r: (lambda L: L[0] if len(L) == 1 else None)([i for i, o in enumerate([['01--', '11--', '0-0-'], ['-1--', '0-00'], ['-1--', '0-0-'], ['-1--', '000-']]) if set().union(*[cov(t) for t in o]) == F and sum(4 - t.count('-') for t in o) == sum(4 - t.count('-') for t in r[2][0])]))((lambda n, F: (lambda R: (lambda cov: (lambda P: (lambda E, C: (P, E, [S for S in C if sum(n - t.count('-') for t in S) == min(sum(n - t.count('-') for t in T) for T in C)]))([p for p in P if any(sum(1 for q in P if i in cov(q)) == 1 for i in cov(p))], [S for k in range(1, len(P) + 1) for S in itertools.combinations(P, k) if set().union(*[cov(t) for t in S]) == F]))((lambda I: [p for p in I if not any(q != p and cov(p) < cov(q) for q in I)])([''.join(t) for t in itertools.product('01-', repeat=n) if cov(''.join(t)) and cov(''.join(t)) <= F])))(lambda t: {i for i, r in enumerate(R) if all(c == '-' or int(c) == b for c, b in zip(t, r))}))(list(itertools.product((0, 1), repeat=n))))(4, F)))({0, 1, 4, 5, 6, 7, 12, 13, 14, 15}, lambda t: {i for i, b in enumerate(itertools.product((0, 1), repeat=4)) if all(c == '-' or int(c) == v for c, v in zip(t, b))})" }
+    pistas:
+      - >-
+        ¿Qué variable vale 1 en la mayoría de esas celdas? Para las que quedan fuera, ¿cuál es el grupo más grande que las contiene?
+    explicacion: >-
+      La correcta es $x+\bar w\bar y$, con 3 literales. Las filas 01 y 11 del mapa (celdas 4 a 7 y 12 a 15) son las ocho con $x=1$: un grupo de 8, $x$. Quedan $m_0$ y $m_1$, y el grupo más grande que las contiene es el cuadrado $\{m_0,m_1,m_4,m_5\}$, que se encima con $x$ y da $\bar w\bar y$. Las otras: $x+\bar w\bar x\bar y$ es igual a $F$, pero usa el par $\{m_0,m_1\}$ en vez del cuadrado (4 literales); $\bar wx+wx+\bar w\bar y$ también es igual, pero no juntó las dos filas en $x$ (6 literales); y $x+\bar w\bar y\bar z$ deja fuera a $m_1$, así que ni siquiera es igual a $F$. Encimar grupos se vale, y aquí hace más grande el segundo.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (cada compuerta por separado y luego la AND) · R1
+  # verificar: la lista evaluada en las 8 filas.
+  - id: disc-14-012
+    tipo: conjunto
+    dificultad: 3
+    conceptos: [circuitos-combinatorios]
+    enunciado: >-
+      Un circuito con entradas $(x,y,z)$: $g_1=\mathrm{NAND}(x,z)$, $g_2=\mathrm{XOR}(x,y)$ y $F=\mathrm{AND}(g_1,g_2)$. ¿En qué filas vale 1 $F$? Numera de 0 a 7 con $x$ como bit más significativo y escribe los índices separados por comas, como `0, 6`.
+    respuesta: ["2", "3", "4"]
+    verificar: { python: "{i for i, (x, y, z) in enumerate(itertools.product((0, 1), repeat=3)) if (1 - (x & z)) & (x ^ y)}" }
+    pistas:
+      - >-
+        ¿En qué filas vale 1 cada compuerta por separado? ¿Qué pide una AND de las dos?
+      - >-
+        ¿Cuándo vale 0 una NAND? ¿Cuándo vale 1 un XOR?
+    explicacion: >-
+      **$g_2=x\oplus y$** vale 1 cuando $x\neq y$: filas 010, 011, 100 y 101 (2, 3, 4 y 5). **$g_1=\overline{xz}$** vale 0 solo con $x=1$ y $z=1$, en 101 y 111. **$F$** pide las dos: de 2, 3, 4 y 5 se va la 5, donde $g_1=0$, y quedan 2, 3 y 4. Como expresión, $F=\overline{xz}\,(x\oplus y)=(\bar x+\bar z)(\bar xy+x\bar y)=\bar xy+x\bar y\bar z$. Revisa: en la fila 5 (101), $g_1=\overline{1\cdot1}=0$ y $F=0$; en la 4 (100), $g_1=1$ y $g_2=1\oplus0=1$, así que $F=1$.
+    tiempo_estimado_s: 75
+
+  # razonamiento: espacial (leer cada celda con las etiquetas de Gray, no con su posición) · R1
+  # Trampa: leer las filas en orden de conteo da 1, 3, 4, 6, 10, 13 y 15.
+  # verificar: lee el mapa con el código de Gray i ^ (i >> 1) en filas y columnas.
+  - id: disc-14-013
+    tipo: conjunto
+    dificultad: 3
+    conceptos: [mapas-karnaugh]
+    enunciado: |-
+      Este es el mapa de Karnaugh de una función $F(w,x,y,z)$, con filas $wx$ y columnas $yz$ en orden de Gray:
+
+      $$\begin{array}{c|cccc} wx\backslash yz & 00 & 01 & 11 & 10\\\hline 00 & 0 & 1 & 1 & 0\\ 01 & 1 & 0 & 0 & 1\\ 11 & 0 & 0 & 0 & 1\\ 10 & 0 & 1 & 1 & 0\end{array}$$
+
+      Escribe $F$ como $\Sigma m(\dots)$: ¿qué índices lleva? Numera con $w$ como bit más significativo y escribe los índices separados por comas, como `0, 2, 5`.
+    respuesta: ["1", "3", "4", "6", "9", "11", "14"]
+    verificar: { python: "(lambda g: {4 * g[r] + g[c] for r, fila in enumerate([[0, 1, 1, 0], [1, 0, 0, 1], [0, 0, 0, 1], [0, 1, 1, 0]]) for c, v in enumerate(fila) if v})([i ^ (i >> 1) for i in range(4)])" }
+    pistas:
+      - >-
+        ¿Qué número de 4 bits le toca a cada celda, si juntas la etiqueta de su fila con la de su columna?
+      - >-
+        ¿La tercera fila del mapa es $wx=10$ o $wx=11$? ¿Y la tercera columna?
+    explicacion: >-
+      Cada celda es el minitérmino cuyo número sale de juntar la etiqueta de su fila ($wx$) con la de su columna ($yz$). **Fila 00:** columnas 01 y 11, es decir, 0001 y 0011: 1 y 3. **Fila 01:** columnas 00 y 10: 0100 y 0110, 4 y 6. **Fila 11:** columna 10: 1110, 14. **Fila 10:** columnas 01 y 11: 1001 y 1011, 9 y 11. $F=\Sigma m(1,3,4,6,9,11,14)$. La trampa es leer las filas en orden de conteo: si tomas la tercera fila como 10 y la cuarta como 11, sale 1, 3, 4, 6, 10, 13 y 15. Revisa: la celda de la fila 11 y la columna 10 es $m_{14}$, porque $1110=8+4+2=14$, igual que en el mapa de la lección.
+    tiempo_estimado_s: 75
+
+  # razonamiento: espacial (usar las d solo donde agrandan un grupo) · R2
+  # «No importa» (decisión de Carlo, 2026-11-13). Entra al jefe desde los arreglos del 2026-11-14.
+  # verificar: plantilla KD (la K de M con celdas d): términos y literales de la única mínima con las d, cuántas d
+  # quedan dentro de sus grupos y literales de la única mínima sin las d.
+  - id: disc-14-014
+    tipo: completar
+    dificultad: 3
+    conceptos: [agrupar-karnaugh]
+    enunciado: |-
+      Sea $F(w,x,y,z)=\Sigma m(1,5,7,13)+d(3,15)$: las celdas 3 y 15 son condiciones de «no importa». Su mapa, con filas $wx$ y columnas $yz$ en orden de Gray, y una d en esas celdas:
+
+      $$\begin{array}{c|cccc} wx\backslash yz & 00 & 01 & 11 & 10\\\hline 00 & 0 & 1 & d & 0\\ 01 & 0 & 1 & 1 & 0\\ 11 & 0 & 1 & d & 0\\ 10 & 0 & 0 & 0 & 0\end{array}$$
+
+      Toma cada d como 1 solo si agranda un grupo.
+    texto: >-
+      Con las d, la SOP mínima tiene ___ términos y ___ literales · toma como 1 ___ de las 2 celdas d (escribe cuántas) · sin las d (tomadas como 0), la mínima tendría ___ literales
+    respuestas: ["2", "4", "2", "9"]
+    verificar: { python: "(lambda F, D, cov: (lambda a, b: [len(a[0]), sum(4 - t.count('-') for t in a[0]), len(set().union(*[cov(t) for t in a[0]]) & D), sum(4 - t.count('-') for t in b[0])] if len(a) == 1 and len(b) == 1 else None)((lambda n, F, D: (lambda R: (lambda cov: (lambda P: (lambda C: (P, [S for S in C if sum(n - t.count('-') for t in S) == min(sum(n - t.count('-') for t in T) for T in C)]))([S for k in range(1, len(P) + 1) for S in itertools.combinations(P, k) if F <= set().union(*[cov(t) for t in S])]))((lambda I: [p for p in I if not any(q != p and cov(p) < cov(q) for q in I)])([''.join(t) for t in itertools.product('01-', repeat=n) if cov(''.join(t)) & F and cov(''.join(t)) <= F | D])))(lambda t: {i for i, r in enumerate(R) if all(c == '-' or int(c) == b for c, b in zip(t, r))}))(list(itertools.product((0, 1), repeat=n))))(4, F, D)[1], (lambda n, F, D: (lambda R: (lambda cov: (lambda P: (lambda C: (P, [S for S in C if sum(n - t.count('-') for t in S) == min(sum(n - t.count('-') for t in T) for T in C)]))([S for k in range(1, len(P) + 1) for S in itertools.combinations(P, k) if F <= set().union(*[cov(t) for t in S])]))((lambda I: [p for p in I if not any(q != p and cov(p) < cov(q) for q in I)])([''.join(t) for t in itertools.product('01-', repeat=n) if cov(''.join(t)) & F and cov(''.join(t)) <= F | D])))(lambda t: {i for i, r in enumerate(R) if all(c == '-' or int(c) == b for c, b in zip(t, r))}))(list(itertools.product((0, 1), repeat=n))))(4, F, set())[1]))({1, 5, 7, 13}, {3, 15}, lambda t: {i for i, b in enumerate(itertools.product((0, 1), repeat=4)) if all(c == '-' or int(c) == v for c, v in zip(t, b))})" }
+    pistas:
+      - >-
+        ¿Qué grupo de 4 aparece si tomas una d como 1? ¿Hay otro?
+      - >-
+        Sin las d, ¿cuál es el grupo más grande que contiene a $m_1$? ¿Y a $m_{13}$?
+    explicacion: >-
+      **Con las d.** $m_1$, $d_3$, $m_5$ y $m_7$ forman el cuadrado de las filas 00 y 01 con las columnas 01 y 11: no cambian $w=0$ ni $z=1$, y da $\bar wz$. $m_5$, $m_7$, $m_{13}$ y $d_{15}$ forman el cuadrado de las filas 01 y 11 con las mismas columnas: $xz$. Esos dos cubren los cuatro 1, y $F=\bar wz+xz$: 2 términos y 4 literales, con las 2 d tomadas como 1. **Sin las d**, los grupos se encogen a pares: $\{m_1,m_5\}$ da $\bar w\bar yz$, $\{m_5,m_7\}$ da $\bar wxz$ y $\{m_5,m_{13}\}$ da $x\bar yz$. Los tres son esenciales ($m_1$, $m_7$ y $m_{13}$ solo caben en uno), y suman 9 literales. Una d nunca hay que cubrirla, pero tomarla como 1 aquí ahorra 5 literales. Revisa: en la celda 3 (0011), $\bar wz$ vale 1; como ahí la salida no importa, ese 1 no rompe nada, y en las celdas con 0, como la 9 (1001), $\bar wz+xz=0+0=0$.
+    tiempo_estimado_s: 90
+
+  # razonamiento: metacognitivo (revisar una SOP ajena término por término, sin rehacer el mapa) · R2
+  # verificar: compara F (por pertenencia a la lista) con la SOP de Rosa en las 16 filas; da la única fila distinta.
+  - id: disc-14-015
+    tipo: completar
+    dificultad: 3
+    conceptos: [sop-minima]
+    enunciado: >-
+      Rosa leyó del mapa de $F(w,x,y,z)=\Sigma m(0,2,4,5,6,7,8,10,13)$ la SOP $\bar wx+\bar x\bar z+xz$. Su expresión difiere de $F$ en una sola celda. Sin rehacer el mapa, encuéntrala revisando qué celdas cubre cada término de Rosa (las celdas se numeran con $w$ como bit más significativo).
+    texto: >-
+      La celda es la número ___ · ahí $F$ vale ___ y la expresión de Rosa vale ___
+    respuestas: ["15", "0", "1"]
+    verificar: { python: "(lambda P, F, R: (lambda d: [d[0], F(*P[d[0]]), R(*P[d[0]])] if len(d) == 1 else None)([i for i, v in enumerate(P) if F(*v) != R(*v)]))(list(itertools.product((0, 1), repeat=4)), lambda w, x, y, z: int(8 * w + 4 * x + 2 * y + z in {0, 2, 4, 5, 6, 7, 8, 10, 13}), lambda w, x, y, z: ((1 - w) & x) | ((1 - x) & (1 - z)) | (x & z))" }
+    pistas:
+      - >-
+        ¿Qué celdas cubre cada término de Rosa? ¿Alguna de ellas falta en la lista de $F$?
+      - >-
+        Para cada término, ¿qué variables fija y en qué valor? Si recorres todos los valores de las que deja libres, ¿qué números de celda salen?
+    explicacion: >-
+      Se revisa término por término, sin minimizar. $\bar wx$ cubre la fila 01: 4, 5, 6 y 7, todas en $F$. $\bar x\bar z$ cubre las cuatro esquinas: 0, 2, 8 y 10, todas en $F$. $xz$ cubre 5, 7, 13 y 15, pero la 15 no está en la lista. Entre los tres cubren las nueve celdas de $F$ y además la 15: ahí $F$ vale 0 y lo de Rosa, 1. Su error fue agrandar el grupo de $m_{13}$ hasta meter un 0. El grupo correcto es $\{m_5,m_{13}\}$, que da $x\bar yz$, y la mínima es $\bar wx+\bar x\bar z+x\bar yz$. Revisa: en 1111, $\bar wx=0$, $\bar x\bar z=0$ y $xz=1$, pero el 15 no está en la $\Sigma m$.
+    tiempo_estimado_s: 90
+
+  # razonamiento: deductivo (De Morgan para leer cada lista de NAND) · R1
+  # verificar: NAND como función de bits; índice de la única lista que coincide con x | y en las 4 entradas.
+  - id: disc-14-016
+    tipo: opcion_multiple
+    dificultad: 3
+    conceptos: [compuertas-logicas]
+    enunciado: >-
+      ¿Cuál de estos circuitos, hechos solo con NAND, da $\mathrm{OR}(x,y)=x+y$?
+    opciones:
+      - >-
+        $\mathrm{NAND}(\mathrm{NAND}(x,y),\mathrm{NAND}(x,y))$
+      - >-
+        $\mathrm{NAND}(\mathrm{NAND}(x,x),y)$
+      - >-
+        $\mathrm{NAND}(g,g)$, con $g=\mathrm{NAND}(\mathrm{NAND}(x,x),\mathrm{NAND}(y,y))$
+      - >-
+        $\mathrm{NAND}(\mathrm{NAND}(x,x),\mathrm{NAND}(y,y))$
+    valores: ["0", "1", "2", "3"]
+    correcta: 3
+    verificar: { python: "(lambda N: (lambda L: L[0] if len(L) == 1 else None)([i for i, f in enumerate([lambda x, y: N(N(x, y), N(x, y)), lambda x, y: N(N(x, x), y), lambda x, y: N(N(N(x, x), N(y, y)), N(N(x, x), N(y, y))), lambda x, y: N(N(x, x), N(y, y))]) if all(f(x, y) == (x | y) for x in (0, 1) for y in (0, 1))]))(lambda a, b: 1 - (a & b))" }
+    pistas:
+      - >-
+        ¿Qué da $\mathrm{NAND}(x,x)$? Con De Morgan, ¿cómo se escribe $x+y$ como la negación de un producto?
+      - >-
+        Para cada opción, ¿qué expresión sale si la lees de adentro hacia afuera?
+    explicacion: >-
+      La correcta es $\mathrm{NAND}(\mathrm{NAND}(x,x),\mathrm{NAND}(y,y))$. Como $\mathrm{NAND}(x,x)=\overline{xx}=\bar x$, esa lista es $\overline{\bar x\,\bar y}=\bar{\bar x}+\bar{\bar y}=x+y$, por De Morgan. Las otras: $\mathrm{NAND}(\mathrm{NAND}(x,y),\mathrm{NAND}(x,y))$ niega dos veces el producto y da $xy$, que es AND; $\mathrm{NAND}(\mathrm{NAND}(x,x),y)=\overline{\bar xy}=x+\bar y$; y $\mathrm{NAND}(g,g)=\bar g$ niega la correcta y da $\overline{x+y}$, que es NOR. Revisa en $(x,y)=(1,0)$: la correcta da $\overline{\bar1\cdot\bar0}=\overline{0\cdot1}=1$, igual que $1+0$.
+    tiempo_estimado_s: 75
+
+  # razonamiento: abductivo (de un grupo imposible a la causa: las etiquetas) · R1
+  # Revisión manual (opción múltiple conceptual). Comprobado por enumeración: 001 y 010 difieren en 2 bits, y {1, 2} no
+  # es el conjunto de celdas de ningún producto de 3 variables. El mapa de Paco es Σm(1, 2, 5) con columnas 00, 01, 10, 11.
+  # Tres pistas, aunque es de d3 (docs/05 permite hasta 3): la 1 es nueva (arreglos del 2026-11-14) y las otras dos son
+  # las que tenía, en el mismo orden.
+  - id: disc-14-017
+    tipo: opcion_multiple
+    dificultad: 3
+    conceptos: [agrupar-karnaugh]
+    enunciado: |-
+      Paco busca la SOP mínima de $F(x,y,z)=\Sigma m(1,2,5)$. Dibujó el mapa con las columnas en este orden y encerró en un grupo $m_1$ y $m_2$, que le quedaron juntas en la fila $x=0$:
+
+      $$\begin{array}{c|cccc} x\backslash yz & 00 & 01 & 10 & 11\\\hline 0 & 0 & 1 & 1 & 0\\ 1 & 0 & 1 & 0 & 0\end{array}$$
+
+      ¿Qué hizo mal?
+    opciones:
+      - >-
+        Olvidó la vuelta: la primera y la última columna son vecinas, y el grupo debía cruzar de una a la otra.
+      - >-
+        Los grupos deben tener 4 celdas; uno de 2 no sirve.
+      - >-
+        Sus columnas no van en orden de Gray: $m_1$ (001) y $m_2$ (010) difieren en dos variables, así que no son vecinas ni forman un grupo.
+      - >-
+        Debía agrupar los ceros, no los unos.
+    correcta: 2
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        ¿Qué deben cumplir dos celdas para formar un grupo de 2? ¿Lo cumplen $m_1$ y $m_2$?
+      - >-
+        ¿Entre cada par de columnas seguidas de Paco cambia un solo bit?
+      - >-
+        ¿Hay algún producto que valga 1 justo en las celdas 001 y 010, y en ninguna otra?
+    explicacion: >-
+      El error es el orden: las columnas de Paco no van en orden de Gray, porque entre 01 y 10 cambian los dos bits. Por eso $m_1=\bar x\bar yz$ y $m_2=\bar xy\bar z$ le quedaron juntas, pero difieren en $y$ y en $z$: ningún producto vale 1 justo en esas dos celdas, así que no son un grupo. Con el orden de Gray (00, 01, 11, 10), $m_2$ pasa a la última columna. Las demás opciones no son el problema: la vuelta no tiene que ver (en el mapa de Paco, las orillas de esa fila valen 0; con Gray, $m_2$ queda en la orilla, pero $m_0$ vale 0), un grupo de 2 es válido y una SOP agrupa unos. Revisa: con el orden de Gray, $m_1$ se agrupa con $m_5$ en $\bar yz$, y $m_2$ se queda sola, en $\bar xy\bar z$.
+    tiempo_estimado_s: 60
+
+  # razonamiento: deductivo (alcance del «si y solo si» y de «a cualquier hora»; comparar con el gancho) · R2
+  # Variante del invernadero de la lección (hipotético). Pistas de arquitecto-razonamiento, ajustadas a este caso.
+  # verificar: la regla traducida; el caso en palabras, sus filas y, con la plantilla K de M, términos, literales y
+  # variables usadas por la única mínima.
+  - id: disc-14-020
+    tipo: completar
+    dificultad: 3
+    conceptos: [sintesis-circuitos]
+    enunciado: >-
+      Supón el invernadero de la lección, con sus cuatro sensores en este orden: $w$ (hay agua en el tanque), $s$ (suelo seco), $r$ (llueve) y $n$ (es de noche), cada uno con 1 = sí y $w$ como bit más significativo. La salida $F$ vale 1 si riega, con el tanque o con la red. Cambia la regla: «con agua en el tanque, riega si el suelo está seco; sin agua, usa la red si y solo si el suelo está seco y no llueve (las dos a la vez), a cualquier hora del día o de la noche. En cualquier otro caso, no riega». En el primer hueco escribe 1 (sí) o 0 (no).
+    texto: >-
+      Sin agua, con suelo seco, sin lluvia y de día, ¿riega? ___ · $F$ tiene ___ minitérminos · su SOP mínima tiene ___ términos y ___ literales, y usa ___ de los cuatro sensores
+    respuestas: ["1", "6", "2", "4", "3"]
+    verificar: { python: "(lambda f: (lambda F: (lambda r: [f(0, 1, 0, 0), len(F), len(r[2][0]), sum(4 - t.count('-') for t in r[2][0]), len({j for t in r[2][0] for j, c in enumerate(t) if c != '-'})] if len(r[2]) == 1 else None)((lambda n, F: (lambda R: (lambda cov: (lambda P: (lambda E, C: (P, E, [S for S in C if sum(n - t.count('-') for t in S) == min(sum(n - t.count('-') for t in T) for T in C)]))([p for p in P if any(sum(1 for q in P if i in cov(q)) == 1 for i in cov(p))], [S for k in range(1, len(P) + 1) for S in itertools.combinations(P, k) if set().union(*[cov(t) for t in S]) == F]))((lambda I: [p for p in I if not any(q != p and cov(p) < cov(q) for q in I)])([''.join(t) for t in itertools.product('01-', repeat=n) if cov(''.join(t)) and cov(''.join(t)) <= F])))(lambda t: {i for i, r in enumerate(R) if all(c == '-' or int(c) == b for c, b in zip(t, r))}))(list(itertools.product((0, 1), repeat=n))))(4, F)))({i for i, v in enumerate(itertools.product((0, 1), repeat=4)) if f(*v)}))(lambda w, s, r, n: (w & s) | ((1 - w) & s & (1 - r)))" }
+    pistas:
+      - >-
+        ¿A qué parte de la regla le toca el «si y solo si», y qué dice de la hora?
+      - >-
+        ¿Todos los sensores cambian la salida? ¿Qué grupo te lo mostraría?
+    explicacion: >-
+      **El caso.** Sin agua ($w=0$), con suelo seco, sin lluvia y de día ($n=0$): la red se usa a cualquier hora, así que riega, 1. Con la regla de la lección («solo de noche») daría 0. **Traduce.** $F=ws+\bar ws\bar r$. $ws$ cubre de 1100 a 1111 (12, 13, 14 y 15), y $\bar ws\bar r$, 0100 y 0101 (4 y 5): 6 minitérminos. **Mapa** (filas $ws$, columnas $rn$). La fila 11 completa da $ws$. $m_4$, $m_5$, $m_{12}$ y $m_{13}$ forman el cuadrado de las filas 01 y 11 con las columnas 00 y 01, donde no cambian $s=1$ ni $r=0$: $s\bar r$. $F=ws+s\bar r$: 2 términos, 4 literales y 3 sensores, porque $n$ sobra. Si se te quedó el «solo de noche» de la lección, sale $\Sigma m(5,12,13,14,15)$; si el «no llueve» también le tocara al tanque con agua, saldría $s\bar r=\Sigma m(4,5,12,13)$. Revisa: en 0100 (sin agua, suelo seco, sin lluvia, de día), $ws+s\bar r=0+1\cdot1=1$, como dice la frase.
+    tiempo_estimado_s: 120
+
+  # razonamiento: algorítmico (listar primos con la vuelta, tomar esenciales y cubrir lo que falta) · R2
+  # Pistas modelo de arquitecto-razonamiento (esquema-14).
+  # verificar: plantilla K de M; número de primos, de esenciales y literales de la única mínima.
+  - id: disc-14-018
+    tipo: completar
+    dificultad: 4
+    conceptos: [sop-minima]
+    enunciado: >-
+      Sea $F(w,x,y,z)=\Sigma m(0,1,3,8,12,13,14,15)$. Con el mapa de 4 variables (filas $wx$ y columnas $yz$ en orden de Gray), cuenta sus implicantes primos y sus primos esenciales, y encuentra cuántas literales tiene su SOP mínima.
+    texto: >-
+      Primos: ___ · esenciales: ___ · literales de la SOP mínima: ___
+    respuestas: ["5", "2", "8"]
+    verificar: { python: "(lambda r: [len(r[0]), len(r[1]), sum(4 - t.count('-') for t in r[2][0])] if len(r[2]) == 1 else None)((lambda n, F: (lambda R: (lambda cov: (lambda P: (lambda E, C: (P, E, [S for S in C if sum(n - t.count('-') for t in S) == min(sum(n - t.count('-') for t in T) for T in C)]))([p for p in P if any(sum(1 for q in P if i in cov(q)) == 1 for i in cov(p))], [S for k in range(1, len(P) + 1) for S in itertools.combinations(P, k) if set().union(*[cov(t) for t in S]) == F]))((lambda I: [p for p in I if not any(q != p and cov(p) < cov(q) for q in I)])([''.join(t) for t in itertools.product('01-', repeat=n) if cov(''.join(t)) and cov(''.join(t)) <= F])))(lambda t: {i for i, r in enumerate(R) if all(c == '-' or int(c) == b for c, b in zip(t, r))}))(list(itertools.product((0, 1), repeat=n))))(4, {0, 1, 3, 8, 12, 13, 14, 15}))" }
+    pistas:
+      - >-
+        ¿Qué hace primo a un grupo? Para cada 1, ¿cuál es el grupo más grande que lo contiene, contando la vuelta?
+      - >-
+        ¿Qué celdas cubre un solo primo? Ya tomados esos, ¿qué falta?
+      - >-
+        ¿Algún primo que contaste cabe en otro? ¿Puedes quitar un término sin destapar un 1?
+    explicacion: >-
+      **El mapa.** Fila 00: $m_0$, $m_1$ y $m_3$; la fila 11, completa; fila 10: $m_8$. **Primos.** La fila 11 da $wx$, un grupo de 4. Los demás son pares: $\{m_0,m_1\}$ da $\bar w\bar x\bar y$; $\{m_1,m_3\}$, $\bar w\bar xz$; $\{m_0,m_8\}$, que da la vuelta vertical entre las filas 00 y 10, $\bar x\bar y\bar z$; y $\{m_8,m_{12}\}$, $w\bar y\bar z$. Ningún par cabe en un grupo de 4: son 5 primos. **Esenciales.** $m_{13}$, $m_{14}$ y $m_{15}$ solo están en $wx$, y $m_3$ solo en $\bar w\bar xz$: 2 esenciales. **Lo que falta.** Quedan $m_0$ y $m_8$, y solo $\bar x\bar y\bar z$ cubre las dos. $F=wx+\bar w\bar xz+\bar x\bar y\bar z$: $2+3+3=8$ literales. Revisa: con $\bar w\bar x\bar y$ y $w\bar y\bar z$ en lugar de $\bar x\bar y\bar z$ también se cubre todo, pero con 11 literales; y en $m_8$ (1000), $\bar x\bar y\bar z=1$.
+    tiempo_estimado_s: 150
+
+  # razonamiento: deductivo (primo = implicante que no crece; distinguirlo de esencial) · R1
+  # verificar: plantilla K de M; si cada producto de las opciones está en la lista de primos.
+  - id: disc-14-019
+    tipo: seleccion_multiple
+    dificultad: 4
+    conceptos: [agrupar-karnaugh]
+    enunciado: >-
+      Sea $F(w,x,y,z)=\Sigma m(1,3,4,5,8,9,10,11,12,13,14,15)$. ¿Cuáles de estos productos son implicantes primos de $F$? Puede haber varias.
+    opciones:
+      - >-
+        $\bar yz$
+      - >-
+        $wx$
+      - >-
+        $\bar xz$
+      - >-
+        $xz$
+      - >-
+        $w$
+      - >-
+        $\bar x\bar yz$
+      - >-
+        $x\bar y$
+    correctas: [0, 2, 4, 6]
+    verificar: { python: "(lambda r: [t in r[0] for t in ['--01', '11--', '-0-1', '-1-1', '1---', '-001', '-10-']])((lambda n, F: (lambda R: (lambda cov: (lambda P: (lambda E, C: (P, E, [S for S in C if sum(n - t.count('-') for t in S) == min(sum(n - t.count('-') for t in T) for T in C)]))([p for p in P if any(sum(1 for q in P if i in cov(q)) == 1 for i in cov(p))], [S for k in range(1, len(P) + 1) for S in itertools.combinations(P, k) if set().union(*[cov(t) for t in S]) == F]))((lambda I: [p for p in I if not any(q != p and cov(p) < cov(q) for q in I)])([''.join(t) for t in itertools.product('01-', repeat=n) if cov(''.join(t)) and cov(''.join(t)) <= F])))(lambda t: {i for i, r in enumerate(R) if all(c == '-' or int(c) == b for c, b in zip(t, r))}))(list(itertools.product((0, 1), repeat=n))))(4, {1, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15}))" }
+    pistas:
+      - >-
+        ¿Qué celdas cubre cada producto? ¿Todas valen 1?
+      - >-
+        Para los que sí, ¿caben en un grupo más grande, contando la vuelta?
+      - >-
+        ¿Revisaste que un primo puede no ser esencial? ¿Confundiste «primo» con «está en la mínima»?
+    explicacion: >-
+      Son primos $w$, $\bar xz$, $x\bar y$ y $\bar yz$; no lo son $wx$, $\bar x\bar yz$ ni $xz$. Un primo es un grupo de puros 1 que no cabe en otro más grande. $w$ son las filas 11 y 10: ocho 1. $\bar xz$ son las columnas 01 y 11 de las filas 00 y 10 (1, 3, 9 y 11), juntas por la vuelta vertical; no crece, porque hacia $\bar x$ entrarían $m_0$ y $m_2$, y hacia $z$, $m_7$, que valen 0. $x\bar y$ (4, 5, 12 y 13) y $\bar yz$ (1, 5, 9 y 13) tampoco crecen, porque $m_0$ o $m_7$, que valen 0, quedarían dentro. $\bar yz$ es primo aunque no es esencial: cada una de sus celdas está en otro primo, y la mínima es $w+\bar xz+x\bar y$. Los que no: $wx$ cabe en $w$; $\bar x\bar yz$ ($m_1$ y $m_9$) cabe en $\bar xz$; y $xz$ incluye $m_7$, que vale 0, así que ni siquiera es implicante. Revisa: $m_{10}$ solo está en $w$, $m_3$ solo en $\bar xz$ y $m_4$ solo en $x\bar y$, y esos tres esenciales ya cubren las doce celdas.
+    tiempo_estimado_s: 120
+
+  # razonamiento: algorítmico (del enunciado al circuito, con el alcance del «excepto») · R2
+  # Enunciado, rúbrica, respuesta modelo y pistas de arquitecto-razonamiento (esquema-14), tal cual. Revisión manual.
+  # Comprobado por enumeración (sesión principal): Σm(2, 3, 4, 6, 7); primos xz̄ e y, los dos esenciales.
+  - id: disc-14-021
+    tipo: autoevaluacion
+    dificultad: 4
+    conceptos: [sintesis-circuitos]
+    enunciado: >-
+      Hipotético: el timbre de una escuela, con $x$ = recreo, $y$ = la dirección oprime el botón y $z$ = día de examen (1 = sí). Suena en el recreo, excepto en día de examen. También suena cada vez que la dirección oprime el botón. En papel: la expresión de cada oración, la tabla, el mapa con sus grupos, la SOP mínima y la lista de compuertas. Revisa en dos filas.
+    rubrica:
+      - >-
+        Traduce cada oración antes de la tabla: $x\bar z$ y $y$. El «excepto» solo toca al recreo: las filas 011 y 111 valen 1.
+      - >-
+        Llega a $\Sigma m(2,3,4,6,7)$ con columnas $yz=00,01,11,10$. Encierra el grupo de 4 de $y$ y la pareja $\{m_4,m_6\}$, que da la vuelta, sin dejar $m_4$ sola.
+      - >-
+        Escribe $F=y+x\bar z$, con 2 términos y 3 literales. Justifica que es mínima: son los únicos primos y los dos son esenciales ($m_3$ solo está en $y$; $m_4$, solo en $x\bar z$).
+      - >-
+        Escribe $g_1=\mathrm{NOT}(z)$, $g_2=\mathrm{AND}(x,g_1)$, $F=\mathrm{OR}(y,g_2)$: 3 compuertas contra 9 de la $\Sigma m$. Revisa contra la frase, no contra su tabla: en 101 no suena ($0+1\cdot0=0$) y en 011 sí ($1+0=1$).
+    respuesta_modelo: >-
+      $F=y+x\bar z=\Sigma m(2,3,4,6,7)$. Mapa: con $x=0$, 0 0 1 1; con $x=1$, 1 0 1 1. Primos esenciales: $y$ y $x\bar z$, que da la vuelta. Circuito: NOT, AND y OR, 3 compuertas contra 9. Revisión: 101 da 0 y 011 da 1, como dice la frase.
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        ¿Cuántas condiciones lo hacen sonar y a cuál le toca el «excepto»?
+      - >-
+        ¿Entre columnas vecinas cambia una sola variable? ¿Algún 1 cabe en un grupo mayor si el mapa da la vuelta?
+      - >-
+        Sin rehacer el mapa, ¿qué da tu expresión donde la frase dice que no suena?
+    explicacion: >-
+      **Traduce por oración.** «Suena en el recreo, excepto en día de examen» es $x\bar z$; «también suena cada vez que la dirección oprime el botón» es $y$, sin excepción. $F=y+x\bar z$. **Tabla y mapa.** $y$ vale 1 en 010, 011, 110 y 111, y $x\bar z$ en 100 y 110: $F=\Sigma m(2,3,4,6,7)$. En el mapa, $y$ son las columnas 11 y 10 completas, y $\{m_4,m_6\}$ da la vuelta en la fila $x=1$. **Mínima.** $y$ y $x\bar z$ son los únicos primos y los dos son esenciales: 2 términos y 3 literales. **Circuito.** NOT, AND y OR: 3 compuertas, contra 9 de la $\Sigma m$ (NOT de $x$, $y$ y $z$, cinco AND y una OR). Si el «excepto» te tocó también al botón, te salió $\bar z(x+y)=\Sigma m(2,4,6)$. Revisa: en 101 (recreo en día de examen, sin botón) no suena, y en 011 (botón en día de examen) sí.
+    tarjeta: false
+    tiempo_estimado_s: 300
+
+  # razonamiento: algorítmico (contar compuertas sin AND para la literal sola ni NOT repetidas) · R1
+  # Trampas: 3 AND (una para x̄) y 3 NOT (dos para w̄).
+  # verificar: plantilla K de M; la convención de conteo sobre la única mínima.
+  - id: disc-14-022
+    tipo: completar
+    dificultad: 4
+    conceptos: [circuitos-combinatorios]
+    enunciado: >-
+      Sea $F(w,x,y,z)=\Sigma m(0,1,2,3,5,6,7,8,9,10,11)$. Encuentra su SOP mínima y cuenta las compuertas de su circuito de dos niveles: una NOT por cada variable complementada distinta (sirve a todos los términos que la usan), una AND por cada término de más de una literal (una literal sola va directo a la OR) y una OR si hay más de un término.
+    texto: >-
+      AND: ___ · OR: ___ · NOT: ___
+    respuestas: ["2", "1", "2"]
+    verificar: { python: "(lambda r: (lambda S: [sum(1 for t in S if 4 - t.count('-') > 1), int(len(S) > 1), len({j for t in S for j, c in enumerate(t) if c == '0'})] if len(r[2]) == 1 else None)(r[2][0]))((lambda n, F: (lambda R: (lambda cov: (lambda P: (lambda E, C: (P, E, [S for S in C if sum(n - t.count('-') for t in S) == min(sum(n - t.count('-') for t in T) for T in C)]))([p for p in P if any(sum(1 for q in P if i in cov(q)) == 1 for i in cov(p))], [S for k in range(1, len(P) + 1) for S in itertools.combinations(P, k) if set().union(*[cov(t) for t in S]) == F]))((lambda I: [p for p in I if not any(q != p and cov(p) < cov(q) for q in I)])([''.join(t) for t in itertools.product('01-', repeat=n) if cov(''.join(t)) and cov(''.join(t)) <= F])))(lambda t: {i for i, r in enumerate(R) if all(c == '-' or int(c) == b for c, b in zip(t, r))}))(list(itertools.product((0, 1), repeat=n))))(4, {0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11}))" }
+    pistas:
+      - >-
+        ¿Qué grupo de 8 hay en el mapa? ¿Qué celdas quedan fuera de él?
+      - >-
+        Para las que faltan, ¿cuál es el grupo más grande que contiene a cada una, aunque se encime?
+      - >-
+        ¿Un término de una sola literal necesita AND? ¿Contaste dos veces la NOT de una variable que aparece en dos términos?
+    explicacion: >-
+      **Mínima.** Las filas 00 y 10 del mapa (celdas 0 a 3 y 8 a 11) son las ocho con $x=0$: $\bar x$. Fuera quedan $m_5$, $m_6$ y $m_7$, en la fila 01. $m_5$ y $m_7$ caben en el cuadrado $\{m_1,m_3,m_5,m_7\}$, que da $\bar wz$; $m_6$ y $m_7$, en $\{m_2,m_3,m_6,m_7\}$, que da $\bar wy$. Los tres son esenciales: $F=\bar x+\bar wy+\bar wz$. **Compuertas.** $\bar x$ es una literal sola: va directo a la OR, sin AND. $\bar wy$ y $\bar wz$ llevan 2 AND, y 1 OR suma los tres términos. Las variables con barra son $x$ y $w$: 2 NOT, y la de $w$ sirve a los dos términos. Lista: $g_1=\mathrm{NOT}(x)$, $g_2=\mathrm{NOT}(w)$, $g_3=\mathrm{AND}(g_2,y)$, $g_4=\mathrm{AND}(g_2,z)$, $F=\mathrm{OR}(g_1,g_3,g_4)$. Si contaste 3 AND, le pusiste una a $\bar x$; si contaste 3 NOT, repetiste la de $w$. Revisa: $m_4$ (0100) no está en $F$, y ahí $\bar x+\bar wy+\bar wz=0+0+0=0$.
+    tiempo_estimado_s: 150
+
+  # razonamiento: deductivo (sin esenciales: contar las coberturas mínimas del anillo) · R3
+  # Anillo de 8 de experto-matematicas. Pistas modelo de arquitecto-razonamiento (esquema-14).
+  # Era `numerico` (solo el 2); pasó a `completar` con el mismo id en los arreglos del 2026-11-14.
+  # verificar: plantilla K de M; número de esenciales, de coberturas mínimas y literales de cada una (todas las mínimas
+  # tienen las mismas, por definición; la primera basta).
+  - id: disc-14-023
+    tipo: completar
+    dificultad: 5
+    conceptos: [sop-minima]
+    enunciado: >-
+      Sea $F(w,x,y,z)=\Sigma m(3,4,6,7,9,11,12,13)$. Una SOP mínima es una suma de productos con el menor número de literales (cada aparición cuenta: $\bar wy+\bar wz$ tiene 4). Cuenta los primos esenciales de $F$ y sus SOP mínimas distintas; dos SOP que solo cambian el orden de sus términos cuentan como una.
+    texto: >-
+      Esenciales: ___ · SOP mínimas distintas: ___ · literales de cada una: ___
+    respuestas: ["0", "2", "12"]
+    verificar: { python: "(lambda r: [len(r[1]), len(r[2]), sum(4 - t.count('-') for t in r[2][0])])((lambda n, F: (lambda R: (lambda cov: (lambda P: (lambda E, C: (P, E, [S for S in C if sum(n - t.count('-') for t in S) == min(sum(n - t.count('-') for t in T) for T in C)]))([p for p in P if any(sum(1 for q in P if i in cov(q)) == 1 for i in cov(p))], [S for k in range(1, len(P) + 1) for S in itertools.combinations(P, k) if set().union(*[cov(t) for t in S]) == F]))((lambda I: [p for p in I if not any(q != p and cov(p) < cov(q) for q in I)])([''.join(t) for t in itertools.product('01-', repeat=n) if cov(''.join(t)) and cov(''.join(t)) <= F])))(lambda t: {i for i, r in enumerate(R) if all(c == '-' or int(c) == b for c, b in zip(t, r))}))(list(itertools.product((0, 1), repeat=n))))(4, {3, 4, 6, 7, 9, 11, 12, 13}))" }
+    pistas:
+      - >-
+        ¿Cuentas cualquier cobertura o solo las de menos literales? ¿Qué celdas toca cada primo?
+      - >-
+        ¿Hay alguna celda que solo cubra un primo? Si no, dibuja cada primo como una línea entre sus celdas: ¿qué figura sale?
+      - >-
+        ¿Por qué no te alcanza con menos términos? ¿Contaste la misma SOP dos veces, en otro orden?
+    explicacion: >-
+      **Primos.** Ninguna celda cabe en un grupo de 4, y cada una está en exactamente dos pares. Hay 8 primos de 2 celdas: $\bar wxy$ ($m_6$ y $m_7$), $\bar wyz$ ($m_3$ y $m_7$), $\bar xyz$ ($m_3$ y $m_{11}$), $w\bar xz$ ($m_9$ y $m_{11}$), $w\bar yz$ ($m_9$ y $m_{13}$), $wx\bar y$ ($m_{12}$ y $m_{13}$), $x\bar y\bar z$ ($m_4$ y $m_{12}$) y $\bar wx\bar z$ ($m_4$ y $m_6$). **Sin esenciales.** Si dibujas cada primo como una línea entre sus dos celdas, sale un anillo que pasa por las 8: 6, 7, 3, 11, 9, 13, 12, 4 y de vuelta al 6. Ninguna celda tiene un solo primo: 0 esenciales. **Cuántos términos.** Cada primo cubre 2 de las 8 celdas, así que hacen falta al menos 4, y 4 alcanzan solo si no se enciman: hay que tomar uno sí y uno no alrededor del anillo. Eso da exactamente 2 maneras: $\bar wxy+\bar xyz+w\bar yz+x\bar y\bar z$ y $\bar wyz+w\bar xz+wx\bar y+\bar wx\bar z$, las dos con 4 términos y 12 literales. Revisa: en cada una, las 8 celdas quedan cubiertas una sola vez, y cualquier otra elección de 4 primos repite una celda y deja otra sin cubrir.
+    tiempo_estimado_s: 210
+
+  # razonamiento: deductivo (demostrar o refutar afirmaciones generales sobre las SOP mínimas) · R4
+  # Demostraciones de experto-matematicas; pistas modelo de arquitecto-razonamiento (esquema-14).
+  # verificar: las 255 funciones no nulas de 3 variables (v024 de M, ajustado a estas 5 opciones). Para cada una: primos,
+  # esenciales, el mínimo de literales entre las coberturas con primos y TODAS las coberturas con implicantes
+  # cualesquiera que no lo superan (con a lo más mínimo + 1 términos, porque cada término salvo «1» tiene una literal o
+  # más). En orden: [toda mínima es de primos (y nada tiene menos literales), la mínima es única, si todo primo es
+  # esencial la mínima es única, sin esenciales => constante, toda mínima lleva los esenciales]. La función del 023 es
+  # el contraejemplo de 4 variables que da la explicación. Fuera del jefe desde el 2026-11-14: su explicación, que el jefe
+  # muestra tras cada respuesta, resuelve el 023.
+  - id: disc-14-024
+    tipo: seleccion_multiple
+    dificultad: 5
+    conceptos: [sop-minima]
+    enunciado: >-
+      Una SOP mínima es una suma de productos con el menor número de literales (cada aparición cuenta: $\bar wy+\bar wz$ tiene 4). ¿Cuáles de estas afirmaciones son ciertas para toda función booleana? Puede haber varias.
+    opciones:
+      - >-
+        Toda SOP mínima está hecha de implicantes primos.
+      - >-
+        La SOP mínima de una función es única.
+      - >-
+        Si todo implicante primo de la función es esencial, su SOP mínima es única.
+      - >-
+        Si una función no tiene primos esenciales, es constante.
+      - >-
+        Toda SOP mínima usa todos los primos esenciales.
+    correctas: [0, 2, 4]
+    verificar: { python: "(lambda R: (lambda cov, lits: (lambda info: [all(all(lits(S) == b and all(t in P for t in S) for S in low) for F, P, e, b, low in info), all(sum(1 for S in low if lits(S) == b) == 1 for F, P, e, b, low in info), all(sum(1 for S in low if lits(S) == b) == 1 for F, P, e, b, low in info if set(e) == set(P)), all(len(e) > 0 or len(F) == 8 for F, P, e, b, low in info), all(all(set(e) <= set(S) for S in low if lits(S) == b) for F, P, e, b, low in info)])([(lambda F: (lambda I: (lambda P: (lambda e, b: (F, P, e, b, [S for k in range(1, b + 2) for S in itertools.combinations(I, k) if lits(S) <= b and set().union(*[cov(t) for t in S]) == F]))([p for p in P if any(sum(1 for q in P if i in cov(q)) == 1 for i in cov(p))], min(lits(S) for k in range(1, len(P) + 1) for S in itertools.combinations(P, k) if set().union(*[cov(t) for t in S]) == F)))([p for p in I if not any(q != p and cov(p) < cov(q) for q in I)]))([''.join(t) for t in itertools.product('01-', repeat=3) if cov(''.join(t)) and cov(''.join(t)) <= F]))({i for i in range(8) if f >> i & 1}) for f in range(1, 256)]))(lambda t: {i for i, r in enumerate(R) if all(c == '-' or int(c) == b for c, b in zip(t, r))}, lambda S: sum(3 - t.count('-') for t in S)))(list(itertools.product((0, 1), repeat=3)))" }
+    pistas:
+      - >-
+        ¿Qué basta para tumbar un «siempre»? ¿Qué función de esta unidad cumple la hipótesis que sospechas?
+      - >-
+        Para las que resisten, supón una SOP mínima que las rompa: ¿puedes mejorarla? ¿Qué contradice eso?
+      - >-
+        ¿Tu contraejemplo cumple la hipótesis y rompe la conclusión? ¿Dónde usaste «mínima» y dónde «esencial»?
+    explicacion: >-
+      Son ciertas «toda SOP mínima está hecha de implicantes primos», «toda SOP mínima usa todos los primos esenciales» y «si todo implicante primo es esencial, la SOP mínima es única»; son falsas «la mínima es única» y «sin esenciales, es constante». **De primos.** Si una SOP mínima tuviera un término que no es primo, ese grupo cabría en uno más grande, cuyo producto tiene menos literales y tampoco cubre ningún 0. Al cambiarlo, la SOP seguiría siendo igual a $F$ con menos literales, y no sería mínima. **Con los esenciales.** Un esencial es el único primo que cubre cierta celda con 1. Toda SOP mínima está hecha de primos y debe cubrir esa celda, así que lo lleva. **Única si todos son esenciales.** Toda mínima lleva todos los esenciales y solo primos; si todos los primos son esenciales, lleva todos los primos y nada más, así que solo hay una. **Las falsas.** $\Sigma m(3,4,6,7,9,11,12,13)$, de $(w,x,y,z)$, no es constante y no tiene esenciales (cada celda está en dos primos de 2 celdas), y tiene dos SOP mínimas distintas: $\bar wxy+\bar xyz+w\bar yz+x\bar y\bar z$ y $\bar wyz+w\bar xz+wx\bar y+\bar wx\bar z$. Tumba las dos de un golpe. Revisa: el contraejemplo cumple la hipótesis de las dos falsas («no tiene esenciales», o ninguna) y rompe su conclusión; y cada demostración usa «mínima» (no se pueden quitar literales) o «esencial» (único primo de una celda).
+    tiempo_estimado_s: 240
+
+  # razonamiento: deductivo (alcance del «nunca», del «aunque» y del «excepto») · R2
+  # Bomba hipotética de experto-matematicas; la frase se reescribió para que el «basta una de las dos» y el alcance del
+  # «excepto» no admitan dos lecturas (que la lingüista la revise). Sin el «pero» sale Σm(8, 9, 10, 11, 14, 15).
+  # verificar: la regla traducida, w(x̄ + y)(z̄ + y); el caso en palabras, sus filas y, con la plantilla K de M,
+  # términos, literales y compuertas de la única mínima.
+  - id: disc-14-025
+    tipo: completar
+    dificultad: 5
+    conceptos: [sintesis-circuitos]
+    enunciado: >-
+      Supón una bomba que sube agua de la cisterna al tinaco, con cuatro entradas en este orden: $w$ (la cisterna tiene agua), $x$ (el tinaco está lleno), $y$ (modo manual) y $z$ (alarma de fuga), cada una con 1 = sí y $w$ como bit más significativo. La regla: «Con la cisterna vacía nunca enciende, pase lo que pase. Con agua en la cisterna, enciende si el tinaco no está lleno, o si la bomba está en modo manual, aunque el tinaco esté lleno (basta una de las dos). Pero si suena la alarma de fuga, no enciende, excepto en modo manual». En el primer hueco escribe 1 (enciende) o 0 (no enciende). Cuenta las compuertas con la convención de la lección.
+    texto: >-
+      Con agua, tinaco no lleno, sin modo manual y con alarma, ¿enciende? ___ · $F$ tiene ___ minitérminos · su SOP mínima tiene ___ términos y ___ literales · el circuito de la SOP mínima usa ___ compuertas
+    respuestas: ["0", "5", "2", "5", "5"]
+    verificar: { python: "(lambda f: (lambda F: (lambda r: (lambda S: [f(1, 0, 0, 1), len(F), len(S), sum(4 - t.count('-') for t in S), sum(1 for t in S if 4 - t.count('-') > 1) + int(len(S) > 1) + len({j for t in S for j, c in enumerate(t) if c == '0'})])(r[2][0]) if len(r[2]) == 1 else None)((lambda n, F: (lambda R: (lambda cov: (lambda P: (lambda E, C: (P, E, [S for S in C if sum(n - t.count('-') for t in S) == min(sum(n - t.count('-') for t in T) for T in C)]))([p for p in P if any(sum(1 for q in P if i in cov(q)) == 1 for i in cov(p))], [S for k in range(1, len(P) + 1) for S in itertools.combinations(P, k) if set().union(*[cov(t) for t in S]) == F]))((lambda I: [p for p in I if not any(q != p and cov(p) < cov(q) for q in I)])([''.join(t) for t in itertools.product('01-', repeat=n) if cov(''.join(t)) and cov(''.join(t)) <= F])))(lambda t: {i for i, r in enumerate(R) if all(c == '-' or int(c) == b for c, b in zip(t, r))}))(list(itertools.product((0, 1), repeat=n))))(4, F)))({i for i, v in enumerate(itertools.product((0, 1), repeat=4)) if f(*v)}))(lambda w, x, y, z: w & ((1 - x) | y) & ((1 - z) | y))" }
+    pistas:
+      - >-
+        ¿Qué filas deja fuera la primera oración? ¿Y el «pero»? ¿A qué condición le toca el «excepto»?
+      - >-
+        Antes de minimizar, ¿qué celdas apaga la alarma? ¿Cuáles de ellas se salvan por el modo manual?
+      - >-
+        En la fila 1001, ¿qué dice la frase, palabra por palabra? ¿Coincide con tu SOP?
+    explicacion: >-
+      **El caso.** Con agua y el tinaco no lleno enciende, pero suena la alarma y no está en modo manual: el «pero» manda, y no enciende, 0. **Traduce.** Las dos primeras oraciones dan $w(\bar x+y)$. El «pero… excepto en modo manual» quita las filas con $z=1$ y $y=0$, es decir, multiplica por $\overline{z\bar y}=\bar z+y$: $F=w(\bar x+y)(\bar z+y)$. **Filas.** $w(\bar x+y)$ vale 1 en 8, 9, 10, 11, 14 y 15; el «pero» quita la 9 (1001), y quedan 8, 10, 11, 14 y 15: 5 minitérminos. **Mínima.** $\{m_{10},m_{11},m_{14},m_{15}\}$, de las filas 11 y 10 con las columnas 11 y 10, da $wy$; $m_8$ solo se junta con $m_{10}$, por la vuelta de las columnas: $w\bar x\bar z$. $F=wy+w\bar x\bar z$: 2 términos y 5 literales. **Circuito:** $g_1=\mathrm{NOT}(x)$, $g_2=\mathrm{NOT}(z)$, $g_3=\mathrm{AND}(w,y)$, $g_4=\mathrm{AND}(w,g_1,g_2)$, $F=\mathrm{OR}(g_3,g_4)$: 5 compuertas. Sin el «pero» sale $\Sigma m(8,9,10,11,14,15)=w\bar x+wy$, que enciende en 1001. Revisa: en 1001, $wy+w\bar x\bar z=0+1\cdot1\cdot0=0$, como dice la frase; y en 1011 (con alarma, pero en modo manual), $wy=1$.
+    tiempo_estimado_s: 210
