@@ -1,0 +1,78 @@
+unidad: matematicas-discretas/18-modulo-n
+nombre: "El Relojero de los Residuos"
+vidas: 3
+# tiempo_segundos: suma de los tiempo_estimado_s de las 14 preguntas más 10 %.
+# Propias: 014 (90) + 015 (120) + 016 (90) + 017 (120) + 018 (90) + 021 (120) + 022 (150) + 023 (180) + 024 (180) +
+# 025 (150) = 1290. Repaso: 17-006 (60) + 15-018 (90) + 17-012 (120) + 17-010 (90) = 360. Total 1650; con el 10 %,
+# 1815, redondeado hacia arriba a 1820 s (30 min 20 s).
+tiempo_segundos: 1820
+aprobado_minimo: 0.8
+preguntas:
+  # Propias, 10 (esquema v1, experto-matematicas, ajustadas): d3: 014, 015, 016, 017, 018 · d4: 021, 022 ·
+  # d5: 023, 024, 025. Cubren los seis conceptos: CM (017), CR (018, 024), AM (022, 023), IM (016, 023),
+  # CL (014, 021, 025) y TC (015, 024, 025). Sin manuales ni autoevaluación: el 019 y el 020 se quedan fuera. Sin el 013:
+  # su fila del 8 en ℤ₁₂ tiene ceros fuera de la columna del 0, que tumban la (1) del R4, y su explicación da
+  # mcd(8, 12) = 4, el primer paso del 17-006.
+  propias: [disc-18-014, disc-18-015, disc-18-016, disc-18-017, disc-18-018, disc-18-021, disc-18-022, disc-18-023, disc-18-024, disc-18-025]
+  # Repaso: 4 de 14 (28.6 %), elegidos a mano entre pares que se confunden (esquema v1, experto-matematicas; ids del
+  # encargo-18 de la sesión principal). Comprobado el 2026-11-14 contra los archivos: el 15-018 está en el commit
+  # 8bb12b5, y el 17-006, el 17-010 y el 17-012, en el 4fb276e (la 17, con sus arreglos). Los cuatro existen, no están
+  # retirados y siguen siendo lo que dice el encargo; sus explicaciones se volvieron a leer tras los arreglos de la 17.
+  # - 17-006 (d2, la clase [8] de «mismo mcd con 12») con el 018 (cuántos de {1, …, 1000} hay en cada clase módulo 13):
+  #   la clase de otra equivalencia sobre los enteros contra una clase residual.
+  # - 15-018 (d3, f⁻¹ de una función racional, `simbolico`) con el 016 (29⁻¹ mod 80): la inversa de una función contra
+  #   el inverso módulo n.
+  # - 17-012 (d3, Beto: clases que se traslapan) con el 015 (Iris no comprueba su teorema chino): dos errores que se
+  #   atrapan con una revisión final.
+  # - 17-010 (d3, la transitividad equivocada de Ana con xy ≥ 0) con el 014 (Sofía divide entre 4 sin cambiar el
+  #   módulo): un error plantado en un procedimiento. Cambio contra el esquema, que decía 16-022: ese ejercicio ya va en
+  #   las propias del jefe de la 16 y en el repaso del de la 17, y así no sale en tres jefes (encargo-18).
+  # Ninguna explicación resuelve otra pregunta de este jefe (el jefe muestra la explicación tras cada respuesta,
+  # boss-runner.tsx). Lo que se cruza, revisado par por par:
+  # - 014 y 023: la del 014 deja ver que 4 · 5 ≡ 4 · 2 (mod 12) con 5 ≢ 2, un contraejemplo de la (3) del R4, y que con
+  #   módulo 13 sí se cancela el 4, un caso de la (0). La lección ya da las dos: la regla de cancelación de §6 («si
+  #   mcd(c, n) = 1, el módulo no cambia») y el `<Ojo>` (2 · 5 ≡ 2 · 2 (mod 6), pero 5 ≢ 2), así que no agrega nada. No
+  #   toca la (1), la (2), la (4) ni la (5). La del 023 no da la regla con n/mcd(c, n), que decidiría la opción
+  #   «x ≡ 2 (mod 3)» del 014; además, el 014 (d3) sale siempre antes que el 023 (d5).
+  # - 014, 021 y 025: las tres explicaciones dividen entre el mcd y cambian el módulo, la técnica de §6, cada una con sus
+  #   números (4x ≡ 8 (mod 12), 18x ≡ 30 (mod 42) y 4x ≡ 6 (mod 10)). Ninguna da soluciones ni congruencias reducidas
+  #   de las otras.
+  # - 021 y 025: las dos llegan a una congruencia 3x ≡ algo (mod 7) (5 en el 021, 2 en el 025). Ninguna da 3⁻¹ mod 7: la
+  #   del 021 usa 5 ≡ 12 y cancela el 3, y la del 025 comprueba 3 · 3 = 9 ≡ 2. Los resultados, x ≡ 4 y x ≡ 3 (mod 7),
+  #   son distintos.
+  # - 015 y 024: la del 015 despeja 7k ≡ 6 (mod 9) con 7 ≡ −2 y no da 7⁻¹ mod 9; la del 024 (arreglos-18) despeja
+  #   5k ≡ 3 (mod 9) con 5 · 2 ≡ 1. Las dos llegan a k ≡ 6, desde congruencias distintas, y la del 024 sale siempre
+  #   después (d5 contra d3). Ninguna da el 47 del 015 ni el 347 del 024. La del 015 enseña a sustituir en todas al
+  #   final, que el 024 no pide.
+  # - 024 y 025 (los dos en la 3.ª oleada, en orden al azar): la del 024 sustituye en el orden 5, 9, 8 (5k ≡ 3 (mod 9)
+  #   y 5j ≡ 3 (mod 8); arreglos-18) y no resuelve ninguna congruencia módulo 5 ni módulo 7; la del 025 tiene
+  #   2x ≡ 3 (mod 5) y 2k ≡ 1 (mod 5). Si se resuelve el 024 en el orden 8, 9, 5, se pasa por 2j ≡ 3 (mod 5), y la del
+  #   025 da 2 · 4 ≡ 3: es una cuenta de una línea y no da ninguna respuesta del 024. La del 024 no da nada del 025.
+  # - 024 y 021, 022, 023 (que pueden salir después del 024 en la 3.ª oleada): la del 024 da 5⁻¹ ≡ 2 (mod 9) y
+  #   5⁻¹ ≡ 5 (mod 8), y que 8 y 6 comparten el 2. No toca 3x ≡ 5 (mod 7) del 021, potencias de 3 del 022 ni ninguna
+  #   afirmación del R4 del 023.
+  # - 017 y 024: la del 017 dice que «módulo 4 y módulo 6» da módulo mcm = 12 (mismo residuo en los dos); no habla de
+  #   sistemas sin solución. Que «cada 8 desde el 3» y «cada 6 desde el 4» no coincidan sale por paridad, como el
+  #   ejemplo de 4, 6 y 9 del `<Ojo>` de la lección.
+  # - 017 y 023: la del 017 tumba a² ≡ b² ⇒ a ≡ b con 1 y −1 módulo 5, sin hablar de primos ni de productos que dan 0;
+  #   usa el inverso de 4 módulo 9 para «módulo 4 y 9 dan 36», un caso de la regla de cancelación que ya da la lección.
+  # - 023 y 024, 025: la del 023 habla de inversos, de primos y de ℤ₆, ℤ₇, ℤ₈ y ℤ₁₅; no resuelve sistemas ni da
+  #   soluciones. Las del 024 y el 025 no evalúan ninguna afirmación del R4.
+  # - 016, 018 y 022: la del 016 da Euclides para 80 y 29; la del 018 cuenta con 1000 = 76 · 13 + 12; la del 022 da
+  #   potencias de 3 módulo 100 y que reducir 2026 a 26 da lo mismo solo porque 3²⁰ ≡ 1 y 20 ∣ 100 (arreglos-18). Sus
+  #   números no salen en ninguna otra pregunta del jefe; el 20 de la [8] del 17-006 sale en la 1.ª oleada, antes.
+  # - 014 y 17-006 (pueden caer juntos en la 1.ª oleada): la del 014 dice mcd(4, 12) = 4, que deja ver que el 4 está en
+  #   la [8] del 17-006; es inmediato y no da los otros cuatro elementos ni la condición «múltiplo de 4 y no de 3».
+  #   La del 17-006 no habla de congruencias.
+  # - Repaso contra propias: la del 17-006 lista múltiplos de 4 hasta el 30; la del 15-018 despeja x en una función
+  #   racional; la del 17-012 revisa clases que se traslapan y el par (2, 5); y la del 17-010 trata la transitividad de
+  #   xy ≥ 0 con el 0 de intermedio. Ninguna habla de congruencias, inversos módulo n ni sistemas, y ninguna explicación
+  #   de esta unidad habla de mcd(x, 12) como etiqueta, de funciones inversas, de pares de una relación ni de xy ≥ 0.
+  repaso_de: [disc-17-006, disc-15-018, disc-17-012, disc-17-010]
+  # Oleadas 4/6/4 (waveSizes(14) del motor, ejecutado con tsx: apportion(14, [0.3, 0.4, 0.3]) da 4.2/5.6/4.2 → 4/5/4,
+  # y el residuo va a la 2.ª, que tiene la fracción mayor), por dificultad y con desempate al azar. Hay 1 de d2
+  # (17-006), 8 de d3 (014, 015, 016, 017, 018, 15-018, 17-012 y 17-010), 2 de d4 (021 y 022) y 3 de d5 (023, 024 y
+  # 025): 1.ª = 17-006 y tres de los ocho d3; 2.ª = los cinco d3 que quedan y uno de los dos d4; 3.ª = el otro d4, 023,
+  # 024 y 025. Así, el 014 y el 015 salen siempre antes que el 023 y el 024; el 024 y el 025 caen juntos en la 3.ª; y
+  # el 021 puede caer con el 025. Dentro de cada oleada el orden es al azar (boss.ts).
+recompensa: { xp: 300, insignia: "unica-modulo-el-producto" }

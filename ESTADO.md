@@ -274,7 +274,7 @@ Plan (2026-10-13, rama `fase-3-calculo-discretas`): 0) rama y registro · 1) pru
   - [ ] 09 · [ ] 02
 - [ ] Matemáticas discretas
   - [x] Puerta de temario (paso 9, 2026-11-13): el programa oficial en `curriculum/programas/matematicas-discretas.pdf`, el temario aprobado por Carlo y `conceptos.yaml` completo (132 conceptos en 23 unidades: 21 del programa y 2 extra)
-  - [ ] Unidad IV para el 3.er parcial, en orden 13 → 21: [x] 13 (2026-11-13) · [x] 14 (2026-11-14) · [x] 15 (2026-11-14) · [x] 16 (2026-11-14) · [x] 17 (2026-11-14) · [ ] 18 · [ ] 19 · [ ] 20 · [ ] 21
+  - [ ] Unidad IV para el 3.er parcial, en orden 13 → 21: [x] 13 (2026-11-13) · [x] 14 (2026-11-14) · [x] 15 (2026-11-14) · [x] 16 (2026-11-14) · [x] 17 (2026-11-14) · [x] 18 (2026-11-14) · [ ] 19 · [ ] 20 · [ ] 21
   - [ ] Deuda: los jefes de la IV no tienen el 25–35 % de repaso de las unidades I–III, porque aún no existen. Cuando se escriban, se agrega sin cambiar ids.
   - [ ] Unidades 01 a 12, después del parcial
   - [ ] Extra: 22 conteo · 23 recurrencias
@@ -384,6 +384,27 @@ Complementan los ADR-001 a 008 de `docs/02`. Cada uno se escribe en el commit de
 **ADR-013 · Nomenclatura** (paso 1, decisión D1). Código, tablas y campos de IndexedDB en inglés, con equivalencias en `docs/02`. Las claves de YAML y del front matter siguen en español (son el formato de contenido). Los componentes MDX conservan su nombre en español porque son la API del contenido (`Predice` se implementa como `PredictPrompt`). Las URL van en español porque son interfaz. `APP_ID = 'cortex'` es inmutable (nombre de la base y marca de los respaldos); renombrar la app solo cambia `APP_NAME`. *Descartado:* todo en español (contradice `CLAUDE.md`) o una capa de traducción.
 
 ## Bitácora
+- 2026-11-14 · **Unidad `matematicas-discretas/18-modulo-n`** (3.er parcial; Unidad IV, 4.4.1 a 4.4.3).
+  - *Esquema:* v1, aprobado por Carlo; revisado por M, P y A.
+    - Congruencia como equivalencia, con remisión a la 17.
+    - El inverso se pide en $\{0,\dots,n-1\}$, nunca como par de Bézout.
+    - El teorema chino solo por sustitución.
+    - Dos autoevaluaciones, porque el parcial califica el procedimiento.
+  - *Escrita* por `autor-contenido`: lección de 25 min (1508 palabras), 25 ejercicios 6/6/6/4/3 (23 por código y 2 manuales) y jefe de 10 más 4 de repaso de la 15 y la 17 (`disc-17-006`, `disc-15-018`, `disc-17-012` y `disc-17-010`), con 1,820 s.
+    - El repaso cambia contra el esquema: `disc-17-010` va en lugar de `disc-16-022`, que ya estaba en dos jefes.
+    - Se agregaron a la `notacion` $\mathbb Z_n$ y que ≡ entre enteros es congruencia.
+    - La sesión se cortó antes de que el autor entregara su reporte. Las desviaciones del esquema las buscaron M y P en la revisión: todas son aceptables.
+  - *`/revisar-contenido`:*
+    - a ciegas, 23/23;
+    - checklist M, L y P con objeción: el resumen invitaba a reducir el exponente módulo $n$; dos huecos del desvanecido del teorema chino no decían el intervalo; un hueco del 024 se leía como 360 o 359; el 013 regalaba un hueco con otro; y había ejemplos parecidos a los de Rosen 4.1 y 4.4.
+  - *Arreglos:* Carlo aprobó «errores + mejoras» (`arreglos-18.md`). Segunda ronda a ciegas: 6/6.
+  - *Evidencia:*
+    - `pnpm content:check` en verde (6 unidades, 145 ejercicios);
+    - `pnpm test`: 1182;
+    - `pnpm lint`;
+    - lección en el puerto 3200: 229 fórmulas, 0 `.katex-error` y sin errores de consola;
+    - el jefe arranca con 14 preguntas.
+  - *Esquemas 20 y 21:* v1 consolidados de M, P, A y L, y aprobados por Carlo. El jefe final de la 21 queda con 4 de 14 de repaso y 3 vidas, como los demás. La amplitud del parcial la da el simulacro.
 - 2026-11-14 · **Unidad `matematicas-discretas/17-equivalencia`** (3.er parcial; Unidad IV, 4.3.3 y 4.3.4).
   - *Esquema:* v1, aprobado por Carlo; revisado por M, P y A. Sin congruencia ni ≡, porque son de la 18. Ninguna respuesta es un conjunto de conjuntos: las clases se piden como `conjunto` plano, número de clases, tamaños o pares.
   - *Escrita* por `autor-contenido`: lección de unos 20 min (1,110 palabras), 20 ejercicios 4/5/5/3/3 (19 por código y 1 manual) y jefe de 10 más 4 de repaso de la 15 y la 16 (`disc-16-017`, `disc-16-022`, `disc-16-009` y `disc-15-024`), con 1,800 s.

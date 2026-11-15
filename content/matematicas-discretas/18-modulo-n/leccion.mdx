@@ -1,0 +1,166 @@
+---
+titulo: "Enteros módulo n: la aritmética del reloj"
+materia: matematicas-discretas
+unidad: 18-modulo-n
+duracion_min: 25
+prerrequisitos: [relacion-equivalencia, clases-equivalencia, conjunto-cociente, algoritmo-division, division-negativos, algoritmo-euclides, bezout, lema-euclides]
+conceptos: [congruencia-modulo, clases-residuo, aritmetica-modular, inverso-modular, congruencias-lineales, teorema-chino-residuo]
+programa_ref: "Matemáticas discretas, Unidad IV, 4.4.1 (congruencia módulo n como relación de equivalencia), 4.4.2 (aritmética de los enteros módulo n) y 4.4.3 (teorema chino del residuo)"
+---
+
+## El problema
+
+Supón un reloj con 12 marcas, numeradas del 0 al 11. Una ficha empieza en el 0 y avanza siempre el mismo número de marcas; después del 11 sigue el 0, así que avanzar 3 desde el 10 la deja en el 1. ¿Por qué marcas pasa si da saltos de 5? ¿Y si da saltos de 4?
+
+<Predice pregunta="Con saltos de 5, ¿la ficha pasa por las 12 marcas? ¿Y con saltos de 4?" revela="Con saltos de 5, sí: 0, 5, 10, 3, 8, 1, 6, 11, 4, 9, 2, 7 y de vuelta al 0. Con saltos de 4, no: pasa solo por 0, 4 y 8. Al final de la lección sabrás por qué, sin dar las vueltas." />
+
+## Congruencia y clases
+
+<Concepto titulo="Congruencia módulo n">
+Sea $n\ge2$. Dos enteros son **congruentes módulo $n$** si $n$ divide su diferencia:
+
+$$a\equiv b\pmod{n}\iff n\mid a-b.$$
+
+En el reloj, avanzar 19 marcas o avanzar 7 deja la ficha en el mismo lugar: $19\equiv7\pmod{12}$, porque $19-7=12$.
+
+Si $a=qn+r$ y $b=q'n+r'$, con residuos $0\le r,r'<n$, entonces $a-b=(q-q')n+(r-r')$, así que $n\mid a-b$ si y solo si $n\mid r-r'$; como $\lvert r-r'\rvert<n$, eso pasa si y solo si $r=r'$. Es decir, $a\equiv b$ es la regla «mismo residuo», de la forma $f(a)=f(b)$: es de equivalencia, como viste en la unidad 17.
+
+Sus clases son las **clases residuales**, $[a]_n=\{a+kn:k\in\mathbb Z\}$, una por residuo. El conjunto cociente es
+
+$$\mathbb Z_n=\{[0]_n,[1]_n,\dots,[n-1]_n\},$$
+
+con $n$ clases. Cualquier elemento de $[a]_n$ la representa (unidad 17); en esta unidad, **el representante** es el único en $\{0,\dots,n-1\}$: el residuo $a\bmod n$. Por ejemplo, $-23\bmod5=2$, porque $-23=(-5)\cdot5+2$. Si no hay duda del módulo, se escribe $[a]$.
+
+**En código:** con $n>0$, el `%` de Python ya da $a\bmod n$, y `-23 % 5` es 2. El de C da −3, y se corrige con `((a % n) + n) % n`.
+</Concepto>
+
+## Sumar, multiplicar y elevar
+
+<Concepto titulo="Aritmética módulo n">
+Si $a'\equiv a$ y $b'\equiv b\pmod{n}$, entonces
+
+$$a'+b'\equiv a+b\quad\text{y}\quad a'b'\equiv ab\pmod{n}.$$
+
+**La suma:** existen enteros $k$ y $m$ con $a'=a+kn$ y $b'=b+mn$, así que $(a'+b')-(a+b)=(k+m)n$. El producto se demuestra igual, y te toca en la práctica.
+
+Por eso $[a]+[b]=[a+b]$ y $[a][b]=[ab]$ están **bien definidas**: no importa qué elemento de cada clase uses. En las cuentas, reduce cuando quieras: módulo 10, $47\cdot38\equiv7\cdot8=56\equiv6$.
+
+**Potencias por cuadrados sucesivos.** Para $2^{45}\bmod19$, se eleva al cuadrado y se reduce cada vez; por ejemplo, $2^8\equiv16^2=256=13\cdot19+9$:
+
+$$2^1\equiv2,\quad2^2\equiv4,\quad2^4\equiv16,\quad2^8\equiv9,\quad2^{16}\equiv5,\quad2^{32}\equiv6\pmod{19}.$$
+
+Como $45=32+8+4+1$, $2^{45}\equiv6\cdot9\cdot16\cdot2$. Y $6\cdot9=54\equiv16$, $16\cdot16=256\equiv9$ y $9\cdot2=18$: $2^{45}\bmod19=18$, con cinco cuadrados y tres productos en lugar de 44 multiplicaciones.
+</Concepto>
+
+## Inverso módulo n
+
+<Concepto titulo="Inverso y Euclides extendido">
+Un **inverso** de $a$ módulo $n$ es un $x$ con $ax\equiv1\pmod{n}$. Si existe, hay uno solo en $\{0,\dots,n-1\}$, y se escribe $a^{-1}\bmod n$.
+
+**Teorema.** $a$ tiene inverso módulo $n$ si y solo si $\mathrm{mcd}(a,n)=1$, es decir, si $a$ y $n$ son **coprimos** (también se dice primos relativos o primos entre sí).
+
+- **(⇒)** Si $ax=1+kn$, todo divisor común de $a$ y $n$ divide a $ax-kn=1$.
+- **(⇐)** El algoritmo de la división da, para enteros $u$ y $v>0$, únicos $q$ y $r$ con $u=qv+r$ y $0\le r<v$. Euclides divide una y otra vez, empezando con $n$ entre $a$, con $a$ ya reducido a $\{1,\dots,n-1\}$, y el último residuo no nulo es el mcd (unidad 10). Si es 1, cada residuo se despeja como dividendo menos cociente por divisor y se sustituye hacia atrás: todo queda en términos de $n$ y $a$, $1=sn+ta$ con $s,t$ enteros, y $ta\equiv1$.
+
+Así, en $\mathbb Z_{20}$, los elementos con inverso son 1, 3, 7, 9, 11, 13, 17 y 19, los coprimos con 20.
+</Concepto>
+
+<Ejemplo titulo="El inverso de 11 módulo 36">
+| División | Residuo despejado |
+|---|---|
+| $36=3\cdot11+3$ | $3=36-3\cdot11$ |
+| $11=3\cdot3+2$ | $2=11-3\cdot3$ |
+| $3=1\cdot2+1$ | $1=3-1\cdot2$ |
+| $2=2\cdot1+0$ | |
+
+1. **El mcd:** el último residuo no nulo es 1, así que el inverso existe.
+2. **Hacia atrás**, de abajo arriba: $1=3-2=3-(11-3\cdot3)=4\cdot3-11=4(36-3\cdot11)-11=4\cdot36-13\cdot11$.
+3. **El inverso:** $11\cdot(-13)\equiv1\pmod{36}$, y $-13\equiv23\pmod{36}$, así que $11^{-1}\bmod36=23$.
+4. **Comprueba:** $11\cdot23=253=7\cdot36+1$.
+</Ejemplo>
+
+<Desvanecido titulo="Ahora tú: el inverso de 17 módulo 60" pasos={[
+  "Calcula $17^{-1}\\bmod60$. Las divisiones de Euclides ya están: $60=3\\cdot17+9$, $17=1\\cdot9+8$ y $9=1\\cdot8+1$. El último residuo no nulo es 1, así que el inverso existe.",
+  "Despeja los residuos: $1=9-8$ y $8=17-9$. Sustituye el 8: $1=$ ___ $\\cdot9-17$.",
+  "Ahora sustituye $9=60-3\\cdot17$: $1=$ ___ $\\cdot60-$ ___ $\\cdot17$.",
+  "Escribe el inverso en $\\{0,\\dots,59\\}$: $17^{-1}\\bmod60=$ ___ ."
+]} respuestas={["2", "2", "7", "53"]} />
+
+## Congruencias lineales
+
+<Concepto titulo="Congruencias lineales">
+Resolver $ax\equiv b\pmod{n}$ es hallar los $x\in\{0,\dots,n-1\}$ que la cumplen. Sea $d=\mathrm{mcd}(a,n)$.
+
+**Teorema.** Tiene solución si y solo si $d\mid b$, y entonces tiene exactamente $d$: los $x_0+k\,n/d$, con $k=0,1,\dots,d-1$, donde $x_0$ es la solución de $\frac{a}{d}x\equiv\frac{b}{d}\pmod{n/d}$ en $\{0,\dots,n/d-1\}$.
+
+- **Si hay solución, $d\mid b$:** si $ax=b+kn$, $d$ divide a $ax-kn=b$.
+- **Si $d\mid b$:** $n\mid ax-b$ si y solo si $\frac{n}{d}\mid\frac{ax-b}{d}$, así que se divide **todo** entre $d$, incluido el módulo. Como $\mathrm{mcd}(\frac{a}{d},\frac{n}{d})=1$, $\frac{a}{d}$ tiene inverso y la nueva congruencia tiene una sola solución $x_0$ en $\{0,\dots,n/d-1\}$; dentro de $\{0,\dots,n-1\}$, su clase son los $d$ números $x_0+k\,n/d$.
+
+Con la misma idea sale la **regla de cancelación**: $ac\equiv bc\pmod{n}$ si y solo si $a\equiv b\pmod{n/\mathrm{mcd}(c,n)}$. Si $\mathrm{mcd}(c,n)=1$, el módulo no cambia.
+</Concepto>
+
+<Ejemplo titulo="Una congruencia con tres soluciones">
+Resuelve $9x\equiv6\pmod{15}$.
+
+1. **¿Hay?** $d=\mathrm{mcd}(9,15)=3$ y $3\mid6$: hay 3 soluciones.
+2. **Divide todo entre 3:** $3x\equiv2\pmod{5}$.
+3. **Despeja sin dividir:** $3^{-1}\bmod5=2$, porque $3\cdot2=6\equiv1$. Al multiplicar por 2, $x\equiv4\pmod{5}$.
+4. **En $\{0,\dots,14\}$:** $x\in\{4,9,14\}$. Comprueba: $9\cdot9=81=5\cdot15+6$.
+
+En cambio, $6x\equiv5\pmod{22}$ no tiene solución: $\mathrm{mcd}(6,22)=2$ y $2\nmid5$.
+</Ejemplo>
+
+## Teorema chino del residuo
+
+<Concepto titulo="Teorema chino del residuo">
+Si $m_1,\dots,m_k$ son **coprimos dos a dos** (cada par tiene mcd 1) y $M=m_1m_2\cdots m_k$, el sistema
+
+$$x\equiv r_1\pmod{m_1},\ \dots,\ x\equiv r_k\pmod{m_k}$$
+
+tiene solución, y es única módulo $M$: hay exactamente una en $\{0,\dots,M-1\}$.
+
+- **Única:** si $x$ y $y$ son soluciones, cada $m_i$ divide a $x-y$ y, como son coprimos dos a dos, su producto $M$ también.
+- **Existe, por sustitución:** se escribe la primera como $x=r_1+m_1k$ y se sustituye en la segunda. Queda $m_1k\equiv r_2-r_1\pmod{m_2}$, y como $\mathrm{mcd}(m_1,m_2)=1$, $m_1$ tiene inverso y sale $k$. Eso deja una sola congruencia módulo $m_1m_2$, que es coprimo con los demás módulos, y se repite.
+</Concepto>
+
+<Ejemplo titulo="Dos congruencias, por sustitución">
+Resuelve $x\equiv3\pmod{7}$, $x\equiv5\pmod{11}$.
+
+1. **Los módulos:** 7 y 11 son coprimos, así que hay una sola solución módulo 77.
+2. **Sustituye:** de la primera, $x=3+7k$; en la segunda, $3+7k\equiv5$, o sea $7k\equiv2\pmod{11}$.
+3. **Despeja sin dividir:** $7^{-1}\bmod11=8$, porque $7\cdot8=56=5\cdot11+1$. Así, $k\equiv16\equiv5\pmod{11}$, es decir, $k=5+11j$.
+4. **La solución:** $x=3+7(5+11j)=38+77j$, o sea $x\equiv38\pmod{77}$.
+5. **Revisa en las dos:** $38=5\cdot7+3$ y $38=3\cdot11+5$.
+</Ejemplo>
+
+<Desvanecido titulo="Ahora tú: tres congruencias" pasos={[
+  "Resuelve $x\\equiv1\\pmod{4}$, $x\\equiv2\\pmod{5}$, $x\\equiv4\\pmod{9}$. Los módulos son coprimos dos a dos.",
+  "Primera ronda, completa: $x=1+4k$ y $1+4k\\equiv2\\pmod{5}$, o sea $4k\\equiv1$. Como $4\\cdot4=16\\equiv1$, $k\\equiv4$, y $x=1+4(4+5j)=17+20j$: $x\\equiv17\\pmod{20}$.",
+  "Segunda ronda: $17+20j\\equiv4\\pmod{9}$. Al reducir 17 y 20 módulo 9 y pasar al otro lado lo que no lleva $j$, queda $2j\\equiv$ ___ $\\pmod{9}$, con el número en $\\{0,\\dots,8\\}$.",
+  "Despeja sin dividir: $j\\equiv$ ___ $\\pmod{9}$, con $j$ en $\\{0,\\dots,8\\}$.",
+  "Con ese $j$ de $\\{0,\\dots,8\\}$, $x=17+20j=$ ___ , y la solución es única módulo ___ ."
+]} respuestas={["5", "7", "157", "180"]} />
+
+## Errores comunes
+
+<Ojo>
+- **No se divide sin inverso.** $2\cdot5\equiv2\cdot2\pmod{6}$, pero $5\not\equiv2$: el 2 no tiene inverso módulo 6. Con $\mathrm{mcd}(c,n)=1$, cancelar $c$ no cambia el módulo; si no, la regla de cancelación lo divide entre $\mathrm{mcd}(c,n)$.
+- **El exponente no se reduce módulo $n$.** $2^{10}\bmod7=2$, pero $2^{10\bmod7}=2^3\equiv1$.
+- **El `%` de C con dividendo negativo** puede dar un valor negativo, fuera de $\{0,\dots,n-1\}$: `-23 % 5` es −3. Usa `((a % n) + n) % n`.
+- **Revisa los módulos par por par.** El mcd de 4, 6 y 9 juntos es 1, pero 4 y 6 comparten el 2: $x\equiv1\pmod{4}$ y $x\equiv2\pmod{6}$ ya no tienen solución, porque la primera pide $x$ impar y la segunda, par.
+- **$a\bmod n$ es un número; $a\equiv b\pmod{n}$ es una afirmación.** $26\equiv-2\pmod{7}$ es cierta, aunque $26\bmod7=5$.
+</Ojo>
+
+<Conexion materia="Programación y criptografía">
+Una tabla hash sencilla con $m$ casillas guarda la llave entera $k$ en la casilla $k\bmod m$. RSA cifra elevando el mensaje a una potencia módulo un $n$ enorme, con cuadrados sucesivos, y su llave privada es un inverso modular, pero módulo otro número, no módulo $n$.
+</Conexion>
+
+<Resumen>
+- $a\equiv b\pmod{n}$ si $n\mid a-b$; es de equivalencia, y sus $n$ clases forman $\mathbb Z_n$, cada una con su representante en $\{0,\dots,n-1\}$.
+- Se suma y se multiplica reduciendo cuando quieras; en una potencia se reducen la base y cada resultado, no el exponente. El inverso de $a$ módulo $n$ existe si y solo si $\mathrm{mcd}(a,n)=1$, y Euclides extendido lo encuentra.
+- $ax\equiv b\pmod{n}$ tiene solución si y solo si $\mathrm{mcd}(a,n)\mid b$; con módulos coprimos dos a dos, un sistema tiene solución única módulo su producto.
+</Resumen>
+
+<Feynman>
+Explícale a un amigo por qué, en el reloj de 12 marcas, con saltos de 4 nunca llegas a la marca 1, y con saltos de 5 sí. Si te trabas: llegar al 1 con $s$ saltos de 4 es resolver $4s\equiv1\pmod{12}$.
+</Feynman>
