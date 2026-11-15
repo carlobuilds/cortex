@@ -274,7 +274,7 @@ Plan (2026-10-13, rama `fase-3-calculo-discretas`): 0) rama y registro · 1) pru
   - [ ] 09 · [ ] 02
 - [ ] Matemáticas discretas
   - [x] Puerta de temario (paso 9, 2026-11-13): el programa oficial en `curriculum/programas/matematicas-discretas.pdf`, el temario aprobado por Carlo y `conceptos.yaml` completo (132 conceptos en 23 unidades: 21 del programa y 2 extra)
-  - [ ] Unidad IV para el 3.er parcial, en orden 13 → 21: [x] 13 (2026-11-13) · [x] 14 (2026-11-14) · [x] 15 (2026-11-14) · [x] 16 (2026-11-14) · [x] 17 (2026-11-14) · [x] 18 (2026-11-14) · [x] 19 (2026-11-15) · [ ] 20 · [ ] 21
+  - [ ] Unidad IV para el 3.er parcial, en orden 13 → 21: [x] 13 (2026-11-13) · [x] 14 (2026-11-14) · [x] 15 (2026-11-14) · [x] 16 (2026-11-14) · [x] 17 (2026-11-14) · [x] 18 (2026-11-14) · [x] 19 (2026-11-15) · [x] 20 (2026-11-15) · [ ] 21
   - [ ] Deuda: los jefes de la IV no tienen el 25–35 % de repaso de las unidades I–III, porque aún no existen. Cuando se escriban, se agrega sin cambiar ids.
   - [ ] Unidades 01 a 12, después del parcial
   - [ ] Extra: 22 conteo · 23 recurrencias
@@ -384,6 +384,31 @@ Complementan los ADR-001 a 008 de `docs/02`. Cada uno se escribe en el commit de
 **ADR-013 · Nomenclatura** (paso 1, decisión D1). Código, tablas y campos de IndexedDB en inglés, con equivalencias en `docs/02`. Las claves de YAML y del front matter siguen en español (son el formato de contenido). Los componentes MDX conservan su nombre en español porque son la API del contenido (`Predice` se implementa como `PredictPrompt`). Las URL van en español porque son interfaz. `APP_ID = 'cortex'` es inmutable (nombre de la base y marca de los respaldos); renombrar la app solo cambia `APP_NAME`. *Descartado:* todo en español (contradice `CLAUDE.md`) o una capa de traducción.
 
 ## Bitácora
+- 2026-11-15 · **Unidad `matematicas-discretas/20-recorridos-camino-corto`** (3.er parcial; Unidad IV, 4.5.3 y 4.5.4). El título visible es «Búsqueda en grafos y camino más corto».
+  - *Esquema:* v1, aprobado por Carlo. Lo consolidó la sesión principal con M (tabla de 25 con `verificar` probados), P (un solo grafo G en toda la lección, ejemplo resuelto de DFS y escalera), A (rúbrica de por qué BFS da la distancia, R4 y el metacognitivo de Iván) y L (terminología).
+    - «Búsqueda» y no «recorrido» para BFS y DFS, para no chocar con la 19.
+    - La distancia siempre con apellido.
+    - «Fijar» solo para vértices.
+    - El peso negativo, en un digrafo.
+  - *Escrita* por `autor-contenido`: lección de 25 min (1699 palabras con `wc -w`), 25 ejercicios 6/6/6/4/3 (24 por código y 1 manual) y jefe de 10 más 4 de repaso de la 15, la 16 y la 19 (`disc-15-025`, `disc-16-025`, `disc-19-011` y `disc-19-013`), con 2,120 s.
+    - Se agregaron a la `notacion` las convenciones de búsqueda y de Dijkstra: empate alfabético, relajación estricta solo hacia no fijados, y los inalcanzables no se fijan.
+  - *`/revisar-contenido`:*
+    - a ciegas, 24/24;
+    - checklist M, L y P:
+      - conteos que cambiaban según se contara o no el origen (011, 012, 025 y el desvanecido de H);
+      - un R4 con dos lecturas;
+      - el 005 decía «sin empates» y su explicación empataba;
+      - «$d(v)$ es la distancia» no decía «alcanzable».
+  - *Arreglos:* Carlo aprobó «errores + mejoras» (`arreglos-20.md`). Los desvanecidos se quedan, como recomendaron P y M. Segunda ronda a ciegas: 8/8.
+  - *Evidencia:*
+    - `pnpm content:check` en verde (8 unidades y 195 ejercicios);
+    - `pnpm test`: 1236;
+    - `pnpm lint`;
+    - lección en el puerto 3200: 290 fórmulas, 0 `.katex-error`, el visual G con 6 vértices y 7 aristas, y ningún recurso con error al recargar;
+    - el jefe arranca con 14 preguntas.
+  - *Hallazgos para `/equipo` después del parcial:*
+    - el hook `cerca-ciega.py` bloquea scripts de puro cálculo del resolutor a ciegas por palabras dentro del código: una arista «cd» se lee como el comando `cd`, y una variable `tree` como el comando `tree`;
+    - mientras la 21 no exista, la app sigue llamando «Jefe final de la materia» al jefe de la última unidad del catálogo (`boss-runner.tsx:69-71`).
 - 2026-11-15 · **Unidad `matematicas-discretas/19-grafos`** (3.er parcial; Unidad IV, 4.5.1 y 4.5.2).
   - *Esquema:* v1, aprobado por Carlo; revisado por M, P y A.
     - Euler en multigrafo conexo («0 o 2 impares») y Dirac con «simple» y $n\ge3$.

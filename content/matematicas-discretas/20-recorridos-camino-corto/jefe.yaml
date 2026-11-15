@@ -1,0 +1,95 @@
+unidad: matematicas-discretas/20-recorridos-camino-corto
+nombre: "La Repartidora del Atajo"
+vidas: 3
+# tiempo_segundos: suma de los tiempo_estimado_s de las 14 preguntas más 10 %.
+# Propias: 013 (120) + 014 (150) + 015 (120) + 016 (120) + 017 (90) + 020 (150) + 021 (150) + 022 (150) + 023 (180) +
+# 024 (210) = 1440. Repaso: 15-025 (150) + 16-025 (180) + 19-011 (60) + 19-013 (90) = 480. Total 1920; con el 10 %,
+# 2112, redondeado hacia arriba a 2120 s (35 min 20 s).
+tiempo_segundos: 2120
+aprobado_minimo: 0.8
+preguntas:
+  # Propias, 10 (esquema v1, pedagogo): d3: 013, 014, 015, 016, 017 · d4: 020, 021, 022 · d5: 023, 024. Cubren los
+  # cinco conceptos: BA (023), BP (016, 022, 023), DB (017, 024), GP (021, 024) y DJ (013, 014, 015, 020, 021, 023,
+  # 024).
+  # Sin manuales ni autoevaluación: el 019 se queda fuera. Sin el 018, el 012 ni el 025, que no están en la lista del v1.
+  propias: [disc-20-013, disc-20-014, disc-20-015, disc-20-016, disc-20-017, disc-20-020, disc-20-021, disc-20-022, disc-20-023, disc-20-024]
+  # Repaso: 4 de 14 (28.6 %), elegidos a mano entre pares que se confunden (esquema v1, pedagogo y experto-matematicas).
+  # Comprobado el 2026-11-14 contra los archivos: los cuatro existen y no están retirados. El 15-025 está en el commit
+  # ad076b5, el 16-025 en el 8bb12b5, y el 19-011 y el 19-013 en el archivo actual de la 19 (en revisión, sin commit):
+  # sus ids, enunciados y respuestas siguen siendo los del esquema (el 19-013 con las etiquetas b y e intercambiadas,
+  # mismo grafo y misma respuesta). En content/*/*/jefe.yaml ninguno va en otro `repaso_de`; el 15-025 y el 16-025 van
+  # en las propias de su jefe, así que con este quedan en dos jefes. El 19-011 y el 19-013 quedan en uno, este: ninguno
+  # va en las propias del jefe de la 19 (el 19-013 salió de ellas en los arreglos de la 19 del 2026-11-15, cuando volvió
+  # el 016). Revisado otra vez el 2026-11-15. Cada uno tiene su pareja en este jefe:
+  # - 15-025 (d5, S∘R − R: un vuelo y luego un tren, sin vuelo directo) con el 017 (a distancia exactamente 2 en un
+  #   digrafo): dos pasos sin el directo contra el nivel 2. En el 017, R∘R − R desde a también da {e, f} (M).
+  # - 16-025 (d5, «menor número de días» = la cadena más larga) con el 020 (Dijkstra con empates): la ruta crítica
+  #   contra el camino más corto.
+  # - 19-011 (d2, «¿cuáles son recorridos?») con el 016 («¿cuáles pueden ser un orden DFS?»): «recorrido» en dos
+  #   sentidos, con el mismo formato de pregunta.
+  # - 19-013 (d3, dónde empieza una trayectoria hamiltoniana) con el 022 (el árbol DFS): un orden DFS no es una
+  #   trayectoria si hay regresos.
+  # Ninguna explicación resuelve otra pregunta de este jefe (el jefe muestra la explicación tras cada respuesta,
+  # boss-runner.tsx). Lo que se cruza, revisado par por par:
+  # - 022 y la (0) del R4 (023) (M): en el grafo del 022, el número de aristas de la trayectoria del árbol DFS de a a v
+  #   difiere de dist(a, v) en 5 vértices, así que una explicación que hablara de profundidades, niveles o distancias
+  #   tumbaría la (0). La del 022 describe el árbol por padres y ancestros y no usa ninguna de esas tres palabras, ni
+  #   «trayectoria del árbol», que es como lo dice la (0) desde los arreglos del 2026-11-15 (L). Con sus datos (f cuelga
+  #   de e, e de c y c de a, y af queda fuera) se podría armar el contraejemplo, pero es el mismo hecho que ya muestra
+  #   el ejemplo de DFS de la lección (ae queda fuera, y la trayectoria del árbol de a a e tiene 4 aristas); no agrega
+  #   nada. El 022 (d4) sale siempre antes que el 023 (d5).
+  # - La (0) del R4 y el 022: la explicación de la (0) dice solo que, en el triángulo, la trayectoria del árbol de a a c
+  #   tiene 2 aristas y dist(a, c) = 1, sin «fuera del árbol» ni «ancestro», que es la (1) del 022 (M); además, el 022
+  #   sale antes.
+  # - 016 y 022 (pueden caer juntos en la 2.ª oleada, en cualquier orden): la del 016 dice que dos de sus sucesiones
+  #   son órdenes DFS sin regresos, en su grafo, y cierra con la regla de DFS (cada vértice nuevo es vecino del actual o
+  #   de uno al que se regresó); no generaliza «el orden DFS es trayectoria ⇔ el árbol no se ramifica», que decidiría
+  #   la (3) del 022 (M), ni habla de ancestros u hojas. La del 022 no dice qué sucesiones son órdenes DFS con elección
+  #   libre.
+  # - 016 y 023 (el 016, d3, sale siempre antes): la del 016 no habla de árboles, trayectorias del árbol, distancias,
+  #   profundidad ni pesos. Con sus dos órdenes sin regresos y su lista de aristas (ae) se podría armar un contraejemplo
+  #   de la (0), pero es el mismo que ya da el ejemplo de DFS de la lección; no agrega nada.
+  # - 014 y 015 (los dos d3, en orden al azar en las oleadas 1 y 2): la del 014 no dice «revisa que ninguna arista
+  #   mejore una d», que es la clave del 015 (M); su «Revisa:» compara dos caminos a c, no revisa aristas, y sus textos
+  #   de los arreglos del 2026-11-15 (la regla con u, la (4) con «alcanzable desde a» y «dejar cada d en su primer
+  #   valor») tampoco. La del 015 enseña esa revisión con la tabla de Iván. Si sale antes, con la tabla de Leo la
+  #   revisión señala f (5 + 3 < 9) y c (9 + 1 < 11), así que tumba la (2) y la (5) del 014 (P y M). No decide la (0),
+  #   la (1), la (3) ni la (4), y las tres correctas, la (0), la (3) y la (4), piden comparar con la regla del primer
+  #   valor o razonar para todo grafo. Es un método, no una respuesta; lo dejo.
+  # - 013, 014, 015, 020, 021 y 024: los seis son de Dijkstra, cada uno con su grafo (M); ninguna explicación da números
+  #   de otro. Las del 013 y el 024 leen predecesores, pero no enuncian que «la parte de un camino más corto es un camino
+  #   más corto», la (4) del R4.
+  # - 020 y la (3) del R4: el 020 tiene dos caminos más cortos a b, pero con pesos repetidos, así que no es
+  #   contraejemplo de «pesos distintos ⇒ un solo camino más corto». Su explicación no habla de pesos distintos.
+  # - 021 y el R4: el R4 pide pesos ≥ 0, y la del 021 solo trata el peso negativo de su digrafo.
+  # - 024 y la (1) del R4 (los dos en la 3.ª oleada, en orden al azar): los datos del 024 (la más rápida, de 5 tramos y
+  #   20 minutos, contra la de 3 tramos y 33) sirven de contraejemplo de «sumar una constante no cambia los caminos
+  #   más cortos» a quien sume 7 a cada tramo. Es un dato del enunciado y de las respuestas, no una afirmación de la
+  #   explicación, que no habla de sumar constantes; su «Revisa:» compara la más rápida con la segunda (20 contra 21) y
+  #   no pone juntos «más tramos» y «menos minutos». Lo dejo, como el cruce del 19-021 con el R4 de la 19.
+  # - 023 y 024: la del 023 da el triángulo, un ejemplo de tres vértices (s, x, t) y otro de cuatro (s, a, b, t); no da
+  #   ningún número del 024.
+  # - 017 y 013, 014, 015, 020, 021, 024: el 017 es el único sin pesos y dirigido de las propias; la del 017 no habla
+  #   de Dijkstra.
+  # - Repaso contra propias:
+  #   - 15-025 y 017: la del 15-025 arma S∘R − R entre ciudades; no habla de grafos ni de distancias. La del 017 no
+  #     habla de composición ni de relaciones. El 017 (d3) sale siempre antes que el 15-025 (d5).
+  #   - 16-025 y 020: la del 16-025 cuenta días con la cadena más larga de un orden parcial; no habla de pesos ni de
+  #     caminos más cortos. La del 020 no habla de órdenes parciales, cadenas ni días. El 020 (d4) sale siempre antes.
+  #   - 16-025 y 023, 024 (los tres en la 3.ª oleada): la del 16-025 no habla de pesos, tramos ni árboles.
+  #   - 19-011 y 016: la del 19-011 dice qué sucesiones repiten vértices o aristas en su grafo; no habla de búsquedas
+  #     ni de regresos. La del 016 no dice «recorrido». El 19-011 (d2) sale siempre en la 1.ª oleada, pero el 016 (d3)
+  #     puede caer con él, y dentro de la oleada el orden es al azar: no siempre sale antes. No hay fuga en ningún
+  #     orden (P y M).
+  #   - 19-013 y 022, 016 (los tres pueden caer en la 2.ª oleada): la del 19-013 da trayectorias hamiltonianas de su
+  #     grafo y su puente c–d; no habla de DFS. Las del 022 y el 016 no dan inicios de trayectorias hamiltonianas, y
+  #     sus sucesiones son de otros grafos.
+  repaso_de: [disc-15-025, disc-16-025, disc-19-011, disc-19-013]
+  # Oleadas 4/6/4 (waveSizes(14) del motor, ejecutado con tsx: apportion(14, [0.3, 0.4, 0.3]) da 4.2/5.6/4.2 → 4/5/4,
+  # y el residuo va a la 2.ª, que tiene la fracción mayor), por dificultad y con desempate al azar. Hay 1 de d2
+  # (19-011), 6 de d3 (013, 014, 015, 016, 017 y 19-013), 3 de d4 (020, 021 y 022) y 4 de d5 (023, 024, 15-025 y
+  # 16-025): 1.ª = 19-011 y tres de los seis d3; 2.ª = los tres d3 que quedan, 020, 021 y 022; 3.ª = 023, 024, 15-025 y
+  # 16-025. Así, el 022 sale siempre antes que el 023; el 017 antes que el 15-025; el 020 antes que el 16-025; el
+  # 19-011 va en la 1.ª, y el 016 puede ir con él, antes o después, o en la 2.ª; y el 016 y el 19-013 pueden caer con
+  # el 022 en la 2.ª. Dentro de cada oleada el orden es al azar (boss.ts).
+recompensa: { xp: 300, insignia: "fijado-para-siempre" }

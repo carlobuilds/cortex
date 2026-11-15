@@ -1,0 +1,818 @@
+# Unidad 20 · Búsqueda en grafos y camino más corto (Unidad IV, 4.5.3 y 4.5.4, y práctica 8, «Recorridos»). Para el
+# 3.er parcial (semana del 23 al 27 de noviembre de 2026). Título visible «Búsqueda en grafos y camino más corto»; el
+# slug 20-recorridos-camino-corto no cambia (es permanente).
+# Esquema v1 aprobado por Carlo el 2026-11-14 (esquema-20), revisado por experto-matematicas (M), pedagogo (P),
+# arquitecto-razonamiento (A) y linguista (L). Datos y `verificar` de M (herramientas/m20/verificar-20.py), comprobados
+# por la sesión principal con código propio; el autor volvió a calcular con código propio (otra implementación de BFS,
+# DFS, Dijkstra y enumeración de trayectorias) cada orden, tabla, número y camino de las explicaciones y de la lección.
+# Ids en el orden de la tabla del v1, escalera 6/6/6/4/3: d1 001–006, d2 007–012, d3 013–018, d4 019–022, d5 023–025.
+# Anclas (primer ejercicio de cada concepto, workedExampleFor): 001 BA, 002 BP, 003 DB, 004 GP y 005 DJ, todas de d1,
+# con lo que se pide escrito en el enunciado y con la tabla o los pasos completos en la explicación, que hace de
+# ejemplo resuelto. WorkedExample muestra solo enunciado y explicación, así que la explicación de cada ancla con visual
+# lista el grafo.
+# Abreviaturas: BA busqueda-amplitud · BP busqueda-profundidad · DB distancia-bfs · GP grafo-ponderado · DJ dijkstra.
+# Terminología (L, con la `notacion` que agrega la sesión principal): «búsqueda en amplitud/profundidad», nunca
+# «recorrido», para BFS y DFS; lo que dan es el «orden BFS» o el «orden DFS». La distancia siempre con apellido:
+# distancia en aristas dist(s, v), distancia tentativa d(v) y distancia ponderada. «Camino más corto» es de peso mínimo;
+# el de menos aristas se dice «con menos aristas». «Marcar» es de BFS, al encolar; «fijar», de Dijkstra y solo de
+# vértices; «relajar» la arista uv. El nivel del origen es 0. En los árboles BFS y DFS, «padre»; en Dijkstra,
+# «predecesor». En un dirigido, los vecinos de u son los de salida. «Recorrer» no se usa como verbo (19).
+# Hipótesis (M): vecinos en orden alfabético; BFS con cola y marca al encolar; DFS entra al primer vecino sin visitar y
+# regresa (orden = descubrimiento). Dijkstra con pesos ≥ 0 (el 0 se vale), fija el no fijado de menor d con empate
+# alfabético, relaja solo hacia no fijados y solo si mejora estrictamente (en un empate se queda el predecesor); los
+# inalcanzables no se fijan y nunca se pide el orden de fijado en un grafo con inalcanzables (011). El peso negativo va
+# solo en un digrafo sin ciclos (021).
+# Plataforma (M y A): en el visual `grafo` no hay pesos, así que con pesos el enunciado da la lista por vértice
+# («a: c 4, e 2 · …»), y el dibujo va solo en el 011 (dirigido, con un inalcanzable). Ningún grafo con pesos tiene
+# vértices d ni w. Los órdenes van como `completar`, una letra por hueco y sin el origen como hueco (se escribe antes
+# del primero); nunca `ordenar`. Ningún orden pedido es alfabético, BFS y DFS no dan el mismo orden en el 001 y el
+# 002, y el perímetro de cada visual (el orden de `vertices`) coincide con el orden pedido a lo más en el origen, en las
+# dos direcciones (el autor lo revisó con código). Ningún hueco pide operadores, palabras de varias letras, números con
+# separador de miles ni «−»: todos piden un número o una sola letra, y lo dicen.
+# Las aristas se parten con ', ', así que en `aristas` llevan espacio. Cada `verificar` lee las aristas del MISMO texto
+# que su visual; los vértices los lee en orden alfabético (el 012 lo necesita: «el primero sin marcar»), aunque el
+# visual los dé en otro orden para el perímetro: 001, 002, 016 y 022, de M; 003, 006, 007, 008, 009, 012 y 017, del
+# autor, que bajó los cruces del dibujo (de 10, 18, 5, 8, 8, 7 y 5 a 1, 1, 2, 1, 2, 0 y 1) sin romper la regla del
+# perímetro, revisada con código para el orden BFS y el DFS desde el origen. El 011 y el 018 quedan en orden
+# alfabético: con 2 cruces, el 011 tendría en el perímetro su orden de fijado, y el 018 no pide ningún orden.
+# `verificar`: los de M, en Python puro, sin cambios (vía independiente: las distancias por enumeración de trayectorias
+# o por capas de vecinos, no con la cola ni con Dijkstra; los órdenes, ejecutando el algoritmo). Probados con el
+# check_exercise real (24/24) y, sobre este archivo, con 81 respuestas alteradas (las 73 de neg.py de M y 8 del autor),
+# que fallan todas.
+# Pistas como preguntas, sin valores intermedios: 1 en d1–2, 2 en d3 y 3 en d4–5 (las del 015, el 019 y el 023 son de
+# A, tal cual). Desde d3, la explicación cierra con «Revisa:», con una comprobación que no repite el cálculo. Las
+# explicaciones de selección y opción múltiple dicen cuáles son las correctas.
+# Manuales: solo el 019 (autoevaluación de A, tal cual, tarjeta: false).
+# Personajes: Leo (014, error plantado) e Iván (015, metacognitivo de A).
+# Textos con LaTeX en bloques `>-` (o `|-` cuando llevan listas): así no hay que escapar comillas ni barras.
+# Arreglos del 2026-11-15 (/revisar-contenido, «errores + mejoras», aprobados por Carlo): textos del 005, 011, 012,
+# 014, 019, 021, 023 y 025; ninguna respuesta ni ningún `verificar` cambió (24/24 con el check_exercise real).
+unidad: matematicas-discretas/20-recorridos-camino-corto
+ejercicios:
+  # razonamiento: algorítmico (cola; encolar los vecinos sin marcar en orden alfabético) · R1
+  # Ancla de BA: la explicación trae la tabla completa, fila por fila («sale · se marcan y encolan · cola»), y lista el
+  # grafo. Perímetro a, e, d, c, g, b, f (0 cruces, M). Errores que rechaza el verificar (neg.py): el nivel 3 en orden
+  # alfabético (…, c, d) y el orden DFS.
+  # verificar: ejecuta BFS (cola, marca al encolar, vecinos en orden alfabético) sobre las aristas del visual.
+  - id: disc-20-001
+    tipo: completar
+    dificultad: 1
+    conceptos: [busqueda-amplitud]
+    enunciado: >-
+      En una **búsqueda en amplitud** (BFS) desde $a$ se usa una cola: se marca y se encola $a$; luego, mientras la cola no esté vacía, se saca al vértice del frente y se marcan y encolan, en orden alfabético, sus vecinos sin marcar. El **orden BFS** es el orden en que los vértices entran a la cola. Escribe el orden BFS de este grafo desde $a$; cada hueco es un vértice.
+    visual: { id: grafo, vertices: "a, e, d, c, g, b, f", aristas: "a-b, a-f, b-e, b-g, c-d, c-g, d-e, d-g, e-g" }
+    texto: >-
+      Orden BFS: $a$, ___, ___, ___, ___, ___, ___
+    respuestas: ["b", "f", "e", "g", "d", "c"]
+    verificar: { python: "(lambda V, E: (lambda A, s: (lambda go: go(go, [s], [s], {s: None}, {s: 0}))(lambda go, Q, M, P, L: (M, P, L) if not Q else (lambda N: go(go, Q[1:] + N, M + N, {**P, **{v: Q[0] for v in N}}, {**L, **{v: L[Q[0]] + 1 for v in N}}))([v for v in A[Q[0]] if v not in M])))((lambda V, E: {v: sorted({w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v}) for v in V})(V, E), 'a')[0][1:])('a, b, c, d, e, f, g'.split(', '), [tuple(e.split('-')) for e in 'a-b, a-f, b-e, b-g, c-d, c-g, d-e, d-g, e-g'.split(', ')])" }
+    pistas:
+      - >-
+        Cuando sacas a un vértice, ¿a qué vecinos encolas y en qué orden? ¿Quién queda al frente de la cola después?
+    explicacion: |-
+      El grafo tiene vértices $a$ a $g$ y aristas $ab$, $af$, $be$, $bg$, $cd$, $cg$, $de$, $dg$ y $eg$. En cada paso sale el vértice del frente y se marcan y encolan sus vecinos sin marcar:
+
+      1. Inicio: se marca y encola $a$. Cola: $a$.
+      2. Sale $a$; se marcan y encolan $b$ y $f$. Cola: $b,f$.
+      3. Sale $b$; sus vecinos sin marcar son $e$ y $g$. Cola: $f,e,g$.
+      4. Sale $f$; su único vecino, $a$, ya está marcado. Cola: $e,g$.
+      5. Sale $e$; se marca y encola $d$, porque $b$ y $g$ ya están marcados. Cola: $g,d$.
+      6. Sale $g$; se marca y encola $c$. Cola: $d,c$.
+      7. Salen $d$ y $c$ sin encolar a nadie. Cola: vacía.
+
+      El orden BFS es $a,b,f,e,g,d,c$. Un error común es poner $c$ antes que $d$, por orden alfabético: el orden lo da la cola, y $d$ entró primero porque lo encoló $e$, que salió antes que $g$. Comprueba: los niveles son $a$ 0; $b$ y $f$ 1; $e$ y $g$ 2; $d$ y $c$ 3, y en el orden BFS no bajan.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (entrar al primer vecino sin visitar y regresar) · R1
+  # Ancla de BP: la explicación da cada entrada y cada regreso, y lista el grafo. Mismo grafo que el 001 (P): el orden
+  # DFS es distinto del BFS. La explicación no da el orden BFS, para no contestar el 001. Errores que rechaza el
+  # verificar (neg.py): el orden BFS y el de una pila que marca al meter.
+  # verificar: ejecuta DFS recursivo (orden = descubrimiento) sobre las aristas del visual.
+  - id: disc-20-002
+    tipo: completar
+    dificultad: 1
+    conceptos: [busqueda-profundidad]
+    enunciado: >-
+      En una **búsqueda en profundidad** (DFS) desde $a$, en cada vértice se entra al primer vecino sin visitar, en orden alfabético; si no queda ninguno, se regresa al vértice del que se llegó y se sigue desde ahí. El **orden DFS** es el orden en que se descubren los vértices. Escribe el orden DFS de este grafo desde $a$; cada hueco es un vértice.
+    visual: { id: grafo, vertices: "a, e, d, c, g, b, f", aristas: "a-b, a-f, b-e, b-g, c-d, c-g, d-e, d-g, e-g" }
+    texto: >-
+      Orden DFS: $a$, ___, ___, ___, ___, ___, ___
+    respuestas: ["b", "e", "d", "c", "g", "f"]
+    verificar: { python: "(lambda V, E: (lambda A, s: (lambda go: go(go, s, ([s], {s: None}, [])))(lambda go, u, S: (lambda R: (R[0], R[1], R[2] + [u]))(list(itertools.accumulate(A[u], lambda st, v: st if v in st[0] else go(go, v, (st[0] + [v], {**st[1], v: u}, st[2])), initial=S))[-1])))((lambda V, E: {v: sorted({w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v}) for v in V})(V, E), 'a')[0][1:])('a, b, c, d, e, f, g'.split(', '), [tuple(e.split('-')) for e in 'a-b, a-f, b-e, b-g, c-d, c-g, d-e, d-g, e-g'.split(', ')])" }
+    pistas:
+      - >-
+        Cuando llegas a un vértice sin vecinos por visitar, ¿a cuál regresas? ¿Hasta dónde tienes que regresar para encontrar uno nuevo?
+    explicacion: |-
+      El grafo tiene vértices $a$ a $g$ y aristas $ab$, $af$, $be$, $bg$, $cd$, $cg$, $de$, $dg$ y $eg$.
+
+      1. De $a$ (vecinos $b$ y $f$) entra a $b$.
+      2. De $b$ (vecinos $a$, $e$ y $g$) entra a $e$.
+      3. De $e$ (vecinos $b$, $d$ y $g$) entra a $d$.
+      4. De $d$ (vecinos $c$, $e$ y $g$) entra a $c$.
+      5. De $c$ (vecinos $d$ y $g$) entra a $g$.
+      6. Los vecinos de $g$, que son $b$, $c$, $d$ y $e$, ya están visitados: regresa a $c$, luego a $d$, a $e$, a $b$ y a $a$, sin encontrar vecinos sin visitar.
+      7. De $a$ entra a $f$, y de $f$ regresa a $a$. Termina.
+
+      El orden DFS es $a,b,e,d,c,g,f$. $f$ sale al final, aunque es vecino de $a$: DFS no lo descubre hasta regresar a $a$. Comprueba: el árbol DFS tiene 6 aristas, una por vértice salvo $a$: $ab$, $be$, $ed$, $dc$, $cg$ y $af$.
+    tiempo_estimado_s: 60
+
+  # razonamiento: espacial (contar saltos en el dibujo, por capas alrededor de a) · R0
+  # Ancla de DB: la explicación da todas las capas y lista el grafo. Errores que rechaza el verificar (neg.py): con e
+  # (que está a 3), sin g, y los de distancia 1. Perímetro del autor (1 cruce).
+  # verificar: distancias por enumeración de todas las trayectorias desde a (no BFS).
+  - id: disc-20-003
+    tipo: conjunto
+    dificultad: 1
+    conceptos: [distancia-bfs]
+    enunciado: >-
+      La **distancia en aristas** $\mathrm{dist}(a,v)$ es el menor número de aristas de un camino de $a$ a $v$; en una búsqueda en amplitud desde $a$, es el nivel de $v$, con $a$ en el nivel 0. ¿Qué vértices de este grafo están a distancia exactamente 2 de $a$? Escribe todos, separados por comas, como `x, y`.
+    visual: { id: grafo, vertices: "a, e, h, b, c, d, g, f", aristas: "a-b, a-f, b-c, b-h, c-f, c-g, d-g, e-h, f-g, f-h" }
+    respuesta: ["c", "g", "h"]
+    verificar: { python: "(lambda V, E: (lambda N: {t for t in V if min([len(p) - 1 for (c, p) in (lambda N, s, t: (lambda go: go(go, (s,), 0))(lambda go, p, c: [(c, p)] if p[-1] == t else [x for v in sorted(N[p[-1]]) if v not in p for x in go(go, p + (v,), c + N[p[-1]][v])]))(N, 'a', t)], default=-1) == 2})({v: {w: 1 for w in (lambda V, E: {v: sorted({w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v}) for v in V})(V, E)[v]} for v in V}))('a, b, c, d, e, f, g, h'.split(', '), [tuple(e.split('-')) for e in 'a-b, a-f, b-c, b-h, c-f, c-g, d-g, e-h, f-g, f-h'.split(', ')])" }
+    pistas:
+      - >-
+        ¿Qué vértices están a distancia 1? ¿A cuáles llegas desde ellos que no estén ya a distancia 0 o 1?
+    explicacion: >-
+      Son $c$, $g$ y $h$. El grafo tiene vértices $a$ a $h$ y aristas $ab$, $af$, $bc$, $bh$, $cf$, $cg$, $dg$, $eh$, $fg$ y $fh$. **Por capas:** a distancia 0 está $a$, y a distancia 1, sus vecinos $b$ y $f$. Los vecinos de $b$ y de $f$ que no están en esas capas son $c$, $h$ y $g$: distancia 2. Los vecinos nuevos de esos son $d$, por $g$, y $e$, por $h$: distancia 3. Comprueba: $c$ es vecino de $b$ y de $f$, pero no de $a$, así que su distancia no es 1; y $e$ no es vecino de $b$ ni de $f$, así que no es 2.
+    tiempo_estimado_s: 45
+
+  # razonamiento: algorítmico (sumar pesos de la lista) · R1
+  # Ancla de GP: la explicación da el único camino con menos aristas, su suma y el más ligero. Pesos por vértice, sin
+  # visual. El error 9 (el peso del más ligero, a, g, e, b, f) lo rechaza el verificar (neg.py).
+  # verificar: enumera todas las trayectorias de a a f, exige que la de menos aristas sea única y da su peso.
+  - id: disc-20-004
+    tipo: numerico
+    dificultad: 1
+    conceptos: [grafo-ponderado]
+    enunciado: >-
+      En un **grafo ponderado** cada arista tiene un peso, y el **peso de un camino** es la suma de los pesos de sus aristas. Este grafo tiene vértices $a$, $b$, $c$, $e$, $f$ y $g$; junto a cada vértice van sus vecinos con el peso de la arista: $a$: $c$ 9, $g$ 4 · $b$: $c$ 6, $e$ 2, $f$ 2 · $c$: $a$ 9, $b$ 6, $e$ 6, $f$ 4 · $e$: $b$ 2, $c$ 6, $f$ 6, $g$ 1 · $f$: $b$ 2, $c$ 4, $e$ 6 · $g$: $a$ 4, $e$ 1. Hay un solo camino de $a$ a $f$ con el menor número posible de aristas. ¿Cuánto pesa?
+    respuesta: 13
+    tolerancia: 0
+    verificar: { python: "(lambda V, N: (lambda P: (lambda m: (lambda L: L[0] if len(L) == 1 else None)([c for (c, p) in P if len(p) - 1 == m]))(min(len(p) - 1 for (c, p) in P)))((lambda N, s, t: (lambda go: go(go, (s,), 0))(lambda go, p, c: [(c, p)] if p[-1] == t else [x for v in sorted(N[p[-1]]) if v not in p for x in go(go, p + (v,), c + N[p[-1]][v])]))(N, 'a', 'f')))('a, b, c, e, f, g'.split(', '), (lambda V, W, D: {v: {**{b: w for ((a, b), w) in W.items() if a == v}, **({} if D else {a: w for ((a, b), w) in W.items() if b == v})} for v in V})('a, b, c, e, f, g'.split(', '), {tuple(x.split(': ')[0].split('-')): int(x.split(': ')[1]) for x in 'a-c: 9, a-g: 4, b-c: 6, b-e: 2, b-f: 2, c-e: 6, c-f: 4, e-f: 6, e-g: 1'.split(', ')}, 0))" }
+    pistas:
+      - >-
+        ¿Hay una arista directa de $a$ a $f$? Si no, ¿qué vecino de $a$ es también vecino de $f$?
+    explicacion: >-
+      Pesa 13. **Menos aristas:** no hay arista $af$, así que hacen falta al menos 2. Los vecinos de $a$ son $c$ y $g$, y los de $f$, $b$, $c$ y $e$; el único que comparten es $c$. El camino con menos aristas es $a,c,f$, y pesa $9+4=13$. **No es el más ligero:** $a,g,e,b,f$ usa 4 aristas y pesa $4+1+2+2=9$. Con pesos, «menos aristas» y «menos peso» son dos preguntas distintas. Comprueba: en la lista, $a$: $c$ 9 y $c$: $f$ 4.
+    tiempo_estimado_s: 45
+
+  # razonamiento: algorítmico (fijar el de menor d entre todos, no el vecino del último) · R1
+  # Ancla de DJ: la explicación trae todas las rondas y lista los pesos. Sin empates en ninguna elección, y ningún
+  # fijado es vecino del anterior (lo exige el verificar), así que la caminata codiciosa (f, g, …) falla. Errores que
+  # rechaza el verificar (neg.py): la caminata codiciosa y el orden BFS.
+  # Arreglos (M): el enunciado dice «empatan dos no fijados en la menor d», no «hay empates», porque la explicación sí
+  # tiene un empate al relajar (por gb, 7 + 2 = 9 empata con 9).
+  # verificar: ejecuta Dijkstra, exige que no haya empates y que cada fijado no sea vecino del anterior, y da el orden.
+  - id: disc-20-005
+    tipo: completar
+    dificultad: 1
+    conceptos: [dijkstra]
+    enunciado: >-
+      **Dijkstra** desde $a$ empieza con $d(a)=0$ y las demás $d$ en $\infty$. En cada ronda se **fija** el vértice no fijado de menor $d$ y se **relajan** sus aristas hacia los vecinos $v$ no fijados: si $d(u)+w(u,v)<d(v)$, $d(v)$ baja a ese valor. Los pesos, por vértice: $a$: $c$ 8, $e$ 6, $f$ 2 · $b$: $e$ 4, $f$ 7, $g$ 2 · $c$: $a$ 8, $e$ 4 · $e$: $a$ 6, $b$ 4, $c$ 4 · $f$: $a$ 2, $b$ 7, $g$ 5 · $g$: $b$ 2, $f$ 5. En ninguna ronda empatan dos no fijados en la menor $d$. Escribe el orden en que se fijan los vértices; cada hueco es un vértice.
+    texto: >-
+      Orden en que se fijan: $a$, ___, ___, ___, ___, ___
+    respuestas: ["f", "e", "g", "c", "b"]
+    verificar: { python: "(lambda V, N: (lambda R: (lambda F: F[1:] if all(len([v for v in V if v not in S[2] and S[0][v] == min([S[0][x] for x in V if x not in S[2]])]) == 1 for S in R[:-1]) and all(F[i + 1] not in N[F[i]] for i in range(1, len(F) - 1)) else None)(R[-1][2]))((lambda V, N, s: list(itertools.accumulate(range(len(V)), lambda S, _: (lambda d, p, F: (lambda C: S if not C else (lambda u: ({v: d[u] + N[u][v] if v in N[u] and v not in F and v != u and d[u] + N[u][v] < d[v] else d[v] for v in V}, {v: u if v in N[u] and v not in F and v != u and d[u] + N[u][v] < d[v] else p[v] for v in V}, F + [u]))(min(C, key=lambda v: (d[v], v))))([v for v in V if v not in F and d[v] < math.inf]))(*S), initial=({v: 0 if v == s else math.inf for v in V}, {v: None for v in V}, []))))(V, N, 'a')))('a, b, c, e, f, g'.split(', '), (lambda V, W, D: {v: {**{b: w for ((a, b), w) in W.items() if a == v}, **({} if D else {a: w for ((a, b), w) in W.items() if b == v})} for v in V})('a, b, c, e, f, g'.split(', '), {tuple(x.split(': ')[0].split('-')): int(x.split(': ')[1]) for x in 'a-c: 8, a-e: 6, a-f: 2, b-e: 4, b-f: 7, b-g: 2, c-e: 4, f-g: 5'.split(', ')}, 0))" }
+    pistas:
+      - >-
+        En cada ronda, ¿comparas las $d$ de todos los no fijados, o solo las de los vecinos del último que fijaste?
+    explicacion: |-
+      Los pesos son $ac$ 8, $ae$ 6, $af$ 2, $be$ 4, $bf$ 7, $bg$ 2, $ce$ 4 y $fg$ 5. En cada ronda:
+
+      1. Se fija $a$, con 0: $d(c)=8$, $d(e)=6$ y $d(f)=2$.
+      2. Se fija $f$, con 2, el menor: $d(b)=2+7=9$ y $d(g)=2+5=7$.
+      3. Se fija $e$, con 6: por $eb$, $6+4=10$ no mejora 9, y por $ec$, $6+4=10$ no mejora 8.
+      4. Se fija $g$, con 7: por $gb$, $7+2=9$ empata con 9, y no cambia nada.
+      5. Se fija $c$, con 8, y al final $b$, con 9.
+
+      El orden es $a,f,e,g,c,b$. En la tercera ronda no se fija $g$, el vecino más barato de $f$, sino $e$, que tiene la menor $d$ entre todos los no fijados. Comprueba: las $d$ finales, $f$ 2, $e$ 6, $g$ 7, $c$ 8 y $b$ 9, crecen en el orden en que se fijaron.
+    tiempo_estimado_s: 60
+
+  # razonamiento: espacial (capas alrededor de a) · R1
+  # «El mayor nivel», no «cuántos niveles» (A y L): contando el nivel 0 serían 4. valores 2–5 (M): 4 es el número de
+  # niveles y 5, la mayor profundidad del árbol DFS desde a. Perímetro del autor (1 cruce; el alfabético tenía 18).
+  # verificar: niveles por capas de vecinos (no con la cola).
+  - id: disc-20-006
+    tipo: opcion_multiple
+    dificultad: 1
+    conceptos: [busqueda-amplitud]
+    enunciado: >-
+      En una búsqueda en amplitud desde $a$, el nivel de $a$ es 0, y el de cada vértice, el de su padre más 1. ¿Cuál es el mayor nivel en la búsqueda en amplitud desde $a$ en este grafo?
+    visual: { id: grafo, vertices: "a, d, g, h, b, f, c, e", aristas: "a-c, a-d, a-e, b-f, c-e, c-f, d-g, d-h, e-h, f-h, g-h" }
+    opciones:
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+    valores: ["2", "3", "4", "5"]
+    correcta: 1
+    verificar: { python: "(lambda V, E: max((lambda A, s: (lambda Ls: {v: min(k for (k, S) in enumerate(Ls) if v in S) for v in Ls[-1]})((lambda A, s: list(itertools.accumulate(range(len(A)), lambda S, _: S | frozenset(w for v in S for w in A[v]), initial=frozenset({s}))))(A, s)))((lambda V, E: {v: sorted({w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v}) for v in V})(V, E), 'a').values()))('a, b, c, d, e, f, g, h'.split(', '), [tuple(e.split('-')) for e in 'a-c, a-d, a-e, b-f, c-e, c-f, d-g, d-h, e-h, f-h, g-h'.split(', ')])" }
+    pistas:
+      - >-
+        ¿Qué vértices están en el nivel 1? ¿Cuál es el último vértice que se marca, y en qué nivel queda?
+    explicacion: >-
+      Es 3. El grafo tiene vértices $a$ a $h$ y aristas $ac$, $ad$, $ae$, $bf$, $ce$, $cf$, $dg$, $dh$, $eh$, $fh$ y $gh$. **Niveles:** en el 0, $a$; en el 1, sus vecinos $c$, $d$ y $e$; en el 2, los vecinos nuevos de esos, $f$ (por $c$), $g$ y $h$ (por $d$); en el 3, $b$, el vecino de $f$ que faltaba. El mayor nivel es 3. Si contestaste 4, contaste cuántos niveles hay, del 0 al 3, y no el mayor. Comprueba: el único vecino de $b$ es $f$, que está en el nivel 2.
+    tiempo_estimado_s: 45
+
+  # razonamiento: algorítmico (quién encola a quién) · R1
+  # Pares (padre, hijo); el ejemplo de formato usa x, y, z y w, que no son vértices del grafo. Errores que rechaza el
+  # verificar (neg.py): (e, f) en lugar de (g, f) y (h, d) en lugar de (g, d). Perímetro del autor (2 cruces).
+  # verificar: ejecuta BFS y da {(padre, hijo)}.
+  - id: disc-20-007
+    tipo: conjunto
+    dificultad: 2
+    conceptos: [busqueda-amplitud]
+    enunciado: >-
+      Haz la búsqueda en amplitud desde $a$, con los vecinos en orden alfabético. El **padre** de un vértice es el que estaba saliendo de la cola cuando se marcó. Escribe las aristas del árbol BFS como pares (padre, hijo), separados por comas, como `(x, y), (z, w)`.
+    visual: { id: grafo, vertices: "a, c, d, g, f, e, b, h", aristas: "a-b, a-g, a-h, b-e, b-g, b-h, c-d, d-g, d-h, e-f, f-g" }
+    respuesta: ["(a, b)", "(a, g)", "(a, h)", "(b, e)", "(g, d)", "(g, f)", "(d, c)"]
+    verificar: { python: "(lambda V, E: (lambda R: {(R[1][v], v) for v in R[0] if R[1][v]})((lambda A, s: (lambda go: go(go, [s], [s], {s: None}, {s: 0}))(lambda go, Q, M, P, L: (M, P, L) if not Q else (lambda N: go(go, Q[1:] + N, M + N, {**P, **{v: Q[0] for v in N}}, {**L, **{v: L[Q[0]] + 1 for v in N}}))([v for v in A[Q[0]] if v not in M])))((lambda V, E: {v: sorted({w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v}) for v in V})(V, E), 'a')))('a, b, c, d, e, f, g, h'.split(', '), [tuple(e.split('-')) for e in 'a-b, a-g, a-h, b-e, b-g, b-h, c-d, d-g, d-h, e-f, f-g'.split(', ')])" }
+    pistas:
+      - >-
+        Cuando un vértice sale de la cola, ¿a qué vecinos marca él, y a cuáles ya había marcado otro antes?
+    explicacion: |-
+      El grafo tiene vértices $a$ a $h$ y aristas $ab$, $ag$, $ah$, $be$, $bg$, $bh$, $cd$, $dg$, $dh$, $ef$ y $fg$.
+
+      1. Sale $a$ y marca a $b$, $g$ y $h$: $(a,b)$, $(a,g)$ y $(a,h)$.
+      2. Sale $b$; $g$ y $h$ ya están marcados, y marca a $e$: $(b,e)$.
+      3. Sale $g$ y marca a $d$ y a $f$: $(g,d)$ y $(g,f)$.
+      4. Salen $h$ y $e$ sin marcar a nadie: $d$ y $f$ ya tenían padre.
+      5. Sale $d$ y marca a $c$: $(d,c)$. Salen $f$ y $c$ sin marcar a nadie.
+
+      Son 7 pares, uno por vértice salvo $a$. Un error común es dar $(h,d)$ o $(e,f)$: $h$ y $e$ también son vecinos de $d$ y de $f$, pero salen de la cola después de $g$. Comprueba: el único vecino de $c$ es $d$, y $d$ no es vecino de $a$, así que el camino $a,g,d,c$ que dan los padres no se puede acortar.
+    tiempo_estimado_s: 90
+
+  # razonamiento: algorítmico (DFS desde otro vértice, con regresos) · R1
+  # Origen d: el grafo no tiene pesos (la regla de d y w es de Dijkstra). El padre de f es a, no g, el que se
+  # descubrió justo antes (neg.py). Perímetro del autor (1 cruce), revisado desde d.
+  # verificar: ejecuta DFS desde d y da el orden sin el origen y el padre de f.
+  - id: disc-20-008
+    tipo: completar
+    dificultad: 2
+    conceptos: [busqueda-profundidad]
+    enunciado: >-
+      Haz la búsqueda en profundidad desde $d$ en este grafo, con los vecinos en orden alfabético. El **padre** de un vértice es el vértice desde el que se entró a él.
+    visual: { id: grafo, vertices: "a, b, f, c, d, g, e", aristas: "a-b, a-e, a-f, a-g, b-d, b-f, c-d, d-f, d-g, e-g" }
+    texto: >-
+      Orden DFS desde $d$ (cada hueco, un vértice): $d$, ___, ___, ___, ___, ___, ___ · padre de $f$ en el árbol DFS: ___ (vértice)
+    respuestas: ["b", "a", "e", "g", "f", "c", "a"]
+    verificar: { python: "(lambda V, E: (lambda R: R[0][1:] + [R[1]['f']])((lambda A, s: (lambda go: go(go, s, ([s], {s: None}, [])))(lambda go, u, S: (lambda R: (R[0], R[1], R[2] + [u]))(list(itertools.accumulate(A[u], lambda st, v: st if v in st[0] else go(go, v, (st[0] + [v], {**st[1], v: u}, st[2])), initial=S))[-1])))((lambda V, E: {v: sorted({w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v}) for v in V})(V, E), 'd')))('a, b, c, d, e, f, g'.split(', '), [tuple(e.split('-')) for e in 'a-b, a-e, a-f, a-g, b-d, b-f, c-d, d-f, d-g, e-g'.split(', ')])" }
+    pistas:
+      - >-
+        Cuando llegas a un vértice sin vecinos por visitar, ¿a cuál regresas? ¿Desde qué vértice entras al siguiente vértice nuevo?
+    explicacion: |-
+      El grafo tiene vértices $a$ a $g$ y aristas $ab$, $ae$, $af$, $ag$, $bd$, $bf$, $cd$, $df$, $dg$ y $eg$.
+
+      1. De $d$ (vecinos $b$, $c$, $f$ y $g$) entra a $b$; de $b$ (vecinos $a$, $d$ y $f$), a $a$; de $a$ (vecinos $b$, $e$, $f$ y $g$), a $e$; de $e$ (vecinos $a$ y $g$), a $g$.
+      2. Los vecinos de $g$, que son $a$, $d$ y $e$, ya están visitados: regresa a $e$, que tampoco tiene, y luego a $a$.
+      3. De $a$ entra a $f$, su siguiente vecino sin visitar. Los vecinos de $f$ ya están visitados: regresa a $a$, a $b$ y a $d$.
+      4. De $d$ entra a $c$. Termina.
+
+      El orden DFS es $d,b,a,e,g,f,c$, y el padre de $f$ es $a$, desde donde se entró a él; no es $g$, que se descubrió justo antes. Comprueba: $c$, vecino del origen, sale al último, porque DFS no regresa a $d$ hasta agotar lo que cuelga de $b$.
+    tiempo_estimado_s: 90
+
+  # razonamiento: algorítmico (BFS con los vecinos de salida) · R1
+  # Dirigido, sin flechas antiparalelas. «Al menos una flecha», no «alguna». El cuarto se cuenta con a como el primero.
+  # Perímetro del autor (2 cruces).
+  # verificar: ejecuta BFS con los vecinos de salida; da cuántos marca, el cuarto, el nivel de f y si hay al menos una
+  # flecha entre marcados que baja de nivel.
+  - id: disc-20-009
+    tipo: completar
+    dificultad: 2
+    conceptos: [busqueda-amplitud]
+    enunciado: >-
+      Haz la búsqueda en amplitud desde $a$ en este grafo dirigido. En un dirigido, los vecinos de $u$ son los $v$ con una flecha $u\to v$, y se encolan en orden alfabético. En el hueco de sí o no, escribe 1 (sí) o 0 (no).
+    visual: { id: grafo, vertices: "a, e, b, c, f, g, d", aristas: "a-c, a-e, b-a, c-b, d-a, e-b, e-f, f-c, g-d, g-f", dirigido: "si" }
+    texto: >-
+      Número de vértices que se marcan, contando a $a$: ___ · cuarto vértice que se marca, contando a $a$ como el primero: ___ · nivel de $f$: ___ · ¿hay al menos una flecha entre dos vértices marcados que va a un nivel menor? ___
+    respuestas: ["5", "b", "2", "1"]
+    verificar: { python: "(lambda V, E: (lambda R: [len(R[0]), R[0][3], R[2]['f'], int(any(a in R[2] and b in R[2] and R[2][b] < R[2][a] for (a, b) in E))])((lambda A, s: (lambda go: go(go, [s], [s], {s: None}, {s: 0}))(lambda go, Q, M, P, L: (M, P, L) if not Q else (lambda N: go(go, Q[1:] + N, M + N, {**P, **{v: Q[0] for v in N}}, {**L, **{v: L[Q[0]] + 1 for v in N}}))([v for v in A[Q[0]] if v not in M])))((lambda V, E: {v: sorted(b for (a, b) in E if a == v) for v in V})(V, E), 'a')))('a, b, c, d, e, f, g'.split(', '), [tuple(e.split('-')) for e in 'a-c, a-e, b-a, c-b, d-a, e-b, e-f, f-c, g-d, g-f'.split(', ')])" }
+    pistas:
+      - >-
+        Al sacar a un vértice, ¿encolas a los que le mandan flechas o a los que reciben las suyas?
+    explicacion: >-
+      Las flechas son $(a,c)$, $(a,e)$, $(b,a)$, $(c,b)$, $(d,a)$, $(e,b)$, $(e,f)$, $(f,c)$, $(g,d)$ y $(g,f)$. **La búsqueda:** sale $a$ y marca a $c$ y a $e$; sale $c$ y marca a $b$; sale $e$: $b$ ya está marcado, y marca a $f$; salen $b$ y $f$, cuyas flechas van a $a$ y a $c$, ya marcados. El orden BFS es $a,c,e,b,f$: se marcan 5, y el cuarto es $b$. **Niveles:** $a$ 0; $c$ y $e$ 1; $b$ y $f$ 2. **Hacia atrás:** $(b,a)$ va del nivel 2 al 0, así que sí hay. Ninguna flecha va de un vértice marcado a $d$ o a $g$: sus flechas salen de ellos. Comprueba: $(f,c)$ también baja, del nivel 2 al 1.
+    tiempo_estimado_s: 90
+
+  # razonamiento: inductivo (de los casos dibujables a ⌊n/2⌋) · R2 (A)
+  # Sustituye al GP «menos tramos ≠ menor peso» del v0 (M): ya lo cubren el Predice, §6, §8, el 004 y el 024.
+  # verificar: niveles por capas de vecinos en C_n.
+  - id: disc-20-010
+    tipo: completar
+    dificultad: 2
+    conceptos: [distancia-bfs]
+    enunciado: >-
+      $C_n$ es el ciclo con vértices $0,1,\dots,n-1$, una arista entre $i$ e $i+1$ para cada $i<n-1$ y otra entre $n-1$ y $0$. Piensa en la búsqueda en amplitud desde 0: dibuja $C_7$ y $C_8$ y busca el patrón. Cada hueco es un número.
+    texto: >-
+      Mayor distancia en aristas desde 0 en $C_7$: ___ · en $C_8$: ___ · en $C_{101}$: ___ · número de vértices de $C_{101}$ que están a esa mayor distancia del 0: ___
+    respuestas: ["3", "4", "50", "2"]
+    verificar: { python: "(lambda f: [f(7)[0], f(8)[0], f(101)[0], f(101)[1]])(lambda n: (lambda D: (max(D.values()), sum(1 for v in D if D[v] == max(D.values()))))((lambda A, s: (lambda Ls: {v: min(k for (k, S) in enumerate(Ls) if v in S) for v in Ls[-1]})((lambda A, s: list(itertools.accumulate(range(len(A)), lambda S, _: S | frozenset(w for v in S for w in A[v]), initial=frozenset({s}))))(A, s)))({i: [(i - 1) % n, (i + 1) % n] for i in range(n)}, 0)))" }
+    pistas:
+      - >-
+        En $C_7$, ¿cuántos vértices nuevos alcanza la búsqueda en cada nivel? ¿Qué pasa en el último nivel cuando $n$ es par y cuando es impar?
+    explicacion: >-
+      **Los casos chicos.** Desde 0, cada nivel agrega un vértice por cada lado del ciclo. En $C_7$, el nivel 1 es $\{1,6\}$, el 2 es $\{2,5\}$ y el 3 es $\{3,4\}$: la mayor distancia es 3. En $C_8$, los niveles 1 a 3 tienen dos vértices cada uno, y el 4 es $\{4\}$, al que se llega por los dos lados: la mayor distancia es 4. **El patrón:** el vértice $i$ está a distancia $\min(i,n-i)$, así que la mayor es $\lfloor n/2\rfloor$; con $n$ impar la tienen dos vértices, y con $n$ par, uno. **En $C_{101}$:** $\lfloor101/2\rfloor=50$, y la tienen el 50 y el 51, porque $\min(50,51)=\min(51,50)=50$: 2 vértices. Comprueba: en $C_{101}$, el 50 está a 50 aristas del 0 por un lado y a 51 por el otro.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (Dijkstra con flechas y un inalcanzable) · R1
+  # Dirigido, con visual (M), sin flechas antiparalelas. No se pregunta el orden de fijado, porque f no se fija
+  # (hipótesis de M). Errores que rechaza el verificar (neg.py): no mejorar b por c (4), e por g (11) y creer que f
+  # entra con 2 (0 inalcanzables).
+  # Arreglos (resolutor): el hueco 5 dice «distintos de a», porque contando a a daba lugar a 1 o 2.
+  # verificar: las d por enumeración de trayectorias dirigidas, y exige que Dijkstra dé lo mismo.
+  - id: disc-20-011
+    tipo: completar
+    dificultad: 2
+    conceptos: [dijkstra]
+    enunciado: >-
+      Corre Dijkstra desde $a$ en este grafo dirigido; al fijar un vértice se relajan solo las flechas que salen de él. Las flechas que salen de cada vértice, con su peso: $a$: $b$ 4, $c$ 1 · $b$: $g$ 5 · $c$: $b$ 2, $e$ 9, $g$ 8 · $f$: $a$ 2, $e$ 1 · $g$: $e$ 3; de $e$ no sale ninguna.
+    visual: { id: grafo, vertices: "a, b, c, e, f, g", aristas: "a-b, a-c, b-g, c-b, c-e, c-g, f-a, f-e, g-e", dirigido: "si" }
+    texto: >-
+      Al terminar (cada hueco, un número): $d(b)=$ ___ · $d(c)=$ ___ · $d(e)=$ ___ · $d(g)=$ ___ · número de vértices distintos de $a$ a los que no llega ningún camino dirigido desde $a$: ___
+    respuestas: ["3", "1", "10", "8", "1"]
+    verificar: { python: "(lambda V, N: (lambda F, T: [T['b'], T['c'], T['e'], T['g'], sum(1 for v in V if T[v] == math.inf)] if all(F[0][v] == T[v] for v in V) else None)((lambda V, N, s: list(itertools.accumulate(range(len(V)), lambda S, _: (lambda d, p, F: (lambda C: S if not C else (lambda u: ({v: d[u] + N[u][v] if v in N[u] and v not in F and v != u and d[u] + N[u][v] < d[v] else d[v] for v in V}, {v: u if v in N[u] and v not in F and v != u and d[u] + N[u][v] < d[v] else p[v] for v in V}, F + [u]))(min(C, key=lambda v: (d[v], v))))([v for v in V if v not in F and d[v] < math.inf]))(*S), initial=({v: 0 if v == s else math.inf for v in V}, {v: None for v in V}, []))))(V, N, 'a')[-1], (lambda V, N, s: {t: min([c for (c, _) in (lambda N, s, t: (lambda go: go(go, (s,), 0))(lambda go, p, c: [(c, p)] if p[-1] == t else [x for v in sorted(N[p[-1]]) if v not in p for x in go(go, p + (v,), c + N[p[-1]][v])]))(N, s, t)], default=math.inf) for t in V})(V, N, 'a')))('a, b, c, e, f, g'.split(', '), (lambda V, W, D: {v: {**{b: w for ((a, b), w) in W.items() if a == v}, **({} if D else {a: w for ((a, b), w) in W.items() if b == v})} for v in V})('a, b, c, e, f, g'.split(', '), {tuple(x.split(': ')[0].split('-')): int(x.split(': ')[1]) for x in 'a-b: 4, a-c: 1, b-g: 5, c-b: 2, c-e: 9, c-g: 8, f-a: 2, f-e: 1, g-e: 3'.split(', ')}, 1))" }
+    pistas:
+      - >-
+        Cada vez que fijas un vértice, ¿miras solo las flechas que salen de él? ¿Hay un vértice al que no llega ninguna flecha desde los que alcanzas?
+    explicacion: |-
+      Las flechas son $(a,b)$ 4, $(a,c)$ 1, $(b,g)$ 5, $(c,b)$ 2, $(c,e)$ 9, $(c,g)$ 8, $(f,a)$ 2, $(f,e)$ 1 y $(g,e)$ 3.
+
+      1. Se fija $a$, con 0: $d(b)=4$ y $d(c)=1$.
+      2. Se fija $c$, con 1: $d(b)$ baja a $1+2=3$, $d(e)=10$ y $d(g)=9$.
+      3. Se fija $b$, con 3: $d(g)$ baja a $3+5=8$.
+      4. Se fija $g$, con 8: por $(g,e)$, $8+3=11$ no mejora 10.
+      5. Se fija $e$, con 10. Queda $f$ con $d=\infty$, y termina.
+
+      A $f$ no llega ninguna flecha, así que ningún camino dirigido va de $a$ a $f$: 1 vértice. Sus flechas, $(f,a)$ y $(f,e)$, salen de él y no sirven desde $a$. Comprueba: $a,c,b,g$ pesa $1+2+5=8$, y $a,c,e$ pesa $1+9=10$.
+    tiempo_estimado_s: 90
+
+  # razonamiento: algorítmico (reiniciar en el primero sin marcar) · R1
+  # Perímetro del autor (0 cruces): cada componente queda junta, y la séptima posición del perímetro es b, no d, el
+  # séptimo marcado. Arreglos (L): el hueco 4 dice cómo se cuenta (a es el primero y la cuenta sigue en las búsquedas
+  # siguientes).
+  # verificar: repite BFS desde el primer vértice sin marcar, en orden alfabético; da el número de búsquedas, dónde
+  # empiezan la 2.ª y la 3.ª y el séptimo marcado.
+  - id: disc-20-012
+    tipo: completar
+    dificultad: 2
+    conceptos: [busqueda-amplitud]
+    enunciado: >-
+      Para hallar las componentes conexas se repite la búsqueda en amplitud: se empieza en $a$ y, cada vez que la cola se vacía, se empieza otra en el primer vértice, en orden alfabético, que siga sin marcar, hasta marcarlos todos. Los vecinos van en orden alfabético.
+    visual: { id: grafo, vertices: "a, i, g, e, d, h, b, f, c", aristas: "a-e, a-i, b-h, c-f, d-h, e-g, g-i" }
+    texto: >-
+      Número de búsquedas: ___ · vértice donde empieza la segunda: ___ · vértice donde empieza la tercera: ___ · séptimo vértice que se marca, contando a $a$ como el primero y siguiendo la cuenta en las búsquedas siguientes: ___
+    respuestas: ["3", "b", "c", "d"]
+    verificar: { python: "(lambda V, E: (lambda A: (lambda S: [len(S), S[1][0], S[2][0], [v for o in S for v in o][6]])(list(itertools.accumulate(V, lambda acc, v: acc if any(v in o for o in acc) else acc + [(lambda A, s: (lambda go: go(go, [s], [s], {s: None}, {s: 0}))(lambda go, Q, M, P, L: (M, P, L) if not Q else (lambda N: go(go, Q[1:] + N, M + N, {**P, **{v: Q[0] for v in N}}, {**L, **{v: L[Q[0]] + 1 for v in N}}))([v for v in A[Q[0]] if v not in M])))(A, v)[0]], initial=[]))[-1]))((lambda V, E: {v: sorted({w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v}) for v in V})(V, E)))('a, b, c, d, e, f, g, h, i'.split(', '), [tuple(e.split('-')) for e in 'a-e, a-i, b-h, c-f, d-h, e-g, g-i'.split(', ')])" }
+    pistas:
+      - >-
+        Cuando termina la primera búsqueda, ¿qué vértices quedan sin marcar, y cuál es el primero en orden alfabético?
+    explicacion: >-
+      El grafo tiene vértices $a$ a $i$ y aristas $ae$, $ai$, $bh$, $cf$, $dh$, $eg$ y $gi$. **Primera, desde $a$:** se marca $a$; al sacarlo, $e$ y luego $i$; al sacar a $e$, $g$. Marca $a,e,i,g$. **Segunda:** el primer vértice sin marcar es $b$; se marca $b$, luego $h$ y, al sacar a $h$, $d$: $b,h,d$. **Tercera:** desde $c$, se marcan $c$ y $f$. Ya están los 9: son 3 búsquedas, una por componente. En total se marcan $a,e,i,g,b,h,d,c,f$, y el séptimo es $d$. Comprueba: las componentes $\{a,e,g,i\}$, $\{b,d,h\}$ y $\{c,f\}$ tienen $4+3+2=9$ vértices, y ninguna arista une a dos de ellas.
+    tiempo_estimado_s: 90
+
+  # razonamiento: algorítmico (leer la cadena de predecesores al revés) · R1
+  # El camino único a, h, e, b, g (M) sale de tres mejoras: e baja de 4 a 3, b de 7 a 6 y g de 8 a 7. Errores que
+  # rechaza el verificar (neg.py): pred(g) = e, el camino directo a, f, … y 3 aristas.
+  # En el jefe: la explicación no enuncia que «la parte de un camino más corto es un camino más corto» (la (4) del R4).
+  # verificar: Dijkstra, y compara el camino de predecesores con la ÚNICA trayectoria más ligera de la enumeración.
+  - id: disc-20-013
+    tipo: completar
+    dificultad: 3
+    conceptos: [dijkstra]
+    enunciado: >-
+      Corre Dijkstra desde $a$ en el grafo con vértices $a$, $b$, $c$, $e$, $f$, $g$ y $h$ y estos pesos, por vértice: $a$: $e$ 4, $f$ 9, $h$ 1 · $b$: $e$ 3, $f$ 9, $g$ 1, $h$ 6 · $c$: $f$ 5, $h$ 9 · $e$: $a$ 4, $b$ 3, $g$ 5, $h$ 2 · $f$: $a$ 9, $b$ 9, $c$ 5 · $g$: $b$ 1, $e$ 5 · $h$: $a$ 1, $b$ 6, $c$ 9, $e$ 2. Cada vez que una $d$ baja, anota el nuevo predecesor.
+    texto: >-
+      $d(g)$ al terminar (número): ___ · número de aristas del camino de $a$ a $g$ que dan los predecesores: ___ · predecesor de $g$: ___ (vértice) · segundo vértice de ese camino, contando a $a$ como el primero: ___ (vértice)
+    respuestas: ["7", "4", "b", "h"]
+    verificar: { python: "(lambda V, N: (lambda F, P: (lambda path: [F[0]['g'], len(path) - 1, F[1]['g'], path[1]] if (lambda L: L[0] if len(L) == 1 else None)([p for (c, p) in P if c == min(c for (c, _) in P)]) == tuple(path) else None)([x for x in list(itertools.accumulate(range(len(V)), lambda q, _: q + [F[1][q[-1]]] if F[1][q[-1]] else q, initial=['g']))[-1]][::-1]))((lambda V, N, s: list(itertools.accumulate(range(len(V)), lambda S, _: (lambda d, p, F: (lambda C: S if not C else (lambda u: ({v: d[u] + N[u][v] if v in N[u] and v not in F and v != u and d[u] + N[u][v] < d[v] else d[v] for v in V}, {v: u if v in N[u] and v not in F and v != u and d[u] + N[u][v] < d[v] else p[v] for v in V}, F + [u]))(min(C, key=lambda v: (d[v], v))))([v for v in V if v not in F and d[v] < math.inf]))(*S), initial=({v: 0 if v == s else math.inf for v in V}, {v: None for v in V}, []))))(V, N, 'a')[-1], (lambda N, s, t: (lambda go: go(go, (s,), 0))(lambda go, p, c: [(c, p)] if p[-1] == t else [x for v in sorted(N[p[-1]]) if v not in p for x in go(go, p + (v,), c + N[p[-1]][v])]))(N, 'a', 'g')))('a, b, c, e, f, g, h'.split(', '), (lambda V, W, D: {v: {**{b: w for ((a, b), w) in W.items() if a == v}, **({} if D else {a: w for ((a, b), w) in W.items() if b == v})} for v in V})('a, b, c, e, f, g, h'.split(', '), {tuple(x.split(': ')[0].split('-')): int(x.split(': ')[1]) for x in 'a-e: 4, a-f: 9, a-h: 1, b-e: 3, b-f: 9, b-g: 1, b-h: 6, c-f: 5, c-h: 9, e-g: 5, e-h: 2'.split(', ')}, 0))" }
+    pistas:
+      - >-
+        Cada vez que una $d$ baja, ¿cambiaste también su predecesor?
+      - >-
+        Para leer el camino, ¿empiezas en $g$ y sigues a los predecesores hasta llegar a $a$?
+    explicacion: |-
+      Los pesos son $ae$ 4, $af$ 9, $ah$ 1, $be$ 3, $bf$ 9, $bg$ 1, $bh$ 6, $cf$ 5, $ch$ 9, $eg$ 5 y $eh$ 2.
+
+      1. Se fija $a$: $d(e)=4$, $d(f)=9$ y $d(h)=1$, con predecesor $a$.
+      2. Se fija $h$, con 1: $d(b)=7$ y $d(c)=10$, con predecesor $h$, y $d(e)$ baja a $1+2=3$, también con predecesor $h$.
+      3. Se fija $e$, con 3: $d(b)$ baja a $3+3=6$ y $d(g)=8$, con predecesor $e$.
+      4. Se fija $b$, con 6: $d(g)$ baja a $6+1=7$, con predecesor $b$; por $bf$, 15 no mejora 9.
+      5. Se fijan $g$ (7), $f$ (9) y $c$ (10) sin más cambios.
+
+      $d(g)=7$. De $g$ hacia atrás, los predecesores dan $b$, $e$, $h$ y $a$; al derecho, $a,h,e,b,g$, con 4 aristas. El predecesor de $g$ es $b$, y el segundo vértice, $h$. Revisa: $1+2+3+1=7$, y el camino de $a$ a $g$ por $e$ directo, $a,e,g$, pesa $4+5=9$.
+    tiempo_estimado_s: 120
+
+  # razonamiento: abductivo (de la tabla de Leo a la regla que la explica) · R2 (A; la regla, con palabras de L)
+  # Error plantado sin decir qué hizo Leo: el enunciado define la «regla del primer valor» como candidata, sin
+  # atribuírsela, y las opciones proponen explicaciones (A prefiere la versión abductiva). Datos de M: la regla del
+  # primer valor y «menos aristas» difieren en g (12 contra 16). La (1) dice «un camino con el menor número posible de
+  # aristas», porque a c llegan dos de 2 aristas (a, e, c y a, f, c). La (3) y la (4) son generales (M las comprobó en
+  # todos los grafos de 4 vértices con pesos 0–2 y en todos los de 2 a 5 vértices con pesos 1).
+  # En el jefe: la explicación no dice «revisa que ninguna arista mejore una d», que es la clave del 015 (M).
+  # Arreglos (L): la regla nombra a u; la (4) dice «alcanzable desde a»; la distancia va con apellido en la pista 2 y en
+  # la explicación, y el error de Leo es «dejar cada d en su primer valor» («fijar» es solo de vértices).
+  # verificar: ejecuta la regla del primer valor, el peso por el árbol BFS, las distancias por enumeración y las dos
+  # afirmaciones generales por enumeración.
+  - id: disc-20-014
+    tipo: seleccion_multiple
+    dificultad: 3
+    conceptos: [dijkstra]
+    enunciado: >-
+      El grafo tiene vértices $a$, $b$, $c$, $e$, $f$ y $g$ y estos pesos, por vértice: $a$: $e$ 5, $f$ 9 · $b$: $e$ 1, $g$ 6 · $c$: $e$ 6, $f$ 1, $g$ 7 · $e$: $a$ 5, $b$ 1, $c$ 6, $f$ 3 · $f$: $a$ 9, $c$ 1, $e$ 3, $g$ 7 · $g$: $b$ 6, $c$ 7, $f$ 7. Leo dice que corrió Dijkstra desde $a$, y entrega esta tabla: $e$ 5, $f$ 9, $b$ 6, $c$ 11 y $g$ 12. En las opciones, la **regla del primer valor** es esta: empezar con $d(a)=0$ y, en cada ronda, tomar el vértice $u$ de menor $d$ que no se ha tomado (empate alfabético) y darle a cada vecino $v$ que todavía tiene $d(v)=\infty$ el valor $d(u)+w(u,v)$; una $d$ que ya tiene valor no cambia nunca. ¿Cuáles de estas afirmaciones son ciertas? Puede haber varias.
+    opciones:
+      - >-
+        La tabla de Leo es la que da la regla del primer valor.
+      - >-
+        Cada valor de la tabla de Leo es el peso de un camino de $a$ a ese vértice con el menor número posible de aristas.
+      - >-
+        El valor de $f$ en la tabla de Leo es su distancia ponderada desde $a$.
+      - >-
+        En cualquier grafo con pesos $\ge0$, la regla del primer valor nunca le da a un vértice una $d$ menor que su distancia ponderada.
+      - >-
+        Si todos los pesos de un grafo son 1, la regla del primer valor le da su distancia ponderada a cada vértice alcanzable desde $a$.
+      - >-
+        Leo se equivoca en un solo vértice.
+    correctas: [0, 3, 4]
+    verificar: { python: "(lambda V, N, Lf, Df, NBf, Bf, Lv: (lambda T, R: [Lf(V, N, 'a') == Lv, (lambda B: {v: sum(N[B[1][x]][x] for x in list(itertools.accumulate(range(len(V)), lambda q, _: q + [B[1][q[-1]]] if B[1][q[-1]] else q, initial=[v]))[-1][:-1]) for v in V})(Bf({v: sorted(N[v]) for v in V}, 'a')) == Lv, Lv['f'] == T['f'], all(all(Lf(list(range(n)), NBf(list(range(n)), Wt, 0), 0)[v] >= x for (v, x) in Df(list(range(n)), NBf(list(range(n)), Wt, 0), 0).items() if x < math.inf) for (n, Wt) in [(n, {P[i]: w[i] for i in range(len(P)) if w[i] is not None}) for n in (4,) for P in [list(itertools.combinations(range(n), 2))] for w in itertools.product((None, 0, 1, 2), repeat=len(P))]), all(Lf(list(range(n)), NBf(list(range(n)), Wt, 0), 0) == {k: x for (k, x) in Df(list(range(n)), NBf(list(range(n)), Wt, 0), 0).items() if x < math.inf} for (n, Wt) in [(n, {P[i]: 1 for i in range(len(P)) if m >> i & 1}) for n in (2, 3, 4, 5) for P in [list(itertools.combinations(range(n), 2))] for m in range(1 << len(P))]), sum(1 for v in V if Lv[v] != T[v]) == 1])(Df(V, N, 'a'), None))('a, b, c, e, f, g'.split(', '), (lambda V, W, D: {v: {**{b: w for ((a, b), w) in W.items() if a == v}, **({} if D else {a: w for ((a, b), w) in W.items() if b == v})} for v in V})('a, b, c, e, f, g'.split(', '), {tuple(x.split(': ')[0].split('-')): int(x.split(': ')[1]) for x in 'a-e: 5, a-f: 9, b-e: 1, b-g: 6, c-e: 6, c-f: 1, c-g: 7, e-f: 3, f-g: 7'.split(', ')}, 0), (lambda V, N, s: list(itertools.accumulate(range(len(V)), lambda S, _: (lambda d, X: (lambda C: S if not C else (lambda u: ({**d, **{v: d[u] + N[u][v] for v in sorted(N[u]) if v not in d}}, X + [u]))(min(C, key=lambda v: (d[v], v))))([v for v in d if v not in X]))(*S), initial=({s: 0}, [])))[-1][0]), (lambda V, N, s: {t: min([c for (c, _) in (lambda N, s, t: (lambda go: go(go, (s,), 0))(lambda go, p, c: [(c, p)] if p[-1] == t else [x for v in sorted(N[p[-1]]) if v not in p for x in go(go, p + (v,), c + N[p[-1]][v])]))(N, s, t)], default=math.inf) for t in V}), (lambda V, W, D: {v: {**{b: w for ((a, b), w) in W.items() if a == v}, **({} if D else {a: w for ((a, b), w) in W.items() if b == v})} for v in V}), (lambda A, s: (lambda go: go(go, [s], [s], {s: None}, {s: 0}))(lambda go, Q, M, P, L: (M, P, L) if not Q else (lambda N: go(go, Q[1:] + N, M + N, {**P, **{v: Q[0] for v in N}}, {**L, **{v: L[Q[0]] + 1 for v in N}}))([v for v in A[Q[0]] if v not in M]))), {'a': 0, 'e': 5, 'f': 9, 'b': 6, 'c': 11, 'g': 12})" }
+    pistas:
+      - >-
+        ¿Qué valor le daría a $f$ Dijkstra? ¿Y la regla del primer valor?
+      - >-
+        Si cada valor de la regla es el peso de un camino que existe, ¿puede quedar por debajo de la distancia ponderada?
+    explicacion: >-
+      Son ciertas «la tabla de Leo es la de la regla del primer valor», «esa regla nunca da menos que la distancia ponderada» y «con pesos 1 le da a cada alcanzable su distancia ponderada»; las otras tres no. **La regla del primer valor aquí:** $a$ les da $e=5$ y $f=9$; $e$, el de menor $d$, les da $b=5+1=6$ y $c=5+6=11$ ($f$ ya tenía valor); $b$ le da $g=6+6=12$; $f$ y $c$ ya no dan nada nuevo. Es justo la tabla de Leo. **Dijkstra** da $e$ 5, $b$ 6, $f$ 8 por $a,e,f$, $c$ 9 por $a,e,f,c$ y $g$ 12: Leo falla en $f$ y en $c$, dos vértices, y su $f$ no es su distancia ponderada. **Menos aristas no lo explica:** el único camino de 2 aristas a $g$ es $a,f,g$, que pesa 16, y Leo dio 12. **Las generales:** cada valor de la regla es el peso de un camino que existe, así que nunca queda debajo de la distancia ponderada; y con pesos 1, la regla toma los vértices por niveles y a cada uno le da el nivel de su primer vecino tomado más 1, que es su distancia en aristas, como un BFS, y aquí la distancia en aristas es la ponderada. El error de Leo es dejar cada $d$ en su primer valor: Dijkstra deja que una $d$ baje hasta que su vértice es el no fijado de menor $d$. Revisa: la $d$ correcta de $c$, 9, es el peso de $a,e,f,c$, $5+3+1$, y los 11 de Leo son el de $a,e,c$.
+    tiempo_estimado_s: 150
+
+  # razonamiento: metacognitivo (una revisión que no puede fallar no revisa: falta «ninguna arista mejora una d») · R2
+  # De A, tal cual (enunciado, texto, respuestas, pistas, explicación y `verificar`). El vértice se llama e, no d.
+  # verificar (A): distancias por permutaciones, no con Dijkstra; la única arista que delata la tabla, cuántas d están
+  # mal y la d correcta de t. Probado con el check_exercise real (M).
+  - id: disc-20-015
+    tipo: completar
+    dificultad: 3
+    conceptos: [dijkstra]
+    enunciado: >-
+      Iván corrió Dijkstra desde $s$ en un grafo no dirigido con estos pesos: $s$–$a$: 2, $s$–$b$: 5, $a$–$b$: 1, $a$–$c$: 6, $b$–$c$: 2, $b$–$e$: 7, $c$–$e$: 1, $c$–$t$: 5 y $e$–$t$: 2. Su tabla final dice: $d(s)=0$; $d(a)=2$, con predecesor $s$; $d(b)=3$, con predecesor $a$; $d(c)=8$, con predecesor $a$; $d(e)=9$, con predecesor $c$; y $d(t)=11$, con predecesor $e$. Revisó que cada $d$ fuera el peso del camino que dan los predecesores, todo cuadró y la dio por buena. La tabla está mal, y una sola arista lo demuestra sin rehacer el algoritmo: con los números de Iván, llegar por ella a uno de sus extremos cuesta menos que la $d$ de ese extremo.
+    texto: >-
+      Esa arista une al vértice ___ con el vértice ___ (primero el que va antes en el alfabeto) · número de vértices cuya $d$ de Iván está mal: ___ · la $d$ correcta de $t$ es ___
+    respuestas: ["b", "c", "3", "8"]
+    verificar: { python: "(lambda V, W, iv: (lambda w: (lambda D: (lambda bad: sorted(bad[0]) + [sum(1 for v in V if D[v] != iv[v]), D['t']] if len(bad) == 1 else [])([e for e in W if iv[e[1]] > iv[e[0]] + W[e] or iv[e[0]] > iv[e[1]] + W[e]]))({v: 0 if v == 's' else min(sum(w(p[i], p[i + 1]) for i in range(len(p) - 1)) for k in range(len(V) - 1) for m in itertools.permutations([y for y in V if y not in ('s', v)], k) for p in [('s',) + m + (v,)] if all(w(p[i], p[i + 1]) is not None for i in range(len(p) - 1))) for v in V}))(lambda x, y: W.get((x, y), W.get((y, x)))))(['s', 'a', 'b', 'c', 'e', 't'], {('s', 'a'): 2, ('s', 'b'): 5, ('a', 'b'): 1, ('a', 'c'): 6, ('b', 'c'): 2, ('b', 'e'): 7, ('c', 'e'): 1, ('c', 't'): 5, ('e', 't'): 2}, {'s': 0, 'a': 2, 'b': 3, 'c': 8, 'e': 9, 't': 11})" }
+    pistas:
+      - >-
+        ¿Qué asegura la revisión de Iván: que cada $d$ se puede alcanzar, o que no hay nada más barato?
+      - >-
+        Si la tabla fuera correcta, ¿qué tendría que cumplir cada arista $u$–$v$, en los dos sentidos, con $d(u)$, $d(v)$ y $w(u,v)$?
+      - >-
+        Cuando encuentres la arista, ¿qué otras $d$ dependen de la que está mal, siguiendo los predecesores?
+    explicacion: >-
+      **Lo que revisó Iván no basta.** Que cada $d$ sea el peso del camino que dan los predecesores solo prueba que ese camino existe: la distancia verdadera no es mayor que $d$. No prueba que no haya uno más barato. **La revisión completa** agrega: en cada arista $u$–$v$, en los dos sentidos, $d(v)\le d(u)+w(u,v)$. Con los números de Iván, todas cumplen salvo $b$–$c$: $d(b)+w(b,c)=3+2=5<8=d(c)$. Lo más probable es que, al fijar $b$, no relajara la arista $b$–$c$. **La tabla correcta:** $d(c)=5$, por $s,a,b,c$; $d(e)=6$, por $c$; y $d(t)=8$, por $s,a,b,c,e,t$, con $2+1+2+1+2=8$. Están mal 3 valores, los de $c$, $e$ y $t$: el error de $c$ se arrastra por los predecesores; $s$, $a$ y $b$ estaban bien. ¿Qué revisión harás tú siempre al terminar una tabla de Dijkstra? Revisa: con la tabla correcta, las 9 aristas cumplen $d(v)\le d(u)+w(u,v)$ en los dos sentidos; por ejemplo, $c$–$t$ da $8\le5+5$.
+    tiempo_estimado_s: 120
+
+  # razonamiento: deductivo (en cada paso, ¿se entra a un vecino sin visitar, o se regresa sin dejar vecinos?) · R2
+  # v1 de M: «el vecino sin visitar que quieras». Con esa libertad, una trayectoria hamiltoniana desde a es un orden DFS
+  # (diseno2.py); aquí la 1.ª (la alfabética) y la 2.ª lo son. La 3.ª es el orden BFS, y la 5.ª y la 6.ª saltan a un
+  # vértice que no es vecino dejando uno sin visitar junto al actual.
+  # En el jefe: la explicación no generaliza «trayectoria ⇔ el árbol no se ramifica» (la (3) del 022) y no dice
+  # «recorrido» (19-011, su pareja).
+  # verificar: genera TODOS los órdenes DFS (cada elección posible) y compara.
+  - id: disc-20-016
+    tipo: seleccion_multiple
+    dificultad: 3
+    conceptos: [busqueda-profundidad]
+    enunciado: >-
+      En una búsqueda en profundidad, en cada vértice se entra a un vecino sin visitar y, si no queda ninguno, se regresa al vértice del que se llegó. Supón que en cada vértice puedes entrar al vecino sin visitar que quieras, no necesariamente al primero en orden alfabético. ¿Cuáles de estas sucesiones pueden ser un orden DFS desde $a$ en este grafo? Puede haber varias.
+    visual: { id: grafo, vertices: "a, c, b, f, g, h, d, e", aristas: "a-b, a-e, b-c, b-f, c-g, d-e, d-h, e-f, f-g, g-h" }
+    opciones:
+      - >-
+        $a,b,c,g,f,e,d,h$
+      - >-
+        $a,e,d,h,g,c,b,f$
+      - >-
+        $a,b,e,c,f,d,g,h$
+      - >-
+        $a,b,f,g,c,h,d,e$
+      - >-
+        $a,e,f,b,c,g,d,h$
+      - >-
+        $a,e,d,h,g,f,c,b$
+    correctas: [0, 1, 3]
+    verificar: { python: "(lambda V, E: (lambda D: [o.split() in D for o in ['a b c g f e d h', 'a e d h g c b f', 'a b e c f d g h', 'a b f g c h d e', 'a e f b c g d h', 'a e d h g f c b']])((lambda A, s: (lambda go: go(go, [s], [s]))(lambda go, O, St: [O] if not St else (lambda N: [r for v in N for r in go(go, O + [v], St + [v])] if N else go(go, O, St[:-1]))([v for v in A[St[-1]] if v not in O])))((lambda V, E: {v: sorted({w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v}) for v in V})(V, E), 'a')))('a, b, c, d, e, f, g, h'.split(', '), [tuple(e.split('-')) for e in 'a-b, a-e, b-c, b-f, c-g, d-e, d-h, e-f, f-g, g-h'.split(', ')])" }
+    pistas:
+      - >-
+        En cada sucesión, ¿el vértice que sigue es vecino del actual? Si no lo es, ¿el actual ya no tenía vecinos sin visitar?
+      - >-
+        ¿Puede DFS regresar desde un vértice que todavía tiene un vecino sin visitar?
+    explicacion: >-
+      Pueden ser $a,b,c,g,f,e,d,h$, $a,e,d,h,g,c,b,f$ y $a,b,f,g,c,h,d,e$; las otras tres no. Las aristas son $ab$, $ae$, $bc$, $bf$, $cg$, $de$, $dh$, $ef$, $fg$ y $gh$. **Las que sí:** en $a,b,c,g,f,e,d,h$ y en $a,e,d,h,g,c,b,f$, cada vértice es vecino del anterior y no se había visitado, así que DFS entra a él sin regresar. En $a,b,f,g,c,h,d,e$, en $c$ ya no queda vecino sin visitar ($b$ y $g$ ya están): regresa a $g$, que todavía tiene a $h$, y sigue con $h$, $d$ y $e$. **Las que no:** $a,b,e,c,f,d,g,h$ es el orden BFS; $e$ no es vecino de $b$, y $b$ todavía tiene a $c$ y a $f$ sin visitar. En $a,e,f,b,c,g,d,h$, de $g$ pasa a $d$, que no es su vecino, cuando $g$ todavía tiene a $h$ sin visitar. En $a,e,d,h,g,f,c,b$, de $f$ pasa a $c$, que no es su vecino, cuando $f$ todavía tiene a $b$. Revisa: en un orden DFS, cada vértice nuevo es vecino del actual o de uno al que se regresó, y nunca se regresa desde un vértice con vecinos sin visitar.
+    tiempo_estimado_s: 120
+
+  # razonamiento: espacial (seguir las flechas, no las aristas sin dirección) · R2
+  # Dirigido, sin antiparalelas. Trampas (M): c tiene la caminata a, b, c de 2 flechas, pero está a 1; d y g estarían a 1
+  # si se ignoraran las flechas. Perímetro del autor (1 cruce).
+  # En el jefe hace par con disc-15-025 (S∘R − R): aquí R∘R − R desde a también da {e, f}, porque a no está en R∘R(a)
+  # (M). La explicación no habla de composición ni de relaciones.
+  # verificar: distancias por enumeración de trayectorias dirigidas (no BFS).
+  - id: disc-20-017
+    tipo: conjunto
+    dificultad: 3
+    conceptos: [distancia-bfs]
+    enunciado: >-
+      En un grafo dirigido, la distancia en aristas $\mathrm{dist}(a,v)$ es el menor número de flechas de un camino dirigido de $a$ a $v$, que sigue el sentido de las flechas. ¿Qué vértices de este grafo dirigido están a distancia exactamente 2 de $a$? Escribe todos, separados por comas, como `x, y`.
+    visual: { id: grafo, vertices: "a, d, b, c, f, e, g", aristas: "a-b, a-c, b-c, b-e, c-f, d-a, e-g, f-e, g-a", dirigido: "si" }
+    respuesta: ["e", "f"]
+    verificar: { python: "(lambda V, E: (lambda N: {t for t in V if min([len(p) - 1 for (c, p) in (lambda N, s, t: (lambda go: go(go, (s,), 0))(lambda go, p, c: [(c, p)] if p[-1] == t else [x for v in sorted(N[p[-1]]) if v not in p for x in go(go, p + (v,), c + N[p[-1]][v])]))(N, 'a', t)], default=-1) == 2})({v: {w: 1 for w in (lambda V, E: {v: sorted(b for (a, b) in E if a == v) for v in V})(V, E)[v]} for v in V}))('a, b, c, d, e, f, g'.split(', '), [tuple(e.split('-')) for e in 'a-b, a-c, b-c, b-e, c-f, d-a, e-g, f-e, g-a'.split(', ')])" }
+    pistas:
+      - >-
+        ¿A qué vértices llegas con una sola flecha que sale de $a$?
+      - >-
+        Un vértice al que llegas con dos flechas, ¿podría estar ya a distancia 1? ¿Y los vértices cuyas flechas van hacia $a$?
+    explicacion: >-
+      Son $e$ y $f$. Las flechas son $(a,b)$, $(a,c)$, $(b,c)$, $(b,e)$, $(c,f)$, $(d,a)$, $(e,g)$, $(f,e)$ y $(g,a)$. **Distancia 1:** de $a$ salen flechas a $b$ y a $c$. **Distancia 2:** de $b$ salen a $c$ y a $e$, y de $c$, a $f$; $c$ ya está a 1, así que quedan $e$ y $f$. **Distancia 3:** de $e$ sale una a $g$. **Las trampas:** $a,b,c$ usa 2 flechas, pero $c$ está a 1 por la flecha directa; $d$ y $g$ tienen flechas hacia $a$, no desde $a$. A $d$ no llega ninguna flecha, así que no hay camino dirigido de $a$ a $d$, y $g$ está a 3, por $a,b,e,g$. Revisa: si se ignoraran las flechas, $d$ y $g$ serían vecinos de $a$, a distancia 1, y $e$ y $f$ seguirían a 2.
+    tiempo_estimado_s: 90
+
+  # razonamiento: algorítmico (simular la variante con repetidos en la cola) · R2
+  # El `<Ojo>` de la lección (M): marcar al sacar no cambia el orden, pero mete repetidos a la cola y daña el árbol si
+  # se anota el padre en cada entrada. «Entradas» cuenta también la de a. El hueco 3 es recuerdo del `<Ojo>` si se lo
+  # sabe; la simulación lo confirma.
+  # verificar: simula la variante (entradas de la cola y padres, gana el último) y el BFS normal, y compara el orden.
+  - id: disc-20-018
+    tipo: completar
+    dificultad: 3
+    conceptos: [busqueda-amplitud]
+    enunciado: >-
+      Una variante de la búsqueda en amplitud desde $a$ **marca al sacar**: se encola $a$; al sacar un vértice, si ya está marcado se descarta, y si no, se marca y se encolan, en orden alfabético, todos sus vecinos que no estén marcados, aunque ya estén en la cola. Cada vez que $u$ encola a $v$, se anota a $u$ como padre de $v$, en lugar del que tuviera. En el hueco de sí o no, escribe 1 (sí) o 0 (no).
+    visual: { id: grafo, vertices: "a, b, c, d, e, f", aristas: "a-b, a-c, a-e, a-f, b-c, c-d, c-e, d-e, d-f" }
+    texto: >-
+      Número de veces que $d$ entra a la cola: ___ · número total de entradas a la cola, contando la de $a$: ___ · ¿el orden en que se marcan los vértices es distinto del orden BFS que marca al encolar? ___ · padre de $e$ al terminar: ___ (vértice)
+    respuestas: ["3", "10", "0", "c"]
+    verificar: { python: "(lambda V, E: (lambda A: (lambda L, Z, B: [L.count('d'), len(L), int(Z[0] != B[0]), Z[1]['e']])((lambda A, s: (lambda go: go(go, [s], [], [s]))(lambda go, Q, M, L: L if not Q else (go(go, Q[1:], M, L) if Q[0] in M else (lambda N: go(go, Q[1:] + N, M + [Q[0]], L + N))([v for v in A[Q[0]] if v not in M + [Q[0]]]))))(A, 'a'), (lambda A, s: (lambda go: go(go, [(s, None)], [], {}))(lambda go, Q, M, P: (M, P) if not Q else (go(go, Q[1:], M, P) if Q[0][0] in M else (lambda u: go(go, Q[1:] + [(v, u) for v in A[u] if v not in M + [u]], M + [u], {**P, **{v: u for v in A[u] if v not in M + [u]}}))(Q[0][0]))))(A, 'a'), (lambda A, s: (lambda go: go(go, [s], [s], {s: None}, {s: 0}))(lambda go, Q, M, P, L: (M, P, L) if not Q else (lambda N: go(go, Q[1:] + N, M + N, {**P, **{v: Q[0] for v in N}}, {**L, **{v: L[Q[0]] + 1 for v in N}}))([v for v in A[Q[0]] if v not in M])))(A, 'a')))((lambda V, E: {v: sorted({w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v}) for v in V})(V, E)))('a, b, c, d, e, f'.split(', '), [tuple(e.split('-')) for e in 'a-b, a-c, a-e, a-f, b-c, c-d, c-e, d-e, d-f'.split(', ')])" }
+    pistas:
+      - >-
+        Al sacar al segundo vértice, ¿vuelves a encolar a un vecino que ya estaba en la cola?
+      - >-
+        ¿Quién es el último en encolar a $e$ antes de que $e$ se marque?
+    explicacion: |-
+      Las aristas son $ab$, $ac$, $ae$, $af$, $bc$, $cd$, $ce$, $de$ y $df$. La cola, entrada por entrada:
+
+      1. Entra $a$. Sale $a$, se marca y encola a $b$, $c$, $e$ y $f$. Cola: $b,c,e,f$.
+      2. Sale $b$, se marca y encola a $c$ otra vez ($a$ ya está marcado). Cola: $c,e,f,c$.
+      3. Sale $c$, se marca y encola a $d$ y a $e$; $e$ entra por segunda vez, y su padre pasa a ser $c$. Cola: $e,f,c,d,e$.
+      4. Sale $e$, se marca y encola a $d$. Cola: $f,c,d,e,d$.
+      5. Sale $f$, se marca y encola a $d$. Cola: $c,d,e,d,d$.
+      6. Sale $c$, ya marcado, y se descarta. Sale $d$ y se marca; sus vecinos ya están marcados. Salen $e$, $d$ y $d$, ya marcados.
+
+      $d$ entra 3 veces, y en total hay $1+4+1+2+1+1=10$ entradas. Se marcan en el orden $a,b,c,e,f,d$, el mismo que da el BFS que marca al encolar: la respuesta es 0. El padre de $e$ queda en $c$, pero en el árbol BFS es $a$: $e$ se marca cuando sale su primera entrada, la que puso $a$. Revisa: marcando al encolar, cada vértice entra una vez, y la cola tendría 6 entradas.
+    tiempo_estimado_s: 120
+
+  # razonamiento: deductivo (invariante de la cola e inducción en la distancia) · R3
+  # De A, tal cual (enunciado, rúbrica, respuesta modelo y pistas). Revisión manual. La lección enuncia, sin probarlo,
+  # el invariante de la cola (§2). La inducción, que la rúbrica usa, se recuerda al final del enunciado: en los
+  # arreglos del 2026-11-15 pasó de §6 de la lección aquí (P). La explicación es del autor: resume la respuesta modelo
+  # sin agregar nada; desde los arreglos dice que el invariante «hay que probar y no citar» (M). tarjeta: false, como
+  # las autoevaluaciones de la 15 a la 19.
+  - id: disc-20-019
+    tipo: autoevaluacion
+    dificultad: 4
+    conceptos: [distancia-bfs]
+    enunciado: >-
+      En papel, demuestra que, en un BFS desde $s$, el nivel $L(v)$ de cada vértice alcanzable es su distancia en aristas $\mathrm{dist}(s,v)$, y di qué pasa con los vértices que no se alcanzan. Recuerda la **inducción**: si $P(0)$ vale y $P(k-1)$ implica $P(k)$ para cada $k\ge1$, $P(k)$ vale para todo $k\ge0$.
+    rubrica:
+      - >-
+        Define $L(v)$ y la distancia, y prueba la cota fácil: siguiendo a los padres desde $v$ hay un camino de $L(v)$ aristas, así que $\mathrm{dist}(s,v)\le L(v)$. Error típico: dar esto como toda la demostración; un camino de $L(v)$ aristas no descarta uno más corto.
+      - >-
+        Prueba, sin suponerlo, que en la cola los niveles no bajan y difieren a lo más en 1, revisando qué pasa cada vez que alguien sale y entra; concluye que los vértices salen en orden de nivel. Error típico: usar «el BFS va por niveles» como premisa, que es casi lo que se quiere probar.
+      - >-
+        Prueba $L(v)\le\mathrm{dist}(s,v)$ por inducción en la distancia (o con el vértice más cercano que falle), con el penúltimo vértice $u$ de un camino más corto, y cubre los dos casos al sacar a $u$: $v$ sin marcar y $v$ ya marcado. Error típico: olvidar el caso «ya marcado», que es justo donde se usa el invariante de la cola.
+      - >-
+        Junta las dos cotas, $L(v)=\mathrm{dist}(s,v)$ para todo $v$ alcanzable; dice que los no alcanzables nunca se marcan y dónde usó que cada arista cuenta 1. Error típico: decir que vale también con pesos, o callar qué pasa con los vértices que el BFS no alcanza.
+    respuesta_modelo: >-
+      Notación: $L(v)$ es el nivel que el BFS le da a $v$: $L(s)=0$ y, si $v$ se marca cuando $u$ sale de la cola, $L(v)=L(u)+1$ y $u$ es su padre; $\mathrm{dist}(s,v)$ es el menor número de aristas de un camino de $s$ a $v$. Pruebo dos desigualdades para todo $v$ alcanzable desde $s$. **Cota fácil, $\mathrm{dist}(s,v)\le L(v)$:** de $v$ a su padre, de este al suyo, y así hasta $s$, el nivel baja de 1 en 1, y solo $s$ tiene nivel 0; es un camino de exactamente $L(v)$ aristas, y la distancia es la menor longitud posible. Esto solo no basta: podría haber un camino más corto. **Invariante de la cola:** en todo momento, los niveles de la cola, del frente al final, no bajan y son $k$ o $k+1$ para algún $k$. Al inicio la cola es $[s]$. Sacar al del frente no lo rompe. Cuando sale $u$, con nivel $k$, en la cola quedan niveles $k$ o $k+1$, y al final entran vecinos con nivel $k+1$: sigue valiendo. Por eso los vértices salen de la cola en orden de nivel no decreciente. **Cota difícil, $L(v)\le\mathrm{dist}(s,v)$,** por inducción en $d=\mathrm{dist}(s,v)$: todo $v$ a distancia $d$ se marca y tiene $L(v)\le d$. Si $d=0$, $v=s$ y $L(s)=0$. Si $d\ge1$, sea $u$ el penúltimo vértice de un camino de $d$ aristas de $s$ a $v$; entonces $\mathrm{dist}(s,u)=d-1$ y, por hipótesis, $u$ se marca y $L(u)\le d-1$. Cuando $u$ sale de la cola, si $v$ no está marcado, se marca ahora con $L(v)=L(u)+1\le d$. Si ya estaba marcado, lo marcó un $w$ que salió de la cola antes que $u$, y por el invariante $L(w)\le L(u)$; así, $L(v)=L(w)+1\le d$. **Conclusión:** $L(v)=\mathrm{dist}(s,v)$ para todo $v$ alcanzable. Los no alcanzables nunca se marcan, porque cada vértice marcado tiene un camino de padres hasta $s$. Revisa: el argumento usa que cada arista suma 1, en $L(v)=L(u)+1$; con pesos, la ruta de menos tramos puede pesar más, y por eso hace falta Dijkstra.
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        ¿Qué tienes que probar: que el BFS encuentra un camino de $L(v)$ aristas, o que no hay uno más corto? ¿Qué te da seguir a los padres desde $v$ hasta $s$?
+      - >-
+        ¿En qué orden de nivel salen los vértices de la cola? ¿Puedes probarlo, sin suponerlo, viendo qué niveles hay en la cola cada vez que entra alguien?
+      - >-
+        Para la otra desigualdad, toma un camino más corto de $s$ a $v$ y su penúltimo vértice $u$. Cuando $u$ sale de la cola, ¿qué puede pasar con $v$? ¿Revisaste el caso en que $v$ ya estaba marcado?
+    explicacion: >-
+      **Son dos desigualdades.** Seguir a los padres desde $v$ da un camino de $L(v)$ aristas, así que $\mathrm{dist}(s,v)\le L(v)$; eso solo no descarta uno más corto. Para la otra, el invariante de la cola (del frente al final, los niveles no bajan y difieren a lo más en 1), que hay que probar y no citar, da que los vértices salen en orden de nivel, y la inducción en la distancia, con el penúltimo vértice $u$ de un camino más corto, cubre los dos casos al sacar a $u$: $v$ sin marcar, que se marca con $L(u)+1$, y $v$ ya marcado por un vértice que salió antes que $u$, con nivel a lo más $L(u)$. Los no alcanzables nunca se marcan, porque cada vértice marcado tiene un camino de padres hasta $s$. Revisa: el argumento usa que cada arista suma 1; con pesos, en el barrio $G$ de la lección, $a,c,f$ tiene menos aristas y pesa 11, más que los 8 de $a,e,g,f$.
+    tarjeta: false
+    tiempo_estimado_s: 360
+
+  # razonamiento: algorítmico (el empate cambia el orden y el predecesor, no la distancia) · R2
+  # Empates e/f (en 2) y b/g (en 3); con la regla estricta, b se queda con predecesor a aunque a, f, b también pesa 3.
+  # Errores que rechaza el verificar (neg.py): f antes que e, pred(b) = f, g antes que b y 1 trayectoria.
+  # En el jefe hace par con disc-16-025 (la cadena más larga contra el camino más corto); la explicación no habla de
+  # órdenes parciales, cadenas ni días.
+  # verificar: Dijkstra con la regla estricta; el número de trayectorias de peso d(b), por enumeración.
+  - id: disc-20-020
+    tipo: completar
+    dificultad: 4
+    conceptos: [dijkstra]
+    enunciado: >-
+      Corre Dijkstra desde $a$ en el grafo con vértices $a$, $b$, $c$, $e$, $f$ y $g$ y estos pesos, por vértice: $a$: $b$ 3, $c$ 6, $e$ 2, $f$ 2 · $b$: $a$ 3, $e$ 4, $f$ 1 · $c$: $a$ 6 · $e$: $a$ 2, $b$ 4, $f$ 1, $g$ 5 · $f$: $a$ 2, $b$ 1, $e$ 1, $g$ 1 · $g$: $e$ 5, $f$ 1. Los empates se rompen en orden alfabético, y una $d$ cambia solo si baja estrictamente.
+    texto: >-
+      Orden en que se fijan (cada hueco, un vértice): $a$, ___, ___, ___, ___, ___ · predecesor de $b$ al terminar: ___ (vértice) · número de trayectorias de $a$ a $b$ cuyo peso es la $d(b)$ final: ___
+    respuestas: ["e", "f", "b", "g", "c", "a", "2"]
+    verificar: { python: "(lambda V, N: (lambda F, P: F[2][1:] + [F[1]['b'], sum(1 for (c, p) in P if c == F[0]['b'])] if F[0]['b'] == min(c for (c, _) in P) else None)((lambda V, N, s: list(itertools.accumulate(range(len(V)), lambda S, _: (lambda d, p, F: (lambda C: S if not C else (lambda u: ({v: d[u] + N[u][v] if v in N[u] and v not in F and v != u and d[u] + N[u][v] < d[v] else d[v] for v in V}, {v: u if v in N[u] and v not in F and v != u and d[u] + N[u][v] < d[v] else p[v] for v in V}, F + [u]))(min(C, key=lambda v: (d[v], v))))([v for v in V if v not in F and d[v] < math.inf]))(*S), initial=({v: 0 if v == s else math.inf for v in V}, {v: None for v in V}, []))))(V, N, 'a')[-1], (lambda N, s, t: (lambda go: go(go, (s,), 0))(lambda go, p, c: [(c, p)] if p[-1] == t else [x for v in sorted(N[p[-1]]) if v not in p for x in go(go, p + (v,), c + N[p[-1]][v])]))(N, 'a', 'b')))('a, b, c, e, f, g'.split(', '), (lambda V, W, D: {v: {**{b: w for ((a, b), w) in W.items() if a == v}, **({} if D else {a: w for ((a, b), w) in W.items() if b == v})} for v in V})('a, b, c, e, f, g'.split(', '), {tuple(x.split(': ')[0].split('-')): int(x.split(': ')[1]) for x in 'a-b: 3, a-c: 6, a-e: 2, a-f: 2, b-e: 4, b-f: 1, e-f: 1, e-g: 5, f-g: 1'.split(', ')}, 0))" }
+    pistas:
+      - >-
+        Después de fijar $a$, ¿cuántos vértices empatan con la menor $d$, y cuál se fija primero?
+      - >-
+        Cuando una relajación da el mismo valor que ya tenía una $d$, ¿cambia su predecesor?
+      - >-
+        Para contar las trayectorias, ¿cuáles de $a$ a $b$ pesan lo mismo que la $d(b)$ final? ¿Revisaste las que pasan por los vértices que empataron?
+    explicacion: |-
+      Los pesos son $ab$ 3, $ac$ 6, $ae$ 2, $af$ 2, $be$ 4, $bf$ 1, $ef$ 1, $eg$ 5 y $fg$ 1.
+
+      1. Se fija $a$: $d(b)=3$, $d(c)=6$, $d(e)=2$ y $d(f)=2$, con predecesor $a$.
+      2. **Empate** de $e$ y $f$ en 2: se fija $e$. Por $eb$, 6, y por $ef$, 3, no mejoran; $d(g)=2+5=7$.
+      3. Se fija $f$, con 2. Por $fb$, $2+1=3$ **empata** con $d(b)=3$: no cambia, y el predecesor de $b$ sigue siendo $a$. Por $fg$, $d(g)$ baja a 3.
+      4. **Empate** de $b$ y $g$ en 3: se fija $b$, luego $g$, y al final $c$, con 6.
+
+      El orden es $a,e,f,b,g,c$, y el predecesor de $b$ es $a$. **Trayectorias de peso 3:** $a,b$ y $a,f,b$, con $2+1$; la siguiente más ligera, $a,e,f,b$, pesa 4. Son 2. Un empate en la $d$ final no cambia la distancia, sino cuál de los caminos más cortos dan los predecesores. Revisa: con la regla «cambia si es menor o igual», el predecesor de $b$ sería $f$, y $d(b)$ seguiría en 3.
+    tiempo_estimado_s: 150
+
+  # razonamiento: deductivo (qué hipótesis de «fijar para siempre» se rompe) · R2
+  # Lleva también GP (desviación del v1, que da a GP solo el 004 y el 024): pide la distancia ponderada real, y así GP
+  # queda en d1, d4 y d5 (docs/04: al menos 3 ejercicios de dificultad distinta por concepto).
+  # Dirigido y sin ciclos (M): la distancia real existe, y Bellman-Ford da lo mismo (extra.py). Dijkstra da e = 9 solo
+  # con la regla de relajar hacia no fijados. El peso negativo va en el enunciado como ($-4$); ningún hueco lleva «−».
+  # Errores que rechaza el verificar (neg.py): 7 como lo que da Dijkstra, 1 vértice mal y 8 como distancia real.
+  # Arreglos (L): el hueco 3 dice «desde a», y la pista 1 pregunta cuál se fija primero, sin adelantar que b va antes.
+  # verificar: Dijkstra de la lección; la distancia real por enumeración de trayectorias (sin ciclos, basta); el ciclo,
+  # buscando un camino de regreso por cada flecha.
+  - id: disc-20-021
+    tipo: completar
+    dificultad: 4
+    conceptos: [dijkstra, grafo-ponderado]
+    enunciado: >-
+      Este grafo dirigido tiene un peso negativo. Las flechas que salen de cada vértice, con su peso: $a$: $b$ 3, $c$ 5 · $b$: $e$ 7, $f$ 4 · $c$: $b$ ($-4$) · $f$: $e$ 2; de $e$ no sale ninguna. Corre Dijkstra desde $a$ como en la lección: se fija el no fijado de menor $d$ y se relajan solo las flechas hacia vértices no fijados. La distancia ponderada real es el menor peso de un camino dirigido. En el hueco de sí o no, escribe 1 (sí) o 0 (no).
+    texto: >-
+      $d(e)$ al terminar Dijkstra (número): ___ · distancia ponderada real de $a$ a $e$: ___ · número de vértices cuya $d$ final no es su distancia ponderada real desde $a$: ___ · ¿el grafo tiene al menos un ciclo dirigido? ___
+    respuestas: ["9", "7", "3", "0"]
+    verificar: { python: "(lambda V, N: (lambda F, T: [F[0]['e'], T['e'], sum(1 for v in V if F[0][v] != T[v]), int(any((lambda N, s, t: (lambda go: go(go, (s,), 0))(lambda go, p, c: [(c, p)] if p[-1] == t else [x for v in sorted(N[p[-1]]) if v not in p for x in go(go, p + (v,), c + N[p[-1]][v])]))(N, v, u) for u in V for v in N[u]))])((lambda V, N, s: list(itertools.accumulate(range(len(V)), lambda S, _: (lambda d, p, F: (lambda C: S if not C else (lambda u: ({v: d[u] + N[u][v] if v in N[u] and v not in F and v != u and d[u] + N[u][v] < d[v] else d[v] for v in V}, {v: u if v in N[u] and v not in F and v != u and d[u] + N[u][v] < d[v] else p[v] for v in V}, F + [u]))(min(C, key=lambda v: (d[v], v))))([v for v in V if v not in F and d[v] < math.inf]))(*S), initial=({v: 0 if v == s else math.inf for v in V}, {v: None for v in V}, []))))(V, N, 'a')[-1], (lambda V, N, s: {t: min([c for (c, _) in (lambda N, s, t: (lambda go: go(go, (s,), 0))(lambda go, p, c: [(c, p)] if p[-1] == t else [x for v in sorted(N[p[-1]]) if v not in p for x in go(go, p + (v,), c + N[p[-1]][v])]))(N, s, t)], default=math.inf) for t in V})(V, N, 'a')))('a, b, c, e, f'.split(', '), (lambda V, W, D: {v: {**{b: w for ((a, b), w) in W.items() if a == v}, **({} if D else {a: w for ((a, b), w) in W.items() if b == v})} for v in V})('a, b, c, e, f'.split(', '), {tuple(x.split(': ')[0].split('-')): int(x.split(': ')[1]) for x in 'a-b: 3, a-c: 5, b-e: 7, b-f: 4, c-b: -4, f-e: 2'.split(', ')}, 1))" }
+    pistas:
+      - >-
+        ¿Cuál se fija primero, $b$ o $c$? Cuando se fija $c$, ¿qué pasa entonces con su flecha hacia $b$?
+      - >-
+        Sin Dijkstra, ¿cuál es el camino dirigido más barato de $a$ a $b$? ¿Qué otros vértices se alcanzan pasando por $b$?
+      - >-
+        ¿Puedes salir de un vértice y volver a él siguiendo las flechas?
+    explicacion: |-
+      Las flechas son $(a,b)$ 3, $(a,c)$ 5, $(b,e)$ 7, $(b,f)$ 4, $(c,b)$ $-4$ y $(f,e)$ 2.
+
+      1. Se fija $a$: $d(b)=3$ y $d(c)=5$.
+      2. Se fija $b$, con 3: $d(e)=10$ y $d(f)=7$.
+      3. Se fija $c$, con 5. Su flecha va a $b$, que ya está fijado, así que no se relaja.
+      4. Se fija $f$, con 7: $d(e)$ baja a $7+2=9$. Se fija $e$, con 9.
+
+      **Las distancias reales:** $a,c,b$ pesa $5-4=1$; de ahí, $a,c,b,f$ pesa 5, y $a,c,b,f,e$, 7 (por $(b,e)$ serían 8). Dijkstra dejó $b$ en 3, $f$ en 7 y $e$ en 9: fallan 3 vértices. Fijó $b$ con 3 antes de ver la flecha de $-4$, y lo que «ya no cambia» sí podía bajar. **Ciclos:** no hay. En el orden $a,c,b,f,e$, cada flecha va de un vértice a uno posterior, así que ningún camino dirigido regresa, y el menor peso existe. Revisa: $5+(-4)+4+2=7$.
+    tiempo_estimado_s: 150
+
+  # razonamiento: deductivo (leer el árbol DFS por padres y ancestros) · R2
+  # Perímetro a, d, b, g, h, c, e, f (M). «Ancestro» estricto (M) y «hoja» definidos en el enunciado; «al menos una», no
+  # «alguna».
+  # En el jefe (M): la explicación describe el árbol por padres y ancestros, sin «profundidad», «nivel» ni «distancia»
+  # (en este grafo, el número de aristas de la trayectoria del árbol de a a v difiere de dist(a, v) en 5 vértices, y
+  # decirlo tumbaría la (0) del R4). Hace par con disc-19-013 (trayectoria hamiltoniana contra orden DFS).
+  # verificar: DFS; aristas fuera del árbol, ancestros y hojas; la (1) y la (4) también en todo grafo de 2 a 5 vértices.
+  - id: disc-20-022
+    tipo: seleccion_multiple
+    dificultad: 4
+    conceptos: [busqueda-profundidad]
+    enunciado: >-
+      Haz la búsqueda en profundidad desde $a$ en este grafo, con los vecinos en orden alfabético, y dibuja su árbol DFS: cada vértice, unido a su padre. En el árbol, $y$ es **ancestro** de $x$ si está en la trayectoria del árbol de $a$ a $x$ y $y\neq x$, y una **hoja** es un vértice sin hijos. ¿Cuáles de estas afirmaciones son ciertas? Puede haber varias.
+    visual: { id: grafo, vertices: "a, d, b, g, h, c, e, f", aristas: "a-c, a-f, b-d, b-g, c-e, c-h, d-h, e-f, e-h, g-h" }
+    opciones:
+      - >-
+        Las aristas del grafo que no quedan en el árbol son $af$, $ch$ y $gh$.
+      - >-
+        Cada arista del grafo que no queda en el árbol une a un vértice con un ancestro suyo.
+      - >-
+        Al menos una arista del grafo que no queda en el árbol une dos vértices tales que ninguno es ancestro del otro.
+      - >-
+        El orden DFS es una trayectoria del grafo: cada vértice es vecino del siguiente.
+      - >-
+        El último vértice que se descubre es una hoja del árbol.
+      - >-
+        El árbol tiene 3 hojas.
+    correctas: [0, 1, 4]
+    verificar: { python: "(lambda V, E, Df, A2, anc: (lambda R: (lambda out: [sorted(tuple(sorted(e)) for e in out) == [('a', 'f'), ('c', 'h'), ('g', 'h')], all(a in anc(R[1], b) or b in anc(R[1], a) for (a, b) in out) and all(all(a in anc(Q[1], b) or b in anc(Q[1], a) for (a, b) in Wt if a in Q[1] and Q[1][b] != a and Q[1][a] != b) for (n, Wt) in [(n, {P[i]: 1 for i in range(len(P)) if m >> i & 1}) for n in (2, 3, 4, 5) for P in [list(itertools.combinations(range(n), 2))] for m in range(1 << len(P))] for Q in [Df(A2(range(n), list(Wt)), 0)]), any(not (a in anc(R[1], b) or b in anc(R[1], a)) for (a, b) in out), all(R[0][i + 1] in A2(V, E)[R[0][i]] for i in range(len(R[0]) - 1)), all(Q[0][-1] not in Q[1].values() for (n, Wt) in [(n, {P[i]: 1 for i in range(len(P)) if m >> i & 1}) for n in (2, 3, 4, 5) for P in [list(itertools.combinations(range(n), 2))] for m in range(1 << len(P))] for Q in [Df(A2(range(n), list(Wt)), 0)]) and R[0][-1] not in R[1].values(), sum(1 for v in R[0] if v not in R[1].values()) == 3])([e for e in E if R[1][e[0]] != e[1] and R[1][e[1]] != e[0]]))(Df(A2(V, E), 'a')))('a, b, c, d, e, f, g, h'.split(', '), [tuple(e.split('-')) for e in 'a-c, a-f, b-d, b-g, c-e, c-h, d-h, e-f, e-h, g-h'.split(', ')], (lambda A, s: (lambda go: go(go, s, ([s], {s: None}, [])))(lambda go, u, S: (lambda R: (R[0], R[1], R[2] + [u]))(list(itertools.accumulate(A[u], lambda st, v: st if v in st[0] else go(go, v, (st[0] + [v], {**st[1], v: u}, st[2])), initial=S))[-1]))), (lambda V, E: {v: sorted({w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v}) for v in V}), (lambda P, x: list(itertools.accumulate(range(len(P)), lambda q, _: q + [P[q[-1]]] if P[q[-1]] is not None else q, initial=[x]))[-1][1:]))" }
+    pistas:
+      - >-
+        ¿Desde qué vértice entra DFS a cada uno? Esas son las aristas del árbol.
+      - >-
+        En cada arista que no está en el árbol, ¿uno de sus extremos está en la trayectoria del árbol que va de $a$ al otro?
+      - >-
+        ¿En qué momento del orden DFS hay un regreso? ¿El vértice que se descubre después es vecino del anterior?
+    explicacion: >-
+      Son ciertas «las aristas fuera del árbol son $af$, $ch$ y $gh$», «cada una une a un vértice con un ancestro suyo» y «el último descubierto es una hoja»; las otras tres no. Las aristas son $ac$, $af$, $bd$, $bg$, $ce$, $ch$, $dh$, $ef$, $eh$ y $gh$. **La búsqueda:** $a\to c\to e\to f$; en $f$ no queda nada y regresa a $e$; luego $e\to h\to d\to b\to g$, y regresa hasta $a$ sin vértices nuevos. El orden DFS es $a,c,e,f,h,d,b,g$. **El árbol, por padres:** $c$ cuelga de $a$, $e$ de $c$, $f$ y $h$ de $e$, $d$ de $h$, $b$ de $d$ y $g$ de $b$. Sus hojas son $f$ y $g$: 2, no 3. **Fuera del árbol** quedan $af$, $ch$ y $gh$, y en cada una hay un ancestro: $a$ lo es de $f$; $c$, de $h$; y $h$, de $g$. Ninguna une dos vértices sin esa relación. **No es trayectoria:** después de $f$ viene $h$, y $fh$ no es arista; ahí DFS regresó a $e$. **El último,** $g$, no tiene hijos. Revisa: el árbol tiene 7 aristas para 8 vértices, y con las 3 de fuera suman las 10 del grafo.
+    tiempo_estimado_s: 150
+
+  # razonamiento: deductivo (tumbar con un grafo chico o demostrar para todo grafo) · R4
+  # R4 de A (enunciado, opciones y pistas), con «constante positiva» en la (1) y la (2). En los arreglos del 2026-11-15
+  # (L), la (0) habla de la trayectoria del árbol y no de «profundidad», cuya definición salió del enunciado; la (1) y
+  # la (2) dicen «son los mismos que antes», para que no se lea «sus pesos no cambian», y la (2) nombra la constante r
+  # (la c es un vértice del triángulo), así que la pista 3 y la explicación también usan r. Las correctas no cambian.
+  # Contraejemplos de A, comprobados por M: el triángulo (0); 5 contra 6 (1); y 5 = 5 (3).
+  # En el jefe (M): la explicación de la (0) dice solo que en el triángulo la trayectoria del árbol de a a c tiene 2
+  # aristas y dist(a, c) = 1, sin «fuera del árbol» ni «ancestro», que es la (1) del 022. El 022 (d4) sale siempre
+  # antes (oleada 2 contra 3).
+  # verificar: las seis por enumeración (sin peso, todos los conexos de 2 a 5 vértices; con peso, todos los de 4
+  # vértices con pesos 1–3, 0–2 en la (4) y distintos de 1 a 5 en la (3)).
+  - id: disc-20-023
+    tipo: seleccion_multiple
+    dificultad: 5
+    conceptos: [busqueda-amplitud, busqueda-profundidad, dijkstra]
+    enunciado: >-
+      Con pesos $\ge0$ y la convención alfabética, ¿cuáles de estas afirmaciones valen para todo grafo conexo? Puede haber varias.
+    opciones:
+      - >-
+        En el árbol DFS desde $a$, la trayectoria del árbol de $a$ a cada $v$ tiene $\mathrm{dist}(a,v)$ aristas.
+      - >-
+        Si a todos los pesos se les suma la misma constante positiva, los caminos más cortos entre cada par de vértices son los mismos que antes.
+      - >-
+        Si todos los pesos se multiplican por la misma constante positiva $r$, los caminos más cortos entre cada par de vértices son los mismos que antes, aunque sus pesos cambien.
+      - >-
+        Si todos los pesos son distintos, entre dos vértices hay un solo camino más corto.
+      - >-
+        Si un camino más corto de $s$ a $t$ pasa por $u$ y luego por $v$, su parte de $u$ a $v$ es un camino más corto de $u$ a $v$.
+      - >-
+        Si se quita una arista que no está en el árbol BFS desde $a$, ninguna distancia en aristas desde $a$ cambia.
+    correctas: [2, 4, 5]
+    verificar: { python: "(lambda GU, GW, G4, GD, NBf, Bf, Df, Sf, Dst, dep, best, con: [all(all(dep(R[1], v) == R2[v] for v in R[0]) for (n, Wt) in GU if con(n, Wt) for R in [Df((lambda V, E: {v: sorted({w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v}) for v in V})(range(n), list(Wt)), 0)] for R2 in [Bf((lambda V, E: {v: sorted({w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v}) for v in V})(range(n), list(Wt)), 0)[2]]), all(best(NBf(range(n), Wt, 0), s, t) == best(NBf(range(n), {k: x + 1 for (k, x) in Wt.items()}, 0), s, t) for (n, Wt) in GW for s in range(n) for t in range(s + 1, n)), all(best(NBf(range(n), Wt, 0), s, t) == best(NBf(range(n), {k: 2 * x for (k, x) in Wt.items()}, 0), s, t) for (n, Wt) in GW for s in range(n) for t in range(s + 1, n)), all(len(best(NBf(range(n), Wt, 0), s, t)) <= 1 for (n, Wt) in GD for s in range(n) for t in range(s + 1, n)), all(sum(N[p[k]][p[k + 1]] for k in range(i, j)) == Dst(range(n), N, p[i])[p[j]] for (n, Wt) in G4 for N in [NBf(range(n), Wt, 0)] for s in range(n) for t in range(n) if s != t for p in best(N, s, t) for i in range(len(p)) for j in range(i + 1, len(p))), all(Bf((lambda V, E: {v: sorted({w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v}) for v in V})(range(n), [e for e in Wt if e != f]), 0)[2] == R[2] for (n, Wt) in GU if con(n, Wt) for R in [Bf((lambda V, E: {v: sorted({w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v}) for v in V})(range(n), list(Wt)), 0)] for f in Wt if R[1][f[1]] != f[0] and R[1][f[0]] != f[1])])([(n, {P[i]: 1 for i in range(len(P)) if m >> i & 1}) for n in (2, 3, 4, 5) for P in [list(itertools.combinations(range(n), 2))] for m in range(1 << len(P))], [(n, {P[i]: w[i] for i in range(len(P)) if w[i] is not None}) for n in (4,) for P in [list(itertools.combinations(range(n), 2))] for w in itertools.product((None, 1, 2, 3), repeat=len(P))], [(n, {P[i]: w[i] for i in range(len(P)) if w[i] is not None}) for n in (4,) for P in [list(itertools.combinations(range(n), 2))] for w in itertools.product((None, 0, 1, 2), repeat=len(P))], [(4, {P[i]: w[i] for i in range(6) if w[i] is not None}) for P in [list(itertools.combinations(range(4), 2))] for w in itertools.product((None, 1, 2, 3, 4, 5), repeat=6) if len([x for x in w if x is not None]) == len({x for x in w if x is not None})], (lambda V, W, D: {v: {**{b: w for ((a, b), w) in W.items() if a == v}, **({} if D else {a: w for ((a, b), w) in W.items() if b == v})} for v in V}), (lambda A, s: (lambda go: go(go, [s], [s], {s: None}, {s: 0}))(lambda go, Q, M, P, L: (M, P, L) if not Q else (lambda N: go(go, Q[1:] + N, M + N, {**P, **{v: Q[0] for v in N}}, {**L, **{v: L[Q[0]] + 1 for v in N}}))([v for v in A[Q[0]] if v not in M]))), (lambda A, s: (lambda go: go(go, s, ([s], {s: None}, [])))(lambda go, u, S: (lambda R: (R[0], R[1], R[2] + [u]))(list(itertools.accumulate(A[u], lambda st, v: st if v in st[0] else go(go, v, (st[0] + [v], {**st[1], v: u}, st[2])), initial=S))[-1]))), (lambda N, s, t: (lambda go: go(go, (s,), 0))(lambda go, p, c: [(c, p)] if p[-1] == t else [x for v in sorted(N[p[-1]]) if v not in p for x in go(go, p + (v,), c + N[p[-1]][v])])), (lambda V, N, s: {t: min([c for (c, _) in (lambda N, s, t: (lambda go: go(go, (s,), 0))(lambda go, p, c: [(c, p)] if p[-1] == t else [x for v in sorted(N[p[-1]]) if v not in p for x in go(go, p + (v,), c + N[p[-1]][v])]))(N, s, t)], default=math.inf) for t in V}), (lambda f: lambda P, v: f(f, P, v))(lambda f, P, v: 0 if P[v] is None else 1 + f(f, P, P[v])), (lambda N, s, t: (lambda P: {p for (c, p) in P if c == min(c for (c, _) in P)} if P else set())((lambda N, s, t: (lambda go: go(go, (s,), 0))(lambda go, p, c: [(c, p)] if p[-1] == t else [x for v in sorted(N[p[-1]]) if v not in p for x in go(go, p + (v,), c + N[p[-1]][v])]))(N, s, t))), (lambda n, Wt: len((lambda A, s: list(itertools.accumulate(range(len(A)), lambda S, _: S | frozenset(w for v in S for w in A[v]), initial=frozenset({s}))))((lambda V, E: {v: sorted({w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v}) for v in V})(range(n), list(Wt)), 0)[-1]) == n))" }
+    pistas:
+      - >-
+        En cada afirmación, ¿cuál es la hipótesis y cuál la conclusión? ¿Qué basta para tumbar un «siempre» y qué hace falta para aceptarlo?
+      - >-
+        ¿Cuál es el grafo más chico en el que podría fallar cada una? Prueba con un triángulo y con grafos de 3 o 4 vértices que tengan dos rutas de $s$ a $t$.
+      - >-
+        En las que aceptas, ¿tu argumento vale para todo grafo o solo para los que probaste? Si una ruta tiene $k$ tramos, ¿cuánto cambia su peso al sumarle $r$ a cada arista, y al multiplicar cada una por $r$?
+    explicacion: >-
+      Valen «multiplicar todos los pesos por una constante positiva deja los mismos caminos más cortos», «la parte de $u$ a $v$ de un camino más corto es un camino más corto» y «quitar una arista que no está en el árbol BFS no cambia las distancias en aristas»; las otras tres no. **Contraejemplos.** El árbol DFS: en el triángulo $a,b,c$, DFS va $a\to b\to c$; la trayectoria del árbol de $a$ a $c$ tiene 2 aristas, y $\mathrm{dist}(a,c)=1$. Sumar una constante: con $s$–$t$ 3, $s$–$x$ 1 y $x$–$t$ 1, el más corto es $s,x,t$, de 2; al sumar 2 a cada peso, $s,t$ pesa 5 y $s,x,t$, 6, y gana la directa. Pesos distintos: con $s$–$a$ 1, $a$–$t$ 4, $s$–$b$ 2 y $b$–$t$ 3, los caminos $s,a,t$ y $s,b,t$ pesan 5. **Las que valen.** Al multiplicar por $r>0$, cada camino pesa $r$ veces lo que pesaba: los pesos cambian, pero el orden entre ellos no; sumar $r$, en cambio, le suma $kr$ a un camino de $k$ aristas y castiga más a los de muchas aristas. Si la parte de $u$ a $v$ no fuera un camino más corto, se cambia por uno más ligero y queda un camino de $s$ a $t$ más ligero que uno más corto, lo que no puede ser. Y al quitar una arista que no está en el árbol BFS, el árbol sigue en el grafo: cada vértice conserva su camino de padres, con tantas aristas como su nivel, que es su distancia en aristas, y quitar aristas no acorta ningún camino. Revisa: en el ejemplo de sumar, multiplicar por 2 da 6 contra 4, y sigue ganando $s,x,t$.
+    tiempo_estimado_s: 180
+
+  # razonamiento: analógico (reparto → grafo ponderado: Dijkstra para los minutos y BFS para los tramos) · R2
+  # Transferencia, hipotética («Supón»). Las tres rutas son únicas (M); la segunda más rápida tarda 21 y la más rápida sin
+  # b–f, 31 contra 32. Errores que rechaza el verificar (neg.py): 32 sin b–f, 3 tramos y 33 como tiempo mínimo.
+  # En el jefe: cae en la oleada 3 con el R4 (023); la explicación no enuncia ninguna afirmación general del R4, y su
+  # «Revisa:» no pone juntos «más tramos» y «menos minutos», que empujaría a la (1).
+  # verificar: enumera todas las trayectorias de a a h, con y sin el tramo b–f.
+  - id: disc-20-024
+    tipo: completar
+    dificultad: 5
+    conceptos: [distancia-bfs, grafo-ponderado, dijkstra]
+    enunciado: >-
+      Supón que una repartidora sale del almacén $a$ y tiene que llegar al punto $h$. Cada tramo de calle une dos puntos y tarda los mismos minutos en los dos sentidos. Para cada punto, sus tramos y minutos: $a$: $b$ 7, $g$ 12 · $b$: $a$ 7, $e$ 11, $f$ 2, $g$ 7 · $c$: $h$ 5, $i$ 4 · $e$: $b$ 11, $f$ 2, $g$ 7 · $f$: $b$ 2, $e$ 2, $i$ 2 · $g$: $a$ 12, $b$ 7, $e$ 7, $i$ 11 · $h$: $c$ 5, $i$ 10 · $i$: $c$ 4, $f$ 2, $g$ 11, $h$ 10. Cada hueco es un número.
+    texto: >-
+      Tiempo mínimo de $a$ a $h$, en minutos: ___ · número de tramos de la ruta más rápida, que es única: ___ · minutos de la ruta de $a$ a $h$ con menos tramos, que también es única: ___ · tiempo mínimo de $a$ a $h$ si se cierra el tramo $b$–$f$: ___
+    respuestas: ["20", "5", "33", "31"]
+    verificar: { python: "(lambda V, N, Wt: (lambda P, P2: (lambda b, m: [b, (lambda L: L[0] if len(L) == 1 else None)([len(p) - 1 for (c, p) in P if c == b]), (lambda L: L[0] if len(L) == 1 else None)([c for (c, p) in P if len(p) - 1 == m]), min(c for (c, p) in P2)])(min(c for (c, p) in P), min(len(p) - 1 for (c, p) in P)))((lambda N, s, t: (lambda go: go(go, (s,), 0))(lambda go, p, c: [(c, p)] if p[-1] == t else [x for v in sorted(N[p[-1]]) if v not in p for x in go(go, p + (v,), c + N[p[-1]][v])]))(N, 'a', 'h'), (lambda N, s, t: (lambda go: go(go, (s,), 0))(lambda go, p, c: [(c, p)] if p[-1] == t else [x for v in sorted(N[p[-1]]) if v not in p for x in go(go, p + (v,), c + N[p[-1]][v])]))((lambda V, W, D: {v: {**{b: w for ((a, b), w) in W.items() if a == v}, **({} if D else {a: w for ((a, b), w) in W.items() if b == v})} for v in V})(V, {k: x for (k, x) in Wt.items() if k != ('b', 'f')}, 0), 'a', 'h')))('a, b, c, e, f, g, h, i'.split(', '), (lambda V, W, D: {v: {**{b: w for ((a, b), w) in W.items() if a == v}, **({} if D else {a: w for ((a, b), w) in W.items() if b == v})} for v in V})('a, b, c, e, f, g, h, i'.split(', '), {tuple(x.split(': ')[0].split('-')): int(x.split(': ')[1]) for x in 'a-b: 7, a-g: 12, b-e: 11, b-f: 2, b-g: 7, c-h: 5, c-i: 4, e-f: 2, e-g: 7, f-i: 2, g-i: 11, h-i: 10'.split(', ')}, 0), {tuple(x.split(': ')[0].split('-')): int(x.split(': ')[1]) for x in 'a-b: 7, a-g: 12, b-e: 11, b-f: 2, b-g: 7, c-h: 5, c-i: 4, e-f: 2, e-g: 7, f-i: 2, g-i: 11, h-i: 10'.split(', ')})" }
+    pistas:
+      - >-
+        ¿Qué hueco pregunta por minutos y cuál por número de tramos? ¿Qué algoritmo contesta cada uno?
+      - >-
+        Al terminar Dijkstra, ¿qué predecesores te llevan de $h$ de regreso a $a$?
+      - >-
+        Si se cierra un tramo, ¿cuáles de tus $d$ dependían de él?
+    explicacion: |-
+      Los tramos son $ab$ 7, $ag$ 12, $be$ 11, $bf$ 2, $bg$ 7, $ch$ 5, $ci$ 4, $ef$ 2, $eg$ 7, $fi$ 2, $gi$ 11 y $hi$ 10. **La ruta más rápida**, con Dijkstra desde $a$:
+
+      1. Se fija $a$: $d(b)=7$ y $d(g)=12$.
+      2. Se fija $b$, con 7: $d(e)=18$ y $d(f)=9$; por $bg$, 14 no mejora 12.
+      3. Se fija $f$, con 9: $d(e)$ baja a 11, y $d(i)=11$.
+      4. Se fija $e$, con 11, que empata con $i$ y va antes en el alfabeto, sin cambios. Luego se fija $i$, con 11: $d(c)=15$ y $d(h)=21$.
+      5. Se fijan $g$, con 12, sin cambios, y $c$, con 15: por $ch$, $d(h)$ baja a 20. Se fija $h$, con 20.
+
+      Por los predecesores, la ruta es $a,b,f,i,c,h$: $7+2+2+4+5=20$ minutos y 5 tramos. **Menos tramos:** los vecinos de $h$ son $i$ y $c$; ninguno es vecino de $a$, y de los vecinos de $a$, $b$ y $g$, solo $g$ es vecino de $i$. La única ruta de 3 tramos es $a,g,i,h$, de $12+11+10=33$ minutos, y no hay ninguna de 2. **Sin $b$–$f$**, Dijkstra da $b$ 7, $g$ 12, $e$ 18 por $b$, $f$ 20 por $e$, $i$ 22 por $f$ (por $g$ serían 23), $c$ 26 y $h$ 31 por $c$ (por $i$ serían 32): la ruta es $a,b,e,f,i,c,h$, de $7+11+2+2+4+5=31$ minutos. Revisa: la segunda ruta más rápida, $a,b,f,i,h$, tarda $7+2+2+10=21$, un minuto más, así que la de 20 es única.
+    tiempo_estimado_s: 210
+
+  # razonamiento: analógico (pesos enteros como tramos de una arista partida) · R2 (A y P)
+  # Lleva también GP, como en el encabezado de verificar-20.py de M (el v1 decía DJ y DB).
+  # Se ARMA el grafo nuevo y se corre BFS (M): el nivel de cada vértice original es su distancia ponderada, y el mayor
+  # nivel cae en un vértice nuevo de b–e. Errores que rechaza el verificar (neg.py): 4 como mayor nivel, 12 vértices
+  # nuevos (contar todos los del grafo nuevo) y la arista c–e. Arreglos (L): el hueco 1 dice «vértices agregados (los
+  # que no estaban en el grafo original)», para que no se cuenten todos los del grafo nuevo.
+  # verificar: arma el grafo nuevo, corre BFS por capas y exige que el nivel de cada original sea su distancia
+  # (enumeración).
+  - id: disc-20-025
+    tipo: completar
+    dificultad: 5
+    conceptos: [dijkstra, distancia-bfs, grafo-ponderado]
+    enunciado: >-
+      El grafo tiene vértices $a$, $b$, $c$, $e$ y $f$ y estos pesos enteros, por vértice: $a$: $b$ 3, $f$ 1 · $b$: $a$ 3, $e$ 3, $f$ 3 · $c$: $e$ 2, $f$ 1 · $e$: $b$ 3, $c$ 2 · $f$: $a$ 1, $b$ 3, $c$ 1. Arma un grafo nuevo, sin pesos: cada arista de peso $k$ se cambia por una trayectoria de $k$ aristas, con $k-1$ vértices nuevos en medio, y las de peso 1 se quedan igual. Luego haz la búsqueda en amplitud desde $a$ en el grafo nuevo.
+    texto: >-
+      Número de vértices agregados (los que no estaban en el grafo original): ___ · nivel de $e$ en el grafo nuevo: ___ · mayor nivel del grafo nuevo: ___ · ese nivel lo tiene un solo vértice, que es nuevo; la arista original donde está une a ___ con ___ (cada hueco, un vértice; primero el que va antes en el alfabeto)
+    respuestas: ["7", "4", "5", "b", "e"]
+    verificar: { python: "(lambda V, Wt: (lambda C: (lambda A: (lambda L, T: (lambda top: [sum(k - 1 for k in Wt.values()), L['e'], max(L.values()), top[0], top[1]] if all(L[v] == T[v] for v in V) and len([x for x in L if L[x] == max(L.values())]) == 1 and len(top) == 2 else None)(sorted([x for x in L if L[x] == max(L.values())][0][:2]) if [x for x in L if L[x] == max(L.values())][0] not in V else []))((lambda A, s: (lambda Ls: {v: min(k for (k, S) in enumerate(Ls) if v in S) for v in Ls[-1]})((lambda A, s: list(itertools.accumulate(range(len(A)), lambda S, _: S | frozenset(w for v in S for w in A[v]), initial=frozenset({s}))))(A, s)))(A, 'a'), (lambda V, N, s: {t: min([c for (c, _) in (lambda N, s, t: (lambda go: go(go, (s,), 0))(lambda go, p, c: [(c, p)] if p[-1] == t else [x for v in sorted(N[p[-1]]) if v not in p for x in go(go, p + (v,), c + N[p[-1]][v])]))(N, s, t)], default=math.inf) for t in V})(V, (lambda V, W, D: {v: {**{b: w for ((a, b), w) in W.items() if a == v}, **({} if D else {a: w for ((a, b), w) in W.items() if b == v})} for v in V})(V, Wt, 0), 'a')))({x: [y for (p, q) in C for (x2, y) in ((p, q), (q, p)) if x2 == x] for x in {z for pq in C for z in pq}}))([pq for ((u, v), k) in Wt.items() for ch in [[u] + [(u, v, i) for i in range(1, k)] + [v]] for pq in zip(ch, ch[1:])]))('a, b, c, e, f'.split(', '), {tuple(x.split(': ')[0].split('-')): int(x.split(': ')[1]) for x in 'a-b: 3, a-f: 1, b-e: 3, b-f: 3, c-e: 2, c-f: 1'.split(', ')})" }
+    pistas:
+      - >-
+        ¿Cuántos vértices nuevos aporta cada arista, según su peso?
+      - >-
+        En el grafo nuevo cada arista cuenta 1: ¿qué mide entonces el nivel de un vértice original?
+      - >-
+        Dentro de una arista partida, ¿desde cuál de sus dos extremos llega antes la búsqueda a cada vértice nuevo?
+    explicacion: >-
+      **Vértices nuevos:** $ab$, $be$ y $bf$ pesan 3 y aportan 2 cada una; $ce$ pesa 2 y aporta 1; $af$ y $cf$ pesan 1 y no aportan: $2+2+2+1=7$. **Niveles y distancias:** en el grafo nuevo, cada arista original de peso $k$ es una trayectoria de $k$ aristas, así que el nivel de un vértice original es su distancia ponderada en el grafo de antes. Dijkstra desde $a$ da $f$ 1, $c$ 2 por $f$, $b$ 3 directo (por $f$ serían 4) y $e$ 4 por $f$ y $c$ (por $b$ serían 6): el nivel de $e$ es 4. **El mayor nivel:** en una arista partida, cada vértice nuevo toma el menor nivel que le llega por sus dos extremos. En la de $b$, con nivel 3, a $e$, con 4, los dos nuevos quedan en 4 y en 5: el que está junto a $e$ tiene $\min(3+2,4+1)=5$. En las demás no se pasa de 3 (en $ab$, 1 y 2; en $bf$, 3 y 2; en $ce$, 3). El mayor nivel es 5, en la arista que une a $b$ con $e$. Revisa: el vértice de nivel 5 está a 5 aristas de $a$ tanto por $b$ ($3+2$) como por $e$ ($4+1$).
+    tiempo_estimado_s: 180
