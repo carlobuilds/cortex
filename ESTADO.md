@@ -274,7 +274,7 @@ Plan (2026-10-13, rama `fase-3-calculo-discretas`): 0) rama y registro · 1) pru
   - [ ] 09 · [ ] 02
 - [ ] Matemáticas discretas
   - [x] Puerta de temario (paso 9, 2026-11-13): el programa oficial en `curriculum/programas/matematicas-discretas.pdf`, el temario aprobado por Carlo y `conceptos.yaml` completo (132 conceptos en 23 unidades: 21 del programa y 2 extra)
-  - [ ] Unidad IV para el 3.er parcial, en orden 13 → 21: [x] 13 (2026-11-13) · [x] 14 (2026-11-14) · [x] 15 (2026-11-14) · [x] 16 (2026-11-14) · [x] 17 (2026-11-14) · [x] 18 (2026-11-14) · [x] 19 (2026-11-15) · [x] 20 (2026-11-15) · [ ] 21
+  - [x] Unidad IV para el 3.er parcial, en orden 13 → 21: [x] 13 (2026-11-13) · [x] 14 (2026-11-14) · [x] 15 (2026-11-14) · [x] 16 (2026-11-14) · [x] 17 (2026-11-14) · [x] 18 (2026-11-14) · [x] 19 (2026-11-15) · [x] 20 (2026-11-15) · [x] 21 (2026-11-15)
   - [ ] Deuda: los jefes de la IV no tienen el 25–35 % de repaso de las unidades I–III, porque aún no existen. Cuando se escriban, se agrega sin cambiar ids.
   - [ ] Unidades 01 a 12, después del parcial
   - [ ] Extra: 22 conteo · 23 recurrencias
@@ -384,6 +384,34 @@ Complementan los ADR-001 a 008 de `docs/02`. Cada uno se escribe en el commit de
 **ADR-013 · Nomenclatura** (paso 1, decisión D1). Código, tablas y campos de IndexedDB en inglés, con equivalencias en `docs/02`. Las claves de YAML y del front matter siguen en español (son el formato de contenido). Los componentes MDX conservan su nombre en español porque son la API del contenido (`Predice` se implementa como `PredictPrompt`). Las URL van en español porque son interfaz. `APP_ID = 'cortex'` es inmutable (nombre de la base y marca de los respaldos); renombrar la app solo cambia `APP_NAME`. *Descartado:* todo en español (contradice `CLAUDE.md`) o una capa de traducción.
 
 ## Bitácora
+- 2026-11-15 · **Unidad `matematicas-discretas/21-arboles-binarios`** (3.er parcial; Unidad IV, 4.5.5, que el PDF numera 4.4.5). Con esta unidad queda completa la Unidad IV (13 → 21).
+  - *Esquema:* v1, aprobado por Carlo. Lo consolidó la sesión principal con M (tabla de 25 y R4 v1 sin cruces con el jefe), P (un `array` por niveles en el enunciado y la lista en la explicación, y los ejemplos resueltos de reconstrucción y de la pila), A (la rúbrica de las $n-1$ aristas y el metacognitivo de Lucía) y L (preorden, inorden y posorden sin guion, «posfija», la altura en aristas y «lleno»).
+    - El ABB queda fuera.
+    - Jefe final con 4 de repaso y 3 vidas, como los demás; la amplitud del parcial la da el simulacro.
+  - *Escrita* por `autor-contenido`: lección de 25 min (1475 palabras con `wc -w`), 25 ejercicios 6/6/6/4/3 (24 por código y 1 manual) y jefe final con 11 propias y 4 de repaso de la 15, la 16, la 19 y la 20 (`disc-15-017`, `disc-16-021`, `disc-19-016` y `disc-20-016`), 15 preguntas, oleadas 4/6/5 y 2,490 s.
+    - En `conceptos.yaml`, el nombre pasa a «Recorrido en posorden».
+    - La `notacion` suma árboles y expresiones.
+  - *`/revisar-contenido`:*
+    - a ciegas, 24/24;
+    - M: apoyo, sin errores (comprobó el R4 en los 23,713 árboles de 1 a 10 nodos);
+    - L y P con objeción:
+      - el R4 no decía «en aristas»;
+      - «total» era ambiguo en el 021;
+      - «camino» estaba sin definir en el 016;
+      - el 017 tenía dos lecturas;
+      - en el jefe, ninguna pregunta detectaba el hijo único del lado equivocado.
+  - *Arreglos:* Carlo aprobó «errores + mejoras» (`arreglos-21.md`) y agregar el 018 al jefe, para que la pila tenga pregunta.
+    - El 020 y el 025 ganan un hueco que revisa el lado del hijo único.
+    - La explicación de la (0) del 023 cubre cualquier árbol binario; el autor la comprobó en los árboles de hasta 8 nodos.
+    - Segunda ronda a ciegas: 10/10.
+    - En el navegador salió que los dos árboles del gancho, en un solo bloque, se partían en dos renglones cuando la columna es angosta. La sesión principal los separó en dos bloques, uno por árbol.
+  - *Evidencia:*
+    - `pnpm content:check` en verde (9 unidades, 220 ejercicios);
+    - `pnpm test`: 1263;
+    - `pnpm lint`;
+    - lección en el puerto 3200: 118 fórmulas, 0 `.katex-error` y ningún recurso con error, con los dos árboles del gancho revisados en pantalla;
+    - el jefe final arranca con 15 preguntas y la app lo llama «Jefe final de la materia».
+  - *Pendiente para `/equipo`:* algunos dibujos de altura 4 tienen hasta 19 columnas; falta ver si caben en el iPad vertical.
 - 2026-11-15 · **Unidad `matematicas-discretas/20-recorridos-camino-corto`** (3.er parcial; Unidad IV, 4.5.3 y 4.5.4). El título visible es «Búsqueda en grafos y camino más corto».
   - *Esquema:* v1, aprobado por Carlo. Lo consolidó la sesión principal con M (tabla de 25 con `verificar` probados), P (un solo grafo G en toda la lección, ejemplo resuelto de DFS y escalera), A (rúbrica de por qué BFS da la distancia, R4 y el metacognitivo de Iván) y L (terminología).
     - «Búsqueda» y no «recorrido» para BFS y DFS, para no chocar con la 19.

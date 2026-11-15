@@ -1,0 +1,846 @@
+# Unidad 21 · Árboles binarios (Unidad IV, 4.5.5, que el programa numera 4.4.5, y práctica 8, «Recorridos»). Novena y
+# última unidad de la IV; trae el jefe final del programa. Para el 3.er parcial (semana del 23 al 27 de noviembre de 2026).
+# Esquema v1 aprobado por Carlo el 2026-11-14 (esquema-21), revisado por experto-matematicas (M), pedagogo (P),
+# arquitecto-razonamiento (A) y linguista (L). Datos y `verificar` de M (herramientas/m21/verificar-21.py, v1, con el
+# 014 corregido de `next` a `min`), comprobados por la sesión principal con código propio; el autor volvió a calcular
+# con código propio (recorridos iterativos con pila explícita, reconstrucción por «la raíz parte el inorden» con
+# unicidad por fuerza bruta entre todas las formas, y pila para las posfijas y la prefija) cada recorrido, árbol,
+# número y paso de las explicaciones y de la lección.
+# Ids en el orden de la tabla del v1, escalera 6/6/6/4/3: d1 001–006, d2 007–012, d3 013–018, d4 019–022, d5 023–025.
+# Anclas (primer ejercicio de cada concepto, workedExampleFor): 001 AR, 002 AB, 003 PR, 004 IN, 005 PO y 006 AE, todas
+# de d1, con la resolución completa en la explicación, que hace de ejemplo resuelto; como WorkedExample muestra solo
+# enunciado y explicación, cada ancla con árbol lista sus hijos en la explicación.
+# Abreviaturas: AR arbol · AB arbol-binario · PR recorrido-preorden · IN recorrido-inorden · PO recorrido-postorden ·
+# AE arbol-expresion.
+# Terminología (L, con la `notacion` que agrega la sesión principal): preorden, inorden y posorden, sin guion y con
+# «pos-»; la lista es «el preorden de T»; «posfija», no «postfija»; nodo = vértice; entre dos nodos hay una única
+# «trayectoria» (no «camino»); la altura cuenta aristas (un solo nodo: 0; la del árbol vacío, −1, nunca se pregunta); el
+# nivel de la raíz es 0; no se dice «profundidad» de un nodo; «lleno» = cada nodo tiene 0 o 2 hijos («completo» no se
+# usa); «ancestro» es estricto; un hijo único es izquierdo o derecho, y el enunciado o el dibujo lo dicen; en las listas
+# de hijos, «ninguno», no «—». En los árboles sin raíz (019 y 021) se dice «vértice de grado 1», no «hoja» (A).
+# Plataforma (P, M y A): no hay visual de árbol. El árbol va como `array` de KaTeX por niveles en el enunciado (altura
+# ≤ 3, a lo más 10 nodos), generado por código desde la lista de hijos: cada nodo en su propia columna (dos columnas por
+# posición del inorden), así que un hijo único nunca queda justo debajo de su padre, y cada arista es \diagup o
+# \diagdown en el renglón de en medio. La lista de hijos va en la explicación: primero los nodos con hijos, por niveles,
+# y luego las hojas, en orden alfabético. En el 009 y el 020 el enunciado da solo la lista o los recorridos; en los de
+# reconstruir (015, 020 y 025), solo los recorridos. «Dibújalo en papel y luego contesta» va en el 009, el 020, el 022 y
+# el 025, y el tiempo del dibujo está dentro de su tiempo_estimado_s; sus explicaciones traen el dibujo (en el 009, el
+# 020 y el 025 tiene altura 4: el tope de altura 3 es del enunciado). Los `array` van sin espacios entre celdas.
+# Huecos: los recorridos van como `completar`, una letra por hueco; las posfijas, como `opcion_multiple` con `valores`
+# (010), porque «×», «*», «−» y «÷» no se comparan bien; los negativos y las fracciones, en ASCII (`-2`, `-7/4`, 022);
+# ningún hueco pide palabras ni operadores, y 5040 va «sin separador de miles» (014). Cada hueco dice si pide un número
+# o un nodo, y si se cuenta desde 1. Ningún recorrido pedido es alfabético ni igual al orden por niveles (revisado con
+# código).
+# `verificar`: los de M, en Python puro, sin cambios salvo el `min` del 014 (que ya trae su archivo). Vías: los
+# recorridos ejecutan la definición recursiva; las reconstrucciones, fuerza bruta sobre todas las formas con n nodos,
+# exigiendo un árbol único; las expresiones, shunting-yard y pila, comparadas con Python. Probados con el check_exercise
+# real (24/24) y con las 72 respuestas alteradas de neg.py de M más las del autor, que fallan todas.
+# Pistas como preguntas, sin valores intermedios: 1 en d1–2, 2 en d3 y 3 en d4–5 (las del 014, el 019 y el 023 son de
+# A; las del 023, ajustadas a las opciones del R4 v1 de M). Desde d3, la explicación cierra con «Revisa:». Las
+# explicaciones de selección y opción múltiple dicen cuáles son las correctas.
+# Manuales: solo el 019 (autoevaluación de A, tal cual, tarjeta: false).
+# Arreglos del 2026-11-15 (/revisar-contenido; Carlo aprobó «errores + mejoras» y el 018 en el jefe): 001, 002, 010,
+# 013–025 (salvo el 018 en lo matemático) cambian texto, opciones, pistas o explicaciones; las claves de 001–019 y
+# 021–024 no cambian. El 020 gana un hueco y el 025 cambia uno (los dos revisan de qué lado va un hijo único). Cada
+# hueco que cuenta los nodos de un subárbol dice «contando su raíz». Ningún texto para el alumno dice «recorrido» a
+# secas (L). Los 24 `verificar` vuelven a dar la clave con el check_exercise real, y las alteradas del 020, el 023 y
+# el 025 (con el 0 del lado equivocado) fallan.
+# Personajes: Diego (013, error plantado; Ana ya salió en la 16 y en la 19) y Lucía (014, metacognitivo de A).
+# Textos con LaTeX en bloques `>-` (o `|-` cuando llevan `array` o listas): así no hay que escapar comillas ni barras.
+unidad: matematicas-discretas/21-arboles-binarios
+ejercicios:
+  # razonamiento: espacial (la altura cuenta aristas) · R0
+  # Ancla de AR: árbol con raíz que no es binario (a tiene tres hijos; el hijo único de b y el del medio de a van justo
+  # debajo, con \vert, porque aquí no hay izquierdo ni derecho). La explicación da niveles, hojas y aristas, y lista el
+  # árbol. Errores que rechaza el verificar (neg.py): altura 4 (contar niveles), 6 hojas y 9 aristas.
+  # verificar: niveles subiendo por padres, hojas sin hijos y aristas contadas en la lista.
+  # Arreglos del 2026-11-15 (L): «Altura del árbol, en aristas» y «número de aristas del árbol».
+  - id: disc-21-001
+    tipo: completar
+    dificultad: 1
+    conceptos: [arbol]
+    enunciado: |-
+      En un árbol con raíz, el **nivel** de un nodo es el número de aristas de su trayectoria a la raíz, y la raíz está en el nivel 0; la **altura** del árbol es el mayor nivel, y una **hoja** es un nodo sin hijos. Este árbol tiene raíz $a$ y no es binario: $a$ tiene tres hijos. Cada hueco es un número.
+
+      $$\begin{array}{ccccccccccccc}&&&&a&&&&&&&&\\&&\diagup&&\vert&&&\diagdown&&&&&\\b&&&&c&&&&&&d&&\\\vert&&&&&&&&&\diagup&&\diagdown&\\e&&&&&&&&f&&&&g\\&&&&&&&\diagup&&\diagdown&&&\\&&&&&&h&&&&i&&\end{array}$$
+    texto: >-
+      Altura del árbol, en aristas: ___ · número de hojas: ___ · nivel de $g$: ___ · número de aristas del árbol: ___
+    respuestas: ["3", "5", "2", "8"]
+    verificar: { python: "(lambda C: (lambda r, lev: [max(lev(r, v) for v in C), sum(1 for v in C if not C[v]), lev(r, 'g'), sum(len(c) for c in C.values())])([u for u in C if not any(u in c for c in C.values())][0], (lambda f: lambda r, v: f(f, r, v))(lambda f, r, v: 0 if v == r else 1 + f(f, r, [p for p in C if v in C[p]][0]))))({'a': ['b', 'c', 'd'], 'b': ['e'], 'c': [], 'd': ['f', 'g'], 'e': [], 'f': ['h', 'i'], 'g': [], 'h': [], 'i': []})" }
+    pistas:
+      - >-
+        ¿Cuántas aristas tiene la trayectoria más larga de la raíz a una hoja? ¿Cuántos nodos no tienen hijos?
+    explicacion: >-
+      El árbol, como lista de hijos: $a$: $b$, $c$, $d$ · $b$: $e$ · $d$: $f$, $g$ · $f$: $h$, $i$; hojas: $c$, $e$, $g$, $h$, $i$. **Niveles:** $a$ en el 0; $b$, $c$ y $d$ en el 1; $e$, $f$ y $g$ en el 2; $h$ e $i$ en el 3. **Altura:** el mayor nivel es 3, el de $h$ y el de $i$; por ejemplo, la trayectoria $a,d,f,h$ tiene 3 aristas. **Hojas:** $c$, $e$, $g$, $h$ e $i$, 5. **Nivel de $g$:** su trayectoria a la raíz, $g,d,a$, tiene 2 aristas. **Aristas:** $ab$, $ac$, $ad$, $be$, $df$, $dg$, $fh$ y $fi$, 8. Comprueba: si diste 4 de altura, contaste niveles (del 0 al 3 son cuatro); la altura cuenta aristas.
+    tiempo_estimado_s: 60
+
+  # razonamiento: deductivo (dónde va un nodo respecto a su hijo en cada recorrido) · R2
+  # Ancla de AB (A: un nodo cuyo único hijo cambia de lado). valores 0–4. La explicación da los tres recorridos antes y
+  # después, y lista el árbol. El verificar exige además que en todo árbol de 1 a 7 nodos mover un hijo único cambie
+  # solo el inorden. Errores que rechaza (neg.py): «ninguno», «el inorden y el posorden» y «solo el preorden».
+  # Arreglos del 2026-11-15 (L): la pregunta en singular, «¿cuál de los tres recorridos cambia?», descartaba por
+  # gramática las opciones 3 y 4; ahora es «¿qué pasa con su preorden, su inorden y su posorden?», y las opciones
+  # empiezan con el verbo. La pista ya no dice «recorrido» a secas. El orden de las opciones no cambia.
+  - id: disc-21-002
+    tipo: opcion_multiple
+    dificultad: 1
+    conceptos: [arbol-binario]
+    enunciado: |-
+      En este árbol binario, el único hijo de $b$ es $d$, y es **izquierdo**. Si $d$ pasa a ser el hijo **derecho** de $b$, sin cambiar nada más, ¿qué pasa con su preorden, su inorden y su posorden?
+
+      $$\begin{array}{ccccccccccc}&&&&a&&&&&&\\&&&\diagup&&&\diagdown&&&&\\&&b&&&&&&c&&\\&\diagup&&&&&&\diagup&&\diagdown&\\d&&&&&&e&&&&f\end{array}$$
+    opciones:
+      - "Cambia solo el preorden"
+      - "Cambia solo el inorden"
+      - "Cambia solo el posorden"
+      - "Cambian el inorden y el posorden"
+      - "No cambia ninguno de los tres"
+    valores: ["0", "1", "2", "3", "4"]
+    correcta: 1
+    verificar: { python: "(lambda t, Sh: (lambda pat: (lambda L: L[0] if len(L) == 1 else None)([i for (i, o) in enumerate([(True, False, False), (False, True, False), (False, False, True), (False, True, True), (False, False, False)]) if o == pat]) if all((lambda s: (lambda t2: (((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else [t[0]] + f(f, t[1]) + f(f, t[2])))(t2) != ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else [t[0]] + f(f, t[1]) + f(f, t[2])))(s), ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + [t[0]] + f(f, t[2])))(t2) != ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + [t[0]] + f(f, t[2])))(s), ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + f(f, t[2]) + [t[0]]))(t2) != ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + f(f, t[2]) + [t[0]]))(s)) == (False, True, False))(((lambda f: lambda t, x: f(f, t, x))(lambda f, t, x: None if t is None else ((t[0], t[2], t[1]) if t[0] == x else (t[0], f(f, t[1], x), f(f, t[2], x)))))(s, x)))(((lambda f: lambda x, s: f(f, x, s))(lambda f, x, s: None if x is None else (s[0], f(f, x[0], s[1:1 + ((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0])]), f(f, x[1], s[1 + ((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0]):]))))(y, 'abcdefg'[:n])) for n in range(1, 8) for y in Sh[n] for x in 'abcdefg'[:n] if (lambda q: (q[1] is None) != (q[2] is None))(((lambda f: lambda t, x: f(f, t, x))(lambda f, t, x: None if t is None else (t if t[0] == x else (f(f, t[1], x) or f(f, t[2], x)))))(((lambda f: lambda x, s: f(f, x, s))(lambda f, x, s: None if x is None else (s[0], f(f, x[0], s[1:1 + ((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0])]), f(f, x[1], s[1 + ((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0]):]))))(y, 'abcdefg'[:n]), x))) else None)((lambda t2: (((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else [t[0]] + f(f, t[1]) + f(f, t[2])))(t2) != ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else [t[0]] + f(f, t[1]) + f(f, t[2])))(t), ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + [t[0]] + f(f, t[2])))(t2) != ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + [t[0]] + f(f, t[2])))(t), ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + f(f, t[2]) + [t[0]]))(t2) != ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + f(f, t[2]) + [t[0]]))(t)))(((lambda f: lambda t, x: f(f, t, x))(lambda f, t, x: None if t is None else ((t[0], t[2], t[1]) if t[0] == x else (t[0], f(f, t[1], x), f(f, t[2], x)))))(t, 'b'))))((lambda T: (lambda f: f(f, (lambda T: [u for u in T if not any(u in c for c in T.values())][0])(T)))(lambda f, u: None if u is None else (u, f(f, (lambda T, u: T.get(u, (None, None)))(T, u)[0]), f(f, (lambda T, u: T.get(u, (None, None)))(T, u)[1]))))({x.split(': ')[0]: tuple(None if y == '-' else y for y in x.split(': ')[1].split(' ')) for x in 'a: b c; b: d -; c: e f'.split('; ')}), (lambda N: list(itertools.accumulate(range(1, N + 1), lambda S, n: S + [[(L, R) for k in range(n) for L in S[k] for R in S[n - 1 - k]]], initial=[[None]]))[-1])(7))" }
+    pistas:
+      - >-
+        En el preorden, en el inorden y en el posorden, ¿dónde va $b$ respecto a su hijo $d$? ¿Eso depende de si $d$ es izquierdo o derecho?
+    explicacion: >-
+      Cambia solo el inorden. El árbol, como lista de hijos: $a$: izq. $b$, der. $c$ · $b$: izq. $d$, der. ninguno · $c$: izq. $e$, der. $f$; hojas: $d$, $e$, $f$. **Antes:** preorden $a,b,d,c,e,f$; inorden $d,b,a,e,c,f$; posorden $d,b,e,f,c,a$. **Después**, con $d$ a la derecha de $b$: preorden $a,b,d,c,e,f$; inorden $b,d,a,e,c,f$; posorden $d,b,e,f,c,a$. **Por qué:** en el preorden $b$ va antes de todo su subárbol, y en el posorden, después, sea izquierdo o derecho su hijo; en el inorden, $b$ va después de su subárbol izquierdo y antes del derecho, así que al cambiar $d$ de lado, $b$ y $d$ se intercambian. Comprueba: en el inorden cambian solo las dos primeras posiciones, que pasan de $d,b$ a $b,d$.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (la raíz y luego cada subárbol completo) · R1
+  # Ancla de PR. Árbol de M para el 003, el 004 y el 005 (altura 3; e y f tienen el hijo izquierdo con la letra
+  # posterior, y a y b tienen un hijo único derecho). Errores que rechaza el verificar (neg.py): los hijos en orden
+  # alfabético, el orden por niveles y el derecho antes que el izquierdo en f.
+  # verificar: ejecuta la definición recursiva del preorden sobre la lista de hijos.
+  - id: disc-21-003
+    tipo: completar
+    dificultad: 1
+    conceptos: [recorrido-preorden]
+    enunciado: |-
+      El **preorden** de un árbol binario lista la raíz, luego el subárbol izquierdo en preorden y luego el derecho en preorden. Escribe el preorden de este árbol; cada hueco es un nodo.
+
+      $$\begin{array}{ccccccccccccccccc}&&&&&&&&&&&&e&&&&\\&&&&&&&&\diagup&&&&&\diagdown&&&\\&&&&h&&&&&&&&&&b&&\\&&\diagup&&&&\diagdown&&&&&&&&&\diagdown&\\a&&&&&&&&f&&&&&&&&c\\&\diagdown&&&&&&\diagup&&\diagdown&&&&&&&\\&&g&&&&i&&&&d&&&&&&\end{array}$$
+    texto: >-
+      Preorden: ___, ___, ___, ___, ___, ___, ___, ___, ___
+    respuestas: ["e", "h", "a", "g", "f", "i", "d", "b", "c"]
+    verificar: { python: "(lambda T: (lambda T, r: (lambda go: go(go, r))(lambda go, u: [] if u is None else [u] + go(go, (lambda T, u: T.get(u, (None, None)))(T, u)[0]) + go(go, (lambda T, u: T.get(u, (None, None)))(T, u)[1])))(T, (lambda T: [u for u in T if not any(u in c for c in T.values())][0])(T)))({x.split(': ')[0]: tuple(None if y == '-' else y for y in x.split(': ')[1].split(' ')) for x in 'e: h b; h: a f; b: - c; a: - g; f: i d'.split('; ')})" }
+    pistas:
+      - >-
+        Después de la raíz, ¿terminas todo el subárbol izquierdo antes de pasar al derecho? Si un nodo no tiene hijo izquierdo, ¿qué va justo después de él?
+    explicacion: |-
+      El árbol, como lista de hijos: $e$: izq. $h$, der. $b$ · $h$: izq. $a$, der. $f$ · $b$: izq. ninguno, der. $c$ · $a$: izq. ninguno, der. $g$ · $f$: izq. $i$, der. $d$; hojas: $c$, $d$, $g$, $i$. Por bloques:
+
+      1. La raíz, $e$.
+      2. El subárbol de $h$, en preorden: $h$; luego el de $a$, que no tiene hijo izquierdo, $a,g$; luego el de $f$, $f,i,d$. Da $h,a,g,f,i,d$.
+      3. El subárbol de $b$: $b$ y, como no tiene hijo izquierdo, $c$.
+
+      El preorden es $e,h,a,g,f,i,d,b,c$. Un error común es escribir $b$ antes que $h$ por el orden alfabético: el hijo izquierdo de $e$ es $h$, aunque su letra vaya después. Comprueba: están los 9 nodos, y cada uno va antes que todos los de su subárbol.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (izquierdo, raíz, derecho) · R1
+  # Ancla de IN. El mismo árbol del 003. Errores que rechaza el verificar (neg.py): g antes que a (el hijo único derecho
+  # de a puesto antes de su padre) y c antes que b.
+  # verificar: ejecuta la definición recursiva del inorden sobre la lista de hijos.
+  - id: disc-21-004
+    tipo: completar
+    dificultad: 1
+    conceptos: [recorrido-inorden]
+    enunciado: |-
+      El **inorden** de un árbol binario lista el subárbol izquierdo en inorden, luego la raíz y luego el subárbol derecho en inorden. Escribe el inorden de este árbol; cada hueco es un nodo.
+
+      $$\begin{array}{ccccccccccccccccc}&&&&&&&&&&&&e&&&&\\&&&&&&&&\diagup&&&&&\diagdown&&&\\&&&&h&&&&&&&&&&b&&\\&&\diagup&&&&\diagdown&&&&&&&&&\diagdown&\\a&&&&&&&&f&&&&&&&&c\\&\diagdown&&&&&&\diagup&&\diagdown&&&&&&&\\&&g&&&&i&&&&d&&&&&&\end{array}$$
+    texto: >-
+      Inorden: ___, ___, ___, ___, ___, ___, ___, ___, ___
+    respuestas: ["a", "g", "h", "i", "f", "d", "e", "b", "c"]
+    verificar: { python: "(lambda T: (lambda go: go(go, (lambda T: [u for u in T if not any(u in c for c in T.values())][0])(T)))(lambda go, u: [] if u is None else go(go, (lambda T, u: T.get(u, (None, None)))(T, u)[0]) + [u] + go(go, (lambda T, u: T.get(u, (None, None)))(T, u)[1])))({x.split(': ')[0]: tuple(None if y == '-' else y for y in x.split(': ')[1].split(' ')) for x in 'e: h b; h: a f; b: - c; a: - g; f: i d'.split('; ')})" }
+    pistas:
+      - >-
+        Si un nodo no tiene hijo izquierdo, ¿va él antes o después de su hijo derecho?
+    explicacion: |-
+      El árbol, como lista de hijos: $e$: izq. $h$, der. $b$ · $h$: izq. $a$, der. $f$ · $b$: izq. ninguno, der. $c$ · $a$: izq. ninguno, der. $g$ · $f$: izq. $i$, der. $d$; hojas: $c$, $d$, $g$, $i$. Por bloques:
+
+      1. El subárbol de $h$: primero el de $a$, que no tiene hijo izquierdo, así que $a$ y luego $g$; después $h$; después el de $f$, $i,f,d$. Da $a,g,h,i,f,d$.
+      2. La raíz, $e$.
+      3. El subárbol de $b$: no tiene hijo izquierdo, así que $b$ y luego $c$.
+
+      El inorden es $a,g,h,i,f,d,e,b,c$. Un error común es poner $g$ antes que $a$: $g$ es el hijo **derecho** de $a$, y va después de él. Comprueba: la raíz deja a su izquierda los 6 nodos del subárbol de $h$ y a su derecha los 2 del de $b$.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (cada subárbol completo y la raíz al final) · R1
+  # Ancla de PO. El mismo árbol del 003. Errores que rechaza el verificar (neg.py): b antes que c y a antes que g.
+  # verificar: ejecuta la definición recursiva del posorden sobre la lista de hijos.
+  - id: disc-21-005
+    tipo: completar
+    dificultad: 1
+    conceptos: [recorrido-postorden]
+    enunciado: |-
+      El **posorden** de un árbol binario lista el subárbol izquierdo en posorden, luego el derecho en posorden y al final la raíz. Escribe el posorden de este árbol; cada hueco es un nodo.
+
+      $$\begin{array}{ccccccccccccccccc}&&&&&&&&&&&&e&&&&\\&&&&&&&&\diagup&&&&&\diagdown&&&\\&&&&h&&&&&&&&&&b&&\\&&\diagup&&&&\diagdown&&&&&&&&&\diagdown&\\a&&&&&&&&f&&&&&&&&c\\&\diagdown&&&&&&\diagup&&\diagdown&&&&&&&\\&&g&&&&i&&&&d&&&&&&\end{array}$$
+    texto: >-
+      Posorden: ___, ___, ___, ___, ___, ___, ___, ___, ___
+    respuestas: ["g", "a", "i", "d", "f", "h", "c", "b", "e"]
+    verificar: { python: "(lambda T: (lambda go: go(go, (lambda T: [u for u in T if not any(u in c for c in T.values())][0])(T)))(lambda go, u: [] if u is None else go(go, (lambda T, u: T.get(u, (None, None)))(T, u)[0]) + go(go, (lambda T, u: T.get(u, (None, None)))(T, u)[1]) + [u]))({x.split(': ')[0]: tuple(None if y == '-' else y for y in x.split(': ')[1].split(' ')) for x in 'e: h b; h: a f; b: - c; a: - g; f: i d'.split('; ')})" }
+    pistas:
+      - >-
+        ¿Puedes escribir un nodo antes de terminar con todo lo que cuelga de él?
+    explicacion: |-
+      El árbol, como lista de hijos: $e$: izq. $h$, der. $b$ · $h$: izq. $a$, der. $f$ · $b$: izq. ninguno, der. $c$ · $a$: izq. ninguno, der. $g$ · $f$: izq. $i$, der. $d$; hojas: $c$, $d$, $g$, $i$. Por bloques:
+
+      1. El subárbol de $h$: el de $a$ da $g$ y luego $a$; el de $f$ da $i,d$ y luego $f$; al final, $h$. Da $g,a,i,d,f,h$.
+      2. El subárbol de $b$: $c$ y luego $b$.
+      3. Al final, la raíz, $e$.
+
+      El posorden es $g,a,i,d,f,h,c,b,e$. Un error común es escribir $b$ antes que $c$: en el posorden, cada nodo va después de sus hijos. Comprueba: la raíz va al final, y cada nodo va después de todos los de su subárbol.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (de las hojas a la raíz) · R1
+  # Ancla de AE. Con − en la raíz (P: «con − o ÷»). Si se lee el dibujo de izquierda a derecha sin paréntesis,
+  # 6 × 2 + 3 − 7 da 8 (lo dice la explicación). Errores que rechaza el verificar (neg.py): −23 y −11.
+  # verificar: evalúa el árbol por recursión y exige que dé lo mismo que 6 * (2 + 3) - 7 en Python.
+  - id: disc-21-006
+    tipo: numerico
+    dificultad: 1
+    conceptos: [arbol-expresion]
+    enunciado: |-
+      En un **árbol de expresión**, las hojas son números y cada operador se aplica a sus dos subárboles, el izquierdo primero. ¿Cuánto vale este?
+
+      $$\begin{array}{ccccccccccccc}&&&&&&&&&&{-}&&\\&&&&&&\diagup&&&&&\diagdown&\\&&{\times}&&&&&&&&&&7\\&\diagup&&&\diagdown&&&&&&&&\\6&&&&&&{+}&&&&&&\\&&&&&\diagup&&\diagdown&&&&&\\&&&&2&&&&3&&&&\end{array}$$
+    respuesta: 23
+    tolerancia: 0
+    verificar: { python: "(lambda t: ((lambda f: lambda t: f(f, t))(lambda f, t: t[0] if len(t) == 1 else {'+': lambda a, b: a + b, '-': lambda a, b: a - b, '*': lambda a, b: a * b, '/': lambda a, b: Fraction(a) / b}[t[0]](f(f, t[1]), f(f, t[2]))))(t) if ((lambda f: lambda t: f(f, t))(lambda f, t: t[0] if len(t) == 1 else {'+': lambda a, b: a + b, '-': lambda a, b: a - b, '*': lambda a, b: a * b, '/': lambda a, b: Fraction(a) / b}[t[0]](f(f, t[1]), f(f, t[2]))))(t) == 6 * (2 + 3) - 7 else None)(('-', ('*', (6,), ('+', (2,), (3,))), (7,)))" }
+    pistas:
+      - >-
+        ¿Qué operación puedes hacer primero, con dos hojas como operandos? ¿Cuál es la última?
+    explicacion: >-
+      Vale 23. El árbol, como lista de hijos: la raíz $-$: izq. $\times$, der. 7 · $\times$: izq. 6, der. $+$ · $+$: izq. 2, der. 3; hojas: 2, 3, 6 y 7. **De las hojas a la raíz:** el $+$ da $2+3=5$; el $\times$, $6\times5=30$; y la raíz, $30-7=23$. Es $6\times(2+3)-7$. Si leíste los nodos de izquierda a derecha sin paréntesis, $6\times2+3-7$ da 8: la jerarquía de la infija no es la del árbol. Comprueba: la raíz, $-$, es la última operación, y resta el 7 de lo que vale su lado izquierdo, 30.
+    tiempo_estimado_s: 45
+
+  # razonamiento: deductivo (contraejemplo o argumento con n − 1 aristas) · R2
+  # Sobre todos los grafos simples de 6 vértices (2^15), M. «Garantizan» (no «siempre»). Errores que rechaza el
+  # verificar (neg.py): agregar «5 aristas» o «sin ciclos», y quitar la (4).
+  # verificar: enumera los 32,768 grafos simples con 6 vértices y prueba cada condición.
+  - id: disc-21-007
+    tipo: seleccion_multiple
+    dificultad: 2
+    conceptos: [arbol]
+    enunciado: >-
+      Un grafo simple tiene 6 vértices. ¿Cuáles de estas condiciones garantizan que es un árbol? Puede haber varias.
+    opciones:
+      - >-
+        Es conexo y tiene 5 aristas.
+      - >-
+        Tiene 5 aristas.
+      - >-
+        No tiene ciclos y tiene 5 aristas.
+      - >-
+        Es conexo y tiene 6 aristas.
+      - >-
+        Es conexo, y al quitarle cualquier arista deja de ser conexo.
+      - >-
+        No tiene ciclos.
+    correctas: [0, 2, 4]
+    verificar: { python: "(lambda GS, R: (lambda con, acy: (lambda tree: [all(tree(E) for E in GS if con(E) and len(E) == 5), all(tree(E) for E in GS if len(E) == 5), all(tree(E) for E in GS if acy(E) and len(E) == 5), all(tree(E) for E in GS if con(E) and len(E) == 6), all(tree(E) for E in GS if con(E) and all(not con([f for f in E if f != e]) for e in E)), all(tree(E) for E in GS if acy(E))])(lambda E: con(E) and acy(E)))(lambda E: R(E, 0) == set(range(6)), lambda E: all(e[1] not in R([f for f in E if f != e], e[0]) for e in E)))([[P[i] for i in range(15) if m >> i & 1] for P in [list(itertools.combinations(range(6), 2))] for m in range(1 << 15)], lambda E, s: list(itertools.accumulate(range(6), lambda S, _: S | {w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x in S}, initial={s}))[-1])" }
+    pistas:
+      - >-
+        Para descartar una, ¿qué grafo de 6 vértices la cumple sin ser árbol? Para aceptarla, ¿qué te falta probar: que es conexo o que no tiene ciclos?
+    explicacion: >-
+      Garantizan que es árbol «conexo y 5 aristas», «sin ciclos y 5 aristas» y «conexo, y quitar cualquier arista lo desconecta»; las otras tres no. **Las que no:** un ciclo de 5 vértices más un vértice suelto tiene 5 aristas y no es conexo; un árbol de 6 vértices tiene 5 aristas, así que uno conexo con 6 no es árbol: tiene un ciclo; y 6 vértices sueltos no tienen ciclos, pero no son conexos. **Conexo y 5 aristas:** si tuviera un ciclo, quitar una arista del ciclo lo dejaría conexo; repitiendo, quedaría un árbol de 6 vértices con menos de 5 aristas, y no lo hay. **Sin ciclos y 5 aristas:** cada componente es un árbol; con $k$ componentes de $n_1,\dots,n_k$ vértices hay $(n_1-1)+\dots+(n_k-1)=6-k$ aristas, así que $k=1$. **Toda arista desconecta:** una arista de un ciclo se puede quitar sin desconectar, así que no hay ciclos. Comprueba: en un árbol, quitar cualquier arista lo desconecta, porque era la única trayectoria entre sus extremos.
+    tiempo_estimado_s: 90
+
+  # razonamiento: inductivo (1, 3, 7, 15 y la cadena) · R1
+  # De A. Errores que rechaza el verificar (neg.py): 16, 3, 4 y 10.
+  # verificar: el máximo y el mínimo entre las 677 formas de altura ≤ 3, y las alturas entre las 16,796 formas de 10
+  # nodos.
+  - id: disc-21-008
+    tipo: completar
+    dificultad: 2
+    conceptos: [arbol-binario]
+    enunciado: >-
+      La altura de un árbol binario cuenta aristas: un árbol de un solo nodo tiene altura 0. Cada hueco es un número.
+    texto: >-
+      Con altura 3, mayor número de nodos: ___ · con altura 3, menor número de nodos: ___ · con 10 nodos, menor altura posible: ___ · con 10 nodos, mayor altura posible: ___
+    respuestas: ["15", "4", "3", "9"]
+    verificar: { python: "(lambda A, S: [max(((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(t) for t in A if ((lambda f: lambda x: f(f, x))(lambda f, x: -1 if x is None else 1 + max(f(f, x[0]), f(f, x[1]))))(t) == 3), min(((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(t) for t in A if ((lambda f: lambda x: f(f, x))(lambda f, x: -1 if x is None else 1 + max(f(f, x[0]), f(f, x[1]))))(t) == 3), min(((lambda f: lambda x: f(f, x))(lambda f, x: -1 if x is None else 1 + max(f(f, x[0]), f(f, x[1]))))(x) for x in S[10]), max(((lambda f: lambda x: f(f, x))(lambda f, x: -1 if x is None else 1 + max(f(f, x[0]), f(f, x[1]))))(x) for x in S[10])])(list(itertools.accumulate(range(4), lambda S, _: [None] + [(L, R) for L in S for R in S], initial=[None]))[-1], (lambda N: list(itertools.accumulate(range(1, N + 1), lambda S, n: S + [[(L, R) for k in range(n) for L in S[k] for R in S[n - 1 - k]]], initial=[[None]]))[-1])(10))" }
+    pistas:
+      - >-
+        ¿Cuántos nodos caben como mucho en el nivel $k$? ¿Cuántos hacen falta como mínimo para llegar hasta el nivel 3?
+    explicacion: >-
+      **Altura 3.** Cada nivel tiene a lo más el doble de nodos que el anterior: 1, 2, 4 y 8, así que caben a lo más $1+2+4+8=15=2^4-1$. Para llegar al nivel 3 basta un nodo por nivel, cada uno hijo del anterior: 4. **Con 10 nodos.** Con altura 2 caben a lo más $1+2+4=7$, menos que 10, y con altura 3, hasta 15: la menor altura es 3. La mayor es la de una cadena de 10 nodos, cada uno hijo del anterior: 9 aristas de la raíz a la hoja, altura 9. Comprueba: con altura 0, 1, 2 y 3, el máximo es 1, 3, 7 y 15, y el mínimo, la altura más 1.
+    tiempo_estimado_s: 90
+
+  # razonamiento: algorítmico (de la lista al dibujo y al posorden) · R1
+  # Solo la lista (P: pasar de cómo lo guarda un programa al dibujo) y «Dibújalo en papel y luego contesta». 10 nodos,
+  # altura 4; la explicación trae el dibujo. Errores que rechaza el verificar (neg.py): h antes que c y j antes que g.
+  # verificar: ejecuta la definición recursiva del posorden sobre la lista de hijos.
+  - id: disc-21-009
+    tipo: completar
+    dificultad: 2
+    conceptos: [recorrido-postorden]
+    enunciado: >-
+      Un programa guarda este árbol binario como lista de hijos: $h$: izq. $a$, der. $c$ · $a$: izq. $j$, der. $b$ · $c$: izq. ninguno, der. $d$ · $j$: izq. ninguno, der. $g$ · $d$: izq. $f$, der. $i$ · $f$: izq. ninguno, der. $e$; hojas: $b$, $e$, $g$, $i$. Dibújalo en papel y luego contesta: escribe su posorden; cada hueco es un nodo.
+    texto: >-
+      Posorden: ___, ___, ___, ___, ___, ___, ___, ___, ___, ___
+    respuestas: ["g", "j", "b", "a", "e", "f", "i", "d", "c", "h"]
+    verificar: { python: "(lambda T: (lambda go: go(go, (lambda T: [u for u in T if not any(u in c for c in T.values())][0])(T)))(lambda go, u: [] if u is None else go(go, (lambda T, u: T.get(u, (None, None)))(T, u)[0]) + go(go, (lambda T, u: T.get(u, (None, None)))(T, u)[1]) + [u]))({x.split(': ')[0]: tuple(None if y == '-' else y for y in x.split(': ')[1].split(' ')) for x in 'h: a c; a: j b; j: - g; c: - d; d: f i; f: - e'.split('; ')})" }
+    pistas:
+      - >-
+        ¿Cuál es la raíz, el nodo que no es hijo de nadie? En tu dibujo, ¿cada hijo único quedó del lado que dice la lista?
+    explicacion: |-
+      La raíz es $h$, porque no es hijo de nadie. Tu dibujo, por niveles:
+
+      $$\begin{array}{ccccccccccccccccccc}&&&&&&&&h&&&&&&&&&&\\&&&&&&\diagup&&&\diagdown&&&&&&&&&\\&&&&a&&&&&&c&&&&&&&&\\&&\diagup&&&\diagdown&&&&&&&&\diagdown&&&&&\\j&&&&&&b&&&&&&&&&&d&&\\&\diagdown&&&&&&&&&&&&&\diagup&&&\diagdown&\\&&g&&&&&&&&&&f&&&&&&i\\&&&&&&&&&&&&&\diagdown&&&&&\\&&&&&&&&&&&&&&e&&&&\end{array}$$
+
+      Por bloques:
+
+      1. El subárbol de $a$: el de $j$, que no tiene hijo izquierdo, da $g$ y luego $j$; luego $b$; al final, $a$. Da $g,j,b,a$.
+      2. El subárbol de $c$, que no tiene hijo izquierdo: el de $d$, que es el de $f$ ($e$ y luego $f$), luego $i$ y luego $d$; al final, $c$. Da $e,f,i,d,c$.
+      3. Al final, la raíz, $h$.
+
+      El posorden es $g,j,b,a,e,f,i,d,c,h$. Comprueba: la raíz va al final, y $e$, la única hoja del nivel 4, va justo antes que su padre, $f$.
+    tiempo_estimado_s: 150
+
+  # razonamiento: algorítmico (la última operación es la raíz) · R1
+  # valores 0–3 (M): las cuatro posfijas valen 14, 18, 2 y 6 con la pila, todas distintas. Errores que rechaza el
+  # verificar (neg.py): las otras tres.
+  # verificar: shunting-yard sobre la infija, compara con cada opción y exige que los cuatro valores sean distintos.
+  # Arreglos del 2026-11-15 (L): la pista es solo preguntas.
+  - id: disc-21-010
+    tipo: opcion_multiple
+    dificultad: 2
+    conceptos: [arbol-expresion]
+    enunciado: >-
+      La **posfija** de una expresión es el posorden de su árbol: cada operador va después de sus dos operandos. ¿Cuál es la posfija de $12-4-2\times3$, con la jerarquía usual (el producto antes, y las restas de izquierda a derecha)?
+    opciones:
+      - >-
+        `12 4 2 3 × − −`
+      - >-
+        `12 4 − 2 − 3 ×`
+      - >-
+        `12 4 − 2 3 × −`
+      - >-
+        `12 4 2 − 3 × −`
+    valores: ["0", "1", "2", "3"]
+    correcta: 2
+    verificar: { python: "(lambda O, P: (lambda L: L[0] if len(L) == 1 else None)([i for (i, o) in enumerate(O) if o.split() == P]) if len({(lambda toks: (lambda st: (st[-1][0] if len(st[-1]) == 1 else None, max(len(s) for s in st), [s for (s, t) in zip(st, toks + ['']) if t in {'+': lambda a, b: a + b, '-': lambda a, b: a - b, '*': lambda a, b: a * b, '/': lambda a, b: Fraction(a) / b}]))(list(itertools.accumulate(toks, lambda s, t: (s[:-2] + [{'+': lambda a, b: a + b, '-': lambda a, b: a - b, '*': lambda a, b: a * b, '/': lambda a, b: Fraction(a) / b}[t](s[-2], s[-1])]) if t in {'+': lambda a, b: a + b, '-': lambda a, b: a - b, '*': lambda a, b: a * b, '/': lambda a, b: Fraction(a) / b} else s + [int(t)], initial=[]))))(o.split())[0] for o in O}) == 4 and (lambda toks: (lambda st: (st[-1][0] if len(st[-1]) == 1 else None, max(len(s) for s in st), [s for (s, t) in zip(st, toks + ['']) if t in {'+': lambda a, b: a + b, '-': lambda a, b: a - b, '*': lambda a, b: a * b, '/': lambda a, b: Fraction(a) / b}]))(list(itertools.accumulate(toks, lambda s, t: (s[:-2] + [{'+': lambda a, b: a + b, '-': lambda a, b: a - b, '*': lambda a, b: a * b, '/': lambda a, b: Fraction(a) / b}[t](s[-2], s[-1])]) if t in {'+': lambda a, b: a + b, '-': lambda a, b: a - b, '*': lambda a, b: a * b, '/': lambda a, b: Fraction(a) / b} else s + [int(t)], initial=[]))))(P)[0] == 12 - 4 - 2 * 3 else None)(['12 4 2 3 * - -', '12 4 - 2 - 3 *', '12 4 - 2 3 * -', '12 4 2 - 3 * -'], (lambda toks: (lambda fin: fin[0] + fin[1][::-1])(list(itertools.accumulate(toks, lambda st, t: ((st[0], st[1] + ['(']) if t == '(' else ((lambda k: (st[0] + st[1][len(st[1]) - k:][::-1], st[1][:len(st[1]) - k - 1]))(len(list(itertools.takewhile(lambda o: o != '(', st[1][::-1])))) if t == ')' else ((lambda k: (st[0] + st[1][len(st[1]) - k:][::-1], st[1][:len(st[1]) - k] + [t]))(len(list(itertools.takewhile(lambda o: o in {'+': 1, '-': 1, '*': 2, '/': 2} and {'+': 1, '-': 1, '*': 2, '/': 2}[o] >= {'+': 1, '-': 1, '*': 2, '/': 2}[t], st[1][::-1])))) if t in {'+': 1, '-': 1, '*': 2, '/': 2} else (st[0] + [t], st[1])))), initial=([], [])))[-1]))('12 - 4 - 2 * 3'.split()))" }
+    pistas:
+      - >-
+        ¿Cuál es la última operación que se hace? ¿Qué lugar ocupa en el árbol, y cuál en la posfija?
+    explicacion: >-
+      Es `12 4 − 2 3 × −`. **El árbol:** la expresión es $(12-4)-(2\times3)$; la última operación es la segunda resta, que es la raíz, con $12-4$ a la izquierda y $2\times3$ a la derecha. **El posorden:** el lado izquierdo da `12 4 −`; el derecho, `2 3 ×`; al final, la raíz, `−`. **Las otras,** con la pila: `12 4 2 3 × − −` vale $12-(4-6)=14$; `12 4 − 2 − 3 ×`, $(12-4-2)\times3=18$; y `12 4 2 − 3 × −`, $12-(4-2)\times3=6$. Comprueba: la correcta vale $8-6=2$, lo mismo que $12-4-2\times3$ con la jerarquía usual.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (la pila) · R1
+  # Errores que rechaza el verificar (neg.py): −13 (restar al revés) y 11.
+  # verificar: evalúa la posfija con la pila y exige que dé lo mismo que 4 * (6 - 2) + 9 / 3 en Python.
+  - id: disc-21-011
+    tipo: numerico
+    dificultad: 2
+    conceptos: [arbol-expresion]
+    enunciado: >-
+      Evalúa con la pila la posfija `4 6 2 − × 9 3 ÷ +`: cada número se apila, y cada operador saca los dos de arriba, opera el de abajo con el de arriba y apila el resultado.
+    respuesta: 19
+    tolerancia: 0
+    verificar: { python: "(lambda r: r[0] if r[0] == 4 * (6 - 2) + Fraction(9, 3) else None)((lambda toks: (lambda st: (st[-1][0] if len(st[-1]) == 1 else None, max(len(s) for s in st), [s for (s, t) in zip(st, toks + ['']) if t in {'+': lambda a, b: a + b, '-': lambda a, b: a - b, '*': lambda a, b: a * b, '/': lambda a, b: Fraction(a) / b}]))(list(itertools.accumulate(toks, lambda s, t: (s[:-2] + [{'+': lambda a, b: a + b, '-': lambda a, b: a - b, '*': lambda a, b: a * b, '/': lambda a, b: Fraction(a) / b}[t](s[-2], s[-1])]) if t in {'+': lambda a, b: a + b, '-': lambda a, b: a - b, '*': lambda a, b: a * b, '/': lambda a, b: Fraction(a) / b} else s + [int(t)], initial=[]))))('4 6 2 - * 9 3 / +'.split()))" }
+    pistas:
+      - >-
+        Cuando llega el $-$, ¿cuál de los dos números de arriba va primero en la resta?
+    explicacion: >-
+      Vale 19. La pila, de abajo arriba, después de cada símbolo: 4 · 4, 6 · 4, 6, 2 · con el $-$, 4, 4, porque $6-2=4$ · con el $\times$, 16 · luego 16, 9 y 16, 9, 3 · con el $\div$, 16, 3, porque $9\div3=3$ · con el $+$, 19. Es $4\times(6-2)+9\div3$. Si restaste al revés, $2-6=-4$, te salió $-16+3=-13$. Comprueba: al final la pila tiene un solo número.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (inorden con un hijo único de cada lado) · R1
+  # b tiene un hijo único derecho y g uno izquierdo. Errores que rechaza el verificar (neg.py): a antes que b, h y e
+  # intercambiados, y c después de g.
+  # verificar: ejecuta la definición recursiva del inorden sobre la lista de hijos.
+  - id: disc-21-012
+    tipo: completar
+    dificultad: 2
+    conceptos: [recorrido-inorden]
+    enunciado: |-
+      Escribe el inorden de este árbol binario (subárbol izquierdo, raíz y subárbol derecho, cada uno en inorden); cada hueco es un nodo.
+
+      $$\begin{array}{ccccccccccccc}&&&&d&&&&&&&&\\&&\diagup&&&&&&\diagdown&&&&\\b&&&&&&&&&&&&g\\&\diagdown&&&&&&&&&\diagup&&\\&&a&&&&&&e&&&&\\&&&&&&&\diagup&&\diagdown&&&\\&&&&&&h&&&&c&&\end{array}$$
+    texto: >-
+      Inorden: ___, ___, ___, ___, ___, ___, ___
+    respuestas: ["b", "a", "d", "h", "e", "c", "g"]
+    verificar: { python: "(lambda T: (lambda go: go(go, (lambda T: [u for u in T if not any(u in c for c in T.values())][0])(T)))(lambda go, u: [] if u is None else go(go, (lambda T, u: T.get(u, (None, None)))(T, u)[0]) + [u] + go(go, (lambda T, u: T.get(u, (None, None)))(T, u)[1])))({x.split(': ')[0]: tuple(None if y == '-' else y for y in x.split(': ')[1].split(' ')) for x in 'd: b g; b: - a; g: e -; e: h c'.split('; ')})" }
+    pistas:
+      - >-
+        $b$ y $g$ tienen un solo hijo cada uno: ¿de qué lado? ¿Eso pone al hijo antes o después de su padre?
+    explicacion: >-
+      El árbol, como lista de hijos: $d$: izq. $b$, der. $g$ · $b$: izq. ninguno, der. $a$ · $g$: izq. $e$, der. ninguno · $e$: izq. $h$, der. $c$; hojas: $a$, $c$, $h$. **Por bloques:** el subárbol de $b$, que no tiene hijo izquierdo, da $b$ y luego $a$; luego la raíz, $d$; luego el subárbol de $g$: primero el de $e$, que da $h,e,c$, y después $g$, que no tiene hijo derecho. El inorden es $b,a,d,h,e,c,g$. Comprueba: $a$, hijo derecho, va después de su padre $b$, y todo el subárbol de $e$, que cuelga a la izquierda de $g$, va antes que $g$.
+    tiempo_estimado_s: 75
+
+  # razonamiento: abductivo (de la sucesión de Diego al error que la explica) · R2
+  # Error plantado sin decir qué hizo Diego (A: se da la sucesión y se pregunta qué la explica). La (1) es el único nodo
+  # cuyo cambio la explica (lo exige el verificar); la (5) es el otro hijo único. La (3) es general para un hijo único
+  # (002); la explicación no dice nada del posorden.
+  # En el jefe: el árbol del enunciado (9 nodos, altura 3) contradice la (3) del R4, pero es un dato del dibujo, no de la
+  # explicación (M, cruce débil). La explicación no habla de búsquedas (20-016).
+  # verificar: inorden, el cambio de lado de cada hijo único, el preorden con el cambio y las posiciones.
+  # Arreglos del 2026-11-15: las opciones (1) y (5) dicen «…que saldría si el hijo único de e fuera izquierdo» (L), y
+  # la explicación nombra el error de Diego antes del «Revisa:» (P). Esa frase es sobre el inorden y un hijo único; no
+  # decide la (0) ni la (1) del R4.
+  - id: disc-21-013
+    tipo: seleccion_multiple
+    dificultad: 3
+    conceptos: [recorrido-inorden]
+    enunciado: |-
+      Diego dice que el inorden de este árbol binario es $a,i,c,h,g,f,b,d,e$. ¿Cuáles de estas afirmaciones son ciertas? Puede haber varias.
+
+      $$\begin{array}{ccccccccccccccccc}&&&&&&&&g&&&&&&&&\\&&&&&&\diagup&&&\diagdown&&&&&&&\\&&&&c&&&&&&e&&&&&&\\&&\diagup&&&\diagdown&&&&&&&\diagdown&&&&\\a&&&&&&h&&&&&&&&b&&\\&\diagdown&&&&&&&&&&&&\diagup&&\diagdown&\\&&i&&&&&&&&&&f&&&&d\end{array}$$
+    opciones:
+      - >-
+        La sucesión de Diego es el inorden del árbol.
+      - >-
+        La sucesión de Diego es el inorden que saldría si el hijo único de $e$ fuera izquierdo.
+      - >-
+        Contando desde 1, la primera posición en que la sucesión de Diego difiere del inorden es la 6.
+      - >-
+        Si el hijo único de $e$ fuera izquierdo, el preorden del árbol sería el mismo que ahora.
+      - >-
+        En la sucesión de Diego, la raíz $g$ ocupa una posición distinta de la que tiene en el inorden.
+      - >-
+        La sucesión de Diego es el inorden que saldría si el hijo único de $a$ fuera izquierdo.
+    correctas: [1, 2, 3]
+    verificar: { python: "(lambda t, D: (lambda I, one: [I == D, (lambda L: L[0] if len(L) == 1 else None)([x for x in one if ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + [t[0]] + f(f, t[2])))(((lambda f: lambda t, x: f(f, t, x))(lambda f, t, x: None if t is None else ((t[0], t[2], t[1]) if t[0] == x else (t[0], f(f, t[1], x), f(f, t[2], x)))))(t, x)) == D]) == 'e', min(i for i in range(len(I)) if I[i] != D[i]) + 1 == 6, ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else [t[0]] + f(f, t[1]) + f(f, t[2])))(((lambda f: lambda t, x: f(f, t, x))(lambda f, t, x: None if t is None else ((t[0], t[2], t[1]) if t[0] == x else (t[0], f(f, t[1], x), f(f, t[2], x)))))(t, 'e')) == ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else [t[0]] + f(f, t[1]) + f(f, t[2])))(t), I.index('g') != D.index('g'), ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + [t[0]] + f(f, t[2])))(((lambda f: lambda t, x: f(f, t, x))(lambda f, t, x: None if t is None else ((t[0], t[2], t[1]) if t[0] == x else (t[0], f(f, t[1], x), f(f, t[2], x)))))(t, 'a')) == D])(((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + [t[0]] + f(f, t[2])))(t), [x for x in ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else [t[0]] + f(f, t[1]) + f(f, t[2])))(t) if (lambda q: (q[1] is None) != (q[2] is None))(((lambda f: lambda t, x: f(f, t, x))(lambda f, t, x: None if t is None else (t if t[0] == x else (f(f, t[1], x) or f(f, t[2], x)))))(t, x))]))((lambda T: (lambda f: f(f, (lambda T: [u for u in T if not any(u in c for c in T.values())][0])(T)))(lambda f, u: None if u is None else (u, f(f, (lambda T, u: T.get(u, (None, None)))(T, u)[0]), f(f, (lambda T, u: T.get(u, (None, None)))(T, u)[1]))))({x.split(': ')[0]: tuple(None if y == '-' else y for y in x.split(': ')[1].split(' ')) for x in 'g: c e; c: a h; e: - b; b: f d; a: - i'.split('; ')}), 'a i c h g f b d e'.split())" }
+    pistas:
+      - >-
+        ¿Desde qué posición deja Diego de coincidir con el inorden? ¿De qué subárbol son los nodos de las posiciones que fallan?
+      - >-
+        Si un hijo único cambia de lado, ¿cambia el lugar de su padre en el preorden?
+    explicacion: >-
+      Son ciertas «es el inorden con el hijo único de $e$ a la izquierda», «la primera diferencia está en la posición 6» y «el preorden sería el mismo»; las otras tres no. El árbol, como lista de hijos: $g$: izq. $c$, der. $e$ · $c$: izq. $a$, der. $h$ · $e$: izq. ninguno, der. $b$ · $a$: izq. ninguno, der. $i$ · $b$: izq. $f$, der. $d$; hojas: $d$, $f$, $h$, $i$. **El inorden:** el subárbol de $c$ da $a,i,c,h$; luego $g$; luego el de $e$: como $e$ no tiene hijo izquierdo, $e$ y después $f,b,d$. Queda $a,i,c,h,g,e,f,b,d$. **Diego** coincide hasta la posición 5, la de $g$, y desde la 6 escribe $f,b,d,e$: puso el subárbol de $b$ antes que $e$, que es lo que sale si $b$ fuera hijo izquierdo de $e$. Con el hijo de $a$ a la izquierda saldría $i,a,c,h,\dots$, que no es lo de Diego. **El preorden** pone a cada nodo antes de todo su subárbol, sea izquierdo o derecho su hijo único: con $b$ de cualquier lado de $e$ queda $g,c,a,i,h,e,b,f,d$. El error de Diego es tomar como izquierdo un hijo único derecho: si es derecho, su padre va antes que todo su subárbol. Revisa: Diego falla en las 4 últimas posiciones, todas del subárbol de $e$, y la raíz $g$ está en la quinta en las dos sucesiones.
+    tiempo_estimado_s: 150
+
+  # razonamiento: metacognitivo (una revisión que también pasa un orden equivocado no revisa: el preorden va por bloques) · R2
+  # De A: texto, respuestas, pistas y explicación tal cual, con tres cambios que pide el v1: el árbol va como `array`
+  # en el enunciado (en A iba como lista con «—») y su lista de hijos, con «ninguno», abre la explicación; la
+  # explicación dice «por niveles, de izquierda a derecha» y ya no «como un BFS desde m» (M: el BFS alfabético da otro
+  # orden). Leer el dibujo renglón por renglón da justo la sucesión de Lucía. `verificar` de M (min en lugar de next).
+  # En el jefe hace par con disc-20-016 (órdenes DFS): el orden por niveles contra el preorden. La explicación no habla
+  # de búsquedas, BFS ni DFS. Su «en un preorden, cada nodo va justo antes de su subárbol, que ocupa posiciones
+  # seguidas» es la definición de §4 de la lección; no prueba la (4) del R4 (el último del preorden es hoja).
+  # Arreglos del 2026-11-15 (L y M): «todo el subárbol izquierdo y todo el subárbol derecho» y «al terminar un
+  # preorden».
+  - id: disc-21-014
+    tipo: completar
+    dificultad: 3
+    conceptos: [recorrido-preorden]
+    enunciado: |-
+      El árbol binario es este:
+
+      $$\begin{array}{ccccccccccccccc}&&&&&&&&m&&&&&&\\&&&&&\diagup&&&&\diagdown&&&&&\\&&f&&&&&&&&k&&&&\\&\diagup&&&\diagdown&&&&&&&&\diagdown&&\\r&&&&&&c&&&&&&&&t\\&&&&&\diagup&&&&&&&&\diagup&\\&&&&s&&&&&&&&x&&\end{array}$$
+
+      Lucía escribió como su preorden $m,f,k,r,c,t,s,x$. Revisó que empezara en la raíz y que cada nodo apareciera una sola vez, y lo dio por bueno. Está mal.
+    texto: >-
+      Contando desde 1, la primera posición en que la sucesión de Lucía difiere del preorden correcto es la número ___ · en esa posición, el preorden correcto lleva al nodo ___ · número de posiciones, de las 8, en que Lucía no coincide con el preorden correcto: ___ · número de maneras de ordenar los 8 nodos que pasan la revisión de Lucía, es decir, que empiezan en $m$ (escríbelo sin separador de miles): ___
+    respuestas: ["3", "r", "5", "5040"]
+    verificar: { python: "(lambda T, root, luc: (lambda pre: (lambda P: (lambda i: [i + 1, P[i], sum(1 for j in range(len(P)) if P[j] != luc[j]), sum(1 for o in itertools.permutations(luc) if o[0] == root)])(min(j for j in range(len(P)) if P[j] != luc[j])))(pre(pre, root)))(lambda f, x: [] if x is None else [x] + f(f, T.get(x, (None, None))[0]) + f(f, T.get(x, (None, None))[1])))({'m': ('f', 'k'), 'f': ('r', 'c'), 'k': (None, 't'), 'c': ('s', None), 't': ('x', None)}, 'm', ['m', 'f', 'k', 'r', 'c', 't', 's', 'x'])" }
+    pistas:
+      - >-
+        ¿Qué sucesiones mal hechas pasarían la revisión de Lucía?
+      - >-
+        En un preorden, ¿dónde quedan los nodos del subárbol de $f$ respecto a $f$, y respecto a los del subárbol de $k$?
+      - >-
+        Para el último hueco, ¿qué deja fijo la revisión de Lucía y qué puede ir en cualquier orden?
+    explicacion: >-
+      El árbol, como lista de hijos: $m$: izq. $f$, der. $k$ · $f$: izq. $r$, der. $c$ · $k$: izq. ninguno, der. $t$ · $c$: izq. $s$, der. ninguno · $t$: izq. $x$, der. ninguno; hojas: $r$, $s$, $x$. **Lo que revisó Lucía no basta.** «Empieza en la raíz y cada nodo aparece una vez» lo cumple cualquier orden de los 8 nodos que empiece en $m$: son $7!=5040$, y solo uno es el preorden. **El preorden correcto** es la raíz, todo el subárbol izquierdo y todo el subárbol derecho: $m$; luego $f,r,c,s$, el subárbol de $f$; luego $k,t,x$, el de $k$: $m,f,r,c,s,k,t,x$. La sucesión de Lucía, $m,f,k,r,c,t,s,x$, va por niveles, de izquierda a derecha ($m$; $f,k$; $r,c,t$; $s,x$). Difiere desde la posición 3, donde el preorden lleva a $r$ y ella puso a $k$, y coincide solo en las posiciones 1, 2 y 8: falla en 5. **La revisión de siempre:** en un preorden, cada nodo va justo antes de su subárbol, que ocupa posiciones seguidas, y el bloque izquierdo va antes que el derecho; en la de Lucía, $k$ se mete en el bloque de $f$. ¿Qué revisión harás tú al terminar un preorden: una que también pasa un orden equivocado, o una que solo pasa el correcto? Revisa: el bloque de $f$ tiene 4 nodos y ocupa las posiciones 2 a 5; el de $k$ tiene 3 y ocupa las posiciones 6 a 8.
+    tiempo_estimado_s: 120
+
+  # razonamiento: deductivo (la raíz parte el inorden; ojo con el tamaño del lado izquierdo) · R2
+  # Solo los recorridos. Primer paso de la escalera de reconstrucción (P): 015 (d3) → 020 (d4) → 025 (d5). Errores que
+  # rechaza el verificar (neg.py): 4 nodos, e como raíz del izquierdo e i como raíz del derecho. Arreglos del
+  # 2026-11-15: el segundo hueco dice «contando su raíz» (resolutor), y la primera pista ya no dice «recorrido» a secas.
+  # verificar: fuerza bruta sobre las 4,862 formas de 9 nodos etiquetadas en preorden; exige un árbol único.
+  - id: disc-21-015
+    tipo: completar
+    dificultad: 3
+    conceptos: [recorrido-preorden, recorrido-inorden]
+    enunciado: >-
+      Un árbol binario con etiquetas distintas tiene preorden $d,g,e,b,c,i,a,h,f$ e inorden $e,g,b,d,i,c,h,f,a$.
+    texto: >-
+      Raíz del árbol (nodo): ___ · número de nodos del subárbol izquierdo de la raíz, contando su raíz: ___ · raíz de ese subárbol izquierdo (nodo): ___ · raíz del subárbol derecho de la raíz (nodo): ___
+    respuestas: ["d", "3", "g", "c"]
+    verificar: { python: "(lambda A, B: (lambda C: [C[0][0], len(((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else [t[0]] + f(f, t[1]) + f(f, t[2])))(C[0][1])), C[0][1][0], C[0][2][0]] if len(C) == 1 else None)([t for t in (((lambda f: lambda x, s: f(f, x, s))(lambda f, x, s: None if x is None else (s[0], f(f, x[0], s[1:1 + ((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0])]), f(f, x[1], s[1 + ((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0]):]))))(x, A) for x in (lambda N: list(itertools.accumulate(range(1, N + 1), lambda S, n: S + [[(L, R) for k in range(n) for L in S[k] for R in S[n - 1 - k]]], initial=[[None]]))[-1])(len(A))[len(A)]) if ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + [t[0]] + f(f, t[2])))(t) == B]))('d g e b c i a h f'.split(), 'e g b d i c h f a'.split())" }
+    pistas:
+      - >-
+        ¿Cuál de las dos listas te da la raíz, y cuál te dice qué nodos quedan de cada lado?
+      - >-
+        Si ya sabes cuántos nodos tiene el lado izquierdo, ¿dónde empieza el lado derecho en el preorden?
+    explicacion: >-
+      **La raíz** es $d$, el primero del preorden. **En el inorden**, a la izquierda de $d$ quedan $e,g,b$, 3 nodos, y a su derecha, $i,c,h,f,a$. **En el preorden**, tras $d$ vienen esos 3 del lado izquierdo, como $g,e,b$, y el primero, $g$, es la raíz del subárbol izquierdo; los 5 que siguen, $c,i,a,h,f$, son el lado derecho, y su raíz es $c$. Si sigues hasta el final, el árbol queda así: $d$: izq. $g$, der. $c$ · $g$: izq. $e$, der. $b$ · $c$: izq. $i$, der. $a$ · $a$: izq. $h$, der. ninguno · $h$: izq. ninguno, der. $f$; hojas: $b$, $e$, $f$, $i$. Revisa: en el inorden, $g$ queda entre sus dos hijos, $e$ y $b$, y $c$ queda entre $i$, su subárbol izquierdo, y $h,f,a$, el derecho.
+    tiempo_estimado_s: 120
+
+  # razonamiento: deductivo (definiciones de función, puente, trayectoria y camino) · R2
+  # Integrativa (M), sobre todos los árboles de 2 a 6 vértices y cada raíz posible. «Al menos 2 vértices»: con 2, quitar
+  # un vértice deja uno solo, que es conexo; la (5) falla desde 3.
+  # En el jefe hace par con disc-15-017 («exactamente una imagen»): la explicación aplica la definición de función a
+  # «padre de» y a «hijo de» en árboles; no habla de pares ni de la F de Luis, y no decide entre sus diagnósticos (cruce
+  # débil: la definición, que el 15-017 también pide). El contraejemplo de la (5) es una raíz con dos hijos (2 hojas),
+  # no una cadena con raíz en un extremo, para no dar la (5) del R4. No da grados (021, 19-016).
+  # verificar: los seis enunciados sobre todos los árboles de 2 a 6 vértices (caminos de largo ≤ 3 en la (4)).
+  # Arreglos del 2026-11-15: el enunciado recuerda camino y trayectoria como en la lección de la 19 (resolutor y L: en
+  # otros libros «camino» es la trayectoria de aquí), y el «Revisa:» cuenta aristas por su extremo más lejano de la
+  # raíz (M). Ese n − 1 es el de la lección; no da grados del 021 ni números del 024.
+  - id: disc-21-016
+    tipo: seleccion_multiple
+    dificultad: 3
+    conceptos: [arbol]
+    enunciado: >-
+      Sea $T$ un árbol con raíz y al menos 2 vértices. ¿Cuáles de estas afirmaciones valen para todo $T$ así? Puede haber varias. Recuerda: un camino puede repetir vértices y aristas; una trayectoria no repite vértices (unidad 19).
+    opciones:
+      - >-
+        La regla «a cada vértice distinto de la raíz, su padre» es una función del conjunto de los vértices distintos de la raíz en el conjunto de los vértices.
+      - >-
+        La regla «a cada vértice, su hijo» es una función del conjunto de los vértices en sí mismo.
+      - >-
+        Toda arista de $T$ es un puente: al quitarla, el grafo que queda no es conexo.
+      - >-
+        Entre dos vértices distintos de $T$ hay exactamente una trayectoria.
+      - >-
+        Entre dos vértices distintos de $T$ hay exactamente un camino.
+      - >-
+        Al quitar cualquier vértice de $T$, con sus aristas, lo que queda es conexo.
+    correctas: [0, 2, 3]
+    verificar: { python: "(lambda TR, R, Nb: (lambda dist: [all(len([u for u in Nb(E, v) if dist(E, r, u) == dist(E, r, v) - 1]) == 1 for (n, E) in TR for r in range(n) for v in range(n) if v != r), all(len([u for u in Nb(E, v) if dist(E, r, u) == dist(E, r, v) + 1]) == 1 for (n, E) in TR for r in range(n) for v in range(n)) or all(len([u for u in Nb(E, v) if dist(E, r, u) == dist(E, r, v) + 1]) == 1 for (n, E) in TR for r in range(n) for v in range(n) if [u for u in Nb(E, v) if dist(E, r, u) == dist(E, r, v) + 1]), all(e[1] not in R([f for f in E if f != e], e[0], set()) for (n, E) in TR for e in E), all(len((lambda go: go(go, (s,)))(lambda go, p: [p] if p[-1] == t else [q for w in Nb(E, p[-1]) if w not in p for q in go(go, p + (w,))])) == 1 for (n, E) in TR for s in range(n) for t in range(n) if s != t), all(len([p for k in range(1, 4) for p in itertools.product(range(n), repeat=k + 1) if p[0] == s and p[-1] == t and all(p[i + 1] in Nb(E, p[i]) for i in range(k))]) == 1 for (n, E) in TR if n <= 4 for s in range(n) for t in range(n) if s != t), all(all(R(E, [w for w in range(n) if w != x][0], {x}) == set(range(n)) - {x} for x in range(n)) for (n, E) in TR if n >= 3)])(lambda E, r, v: min(k for k in range(7) if v in list(itertools.accumulate(range(k), lambda S, _: S | {w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x in S}, initial={r}))[-1])))([(n, list(E)) for n in range(2, 7) for E in itertools.combinations(list(itertools.combinations(range(n), 2)), n - 1) if (lambda E, s, X: list(itertools.accumulate(range(7), lambda S, _: S | {w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x in S and w not in X}, initial={s}))[-1])(list(E), 0, set()) == set(range(n))], (lambda E, s, X: list(itertools.accumulate(range(7), lambda S, _: S | {w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x in S and w not in X}, initial={s}))[-1]), (lambda E, v: [w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v]))" }
+    pistas:
+      - >-
+        ¿Cuántos padres tiene un vértice distinto de la raíz? ¿Cuántos hijos puede tener un vértice?
+      - >-
+        ¿Qué distingue a un camino de una trayectoria? Si quitas un vértice que tiene dos vecinos, ¿siguen unidos esos dos vecinos?
+    explicacion: >-
+      Valen «la regla del padre es función», «toda arista es puente» y «entre dos vértices distintos hay exactamente una trayectoria»; las otras tres no. **Padre:** cada vértice distinto de la raíz tiene un padre, y uno solo, el que le sigue en su trayectoria a la raíz; la regla le da exactamente un valor. **Hijo:** una hoja no tiene hijos, y un vértice puede tener dos o más, así que a unos la regla no les da valor y a otros les daría varios. **Trayectoria:** hay una porque el árbol es conexo, y no dos, porque la unión de dos trayectorias distintas entre los mismos vértices contiene un ciclo. **Puente:** si al quitar la arista $uv$ quedara una trayectoria de $u$ a $v$, con la arista cerraría un ciclo. **Camino:** un camino puede repetir; si $uv$ es arista, $u,v$ y $u,v,u,v$ son dos caminos distintos. **Quitar un vértice:** en el árbol con raíz $b$ e hijos $a$ y $c$, quitar $b$ deja a $a$ y a $c$ sin arista entre ellos. Revisa: cada arista une a un vértice con su padre y es la de uno solo, su extremo más lejano de la raíz; hay una por cada vértice distinto de la raíz: $n-1$.
+    tiempo_estimado_s: 120
+
+  # razonamiento: espacial (qué cambia el espejo y qué no) · R2
+  # Espejo de M (P: qué cambia al invertir todos los hijos). (0), (2) y (4) las exige el verificar también en todo
+  # árbol de 1 a 7 nodos. «Ancestro» estricto, definido en el enunciado.
+  # En el jefe hace par con disc-16-021 (maximales): el orden de ancestros no ve izquierda ni derecha. La explicación
+  # dice qué nodos son el máximo y los minimales de este orden, sin hablar de pares, orden producto ni sumas (16-021).
+  # Sus recorridos de T y de T' son datos de este árbol: no enuncia «el preorden del espejo es el posorden al revés», que
+  # junto con «el primero del posorden es hoja» daría la (4) del R4, ni que las hojas salgan en el mismo orden en los
+  # tres recorridos (la (2) del R4). El 022 no usa el espejo.
+  # verificar: espejo por recursión, recorridos, altura, hojas y ancestros de T y T'.
+  # Arreglos del 2026-11-15: B y F dicen «el preorden de T» y «el posorden de T» al revés (resolutor: «el de T» se
+  # leía como «el preorden de T»); el autor lo extiende a la A, «el inorden de T», para que las tres se lean igual. El
+  # encabezado de la explicación es «Preorden, inorden y posorden» (L).
+  - id: disc-21-017
+    tipo: seleccion_multiple
+    dificultad: 3
+    conceptos: [arbol-binario]
+    enunciado: |-
+      El **espejo** $T'$ de un árbol binario $T$ se obtiene intercambiando, en cada nodo, el hijo izquierdo con el derecho; un hijo único cambia de lado. En las opciones, $y$ es **ancestro** de $x$ si está en la trayectoria de la raíz a $x$ y $y\neq x$. Para este $T$, ¿cuáles son ciertas? Puede haber varias.
+
+      $$\begin{array}{ccccccccccccc}&&&&c&&&&&&&&\\&&&\diagup&&&&\diagdown&&&&&\\&&f&&&&&&&&a&&\\&\diagup&&&&&&&\diagup&&&\diagdown&\\e&&&&&&d&&&&&&b\\&&&&&&&\diagdown&&&&&\\&&&&&&&&g&&&&\end{array}$$
+    opciones:
+      - >-
+        El inorden de $T'$ es el inorden de $T$ al revés.
+      - >-
+        El preorden de $T'$ es el preorden de $T$ al revés.
+      - >-
+        $T'$ tiene la misma altura que $T$.
+      - >-
+        Las hojas de $T'$, de izquierda a derecha, van en el mismo orden que las de $T$.
+      - >-
+        Con $x\preceq y$ si $y=x$ o $y$ es ancestro de $x$, la relación $\preceq$ es la misma en $T$ y en $T'$, y en los dos la raíz es el máximo y las hojas son los minimales.
+      - >-
+        El posorden de $T'$ es el posorden de $T$ al revés.
+    correctas: [0, 2, 4]
+    verificar: { python: "(lambda t, Sh: (lambda m: [((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + [t[0]] + f(f, t[2])))(m) == ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + [t[0]] + f(f, t[2])))(t)[::-1] and all(((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + [t[0]] + f(f, t[2])))(((lambda f: lambda t: f(f, t))(lambda f, t: None if t is None else (t[0], f(f, t[2]), f(f, t[1]))))(s)) == ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + [t[0]] + f(f, t[2])))(s)[::-1] for n in range(1, 8) for y in Sh[n] for s in [((lambda f: lambda x, s: f(f, x, s))(lambda f, x, s: None if x is None else (s[0], f(f, x[0], s[1:1 + ((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0])]), f(f, x[1], s[1 + ((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0]):]))))(y, 'abcdefg'[:n])]), ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else [t[0]] + f(f, t[1]) + f(f, t[2])))(m) == ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else [t[0]] + f(f, t[1]) + f(f, t[2])))(t)[::-1], ((lambda f: lambda t: f(f, t))(lambda f, t: -1 if t is None else 1 + max(f(f, t[1]), f(f, t[2]))))(m) == ((lambda f: lambda t: f(f, t))(lambda f, t: -1 if t is None else 1 + max(f(f, t[1]), f(f, t[2]))))(t) and all(((lambda f: lambda t: f(f, t))(lambda f, t: -1 if t is None else 1 + max(f(f, t[1]), f(f, t[2]))))(((lambda f: lambda t: f(f, t))(lambda f, t: None if t is None else (t[0], f(f, t[2]), f(f, t[1]))))(s)) == ((lambda f: lambda t: f(f, t))(lambda f, t: -1 if t is None else 1 + max(f(f, t[1]), f(f, t[2]))))(s) for n in range(1, 8) for y in Sh[n] for s in [((lambda f: lambda x, s: f(f, x, s))(lambda f, x, s: None if x is None else (s[0], f(f, x[0], s[1:1 + ((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0])]), f(f, x[1], s[1 + ((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0]):]))))(y, 'abcdefg'[:n])]), ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else ([t[0]] if t[1] is None and t[2] is None else f(f, t[1]) + f(f, t[2]))))(m) == ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else ([t[0]] if t[1] is None and t[2] is None else f(f, t[1]) + f(f, t[2]))))(t), all(((lambda f: lambda t: f(f, t, []))(lambda f, t, up: {} if t is None else {t[0]: frozenset(up), **f(f, t[1], up + [t[0]]), **f(f, t[2], up + [t[0]])}))(((lambda f: lambda t: f(f, t))(lambda f, t: None if t is None else (t[0], f(f, t[2]), f(f, t[1]))))(s)) == ((lambda f: lambda t: f(f, t, []))(lambda f, t, up: {} if t is None else {t[0]: frozenset(up), **f(f, t[1], up + [t[0]]), **f(f, t[2], up + [t[0]])}))(s) and all(s[0] in A[x] for x in A if x != s[0]) and {x for x in A if not any(x in A[y] for y in A)} == set(((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else ([t[0]] if t[1] is None and t[2] is None else f(f, t[1]) + f(f, t[2]))))(s)) for n in range(1, 8) for y in Sh[n] for s in [((lambda f: lambda x, s: f(f, x, s))(lambda f, x, s: None if x is None else (s[0], f(f, x[0], s[1:1 + ((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0])]), f(f, x[1], s[1 + ((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0]):]))))(y, 'abcdefg'[:n])] for A in [((lambda f: lambda t: f(f, t, []))(lambda f, t, up: {} if t is None else {t[0]: frozenset(up), **f(f, t[1], up + [t[0]]), **f(f, t[2], up + [t[0]])}))(s)]) and ((lambda f: lambda t: f(f, t, []))(lambda f, t, up: {} if t is None else {t[0]: frozenset(up), **f(f, t[1], up + [t[0]]), **f(f, t[2], up + [t[0]])}))(m) == ((lambda f: lambda t: f(f, t, []))(lambda f, t, up: {} if t is None else {t[0]: frozenset(up), **f(f, t[1], up + [t[0]]), **f(f, t[2], up + [t[0]])}))(t), ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + f(f, t[2]) + [t[0]]))(m) == ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + f(f, t[2]) + [t[0]]))(t)[::-1]])(((lambda f: lambda t: f(f, t))(lambda f, t: None if t is None else (t[0], f(f, t[2]), f(f, t[1]))))(t)))((lambda T: (lambda f: f(f, (lambda T: [u for u in T if not any(u in c for c in T.values())][0])(T)))(lambda f, u: None if u is None else (u, f(f, (lambda T, u: T.get(u, (None, None)))(T, u)[0]), f(f, (lambda T, u: T.get(u, (None, None)))(T, u)[1]))))({x.split(': ')[0]: tuple(None if y == '-' else y for y in x.split(': ')[1].split(' ')) for x in 'c: f a; f: e -; a: d b; d: - g'.split('; ')}), (lambda N: list(itertools.accumulate(range(1, N + 1), lambda S, n: S + [[(L, R) for k in range(n) for L in S[k] for R in S[n - 1 - k]]], initial=[[None]]))[-1])(7))" }
+    pistas:
+      - >-
+        ¿Cómo queda $T'$ si lo dibujas? ¿Qué le pasa a cada subárbol izquierdo?
+      - >-
+        ¿Qué cambia el espejo: quién es padre de quién, o solo de qué lado va cada hijo?
+    explicacion: >-
+      Son ciertas «el inorden de $T'$ es el inorden de $T$ al revés», «la misma altura» y «el orden de ancestros es el mismo, con la raíz como máximo y las hojas como minimales»; las otras tres no. $T$, como lista de hijos: $c$: izq. $f$, der. $a$ · $f$: izq. $e$, der. ninguno · $a$: izq. $d$, der. $b$ · $d$: izq. ninguno, der. $g$; hojas: $b$, $e$, $g$. $T'$: $c$: izq. $a$, der. $f$ · $a$: izq. $b$, der. $d$ · $f$: izq. ninguno, der. $e$ · $d$: izq. $g$, der. ninguno; hojas: $b$, $e$, $g$. **Preorden, inorden y posorden:** en $T$, preorden $c,f,e,a,d,g,b$, inorden $e,f,c,d,g,a,b$ y posorden $e,f,g,d,b,a,c$; en $T'$, preorden $c,a,b,d,g,f,e$, inorden $b,a,g,d,c,f,e$ y posorden $b,g,d,a,e,f,c$. El inorden se invierte, porque el espejo cambia «izquierdo, raíz, derecho» por «derecho, raíz, izquierdo» en cada nodo; el preorden y el posorden no, porque los dos dejan la raíz en su lugar, primera o última. **Hojas:** de izquierda a derecha, $e,g,b$ en $T$ y $b,g,e$ en $T'$. **Lo que no cambia:** el espejo no cambia quién es padre de quién, así que los niveles, la altura (3) y los ancestros son los mismos; la raíz es ancestro de todos los demás nodos, y es el máximo, y las hojas, que no son ancestro de nadie, son los minimales. Revisa: $d$ tiene un solo hijo, $g$, en los dos árboles; en $T$ es derecho y en $T'$, izquierdo.
+    tiempo_estimado_s: 150
+
+  # razonamiento: algorítmico (la pila de derecha a izquierda, o el árbol) · R2
+  # Con − y ÷, donde importa el orden de los operandos (A). Errores que rechaza el verificar (neg.py): −8 y 2.
+  # verificar: evalúa la prefija con una pila de derecha a izquierda y exige que dé lo mismo que
+  # (9 - (2 + 3)) * (8 / (6 - 2)) en Python.
+  # Arreglos del 2026-11-15 (P, aprobado por Carlo): entra al jefe, para que la pila tenga pregunta. Su «Revisa:» pasa
+  # a «el árbol y la pila dan lo mismo, 8»: el de antes, «6 números y 5 operadores; cada operador junta dos valores en
+  # uno», era la cuenta del 024 (11 partidos con 12 equipos). La explicación no habla de intercambiar hijos (022), de
+  # torneos ni de conteos (024), ni enuncia nada general del R4.
+  - id: disc-21-018
+    tipo: numerico
+    dificultad: 3
+    conceptos: [arbol-expresion]
+    enunciado: >-
+      La **prefija** de un árbol de expresión es su preorden: cada operador va antes de sus dos operandos. ¿Cuánto vale `× − 9 + 2 3 ÷ 8 − 6 2`?
+    respuesta: 8
+    tolerancia: 0
+    verificar: { python: "(lambda r: r[0] if len(r) == 1 and r[0] == (9 - (2 + 3)) * Fraction(8, 6 - 2) else None)((lambda toks: list(itertools.accumulate(toks[::-1], lambda s, t: (s[:-2] + [{'+': lambda a, b: a + b, '-': lambda a, b: a - b, '*': lambda a, b: a * b, '/': lambda a, b: Fraction(a) / b}[t](s[-1], s[-2])]) if t in {'+': lambda a, b: a + b, '-': lambda a, b: a - b, '*': lambda a, b: a * b, '/': lambda a, b: Fraction(a) / b} else s + [int(t)], initial=[]))[-1])('* - 9 + 2 3 / 8 - 6 2'.split()))" }
+    pistas:
+      - >-
+        ¿Cuál es el primer operador que tiene a sus dos operandos escritos justo después, como números?
+      - >-
+        Si lees de derecha a izquierda con una pila, ¿cuál de los dos números que sacas es el operando izquierdo?
+    explicacion: >-
+      Vale 8. **El árbol:** la raíz es el primer símbolo, $\times$. Su operando izquierdo empieza en el $-$ que sigue: es $9-(2+3)$, porque tras el 9 viene `+ 2 3`. El derecho es lo que queda, `÷ 8 − 6 2`, que es $8\div(6-2)$. Así, $(9-(2+3))\times(8\div(6-2))=4\times2=8$. **Con una pila, de derecha a izquierda:** cada número se apila, y cada operador saca dos números, el de arriba como su operando izquierdo: $6-2=4$, $8\div4=2$, $2+3=5$, $9-5=4$ y $4\times2=8$. Revisa: el árbol y la pila dan lo mismo, 8.
+    tiempo_estimado_s: 90
+
+  # razonamiento: deductivo (inducción en n con un vértice de grado 1) · R3
+  # De A, tal cual (rúbrica, respuesta modelo y pistas). Revisión manual. El enunciado recuerda la inducción (v1: el
+  # repaso va aquí y no en la lección) y dice «vértice de grado 1» la rúbrica, no «hoja» (A). La lección da el n − 1
+  # sin demostrarlo. La explicación es del autor: resume la respuesta modelo sin agregar nada. tarjeta: false, como las
+  # autoevaluaciones de la 15 a la 20. Arreglos del 2026-11-15 (L y M): «agregarle un vértice de grado 1», no «una
+  # hoja», y el lazo y la arista repetida en el criterio 2, la respuesta modelo y la explicación.
+  - id: disc-21-019
+    tipo: autoevaluacion
+    dificultad: 4
+    conceptos: [arbol]
+    enunciado: >-
+      En papel, demuestra por inducción en $n$ que todo árbol con $n\ge1$ vértices tiene $n-1$ aristas. Recuerda la **inducción**: si $P(1)$ vale y $P(n)$ implica $P(n+1)$ para cada $n\ge1$, entonces $P(n)$ vale para todo $n\ge1$.
+    rubrica:
+      - >-
+        Enuncia qué prueba (todo árbol con $n\ge1$ vértices tiene $n-1$ aristas), hace la inducción en $n$ y prueba la base $n=1$ con su porqué: una arista tendría que ser un lazo, y un lazo es un ciclo. Error típico: comprobar $n=1,2,3$ y cerrar con «y así sucesivamente».
+      - >-
+        Prueba que un árbol con al menos 2 vértices tiene un vértice de grado 1, por ejemplo con el extremo de una trayectoria de largo máximo: otro vecino cerraría un ciclo o alargaría la trayectoria, y un lazo o una arista repetida también serían ciclos. Error típico: suponer que existe sin probarlo; en un ciclo no lo hay, y ahí es donde entra «sin ciclos».
+      - >-
+        Prueba que al quitar ese vértice y su arista queda un árbol: sin ciclos, porque un ciclo del grafo que queda estaría en el árbol, y conexo, porque una trayectoria entre otros dos vértices no pasa por un vértice de grado 1. Error típico: aplicar la hipótesis sin revisar que lo que queda siga conexo.
+      - >-
+        El paso parte de un árbol cualquiera con $n+1$ vértices, baja a $n$ y concluye $(n-1)+1=n$. Error típico: partir de un árbol de $n$ vértices y agregarle un vértice de grado 1; eso solo prueba el caso de los árboles que se arman así, a menos que pruebes que todos se arman así.
+    respuesta_modelo: >-
+      Un árbol es un grafo conexo y sin ciclos. Pruebo por inducción en $n\ge1$ que todo árbol con $n$ vértices tiene $n-1$ aristas. **Base, $n=1$:** con un solo vértice, una arista sería un lazo, y un lazo es un ciclo; así que no hay aristas: $0=1-1$. **Paso:** supongo que todo árbol con $n$ vértices tiene $n-1$ aristas, y sea $T$ un árbol cualquiera con $n+1\ge2$ vértices. *Hay un vértice de grado 1.* Como $T$ es conexo y tiene dos vértices o más, tiene aristas. Sea $v_0,v_1,\dots,v_k$ una trayectoria de $T$ con el mayor número de aristas posible; existe porque $T$ es finito, y $k\ge1$. $v_k$ es vecino de $v_{k-1}$. Si tuviera otro vecino $x$: si $x=v_i$ con $i<k-1$, entonces $v_i,v_{i+1},\dots,v_k,v_i$ sería un ciclo; si $x$ no está en la trayectoria, $v_0,\dots,v_k,x$ sería una trayectoria más larga. Las dos cosas son imposibles, y un lazo en $v_k$ o una segunda arista entre $v_{k-1}$ y $v_k$ serían ciclos, así que $v=v_k$ tiene grado 1. *Quitarlo deja un árbol.* Sea $T'$ lo que queda al quitar $v$ y su única arista. $T'$ no tiene ciclos, porque un ciclo de $T'$ también estaría en $T$. Es conexo: si $x$ y $y$ son vértices de $T'$, hay una trayectoria de $x$ a $y$ en $T$ (de un camino se saca quitando las vueltas), y no pasa por $v$, porque cada vértice intermedio de una trayectoria tiene dos vecinos en ella y $v$ solo tiene uno; así que esa trayectoria está en $T'$. Entonces $T'$ es un árbol con $n$ vértices y, por hipótesis, tiene $n-1$ aristas. *Conclusión:* $T$ tiene las de $T'$ más la de $v$: $(n-1)+1=n=(n+1)-1$. Como $T$ era cualquiera, vale para todo árbol con $n+1$ vértices. Revisa: el paso parte de un árbol cualquiera de $n+1$ vértices y le quita un vértice; si partiera de uno de $n$ y le agregara un vértice de grado 1, solo probaría el caso de los árboles que se arman así.
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        ¿Sobre qué haces la inducción y qué dice el caso base? ¿Por qué un árbol de un solo vértice no puede tener una arista?
+      - >-
+        Para pasar de $n+1$ a $n$ vértices, ¿qué vértice puedes quitar sin desconectar el árbol? ¿Cómo sabes que siempre hay uno? ¿Qué pasa en el extremo de una trayectoria lo más larga posible?
+      - >-
+        ¿Tu paso parte de un árbol cualquiera de $n+1$ vértices, o arma uno a partir de uno de $n$? ¿Revisaste que lo que queda al quitar el vértice sigue siendo conexo y sin ciclos?
+    explicacion: >-
+      **Inducción en $n$.** La base, $n=1$: no hay aristas, porque una sería un lazo, y un lazo es un ciclo. El paso parte de un árbol cualquiera $T$ con $n+1\ge2$ vértices: el extremo $v$ de una trayectoria con el mayor número de aristas tiene grado 1, porque otro vecino cerraría un ciclo o alargaría la trayectoria, y un lazo o una arista repetida también serían ciclos. Al quitar $v$ y su arista queda un árbol de $n$ vértices: sin ciclos, y conexo, porque una trayectoria entre otros dos vértices no pasa por un vértice de grado 1. Por hipótesis tiene $n-1$ aristas, y con la de $v$, $T$ tiene $n$. Revisa: el paso baja de un árbol cualquiera de $n+1$ vértices a uno de $n$; armar uno de $n+1$ agregándole un vértice de grado 1 a uno de $n$ no cubre todos los árboles, salvo que pruebes que todos se arman así.
+    tarjeta: false
+    tiempo_estimado_s: 360
+
+  # razonamiento: algorítmico (descomposición recursiva y dibujo) · R2
+  # Solo los recorridos y «Dibújalo en papel y luego contesta» (P). Pide cuatro datos que el dibujo determina: el
+  # posorden, los nodos del subárbol izquierdo de i, los nodos con un solo hijo y la altura. El hueco del subárbol de i
+  # (P, arreglos del 2026-11-15) revisa de qué lado va el hijo único de i: con d a la derecha da 0, y el posorden, los
+  # nodos con un solo hijo y la altura no cambian. El lado de a (hijo único de h) sigue sin hueco que lo revise. La
+  # explicación trae el dibujo (altura 4). Errores que rechaza el verificar (neg.py y autor): 1 nodo con un solo hijo,
+  # altura 5, el posorden con d antes que e, y 0 o 4 nodos en el subárbol izquierdo de i. tiempo_estimado_s: 240 + 10 s
+  # por el hueco nuevo, que se lee del dibujo ya hecho.
+  # En el jefe: reconstruye con preorden e inorden; el 025, con posorden e inorden, con otro árbol. Ninguna de las dos
+  # explicaciones da datos de la otra, y ninguna enuncia nada general del R4.
+  # verificar: fuerza bruta sobre las 4,862 formas de 9 nodos etiquetadas en preorden; exige un árbol único.
+  - id: disc-21-020
+    tipo: completar
+    dificultad: 4
+    conceptos: [recorrido-preorden, recorrido-inorden]
+    enunciado: >-
+      Un árbol binario con etiquetas distintas tiene preorden $g,i,d,b,f,e,c,h,a$ e inorden $b,d,e,f,c,i,g,a,h$. Dibújalo en papel y luego contesta.
+    texto: >-
+      Posorden (cada hueco, un nodo): ___, ___, ___, ___, ___, ___, ___, ___, ___ · número de nodos del subárbol izquierdo de $i$, contando su raíz: ___ · número de nodos con un solo hijo: ___ · altura del árbol, en aristas: ___
+    respuestas: ["b", "e", "c", "f", "d", "i", "a", "h", "g", "5", "2", "4"]
+    verificar: { python: "(lambda A, B: (lambda C: ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + f(f, t[2]) + [t[0]]))(C[0]) + [len(((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else [t[0]] + f(f, t[1]) + f(f, t[2])))(((lambda f: lambda t, x: f(f, t, x))(lambda f, t, x: None if t is None else (t if t[0] == x else (f(f, t[1], x) or f(f, t[2], x)))))(C[0], 'i')[1])), sum(1 for x in ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else [t[0]] + f(f, t[1]) + f(f, t[2])))(C[0]) if (lambda q: (q[1] is None) != (q[2] is None))(((lambda f: lambda t, x: f(f, t, x))(lambda f, t, x: None if t is None else (t if t[0] == x else (f(f, t[1], x) or f(f, t[2], x)))))(C[0], x))), ((lambda f: lambda t: f(f, t))(lambda f, t: -1 if t is None else 1 + max(f(f, t[1]), f(f, t[2]))))(C[0])] if len(C) == 1 else None)([t for t in (((lambda f: lambda x, s: f(f, x, s))(lambda f, x, s: None if x is None else (s[0], f(f, x[0], s[1:1 + ((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0])]), f(f, x[1], s[1 + ((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0]):]))))(x, A) for x in (lambda N: list(itertools.accumulate(range(1, N + 1), lambda S, n: S + [[(L, R) for k in range(n) for L in S[k] for R in S[n - 1 - k]]], initial=[[None]]))[-1])(len(A))[len(A)]) if ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + [t[0]] + f(f, t[2])))(t) == B]))('g i d b f e c h a'.split(), 'b d e f c i g a h'.split())" }
+    pistas:
+      - >-
+        ¿Cuál es la raíz, y qué nodos quedan a cada lado de ella en el inorden?
+      - >-
+        En cada subárbol, ¿el primer nodo de su tramo del preorden es su raíz? Si esa raíz queda en un extremo de su tramo del inorden, ¿de qué lado cuelga lo demás?
+      - >-
+        Al terminar, ¿tu dibujo vuelve a dar el preorden y el inorden del enunciado?
+    explicacion: |-
+      1. La raíz es $g$, la primera del preorden. En el inorden, a su izquierda quedan $b,d,e,f,c,i$, y a su derecha, $a,h$.
+      2. El lado izquierdo empieza en el preorden con $i$, su raíz. En el inorden $b,d,e,f,c,i$, $i$ queda al final: lo demás es su subárbol izquierdo, y no tiene hijo derecho.
+      3. Con el preorden $d,b,f,e,c$ y el inorden $b,d,e,f,c$, la raíz es $d$, con $b$ a la izquierda y $e,f,c$ a la derecha; en ese lado, la raíz es $f$, con $e$ a la izquierda y $c$ a la derecha.
+      4. El lado derecho de $g$ tiene preorden $h,a$ e inorden $a,h$: su raíz es $h$, y $a$ es su hijo izquierdo.
+
+      Tu dibujo:
+
+      $$\begin{array}{ccccccccccccccccc}&&&&&&&&&&&&g&&&&\\&&&&&&&&&&&\diagup&&&\diagdown&&\\&&&&&&&&&&i&&&&&&h\\&&&&&&\diagup&&&&&&&&&\diagup&\\&&d&&&&&&&&&&&&a&&\\&\diagup&&&\diagdown&&&&&&&&&&&&\\b&&&&&&f&&&&&&&&&&\\&&&&&\diagup&&\diagdown&&&&&&&&&\\&&&&e&&&&c&&&&&&&&\end{array}$$
+
+      Como lista de hijos: $g$: izq. $i$, der. $h$ · $i$: izq. $d$, der. ninguno · $h$: izq. $a$, der. ninguno · $d$: izq. $b$, der. $f$ · $f$: izq. $e$, der. $c$; hojas: $a$, $b$, $c$, $e$. **Posorden:** $b,e,c,f,d,i,a,h,g$. **Subárbol izquierdo de $i$:** su raíz es $d$, y tiene a $d$, $b$, $f$, $e$ y $c$, 5 nodos; si dibujaste a $d$ como hijo derecho, te dio 0. **Con un solo hijo:** $i$ y $h$, 2 nodos. **Altura:** 4, por la trayectoria $g,i,d,f,e$. Revisa: tu dibujo vuelve a dar el preorden y el inorden del enunciado.
+    tiempo_estimado_s: 250
+
+  # razonamiento: deductivo (apretón de manos y n − 1 aristas) · R2
+  # Árboles sin raíz: «vértices de grado 1», no «hojas» (A y L). No usa 4, 4, 1, 1, 1, 1 ni otra lista del 19-016 (M).
+  # El enunciado no recuerda el apretón de manos (lo hace la explicación), para no dárselo al 19-016 si sale después.
+  # En el jefe hace par con disc-19-016 (listas de grados): la explicación recuerda el apretón de manos de la 19 y el
+  # n − 1 de la lección, sin evaluar ninguna lista del 19-016 ni decir que «suma par» no basta; sus árboles de ejemplo
+  # tienen grados 3, 3, 3 y cinco 1, y 5, 3 y seis 1, que no son opciones del 19-016. No habla de árboles con raíz,
+  # binarios, llenos ni de nodos internos (M: aplicado a un lleno daría hojas = internos + 1, el 024 con números).
+  # verificar: enumera las sucesiones de Prüfer (grado = 1 + apariciones) de 8 vértices y de 2 a 8.
+  # Arreglos del 2026-11-15 (L): los árboles se llaman A y B, y el último hueco dice «vértices de B, en total»
+  # («número total de vértices» se leía como la suma de los dos, 16).
+  - id: disc-21-021
+    tipo: completar
+    dificultad: 4
+    conceptos: [arbol]
+    enunciado: >-
+      Un árbol $A$ tiene 8 vértices, y cada uno tiene grado 1 o 3. Otro árbol, $B$, tiene un vértice de grado 5, uno de grado 3, y todos los demás, de grado 1. Cada hueco es un número.
+    texto: >-
+      $A$: vértices de grado 1: ___ · vértices de grado 3: ___ · $B$: vértices de grado 1: ___ · vértices de $B$, en total: ___
+    respuestas: ["5", "3", "6", "8"]
+    verificar: { python: "(lambda P8: [(lambda L: L[0] if len(L) == 1 else None)(sorted({sum(1 for v in range(8) if s.count(v) == 0) for s in P8 if all(s.count(v) in (0, 2) for v in range(8))})), (lambda L: L[0] if len(L) == 1 else None)(sorted({sum(1 for v in range(8) if s.count(v) == 2) for s in P8 if all(s.count(v) in (0, 2) for v in range(8))})), (lambda L: L[0] if len(L) == 1 else None)(sorted({n - 2 for n in range(2, 9) for s in itertools.product(range(n), repeat=n - 2) if sorted(s.count(v) for v in range(n) if s.count(v)) == [2, 4]})), (lambda L: L[0] if len(L) == 1 else None)(sorted({n for n in range(2, 9) for s in itertools.product(range(n), repeat=n - 2) if sorted(s.count(v) for v in range(n) if s.count(v)) == [2, 4]}))])(list(itertools.product(range(8), repeat=6)))" }
+    pistas:
+      - >-
+        ¿Cuántas aristas tiene un árbol con $n$ vértices? ¿Qué relación hay entre el número de aristas y la suma de los grados?
+      - >-
+        En $A$, si $x$ vértices tienen grado 1 y $y$ tienen grado 3, ¿qué dos ecuaciones cumplen $x$ y $y$?
+      - >-
+        En $B$, ¿cuántos vértices hay? Si son $n$, ¿cuánto suman los grados contados de dos maneras?
+    explicacion: >-
+      **Lo que se usa:** por el apretón de manos, la suma de los grados es el doble del número de aristas, y un árbol con $n$ vértices tiene $n-1$ aristas: sus grados suman $2(n-1)$. **$A$:** con $x$ vértices de grado 1 y $y$ de grado 3, $x+y=8$ y $x+3y=2\cdot7=14$; restando, $2y=6$: $y=3$ y $x=5$. **$B$:** con $n$ vértices, los grados suman $5+3+(n-2)=n+6$, y tienen que sumar $2(n-1)$: $n+6=2n-2$, así que $n=8$, con $8-2=6$ de grado 1. Revisa: $A$ existe, por ejemplo, una trayectoria $u,v,w$ con dos vértices de grado 1 colgando de $u$, uno de $v$ y dos de $w$; $B$, un vértice unido a 4 de grado 1 y a otro que tiene 2 más.
+    tiempo_estimado_s: 150
+
+  # razonamiento: deductivo (de la infija al árbol; el lado importa en − y ÷) · R2
+  # «Dibújalo en papel y luego contesta» (P). La altura es 3, no 2 (M: el error de contar mal los niveles). Los
+  # negativos y la fracción en ASCII (`-2`, `-7/4`), y el enunciado lo dice. Errores que rechaza el verificar (neg.py):
+  # 2 con la raíz invertida, −1/4, altura 2 y −2 de valor.
+  # En el jefe: no usa el espejo (017). La explicación lista sus 9 nodos con altura 3, un dato que contradice la (3) del
+  # R4 (como el árbol del 013: dato, no afirmación; M), y no enuncia «hojas = internos + 1» (024) ni nada del R4.
+  # verificar: el árbol sale del shunting-yard sobre la infija; su valor debe ser el de Python; intercambia los hijos de
+  # la raíz y los del ÷, y mide la altura. Arreglos del 2026-11-15 (L): la primera pista es solo preguntas.
+  - id: disc-21-022
+    tipo: completar
+    dificultad: 4
+    conceptos: [arbol-expresion, arbol-binario]
+    enunciado: >-
+      Arma el árbol de expresión de $24\div(9-3)-(7-5)$, con la jerarquía usual. Dibújalo en papel y luego contesta. Escribe los negativos con el guion `-` y las fracciones como `a/b`, por ejemplo `-1/2`. Cada hueco es un número.
+    texto: >-
+      Valor del árbol: ___ · valor si se intercambian los dos hijos de la raíz: ___ · valor si, en el árbol original, se intercambian los dos hijos del $\div$: ___ · altura del árbol, en aristas: ___
+    respuestas: ["2", "-2", "-7/4", "3"]
+    verificar: { python: "(lambda t: [((lambda f: lambda t: f(f, t))(lambda f, t: t[0] if len(t) == 1 else {'+': lambda a, b: a + b, '-': lambda a, b: a - b, '*': lambda a, b: a * b, '/': lambda a, b: Fraction(a) / b}[t[0]](f(f, t[1]), f(f, t[2]))))(t), ((lambda f: lambda t: f(f, t))(lambda f, t: t[0] if len(t) == 1 else {'+': lambda a, b: a + b, '-': lambda a, b: a - b, '*': lambda a, b: a * b, '/': lambda a, b: Fraction(a) / b}[t[0]](f(f, t[1]), f(f, t[2]))))((t[0], t[2], t[1])), ((lambda f: lambda t: f(f, t))(lambda f, t: t[0] if len(t) == 1 else {'+': lambda a, b: a + b, '-': lambda a, b: a - b, '*': lambda a, b: a * b, '/': lambda a, b: Fraction(a) / b}[t[0]](f(f, t[1]), f(f, t[2]))))((t[0], (t[1][0], t[1][2], t[1][1]), t[2])) if t[1][0] == '/' else None, ((lambda f: lambda t: f(f, t))(lambda f, t: 0 if len(t) == 1 else 1 + max(f(f, t[1]), f(f, t[2]))))(t)] if ((lambda f: lambda t: f(f, t))(lambda f, t: t[0] if len(t) == 1 else {'+': lambda a, b: a + b, '-': lambda a, b: a - b, '*': lambda a, b: a * b, '/': lambda a, b: Fraction(a) / b}[t[0]](f(f, t[1]), f(f, t[2]))))(t) == Fraction(24, 9 - 3) - (7 - 5) else None)((lambda toks: list(itertools.accumulate(toks, lambda s, t: (s[:-2] + [(t, s[-2], s[-1])]) if t in {'+': lambda a, b: a + b, '-': lambda a, b: a - b, '*': lambda a, b: a * b, '/': lambda a, b: Fraction(a) / b} else s + [(int(t),)], initial=[]))[-1][0])((lambda toks: (lambda fin: fin[0] + fin[1][::-1])(list(itertools.accumulate(toks, lambda st, t: ((st[0], st[1] + ['(']) if t == '(' else ((lambda k: (st[0] + st[1][len(st[1]) - k:][::-1], st[1][:len(st[1]) - k - 1]))(len(list(itertools.takewhile(lambda o: o != '(', st[1][::-1])))) if t == ')' else ((lambda k: (st[0] + st[1][len(st[1]) - k:][::-1], st[1][:len(st[1]) - k] + [t]))(len(list(itertools.takewhile(lambda o: o in {'+': 1, '-': 1, '*': 2, '/': 2} and {'+': 1, '-': 1, '*': 2, '/': 2}[o] >= {'+': 1, '-': 1, '*': 2, '/': 2}[t], st[1][::-1])))) if t in {'+': 1, '-': 1, '*': 2, '/': 2} else (st[0] + [t], st[1])))), initial=([], [])))[-1]))('24 / ( 9 - 3 ) - ( 7 - 5 )'.split())))" }
+    pistas:
+      - >-
+        ¿Cuál es la última operación que se hace? ¿Qué lugar ocupa en el árbol?
+      - >-
+        Si intercambias los dos hijos de un $-$ o de un $\div$, ¿qué operación queda?
+      - >-
+        ¿Cuántas aristas tiene la trayectoria más larga de la raíz a una hoja? ¿Contaste aristas o niveles?
+    explicacion: |-
+      **El árbol:** la última operación es la resta del medio, que es la raíz; su hijo izquierdo es el $\div$, con 24 a la izquierda y $9-3$ a la derecha, y su hijo derecho es $7-5$. Tu dibujo:
+
+      $$\begin{array}{ccccccccccccccccc}&&&&&&&&&&{-}&&&&&&\\&&&&&&\diagup&&&&&&\diagdown&&&&\\&&{\div}&&&&&&&&&&&&{-}&&\\&\diagup&&&\diagdown&&&&&&&&&\diagup&&\diagdown&\\24&&&&&&{-}&&&&&&7&&&&5\\&&&&&\diagup&&\diagdown&&&&&&&&&\\&&&&9&&&&3&&&&&&&&\end{array}$$
+
+      Como lista de hijos: la raíz $-$: izq. $\div$, der. el $-$ de $7-5$ · $\div$: izq. 24, der. el $-$ de $9-3$ · el $-$ de $9-3$: izq. 9, der. 3 · el $-$ de $7-5$: izq. 7, der. 5; hojas: 3, 5, 7, 9 y 24. **Valor:** $24\div6-2=4-2=2$. **Con la raíz invertida:** $(7-5)-24\div(9-3)=2-4=-2$. **Con el $\div$ invertido:** $(9-3)\div24-(7-5)=1/4-2=-7/4$. **Altura:** la trayectoria más larga va de la raíz al $\div$, al $-$ de $9-3$ y a una hoja, 9 o 3: 3 aristas. Revisa: intercambiar los dos hijos de una resta le cambia el signo, de 2 a $-2$.
+    tiempo_estimado_s: 180
+
+  # razonamiento: deductivo (tumbar con un árbol chico o demostrar por recursión) · R4
+  # R4 v1 de M: (0) de A, (1) = (3) de A, (2) de P, (3) = (4) de A, (4) y (5) de M. Reemplaza el de A, cuyas opciones
+  # «posorden e inorden determinan» y «lleno ⇒ hojas = internos + 1» se resolvían con el 025 y con el 021 (y el 024).
+  # Comprobado por M en todas las formas de 1 a 8 nodos. Enunciado y pistas de A: la 1 y la 3, tal cual; en la 2,
+  # «en las de conteo, ¿qué dan esos árboles chicos?» en lugar de «los árboles de altura 0, 1 y 2», que no tocan la (5).
+  # (0) se dice como «ningún otro árbol binario tiene el mismo preorden y posorden» (lo que exige el verificar, entre
+  # TODOS los binarios); (2), como «se borran los que no son hojas» (L: sin «orden relativo»).
+  # En el jefe (M y autor): la explicación no enuncia «hojas = internos + 1» (024), no da grados (021) ni datos de las
+  # reconstrucciones (020 y 025) ni de expresiones (022). Su (4) explica dónde está el último del preorden, pero el 025
+  # lo pide de un árbol que primero hay que reconstruir; su contraejemplo de la (3) recuerda el máximo de la lección,
+  # 2^(h+1) − 1, que el 024 usa, sin dar ningún número del torneo. La lección ya tumba la (1) con T1 y T2 y la (5) con
+  # el ejemplo de dos nodos de §7; el 025 deja ver que su último del preorden, g, es hoja: un dato, no una prueba.
+  # verificar: las seis sobre todas las formas de 1 a 8 nodos (2,055), etiquetadas en preorden (en inorden la (1)).
+  # Arreglos del 2026-11-15: el enunciado presenta a T («Sea T cualquier árbol binario…», L); la (3) dice «(en
+  # aristas)» (L: contando nodos, valdría); las pistas no dicen «recorrido» a secas y la 2.ª es solo preguntas (L).
+  # La explicación de la (0) toma un S cualquiera con el preorden y el posorden de T (M y P: la de antes reconstruía
+  # suponiendo que el otro árbol también era lleno). El archivo de arreglos no traía el texto de M: lo escribió el
+  # autor, y cada paso (la raíz, el segundo del preorden como raíz del primer subárbol no vacío, el tramo del
+  # posorden hasta él, los dos hijos y los tramos de cada subárbol) se comprobó en las 2,055 formas de 1 a 8 nodos,
+  # contra todo S con el mismo preorden (2,248,355 pares). En el jefe: el texto nuevo habla de preorden y posorden de
+  # un T general; no da datos del 025, que usa posorden e inorden, ni de las expresiones (018 y 022).
+  - id: disc-21-023
+    tipo: seleccion_multiple
+    dificultad: 5
+    conceptos: [recorrido-preorden, recorrido-inorden, recorrido-postorden, arbol-binario]
+    enunciado: >-
+      Sea $T$ cualquier árbol binario con etiquetas distintas. ¿Cuáles de estas afirmaciones valen para todo $T$? Puede haber varias.
+    opciones:
+      - >-
+        Si cada nodo de $T$ tiene 0 o 2 hijos, ningún otro árbol binario tiene el mismo preorden y el mismo posorden que $T$.
+      - >-
+        Si dos árboles binarios tienen el mismo inorden, son el mismo árbol.
+      - >-
+        Si en el preorden, en el inorden y en el posorden de $T$ se borran los nodos que no son hojas, las tres listas que quedan son iguales.
+      - >-
+        Si $T$ tiene altura $h$ (en aristas), tiene a lo más $2^h$ nodos.
+      - >-
+        El último nodo del preorden de $T$ es una hoja.
+      - >-
+        Si $T$ tiene 2 nodos o más, tiene al menos 2 hojas.
+    correctas: [0, 2, 4]
+    verificar: { python: "(lambda S: (lambda TS: [all(len([y for y in S[n] if ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + f(f, t[2]) + [t[0]]))(((lambda f: lambda x, s: f(f, x, s))(lambda f, x, s: None if x is None else (s[0], f(f, x[0], s[1:1 + ((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0])]), f(f, x[1], s[1 + ((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0]):]))))(y, 'abcdefgh'[:n])) == ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + f(f, t[2]) + [t[0]]))(((lambda f: lambda x, s: f(f, x, s))(lambda f, x, s: None if x is None else (s[0], f(f, x[0], s[1:1 + ((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0])]), f(f, x[1], s[1 + ((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0]):]))))(x, 'abcdefgh'[:n]))]) == 1 for n in range(1, 9) for x in S[n] if ((lambda f: lambda x: f(f, x))(lambda f, x: x is None or ((x[0] is None) == (x[1] is None) and f(f, x[0]) and f(f, x[1]))))(x)), all(len({tuple(((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else [t[0]] + f(f, t[1]) + f(f, t[2])))(((lambda f: lambda x, s: f(f, x, s))(lambda f, x, s: None if x is None else (s[((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0])], f(f, x[0], s[:((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0])]), f(f, x[1], s[((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0]) + 1:]))))(y, 'abcdefgh'[:n]))) for y in S[n]}) == 1 for n in range(1, 9)), all([x for x in ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else [t[0]] + f(f, t[1]) + f(f, t[2])))(t) if x in ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else ([t[0]] if t[1] is None and t[2] is None else f(f, t[1]) + f(f, t[2]))))(t)] == [x for x in ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + [t[0]] + f(f, t[2])))(t) if x in ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else ([t[0]] if t[1] is None and t[2] is None else f(f, t[1]) + f(f, t[2]))))(t)] == [x for x in ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + f(f, t[2]) + [t[0]]))(t) if x in ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else ([t[0]] if t[1] is None and t[2] is None else f(f, t[1]) + f(f, t[2]))))(t)] for t in TS), all(len(((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else [t[0]] + f(f, t[1]) + f(f, t[2])))(t)) <= 2 ** ((lambda f: lambda t: f(f, t))(lambda f, t: -1 if t is None else 1 + max(f(f, t[1]), f(f, t[2]))))(t) for t in TS), all(((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else [t[0]] + f(f, t[1]) + f(f, t[2])))(t)[-1] in ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else ([t[0]] if t[1] is None and t[2] is None else f(f, t[1]) + f(f, t[2]))))(t) for t in TS), all(len(((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else ([t[0]] if t[1] is None and t[2] is None else f(f, t[1]) + f(f, t[2]))))(t)) >= 2 for t in TS if len(((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else [t[0]] + f(f, t[1]) + f(f, t[2])))(t)) >= 2)])([((lambda f: lambda x, s: f(f, x, s))(lambda f, x, s: None if x is None else (s[0], f(f, x[0], s[1:1 + ((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0])]), f(f, x[1], s[1 + ((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0]):]))))(x, 'abcdefgh'[:n]) for n in range(1, 9) for x in S[n]]))((lambda N: list(itertools.accumulate(range(1, N + 1), lambda S, n: S + [[(L, R) for k in range(n) for L in S[k] for R in S[n - 1 - k]]], initial=[[None]]))[-1])(8))" }
+    pistas:
+      - >-
+        ¿Qué basta para tumbar un «para todo $T$»? En las que hablan de preorden, inorden o posorden, ¿qué tendrías que exhibir: un árbol o dos?
+      - >-
+        Si pruebas con todos los árboles de 1, 2 y 3 nodos, ¿cuáles tienen el mismo preorden, inorden o posorden y difieren en otra de las tres listas? En las de conteo, ¿qué dan esos árboles chicos?
+      - >-
+        En las que aceptas: ¿dónde queda la raíz en el preorden, en el inorden y en el posorden, y qué nodo va justo después de ella en el preorden? Si una afirmación vale para los dos subárboles de la raíz, ¿vale para el árbol entero?
+    explicacion: >-
+      Valen «con 0 o 2 hijos en cada nodo, ningún otro árbol binario tiene el mismo preorden y posorden», «las hojas quedan en el mismo orden en el preorden, el inorden y el posorden» y «el último del preorden es una hoja»; las otras tres no. **Contraejemplos.** Mismo inorden: $a$ con hijo derecho $b$, y $b$ con hijo izquierdo $a$; los dos dan $a,b$. Lo de $2^h$: una raíz con dos hijos tiene 3 nodos y altura 1, y $2^1=2$; el máximo es $2^{h+1}-1$. Dos hojas: $a$ con un solo hijo, $b$, tiene 2 nodos y una hoja. **Las que valen.** Con 0 o 2 hijos: sea $S$ cualquier árbol binario con el preorden y el posorden de $T$. Los dos tienen la misma raíz, la primera del preorden. Si $T$ tiene más de un nodo, su raíz tiene dos hijos, y el segundo del preorden, $x$, es el izquierdo. En $S$, $x$ es la raíz del primer subárbol no vacío de la raíz, y en el posorden de los dos, lo que va hasta $x$ es el subárbol de $x$. Ese tramo no tiene a todos los demás nodos, porque el subárbol derecho de $T$ no es vacío: en $S$, la raíz también tiene dos hijos, con $x$ a la izquierda, y cada subárbol de $S$ tiene el preorden y el posorden del de $T$ del mismo lado. Cada subárbol de $T$ cumple otra vez la hipótesis, y se repite. Las hojas: en las tres listas, todos los nodos del subárbol izquierdo van antes que todos los del derecho, y la raíz, si tiene hijos, no es hoja; aplicando eso dentro de cada subárbol, las hojas quedan en el mismo orden. El último del preorden: está en el subárbol derecho si lo hay; si no, en el izquierdo; si no hay ninguno, es la raíz, que entonces es hoja; bajando así se llega a una hoja. Revisa: en la primera, la hipótesis importa; con un hijo único, el ejemplo de dos nodos de la lección da dos árboles con el mismo preorden y posorden.
+    tiempo_estimado_s: 210
+
+  # razonamiento: analógico (torneo → árbol binario lleno; rondas = altura) · R2
+  # Transferencia, hipotética («Supón»). Vuelve al jefe en lugar del 015 (P y M): con el R4 v1 ya no cruza. Errores que
+  # rechaza el verificar (neg.py): 12 y 24 (contar equipos como partidos), 3 rondas y 12.
+  # En el jefe: la explicación cuenta partidos por eliminados, no con grados (021) ni con «hojas = internos + 1» como
+  # regla; para las rondas mínimas usa el máximo 2^(h+1) − 1 de la lección, que es lo correcto y no la (3) del R4.
+  # verificar: programación dinámica sobre todas las formas con 1 a 12 hojas en que cada nodo interno tiene dos hijos,
+  # como (partidos, altura). Arreglos del 2026-11-15 (L): «la altura del árbol, en aristas».
+  - id: disc-21-024
+    tipo: completar
+    dificultad: 5
+    conceptos: [arbol, arbol-binario]
+    enunciado: >-
+      Supón un torneo de eliminación directa con 12 equipos: en cada partido juegan dos, el que pierde queda fuera, y gana el torneo el último que queda. Se dibuja como un árbol binario: cada equipo es una hoja, cada partido es un nodo con dos hijos, que son de donde viene cada uno de los dos que juegan, y la final es la raíz. Toma el número de rondas como la altura del árbol, en aristas. Cada hueco es un número.
+    texto: >-
+      Número de partidos: ___ · número de nodos del árbol: ___ · entre todos los árboles posibles de un torneo así, menor número de rondas: ___ · entre todos esos árboles, mayor número de rondas: ___
+    respuestas: ["11", "23", "4", "11"]
+    verificar: { python: "(lambda F: [(lambda L: L[0] if len(L) == 1 else None)(sorted({i for (i, h) in F[12]})), (lambda L: L[0] if len(L) == 1 else None)(sorted({12 + i for (i, h) in F[12]})), min(h for (i, h) in F[12]), max(h for (i, h) in F[12])])(list(itertools.accumulate(range(2, 13), lambda F, n: F + [{(i1 + i2 + 1, 1 + max(h1, h2)) for k in range(1, n) for (i1, h1) in F[k] for (i2, h2) in F[n - k]}], initial=[set(), {(0, 0)}]))[-1])" }
+    pistas:
+      - >-
+        ¿Cuántos equipos quedan fuera en cada partido, y cuántos tienen que quedar fuera en total?
+      - >-
+        Con altura $h$, ¿cuántos nodos caben como mucho en un árbol binario?
+      - >-
+        ¿Qué forma tiene el árbol si cada partido enfrenta al ganador del anterior con un equipo nuevo?
+    explicacion: >-
+      **Partidos:** cada partido deja fuera a exactamente un equipo, y para que quede uno tienen que salir 11: 11 partidos. **Nodos:** 12 hojas y 11 partidos, 23. **Menos rondas:** con altura $h$ caben a lo más $2^{h+1}-1$ nodos; con $h=3$ son 15, menos que 23, así que hacen falta al menos 4. Con 4 alcanza: en la primera ronda juegan 8 equipos en 4 partidos y 4 descansan; quedan 8, luego 4, 2 y 1. **Más rondas:** si cada partido enfrenta al ganador del anterior con un equipo nuevo, los 11 partidos quedan uno debajo de otro, y la altura es 11. No puede ser más: una trayectoria de la raíz a una hoja con $h$ aristas pasa por $h$ partidos distintos antes de llegar a la hoja, y solo hay 11. Revisa: en el torneo de 4 rondas, los 8 equipos de la primera ronda quedan en el nivel 4 y los 4 que descansan, en el 3: $8+4=12$.
+    tiempo_estimado_s: 180
+
+  # razonamiento: algorítmico (descomposición recursiva desde el posorden) · R2
+  # Solo los recorridos y «Dibújalo en papel y luego contesta» (P). La raíz tiene un hijo izquierdo con un solo hijo,
+  # derecho, y el lado izquierdo baja como cadena hasta b. La explicación trae el dibujo (altura 4). Arreglos del
+  # 2026-11-15 (P): «número de hojas» pasa a «número de nodos del subárbol derecho de d», que revisa de qué lado va el
+  # hijo único de d: con f a la izquierda da 0, y los otros cinco huecos no cambian. El lado de b (hijo único de f)
+  # sigue sin hueco que lo revise. Mismo número de huecos y la misma cuenta sobre el dibujo: tiempo_estimado_s sin
+  # cambio. Errores que rechaza el verificar (neg.py y autor): h como último del preorden, f como hijo izquierdo de la
+  # raíz, altura 5, y 0 o 3 nodos en el subárbol derecho de d.
+  # En el jefe: con el R4 v1 no hay cruce (M); su último del preorden, g, es hoja, pero es un dato de este árbol, y la
+  # explicación no lo generaliza. No da datos del 020.
+  # verificar: fuerza bruta sobre las 4,862 formas de 9 nodos etiquetadas en posorden; exige un árbol único.
+  - id: disc-21-025
+    tipo: completar
+    dificultad: 5
+    conceptos: [recorrido-postorden, recorrido-inorden]
+    enunciado: >-
+      Un árbol binario con etiquetas distintas tiene posorden $e,i,b,f,d,h,g,a,c$ e inorden $d,f,e,b,i,c,h,a,g$. Dibújalo en papel y luego contesta.
+    texto: >-
+      Raíz (nodo): ___ · hijo izquierdo de la raíz (nodo): ___ · hijo derecho de la raíz (nodo): ___ · altura, en aristas: ___ · número de nodos del subárbol derecho de $d$, contando su raíz: ___ · último nodo del preorden: ___
+    respuestas: ["c", "d", "a", "4", "4", "g"]
+    verificar: { python: "(lambda A, B: (lambda C: [C[0][0], C[0][1][0], C[0][2][0], ((lambda f: lambda t: f(f, t))(lambda f, t: -1 if t is None else 1 + max(f(f, t[1]), f(f, t[2]))))(C[0]), len(((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else [t[0]] + f(f, t[1]) + f(f, t[2])))(((lambda f: lambda t, x: f(f, t, x))(lambda f, t, x: None if t is None else (t if t[0] == x else (f(f, t[1], x) or f(f, t[2], x)))))(C[0], 'd')[2])), ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else [t[0]] + f(f, t[1]) + f(f, t[2])))(C[0])[-1]] if len(C) == 1 else None)([t for t in (((lambda f: lambda x, s: f(f, x, s))(lambda f, x, s: None if x is None else (s[-1], f(f, x[0], s[:((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0])]), f(f, x[1], s[((lambda f: lambda x: f(f, x))(lambda f, x: 0 if x is None else 1 + f(f, x[0]) + f(f, x[1])))(x[0]):-1]))))(x, A) for x in (lambda N: list(itertools.accumulate(range(1, N + 1), lambda S, n: S + [[(L, R) for k in range(n) for L in S[k] for R in S[n - 1 - k]]], initial=[[None]]))[-1])(len(A))[len(A)]) if ((lambda f: lambda t: f(f, t))(lambda f, t: [] if t is None else f(f, t[1]) + [t[0]] + f(f, t[2])))(t) == B]))('e i b f d h g a c'.split(), 'd f e b i c h a g'.split())" }
+    pistas:
+      - >-
+        En el posorden, ¿dónde queda la raíz?
+      - >-
+        Después de partir el inorden, ¿qué tramo del posorden le toca a cada subárbol, y dónde está la raíz de cada tramo?
+      - >-
+        Al terminar, ¿tu dibujo vuelve a dar el posorden y el inorden del enunciado?
+    explicacion: |-
+      1. La raíz es $c$, la última del posorden. En el inorden, a su izquierda quedan $d,f,e,b,i$, y a su derecha, $h,a,g$.
+      2. En el posorden, los 5 primeros, $e,i,b,f,d$, son el lado izquierdo, y su raíz es el último de ellos, $d$; los 3 que siguen, $h,g,a$, son el derecho, con raíz $a$.
+      3. En el inorden $d,f,e,b,i$, $d$ va primero: no tiene hijo izquierdo. Con el posorden $e,i,b,f$, su hijo derecho es $f$, que tampoco tiene izquierdo, porque va primero en el inorden $f,e,b,i$; con $e,i,b$, el hijo derecho de $f$ es $b$, con $e$ a la izquierda e $i$ a la derecha.
+      4. En el inorden $h,a,g$, $a$ tiene a $h$ a la izquierda y a $g$ a la derecha.
+
+      Tu dibujo:
+
+      $$\begin{array}{ccccccccccccccccc}&&&&&&&&&&c&&&&&&\\&&&&&\diagup&&&&&&&\diagdown&&&&\\d&&&&&&&&&&&&&&a&&\\&\diagdown&&&&&&&&&&&&\diagup&&\diagdown&\\&&f&&&&&&&&&&h&&&&g\\&&&&\diagdown&&&&&&&&&&&&\\&&&&&&b&&&&&&&&&&\\&&&&&\diagup&&\diagdown&&&&&&&&&\\&&&&e&&&&i&&&&&&&&\end{array}$$
+
+      Como lista de hijos: $c$: izq. $d$, der. $a$ · $d$: izq. ninguno, der. $f$ · $a$: izq. $h$, der. $g$ · $f$: izq. ninguno, der. $b$ · $b$: izq. $e$, der. $i$; hojas: $e$, $g$, $h$, $i$. **Raíz:** $c$, con hijo izquierdo $d$ e hijo derecho $a$. **Altura:** 4, por la trayectoria $c,d,f,b,e$. **Subárbol derecho de $d$:** su raíz es $f$, y tiene a $f$, $b$, $e$ e $i$, 4 nodos; si dibujaste a $f$ como hijo izquierdo, te dio 0. **Preorden:** $c,d,f,b,e,i,a,h,g$, que termina en $g$. Revisa: tu dibujo vuelve a dar el posorden y el inorden del enunciado.
+    tiempo_estimado_s: 240
