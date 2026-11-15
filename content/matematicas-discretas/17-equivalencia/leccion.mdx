@@ -1,0 +1,103 @@
+---
+titulo: "Equivalencia: repartir sin que nadie quede en dos lados"
+materia: matematicas-discretas
+unidad: 17-equivalencia
+duracion_min: 20
+prerrequisitos: [propiedades-relaciones, verificar-propiedades, composicion-relaciones, funcion-inyectiva-suprayectiva, algoritmo-division, lema-euclides]
+conceptos: [relacion-equivalencia, clases-equivalencia, conjunto-cociente, particiones]
+programa_ref: "Matemáticas discretas, Unidad IV, 4.3.3 (relaciones de equivalencia) y 4.3.4 (conjunto cociente y clases de equivalencia)"
+---
+
+## El problema
+
+Supón que repartes archivos en carpetas con una regla que dice cuáles van juntos. Regla 1: «tienen la misma extensión». Regla 2: «sus nombres comparten al menos una letra». Con tres archivos que se llaman sol, luz y paz (sin contar la extensión), la regla 2 junta sol con luz, por la l, y luz con paz, por la z, pero no sol con paz, que no comparten ninguna.
+
+<Predice pregunta="¿Con cuál de las dos reglas puedes repartir sin que un archivo quede en dos carpetas?" revela="Con la primera. Con la segunda, «luz» tendría que ir con «sol» y con «paz», que no van juntos: quedaría en dos carpetas." />
+
+## Relación de equivalencia
+
+<Concepto titulo="Relación de equivalencia">
+La regla 1 compara una **etiqueta**: $x$ y $y$ van juntos si $f(x)=f(y)$, donde $f(x)$ es la extensión de $x$. Toda regla de esa forma es reflexiva ($f(x)=f(x)$), simétrica (si $f(x)=f(y)$, entonces $f(y)=f(x)$) y transitiva (si $f(x)=f(y)$ y $f(y)=f(z)$, entonces $f(x)=f(z)$), porque la igualdad lo es.
+
+Una **relación de equivalencia** sobre $A$ es una relación reflexiva, simétrica y transitiva. A menudo se escribe $x\sim y$ en lugar de $xRy$. Para refutarla basta un testigo contra una de las tres, como en la tabla de la unidad 16.
+
+- «Mismo residuo al dividir entre 4», en $\mathbb Z$, es de equivalencia: la etiqueta es el residuo, de 0 a 3.
+- $\le$ no lo es: $1\le2$, pero no $2\le1$.
+- La regla 2 tampoco: sol, luz y paz son un testigo contra la transitividad.
+</Concepto>
+
+## Clases
+
+<Concepto titulo="Clase de equivalencia">
+Si $R$ es de equivalencia sobre $A$, la **clase** de $a$ es el conjunto de los que se relacionan con $a$:
+
+$$[a]=\{x\in A: xRa\}.$$
+
+Por la reflexiva, $a\in[a]$: ninguna clase es vacía.
+
+**Lema.** Si $aRb$, entonces $[a]=[b]$.
+
+- Si $x\in[a]$, entonces $xRa$; con $aRb$, la **transitiva** da $xRb$, así que $x\in[b]$.
+- Si $x\in[b]$, entonces $xRb$; la **simétrica** convierte $aRb$ en $bRa$, y la **transitiva** da $xRa$, así que $x\in[a]$.
+
+Y al revés: si $[a]=[b]$, como $a\in[a]$ por la **reflexiva**, $a\in[b]$, es decir, $aRb$. Así, $xRy$ si y solo si $[x]=[y]$.
+
+Además, dos clases son **iguales o disjuntas**: no pueden compartir unos elementos y otros no. Con el residuo entre 4 en $\{1,\dots,12\}$, $[1]=[5]=\{1,5,9\}$, y $[2]=\{2,6,10\}$ no tiene nada en común con ellas. El porqué te toca en el reto final.
+</Concepto>
+
+## Listar las clases
+
+<Ejemplo titulo="Listar las clases, paso a paso">
+En $A=\{1,2,\dots,12\}$, sea $xRy$ si $x$ y $y$ dejan el mismo residuo al dividir entre 4. Lista sus clases.
+
+1. **El menor elemento sin listar** es el 1. Su clase son los de residuo 1: $[1]=\{1,5,9\}$.
+2. **Repite.** Ahora el menor sin listar es el 2: $[2]=\{2,6,10\}$. Luego el 3, con $[3]=\{3,7,11\}$, y el 4, con $[4]=\{4,8,12\}$.
+3. **Para cuando nadie queda sin listar.** Hay 4 clases. No hace falta calcular $[7]$: el 7 ya está en $[3]$, así que $7R3$ y el lema da $[7]=[3]=\{3,7,11\}$.
+4. **Revisa:** los tamaños suman $3+3+3+3=12$, que es $\lvert A\rvert$, y ningún elemento sale en dos clases.
+
+Sirve para cualquier equivalencia sobre un conjunto finito: cada vuelta toma un elemento que no está en las clases anteriores, así que su clase es distinta de ellas y, por eso, disjunta.
+</Ejemplo>
+
+## Cociente y particiones
+
+<Concepto titulo="Conjunto cociente y particiones">
+El **conjunto cociente** $A/R$ es el conjunto de todas las clases, cada una contada una vez. En el ejemplo, $A/R=\{[1],[2],[3],[4]\}$ tiene 4 elementos, aunque a $[1]$ también se le pueda llamar $[5]$ o $[9]$. El 1, el 5 y el 9 son **representantes** de esa clase: cualquiera sirve para nombrarla.
+
+Una **partición** de $A$ es una colección de **bloques** no vacíos, disjuntos dos a dos, cuya unión es $A$: cada elemento está en exactamente un bloque.
+
+Las dos ideas son la misma, en los dos sentidos:
+
+- **De la equivalencia a la partición:** las clases son los bloques. Por la reflexiva, cada $a$ está en $[a]$, así que las clases cubren $A$ y ninguna es vacía; por la simétrica y la transitiva, dos clases distintas son disjuntas.
+- **De la partición a la equivalencia:** «$x$ y $y$ están en el mismo bloque» es reflexiva, porque cada elemento está en algún bloque; simétrica, porque «$x$ y $y$» dice lo mismo que «$y$ y $x$»; y transitiva, porque si $x,y$ están en un bloque $B$ y $y,z$ en un bloque $C$, $B$ y $C$ comparten a $y$; como dos bloques distintos son disjuntos, $B=C$, así que $x$ y $z$ comparten bloque. Sus clases son los bloques.
+
+Y toda equivalencia es de la forma «misma etiqueta» de la regla 1: basta tomar como etiqueta la clase, $f(x)=[x]$, porque $xRy$ si y solo si $[x]=[y]$.
+</Concepto>
+
+<Desvanecido titulo="Ahora tú: listar las clases" pasos={[
+  "En $A=\\{1,2,\\dots,12\\}$, sea $xRy$ si $x^2-y^2$ es múltiplo de 5. Es de equivalencia: $xRy$ si y solo si $x^2$ y $y^2$ dejan el mismo residuo al dividir entre 5. Lista sus clases.",
+  "$[1]=\\{1,4,6,9,11\\}$. El menor elemento que sigue sin listar es el ___ .",
+  "Su clase tiene ___ elementos, y el mayor de ellos es el ___ .",
+  "Número de elementos que siguen sin listar: ___ · número total de clases: ___ ."
+]} respuestas={["2", "5", "12", "2", "3"]} />
+
+## Errores comunes
+
+<Ojo>
+- **Una clase es un conjunto, no un número.** En el ejemplo, $[7]=\{3,7,11\}$, no «7» ni «3»; el 3 es uno de sus representantes, igual que el 7 y el 11.
+- **«Parecido» no siempre es transitivo.** «Comparten una letra» junta sol con luz y luz con paz sin juntar sol con paz. Antes de hablar de clases, revisa las tres propiedades.
+- **Una partición no tiene bloques vacíos**, y sus bloques no comparten elementos.
+</Ojo>
+
+<Conexion materia="Inteligencia artificial">
+En k-medias, cada dato va al centroide más cercano, con una regla fija para los empates. «Van al mismo centroide» es de la forma $f(x)=f(y)$, así que reparte los datos en una partición. En cambio, «están a distancia $\le\varepsilon$» en general no es transitiva, y no reparte.
+</Conexion>
+
+<Resumen>
+- Una equivalencia es reflexiva, simétrica y transitiva; toda regla «misma etiqueta», $f(x)=f(y)$, lo es.
+- La clase $[a]$ reúne a los que se relacionan con $a$; $xRy$ si y solo si $[x]=[y]$, y dos clases son iguales o disjuntas.
+- Las clases, los elementos de $A/R$, forman una partición de $A$, y cada partición define una equivalencia.
+</Resumen>
+
+<Feynman>
+Explícale a un amigo por qué dos clases de equivalencia no pueden traslaparse a medias: si comparten aunque sea un elemento, son la misma. Si te trabas: toma un $c$ que esté en $[a]$ y en $[b]$, y busca qué propiedades te llevan de $cRa$ y $cRb$ a $aRb$.
+</Feynman>

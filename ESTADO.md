@@ -274,7 +274,7 @@ Plan (2026-10-13, rama `fase-3-calculo-discretas`): 0) rama y registro · 1) pru
   - [ ] 09 · [ ] 02
 - [ ] Matemáticas discretas
   - [x] Puerta de temario (paso 9, 2026-11-13): el programa oficial en `curriculum/programas/matematicas-discretas.pdf`, el temario aprobado por Carlo y `conceptos.yaml` completo (132 conceptos en 23 unidades: 21 del programa y 2 extra)
-  - [ ] Unidad IV para el 3.er parcial, en orden 13 → 21: [x] 13 (2026-11-13) · [x] 14 (2026-11-14) · [x] 15 (2026-11-14) · [x] 16 (2026-11-14) · [ ] 17 · [ ] 18 · [ ] 19 · [ ] 20 · [ ] 21
+  - [ ] Unidad IV para el 3.er parcial, en orden 13 → 21: [x] 13 (2026-11-13) · [x] 14 (2026-11-14) · [x] 15 (2026-11-14) · [x] 16 (2026-11-14) · [x] 17 (2026-11-14) · [ ] 18 · [ ] 19 · [ ] 20 · [ ] 21
   - [ ] Deuda: los jefes de la IV no tienen el 25–35 % de repaso de las unidades I–III, porque aún no existen. Cuando se escriban, se agrega sin cambiar ids.
   - [ ] Unidades 01 a 12, después del parcial
   - [ ] Extra: 22 conteo · 23 recurrencias
@@ -384,6 +384,27 @@ Complementan los ADR-001 a 008 de `docs/02`. Cada uno se escribe en el commit de
 **ADR-013 · Nomenclatura** (paso 1, decisión D1). Código, tablas y campos de IndexedDB en inglés, con equivalencias en `docs/02`. Las claves de YAML y del front matter siguen en español (son el formato de contenido). Los componentes MDX conservan su nombre en español porque son la API del contenido (`Predice` se implementa como `PredictPrompt`). Las URL van en español porque son interfaz. `APP_ID = 'cortex'` es inmutable (nombre de la base y marca de los respaldos); renombrar la app solo cambia `APP_NAME`. *Descartado:* todo en español (contradice `CLAUDE.md`) o una capa de traducción.
 
 ## Bitácora
+- 2026-11-14 · **Unidad `matematicas-discretas/17-equivalencia`** (3.er parcial; Unidad IV, 4.3.3 y 4.3.4).
+  - *Esquema:* v1, aprobado por Carlo; revisado por M, P y A. Sin congruencia ni ≡, porque son de la 18. Ninguna respuesta es un conjunto de conjuntos: las clases se piden como `conjunto` plano, número de clases, tamaños o pares.
+  - *Escrita* por `autor-contenido`: lección de unos 20 min (1,110 palabras), 20 ejercicios 4/5/5/3/3 (19 por código y 1 manual) y jefe de 10 más 4 de repaso de la 15 y la 16 (`disc-16-017`, `disc-16-022`, `disc-16-009` y `disc-15-024`), con 1,800 s.
+    - Un cambio contra el esquema en el repaso: `disc-16-009` va con el 012 en lugar de la matriz con el 005, porque el 005 no está en el jefe.
+    - Se agregaron a la `notacion` de `conceptos.yaml` $[a]$ y $A/R$.
+  - *`/revisar-contenido`:*
+    - a ciegas, 19/19;
+    - checklist M, L y P con objeción: el desvanecido de §6 se contestaba leyendo sus otros pasos; los huecos del 017 («la clase más grande», cuando hay dos) y del 016 («alguna clase», que se lee como «una sola») tenían dos lecturas; el enunciado del 012 regalaba la conclusión.
+  - *Arreglos:* Carlo aprobó «errores + mejoras» (`arreglos-17.md`).
+    - El 012 se rediseñó: ahora pide decidir si es de equivalencia.
+    - Segunda ronda a ciegas: 5/5. En el 012, la sesión principal agregó «junto con su inverso»: agregar solo $(2,5)$ no la vuelve transitiva.
+  - *Evidencia:*
+    - `pnpm content:check` en verde (6 unidades y 145 ejercicios; la 18 está escrita, sin commit);
+    - `pnpm test`: 1182;
+    - `pnpm lint`;
+    - lección en el puerto 3200: 112 fórmulas, 0 `.katex-error` y sin errores de consola;
+    - el jefe arranca con 14 preguntas.
+  - *Hallazgos para `/equipo` después del parcial* (de M, en la revisión de los esquemas 20 y 21):
+    - `same_value` de `verify_content.py` da falso al comparar palabras como «ab» consigo mismas, porque `parse_expr` parte los símbolos;
+    - la app lee «5,040» como 5.04 (la coma es decimal);
+    - no iguala «−» con «-», ni «×» con «*».
 - 2026-11-14 · **Unidad `matematicas-discretas/16-propiedades-orden`** (3.er parcial; Unidad IV, 4.2.4, 4.3.1 y 4.3.2). Sesión nueva de Discretas: worktree `objective-stonebraker-808a0b`, rama `claude/objective-stonebraker-808a0b`, adelantada por fast-forward a `ad076b5`.
   - *Esquema:* v1, aprobado por Carlo; revisado por M, P y A.
     - Las cinco propiedades se refutan con un testigo.

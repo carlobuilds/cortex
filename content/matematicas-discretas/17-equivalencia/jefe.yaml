@@ -1,0 +1,76 @@
+unidad: matematicas-discretas/17-equivalencia
+nombre: "El Repartidor sin Traslapes"
+vidas: 3
+# tiempo_segundos: suma de los tiempo_estimado_s de las 14 preguntas más 10 %.
+# Propias: 010 (90) + 011 (75) + 012 (120) + 013 (90) + 014 (90) + 016 (150) + 017 (120) + 018 (180) + 019 (150) +
+# 020 (150) = 1215. Repaso: 16-017 (90) + 16-022 (120) + 16-009 (60) + 15-024 (150) = 420. Total 1635; con el 10 %,
+# 1798.5, redondeado hacia arriba a 1800 s (30 min).
+tiempo_segundos: 1800
+aprobado_minimo: 0.8
+preguntas:
+  # Propias, 10 (esquema v1, experto-matematicas): d3: 010, 011, 012, 013, 014 · d4: 016, 017 · d5: 018, 019, 020.
+  # Cubren los cuatro conceptos: RE (010, 012, 018), CE (011, 014, 017, 019, 020), CC (013, 016, 017, 019, 020) y PA
+  # (012, 016, 018). Sin manuales ni autoevaluación: el 015 se queda fuera. El 012 usa el par (2, 5) para no delatar
+  # el 018.
+  propias: [disc-17-010, disc-17-011, disc-17-012, disc-17-013, disc-17-014, disc-17-016, disc-17-017, disc-17-018, disc-17-019, disc-17-020]
+  # Repaso: 4 de 14 (28.6 %), elegidos a mano entre pares que se confunden (esquema v1, experto-matematicas y
+  # pedagogo; ids del encargo de la sesión principal). Comprobado el 2026-11-14 contra el commit 8bb12b5: los cuatro
+  # existen, no están retirados y siguen siendo lo que dice el encargo.
+  # - 16-017 (d3, ¿cuáles son órdenes parciales?, con la opción «y = 2ᵏx para algún entero k ≥ 0») con el 014
+  #   (x/y = 2ᵏ con k ∈ ℤ, de equivalencia): antisimétrica contra simétrica.
+  # - 16-022 (d4, Luis: simétrica y transitiva no implica reflexiva) con el 010 (Ana y xy ≥ 0): un error plantado en
+  #   una demostración de propiedades.
+  # - 16-009 (d2, el orden parcial más chico que contiene a R) con el 012 (el par que le falta a Beto): los dos cierran
+  #   una relación. Cambio contra el esquema, que decía «la transitividad en la matriz de la 16 con el 005»: el 005 no
+  #   va en el jefe, y sería el mismo par cojo que pedagogo corrigió en la 16.
+  # - 15-024 (d5, los dos elementos que g junta) con el 019: f es inyectiva si y solo si todas las clases de «misma
+  #   imagen» tienen un elemento.
+  # Ninguna explicación resuelve otra pregunta de este jefe (el jefe muestra la explicación tras cada respuesta,
+  # boss-runner.tsx). Lo que se cruza, revisado par por par:
+  # - 014 y 16-017: la del 014 usa la parte impar como etiqueta y no menciona k ≥ 0, ni el signo de k, ni la
+  #   antisimetría, ni órdenes (desde la revisión dice «96/24 = 2², así que 96 ∼ 24, y por la simétrica, 24 ∼ 96»:
+  #   la simetría de ∼ no dice nada de la otra relación), así que no decide la opción «y = 2ᵏx, k ≥ 0» del 16-017.
+  #   La del 16-017 demuestra que esa relación es reflexiva y transitiva (z = 2^(j+k)x), lo que tumba la opción
+  #   «3 ∼ 6, 6 ∼ 12 y 3 ≁ 12» del 014; pero el enunciado del 014 ya dice que su relación es de equivalencia, así que
+  #   no agrega nada. No da números del 014.
+  # - 010 y 16-022: la del 010 habla de la transitividad de xy ≥ 0 (el 0 de intermedio) y de ℤ − {0}; no cuenta
+  #   relaciones ni habla de simétricas y transitivas que no sean reflexivas. La del 16-022 enumera relaciones sobre
+  #   {1, 2} y dice «si a se relaciona con alguien, entonces aRa»; no toca xy ≥ 0, cuya reflexiva sale de x² ≥ 0.
+  # - 010 y 16-017: la del 16-017 tumba la transitividad de «x ∣ y o y ∣ x» con el 1 de intermedio y menciona
+  #   ℤ − {0}, pero para otra relación; no evalúa xy ≥ 0.
+  # - 012 y 16-009: las dos cierran por transitividad con otros datos. La del 012 da (2, 5) por (2, 4) y (4, 5); la del
+  #   16-009 da (1, 3) por (1, 2) y (2, 3) y los cuatro (a, a). Ninguna da los pares de la otra.
+  # - 012 y 018: la R de Beto es la unión de dos equivalencias, y eso tumbaría la opción «R ∪ S es de equivalencia»
+  #   del 018. La explicación del 012 (rediseñado en la revisión, arreglos-17) no lo dice: habla de clases que se
+  #   traslapan, de que R es reflexiva y simétrica pero no transitiva (con el 4 de intermedio) y del par que falta. La
+  #   del 018 usa otro conjunto, {1, 2, 3}, y no da el 4, ni el (2, 5), ni si la R del 012 es de equivalencia.
+  # - 012 y 010: las dos tumban una transitividad con un intermedio, cada una con sus datos (el 4 y el 0). La del 012
+  #   no habla de xy ≥ 0, del 0 ni de ℤ; la del 010 no da el 4, ni el (2, 5), ni si la R del 012 es de equivalencia.
+  # - 012 y 16-022: la del 012 dice por qué R es reflexiva (contiene a I_A) y simétrica (cada par viene con su
+  #   inverso); no cuenta relaciones ni habla de {1, 2}. La del 16-022 no habla de clases ni de la R del 012.
+  # - 012 y 16-017, 15-024: la del 012 no habla de órdenes, de antisimetría ni de funciones; las de ellas no hablan de
+  #   clases que se traslapan ni dan pares de la R del 012.
+  # - 010 y 018: la del 018 tumba R ∪ S con (1, 2) y (2, 3) sin (1, 3), y el 010 tiene la opción falsa «falla con 1, 2
+  #   y 3» para xy ≥ 0. Es otra relación y la del 018 no evalúa xy ≥ 0; solo coinciden los números. La del 010 no habla
+  #   de uniones, intersecciones ni composiciones.
+  # - 013, 016 y 017 (conteos): la del 013 da |R| como suma de cuadrados de tamaños sobre 6 elementos; la del 016 cuenta
+  #   particiones de {1, 2, 3, 4} por forma, sin hablar de |R|; la del 017 cuenta productos. Ninguna da los números de
+  #   las otras. La del 011 (tamaños 1, 3, 5 y 7 de las clases del máximo) tampoco.
+  # - 016 y 16-022: la del 16-022 deja ver que sobre {1, 2} hay dos equivalencias; el 016 es sobre {1, 2, 3, 4}. La del
+  #   016 no cuenta relaciones simétricas y transitivas no reflexivas.
+  # - 018 y 15-024: la del 15-024 compone funciones; no habla de equivalencias. La del 018 no da Im f, ni los que g
+  #   junta, ni g∘f.
+  # - 019 y 15-024: la del 019 liga inyectividad con clases de un elemento en general y da el 3 y el 7 de su propia f;
+  #   no da Im f, ni el 2 y el 3 de g, ni si g∘f es biyectiva. La del 15-024 no habla de clases.
+  # - 019 y 020: las dos usan «misma etiqueta»; la del 019 factoriza x² − 10x y la del 020 normaliza palabras.
+  # - 018 y 16-017, 16-009: la del 018 prueba R ∘ R = R y R ∩ S con las tres propiedades de equivalencia; no habla de
+  #   antisimetría ni de órdenes.
+  # - Las de 011, 013, 017, 019 y 020 no hablan de órdenes parciales, de Luis ni de composición.
+  repaso_de: [disc-16-017, disc-16-022, disc-16-009, disc-15-024]
+  # Oleadas 4/6/4 (waveSizes(14) del motor, ejecutado con tsx: apportion(14, [0.3, 0.4, 0.3]) da 4.2/5.6/4.2 → 4/5/4,
+  # y el residuo va a la 2.ª, que tiene la fracción mayor), por dificultad y con desempate al azar. Hay 1 de d2
+  # (16-009), 6 de d3 (010, 011, 012, 013, 014 y 16-017), 3 de d4 (016, 017 y 16-022) y 4 de d5 (018, 019, 020 y
+  # 15-024): 1.ª = 16-009 y tres de los seis d3; 2.ª = los tres d3 que quedan, 016, 017 y 16-022; 3.ª = 018, 019, 020 y
+  # 15-024. Así, el 019 y el 15-024 caen juntos en la 3.ª; el 012 sale en la 1.ª o la 2.ª, igual que el 014 y el
+  # 16-017; y el 16-022 va en la 2.ª. Dentro de cada oleada el orden es al azar (boss.ts).
+recompensa: { xp: 300, insignia: "iguales-o-disjuntas" }
