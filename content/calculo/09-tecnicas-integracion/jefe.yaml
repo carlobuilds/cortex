@@ -1,0 +1,22 @@
+unidad: calculo/09-tecnicas-integracion
+nombre: "El Cerrajero de las Integrales"
+vidas: 3
+# tiempo_segundos: suma de los tiempo_estimado_s de las 11 preguntas más 10 %. Propias: 011 (90) + 013 (120) +
+# 015 (120) + 018 (150) + 019 (150) + 020 (180) + 024 (150) + 025 (120) = 1080. Repaso, con su tiempo propio:
+# calc-08-014 (120) + calc-08-017 (90) + calc-08-018 (180) = 390. Total 1470; con el 10 %, 1617 s (27.0 min).
+tiempo_segundos: 1617
+aprobado_minimo: 0.8
+preguntas:
+  # Dos por concepto: TR (011, 018), ST (013, 019), FP (015, 020) y ET (024, 025); cinco de d4–5 (018, 019, 020, 024 y
+  # 025). El 015 entra en lugar del 016 (arreglos-09), para que el factor lineal repetido quede evaluado. El 024 es de
+  # ET y lo califica el formato (conjunto). Sin anclas (001–005), sin la autoevaluación (022), sin los de revisión
+  # manual (004, 009, 012, 017 y 023) y sin el 014.
+  propias: [calc-09-011, calc-09-013, calc-09-015, calc-09-018, calc-09-019, calc-09-020, calc-09-024, calc-09-025]
+  # 3 de 11 (27 %), de la 08 (número menor), ninguno usado antes como repaso y que esta unidad no cita: partes con un
+  # polinomio por una exponencial (014, d3; la única técnica del triaje que la 09 no practica), el error plantado de la
+  # constante de du (017, d3) y la x que sobra en una sustitución (018, d4).
+  # Oleadas 3/5/3 (waveSizes(11) del motor: 3.3/4.4/3.3, el sobrante a la de mayor residuo), por dificultad:
+  # 1.ª = tres de los cinco d3 (011, 013, 015, calc-08-014 y calc-08-017, al azar); 2.ª = los otros dos d3 y tres de los
+  # cuatro d4 (018, 019, 020 y calc-08-018, al azar); 3.ª = el d4 que queda, 024 y 025.
+  repaso_de: [calc-08-014, calc-08-017, calc-08-018]
+recompensa: { xp: 300, insignia: "llave-del-triaje" }

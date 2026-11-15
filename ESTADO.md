@@ -1,6 +1,6 @@
 # ESTADO · Tablero vivo de Cortex
 
-**Fase actual:** 3 · Cálculo + Matemáticas discretas, en curso en la rama `fase-3-calculo-discretas` (plan aprobado por Carlo el 2026-10-13). Las Fases 0, 1 y 2 están implementadas y verificadas; sigue pendiente su cierre formal: sesión real de Carlo de ~20 min por fase, `/cerrar-fase` y etiquetas `fase-0`, `fase-1`, `fase-2` (no bloquea la Fase 3). **Orden acordado el 2026-11-10:** v1 (equipo y coach, hecho) → CP1 → sprint del parcial de Cálculo → Fase 3.5 (v1.1: iPad PWA, pizarra, sync y coach vivo) → resto de Cálculo y Discretas.
+**Fase actual:** 3 · Cálculo + Matemáticas discretas, en curso en la rama `fase-3-calculo-discretas` (plan aprobado por Carlo el 2026-10-13). Las Fases 0, 1 y 2 están implementadas y verificadas; sigue pendiente su cierre formal: sesión real de Carlo de ~20 min por fase, `/cerrar-fase` y etiquetas `fase-0`, `fase-1`, `fase-2` (no bloquea la Fase 3). **Orden acordado el 2026-11-10:** v1 (equipo y coach, hecho) → CP1 → sprint del parcial de Cálculo (contenido completo el 2026-11-13: unidades 01 a 09) → Fase 3.5 (v1.1: iPad PWA, pizarra, sync y coach vivo) → resto de Cálculo y Discretas.
 **Última actualización:** 2026-11-10 · **v1 · Equipo y coach** hecho: 19 agentes en `.claude/agents/` (`docs/08`), comandos `/consejo`, `/equipo` y `/coach`, cercas probadas en `.claude/hooks/` y el MCP de Cortex (`mcp/cortex/`) con métricas agregadas, perfil de habilidades, resultados institucionales y calibración (ADR-024 a ADR-026). Aporte de Carlo nuevo: `weeklyVerdict` en `src/engine/coach-metrics.ts`. Sigue el **CP1** de Carlo (probar `/estilo`, la lección de límites con su visual y un simulacro de Programación) y luego el **sprint del parcial**: Carlo tiene parcial de Cálculo en menos de 4 semanas. Siguen pendientes los aportes de la Fase 3 (convención de la tabla de verdad en `src/engine/logic/convention.ts` y reglas del simulacro en `CONFIG.exam`) y los tres opcionales del rediseño marcados `TODO(Carlo)`. Fase 3: la plataforma está completa (pasos 1 a 6: visuales, lógica y grafos, respuestas ampliadas, tipos nuevos y simulacro de examen).
 
 ## Decisiones tomadas (Carlo, 2026-10-01)
@@ -271,7 +271,8 @@ Plan (2026-10-13, rama `fase-3-calculo-discretas`): 0) rama y registro · 1) pru
   - [x] 07-maximos-minimos (2026-11-12)
   - [x] 06-razones-diferencial (2026-11-12)
   - [x] 08-antiderivadas (2026-11-12)
-  - [ ] 09 · [ ] 02
+  - [x] 09-tecnicas-integracion (2026-11-13)
+  - [x] 02-continuidad-asintotas (2026-11-13). **Con esta se cierra el sprint del parcial**: las unidades 01 a 09 están escritas y revisadas. La 00 queda fuera del sprint, como se decidió el 2026-11-10.
 - [ ] Matemáticas discretas
   - [x] Puerta de temario (paso 9, 2026-11-13): el programa oficial en `curriculum/programas/matematicas-discretas.pdf`, el temario aprobado por Carlo y `conceptos.yaml` completo (132 conceptos en 23 unidades: 21 del programa y 2 extra)
   - [x] Unidad IV para el 3.er parcial, en orden 13 → 21: [x] 13 (2026-11-13) · [x] 14 (2026-11-14) · [x] 15 (2026-11-14) · [x] 16 (2026-11-14) · [x] 17 (2026-11-14) · [x] 18 (2026-11-14) · [x] 19 (2026-11-15) · [x] 20 (2026-11-15) · [x] 21 (2026-11-15)
@@ -622,6 +623,81 @@ Complementan los ADR-001 a 008 de `docs/02`. Cada uno se escribe en el commit de
     - `pnpm content:check` sin ruta en verde (19 unidades y 410 ejercicios; los 12 avisos son los `programa_ref` pendientes de Programación, que ya estaban);
     - la materia sin unidades no aparece en la app (`hasContent` es falso).
   - *Notas de la sesión:* borrador, programa en texto y esquemas en `~/Library/Application Support/Claude/side-session-notes/local_a6e0852a-c7ca-4753-87c7-0928b0b431e1/`.
+- 2026-11-13 · **Unidad `calculo/02-continuidad-asintotas`**. Es la última del sprint del parcial. Cubre la Unidad II del programa: 2.3 límites infinitos, 2.3.1 asíntotas y 2.4 continuidad en un punto y en un intervalo. El TVI se agrega y queda marcado como «fuera del programa oficial».
+  - **Esquema:** objeción sin bloqueo de matemáticas, pedagogía y razonamiento.
+    - ±∞ solo se pide en `numerico`.
+    - Los tipos de discontinuidad se clasifican con códigos: 1 removible, 2 salto y 3 infinita.
+    - Los intervalos se piden por sus bordes.
+    - Los laterales se verifican con $x=a\mp h$ y $h$ positivo.
+  - **Contenido (lo escribió `autor-contenido`):**
+    - 25 ejercicios: 8 completar, 5 numéricos, 5 de opción múltiple, 4 de selección múltiple, 1 simbólico, 1 conjunto y 1 autoevaluación.
+    - Escalera 5/5/7/5/3. Los 7 conceptos tienen 3 o 4 ejercicios cada uno.
+    - Lección de 1,689 palabras con front matter (tope 1,700).
+    - En `conceptos.yaml` solo cambia `notacion`: se agregó cómo se escribe un límite infinito, los nombres de los tipos de discontinuidad y que en la oblicua $m\neq0$.
+    - **Jefe:**
+      - 8 propias (012, 014, 016, 020, 021, 023, 024 y 025), cinco de ellas de d4–5;
+      - 3 de repaso de la 01: calc-01-005, calc-01-023 y calc-01-025;
+      - 1238 s y oleadas 3/5/3.
+  - **`/revisar-contenido`:**
+    - **A ciegas:** 24/24 en la primera ronda.
+      - Hubo una ambigüedad real en el 017: el TVI aplicado a un subintervalo sí garantiza una raíz de $x^2-1$ en $[-2,2]$, y el 025 enseña justo a trabajar por subintervalos.
+      - Después de los arreglos, 13/13 en los 13 ejercicios que cambiaron.
+      - La app acepta `oo`, `∞`, `inf`, `-5/2`, `2x+1`, `3/8` y `0.375`, y rechaza las respuestas equivocadas.
+    - **Checklist:** los tres revisores dieron objeción, sin ninguna respuesta errónea.
+      - Matemáticas encontró que el 010 era el mismo límite del calc-03-013, $\frac{\sqrt{9+h}-3}{h}$, y además un clásico de Stewart.
+      - Lenguaje encontró dos redacciones ambiguas: la regla de grados de la lección y el enunciado del 025.
+      - Pedagogía encontró que la lección mostraba las etiquetas de nivel del esquema, que la pista 3 del 023 regalaba $m$ y $b$, y que el ejemplo 2 no justificaba el signo de cada lado.
+    - **Arreglos aplicados con el sí de Carlo («Errores + mejoras»):**
+      - el 010 usa $\frac{\sqrt{3x+10}-4}{x-2}$ (3/8);
+      - el 013 pasa a «encuentra todas sus asíntotas» (vertical, $m$ y $b$), para practicar decidir el tipo, que es lo primero que califica el parcial;
+      - el 017 aplica el TVI una sola vez, con los valores en los bordes del intervalo dado; el 025 pregunta «el mayor número de instantes que puedes garantizar»;
+      - la pista 1 de cada ejercicio encaja con lo que pide: en el 014, el 016 y el 021, la rutina usa el candidato $c$ y ya no trae el paso de asíntotas;
+      - se ajustaron las opciones que delataban la correcta por largas (015 y 021) y los enunciados del 001, 004, 005, 016, 018, 022, 023 y 024;
+      - los `verificar` del 007 y del 016 ahora calculan lo que antes daban por hecho;
+      - en la lección:
+        - sin etiquetas de nivel;
+        - con la regla de grados reescrita;
+        - con la condición 2 («existe y es un número»);
+        - con el vocabulario pieza/tramo/corte unificado;
+        - con la Rutina de examen movida después de las asíntotas;
+        - con los ejemplos justificados paso a paso;
+      - para el tope de palabras se recortó la bisección, la línea de las oscilantes y el cierre del Feynman.
+  - **Evidencia:**
+    - `content:check content/calculo` en verde: 224 ejercicios, 182 por código y 42 manuales.
+    - `test:content` 313/313 y `real-answers` 319/319.
+    - En `localhost:3000`: 192 fórmulas KaTeX sin error, y los 6 huecos de los dos desvanecidos se califican bien (`1.5` cuenta como `3/2`).
+- 2026-11-13 · **Unidad `calculo/09-tecnicas-integracion`** (sprint del parcial; Unidad IV, 4.4 integrales trigonométricas, 4.5 sustitución trigonométrica y 4.6 fracciones parciales).
+  - **Esquema:** objeción sin bloqueo de matemáticas, pedagogía y razonamiento. Carlo decidió:
+    - el **triaje versión 2**, de 6 preguntas, con partes al final: tabla → sustitución → fracciones parciales → trigonométricas → sustitución trigonométrica → partes;
+    - en 4.4, sen/cos en el nivel A, tan/sec en el B y los productos con ángulos distintos en el C.
+  - **Contenido (lo escribió `autor-contenido`):**
+    - 25 ejercicios: 8 simbólicos, 7 completar, 4 de opción múltiple, 3 numéricos, 1 de selección múltiple, 1 conjunto y 1 autoevaluación.
+    - Escalera 5/5/7/5/3; los 4 conceptos tienen 5 o más ejercicios.
+    - Anclas 001–005 con un solo concepto.
+    - Lección de 1,700 palabras con front matter (tope 1,700). No usa conceptos nuevos en `conceptos.yaml`.
+    - Jefe con 8 propias (dos por concepto) y 3 de repaso de la 08 (calc-08-014, calc-08-017 y calc-08-018), 1617 s y oleadas 3/5/3.
+    - Sin arcsec en las respuestas (la app no lo tiene): se piden formas con atan o ln, válidas en el intervalo más grande.
+  - **`/revisar-contenido`:**
+    - **A ciegas:** 24/24.
+      - Hubo lecturas literales del triaje: la pregunta 2 con una función de adentro lineal ($x^2e^{3x}$), $\cos^3x$ entre las preguntas 2 y 4, y la sustitución del 024.
+      - Después de los arreglos, 15/15 en los 15 ejercicios que cambiaron. La app acepta todas las formas del resolutor: `e^x`, `exp(x)`, `-csc(x)`, `sen^3(x)`, `ln(abs(…))` y `0.04`.
+    - **Checklist:** los tres dieron objeción, sin respuestas erróneas.
+    - **Arreglos aplicados con el sí de Carlo («Errores + mejoras»):**
+      - el triaje versión 2 aclara tres preguntas: la 1 («¿ya está en la tabla…?»), la 2 (sin identidades; una función de adentro lineal no absorbe la $x$ de afuera) y la 4 (si la $u$ solo aparece tras una identidad, es esta); el recuadro cierra con «Si ninguna dice «sí»»;
+      - el 004 y el 017 traen en el enunciado las reglas para clasificar; el 004 suma $\int\frac{dx}{\sqrt{25-x^2}}$;
+      - el 014 pasa a `simbolico` (`asin((x - 3)/4)`);
+      - el 015 nuevo evalúa el factor lineal repetido y entra al jefe en lugar del 016;
+      - el 007, el 023 y el 024 se reescribieron;
+      - los desvanecidos piden un paso real;
+      - los `simbolico` cierran con una regla de sintaxis única («`arcsen(w)`, nunca `^(-1)`»);
+      - tolerancia de 0.0005 en el 011, el 016 y el 019;
+      - $\int\tan x\,dx$ se explica como $g'/g$;
+      - se ajustaron el Predice, el miniejemplo, el Ojo, el Resumen y la Conexión.
+      - Para respetar el tope de palabras, el autor hizo tres recortes pequeños que no estaban en la lista, sin cambiar el contenido.
+  - **Evidencia:**
+    - `content:check content/calculo` en verde: 199 ejercicios, 160 por código y 39 manuales.
+    - `test:content` 313/313 y `real-answers` 295/295.
+    - En `localhost:3000`: 193 fórmulas KaTeX sin error, y los 9 huecos de los tres desvanecidos se califican bien.
 - 2026-11-12 · **Unidad `calculo/08-antiderivadas`** (sprint del parcial; Unidad IV, 4.1 antiderivada, 4.2 sustitución y 4.3 partes).
   - **Esquema:** objeción sin bloqueo de matemáticas, pedagogía y razonamiento.
     - Competencia del programa: «resuelve la integral a partir de su tipología». Por eso la lección cierra con un **triaje** de 3 preguntas en orden (tabla → sustitución → partes) que la 09 extiende a 6.

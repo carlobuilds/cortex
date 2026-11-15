@@ -1,0 +1,606 @@
+# Unidad 02 · Continuidad y asíntotas (Unidad II, 2.3, 2.3.1 y 2.4; el TVI se agrega en nivel B). Sprint del 3.er
+# parcial. Esquema revisado por experto-matematicas, pedagogo y arquitecto-razonamiento (esquema-02, 2026-11-12).
+# Abreviaturas: CP continuidad-punto · AV limite-infinito-vertical · TD tipos-discontinuidad · AH asintota-horizontal ·
+# AO asintota-oblicua · CI continuidad-intervalo · TV teorema-valor-intermedio. Un concepto por ejercicio.
+# Escalera 5/5/7/5/3. Por concepto: CP 4, AV 4, TD 4, AH 3, AO 4, CI 3 y TV 3. Anclas con explicación completa:
+# 001 CP, 002 AV, 003 AH, 004 TD, 005 CI (d1), 006 AO y 007 TV (d2).
+# Formato (trampas probadas por experto-matematicas): ±∞ solo en `numerico` (`oo` o `-oo`), nunca en un hueco de
+# `completar` ni en un `conjunto`; «no existe» solo en opciones; clasificar con códigos (1 removible, 2 salto,
+# 3 infinita); intervalos por sus bordes, con corchetes, ∞ y ∪ en el texto fijo, y el tipo de extremo con una
+# `seleccion_multiple` (016); huecos fuera de las fórmulas y negativos con `-` ASCII.
+# Laterales en `verificar`: siempre limit(f.subs(x, a ∓ h), h, 0) con h = Symbol('h', positive=True); nunca
+# limit(Piecewise, x, a, '-') ni limit sin dirección (sympy 1.14 se equivoca). `singularities` incluye los huecos:
+# se filtra con los laterales.
+# Pistas: 1 en d1–2, 2 en d3 y 3 en d4–5. Desde d3 la primera es la rutina de la lección (en las de asíntotas, su
+# variante), salvo en 015, 017, 019 y 025 (error plantado, TVI y monitoreo), que abren con la de entender; el 021
+# abre con la rutina, como dice su fila del esquema y las pistas de arquitecto-razonamiento. Desde d3, la explicación
+# abre con «Candidatos.» (o «Tipo.» en las de asíntotas) y cierra con «Revisa:», aclarando que eso detecta errores,
+# pero no demuestra.
+# Originalidad: ninguna función repite las de la 01, la 03 o la 07, ni las de los repasos del jefe (calc-01-005,
+# calc-01-023 y calc-01-025). Ningún ejercicio pide las asíntotas de la sigmoide (las da la Conexión).
+unidad: calculo/02-continuidad-asintotas
+ejercicios:
+  # razonamiento: algorítmico (las tres condiciones en un corte, cada lateral con su pieza) · R0
+  # verificar: f(2) y los laterales con h; el código de la primera condición que falla sale de comparar esos valores.
+  - id: calc-02-001
+    tipo: completar
+    dificultad: 1
+    conceptos: [continuidad-punto]
+    enunciado: >-
+      Sea $f(x)=\begin{cases}x^2-1 & \text{si } x<2\\ 2x & \text{si } x\ge2\end{cases}$. Revisa las tres condiciones de continuidad en $x=2$: (1) $f(2)$ está definida; (2) $\lim_{x\to2}f(x)$ existe; (3) ese límite vale $f(2)$. En el último hueco escribe el número de la primera condición que no se cumple, o 0 si se cumplen las tres.
+    texto: >-
+      $f(2)=$ ___ · $\lim_{x\to2^-}f(x)=$ ___ · $\lim_{x\to2^+}f(x)=$ ___ · la primera condición que falla es la número ___
+    respuestas: ["4", "3", "4", "2"]
+    verificar: { sympy: "(lambda f, h: (lambda v, l, r: [v, l, r, 1 if v.has(nan) else (2 if l != r else (3 if l != v else 0))])(f.subs(x, 2), limit(f.subs(x, 2 - h), h, 0), limit(f.subs(x, 2 + h), h, 0)))(Piecewise((x**2 - 1, x < 2), (2*x, True)), Symbol('h', positive=True))" }
+    pistas:
+      - >-
+        En $x=2$, ¿qué pieza manda según el «$\ge$»? Para el lateral izquierdo, ¿qué pieza usas, y para el derecho? ¿Los dos laterales coinciden?
+    explicacion: >-
+      **Candidato.** Las dos piezas son polinomios: solo puede fallar el corte, $x=2$. **Condición 1.** En $x=2$ manda la pieza de $x\ge2$: $f(2)=2\cdot2=4$, que existe. **Condición 2.** Por la izquierda manda $x^2-1$: $\lim_{x\to2^-}f(x)=4-1=3$. Por la derecha manda $2x$: $\lim_{x\to2^+}f(x)=4$. Los laterales son distintos, así que el límite no existe: la primera condición que falla es la **2**, y es un salto. La 3 ni se puede revisar, porque no hay límite que comparar con $f(2)$. Un error común es calcular $f(2)$ con $x^2-1$: el «$\ge$» dice que el 2 va con $2x$. Revisa: $f(1.99)=2.9601$ y $f(2.01)=4.02$; de cada lado se acercan a 3 y a 4.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (c/0 con c ≠ 0 y el signo de cada lado) · R0
+  # verificar: los dos laterales con h; si coinciden, ese es el límite (si no, nan).
+  - id: calc-02-002
+    tipo: numerico
+    dificultad: 1
+    conceptos: [limite-infinito-vertical]
+    enunciado: >-
+      Calcula $\lim_{x\to-2}\dfrac{4-x}{(x+2)^2}$. Si el límite es infinito, escribe `oo` (o ∞), con `-` delante si es negativo.
+    respuesta: oo
+    tolerancia: 0
+    verificar: { sympy: "(lambda f, h: (lambda l, r: l if l == r else nan)(limit(f.subs(x, -2 - h), h, 0), limit(f.subs(x, -2 + h), h, 0)))((4 - x)/(x + 2)**2, Symbol('h', positive=True))" }
+    pistas:
+      - >-
+        Al sustituir $x=-2$, ¿qué sale arriba y qué sale abajo? Abajo hay un cuadrado: ¿qué signo tiene a cada lado de $-2$?
+    explicacion: >-
+      Sustituir da $\frac{6}{0}$: un número distinto de 0 entre algo que tiende a 0, así que el cociente crece sin tope en valor absoluto. Falta el signo de cada lado. Arriba, $4-x\to6>0$. Abajo, $(x+2)^2>0$ para todo $x\neq-2$, por los dos lados, porque es un cuadrado. Entonces $\lim_{x\to-2^-}\frac{4-x}{(x+2)^2}=\infty$ y $\lim_{x\to-2^+}\frac{4-x}{(x+2)^2}=\infty$: los laterales coinciden y se escribe $\lim_{x\to-2}\frac{4-x}{(x+2)^2}=\infty$. Eso no es un valor: dice que el límite no existe porque crece sin tope, y que $x=-2$ es asíntota vertical. Si abajo hubiera $x+2$ sin el cuadrado, los laterales tendrían signos distintos. Revisa: en $x=-2.01$ vale $\frac{6.01}{0.0001}=60100$ y en $x=-1.99$, $\frac{5.99}{0.0001}=59900$.
+    tiempo_estimado_s: 40
+
+  # razonamiento: algorítmico (grados iguales: cociente de los coeficientes principales, cada lado) · R0
+  # verificar: los límites en oo y en -oo; si coinciden, ese valor. La opción «No tiene» lleva el valor nan.
+  - id: calc-02-003
+    tipo: opcion_multiple
+    dificultad: 1
+    conceptos: [asintota-horizontal]
+    enunciado: >-
+      ¿Cuál es la asíntota horizontal de $f(x)=\dfrac{3-7x}{2x+5}$?
+    opciones:
+      - '$y=0$'
+      - '$y=0.6$'
+      - '$y=-3.5$'
+      - 'No tiene asíntota horizontal.'
+    valores: [0, 0.6, -3.5, "nan"]
+    correcta: 2
+    verificar: { sympy: "(lambda f: limit(f, x, oo) if limit(f, x, oo) == limit(f, x, -oo) else nan)((3 - 7*x)/(2*x + 5))" }
+    pistas:
+      - >-
+        ¿Qué grado tiene arriba y cuál abajo? Si divides arriba y abajo entre $x$, ¿qué términos se van a 0 cuando $x\to\infty$, y cuando $x\to-\infty$?
+    explicacion: >-
+      Arriba y abajo el grado es 1. Divide entre $x$: $\frac{3/x-7}{2+5/x}$. Cuando $x\to\infty$, $\frac3x\to0$ y $\frac5x\to0$, así que $f(x)\to\frac{-7}{2}=-3.5$; cuando $x\to-\infty$ pasa lo mismo. La asíntota horizontal es $y=-3.5$, en los dos lados: el cociente de los coeficientes de $x$, que son los principales. $y=0.6$ sale de dividir los términos independientes, $\frac35$, que mandan cerca de 0, no lejos. $y=0$ sería la respuesta si arriba el grado fuera menor. Revisa: $f(1000)=\frac{-6997}{2005}\approx-3.49$.
+    tiempo_estimado_s: 40
+
+  # razonamiento: deductivo (aplicar la definición de cada tipo a los laterales dados) · R0
+  # Revisión manual: no hay función que evaluar, solo datos de los laterales. Códigos: 1 removible, 2 salto, 3 infinita.
+  - id: calc-02-004
+    tipo: completar
+    dificultad: 1
+    conceptos: [tipos-discontinuidad]
+    enunciado: >-
+      En cada caso, $f$ está definida a los dos lados de $a$, salvo quizá en $a$, y no es continua en $a$. Clasifica la discontinuidad con un código: 1 si es removible, 2 si es de salto y 3 si es infinita.
+    texto: >-
+      (1 removible · 2 salto · 3 infinita) (a) $\lim_{x\to a^-}f(x)=3$ y $\lim_{x\to a^+}f(x)=-1$: ___ · (b) $\lim_{x\to a^-}f(x)=2$ y $\lim_{x\to a^+}f(x)=\infty$: ___ · (c) $\lim_{x\to a}f(x)=5$ y $f(a)=0$: ___
+    respuestas: ["2", "3", "1"]
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        En cada caso, ¿los laterales son números? Si lo son, ¿son iguales o distintos? Si el límite existe, ¿qué condición es la que falla?
+    explicacion: >-
+      **(a)** Los dos laterales son números, pero distintos: **salto**, código 2. Ningún valor de $f(a)$ lo arregla. **(b)** Un lateral es $\infty$: **infinita**, código 3, con asíntota vertical $x=a$, aunque el otro lateral sea finito; para la asíntota basta un lado. **(c)** El límite existe (vale 5) pero no coincide con $f(a)=0$: falla la condición 3, y es **removible**, código 1; se arregla redefiniendo $f(a)=5$. Un error común es llamar «de salto» a (c) porque la gráfica «brinca» en $a$: en un salto lo distinto son los laterales, no el límite y $f(a)$.
+    tiempo_estimado_s: 50
+
+  # razonamiento: algorítmico (dominio de una raíz entre un polinomio; el borde con el lateral de adentro) · R0
+  # verificar: continuous_domain de sympy (sin Piecewise) y sus bordes.
+  - id: calc-02-005
+    tipo: completar
+    dificultad: 1
+    conceptos: [continuidad-intervalo]
+    enunciado: >-
+      Sea $f(x)=\dfrac{\sqrt{x-2}}{x-5}$. Escribe el conjunto de todos los $x$ donde $f$ es continua, como unión de los intervalos más grandes posibles. Completa los bordes.
+    texto: >-
+      $f$ es continua en $[$ ___ $,$ ___ $)\cup($ ___ $,\infty)$
+    respuestas: ["2", "5", "5"]
+    verificar: { sympy: "(lambda D: [D.args[0].inf, D.args[0].sup, D.args[1].inf])(calculus.util.continuous_domain(sqrt(x - 2)/(x - 5), x, S.Reals))" }
+    pistas:
+      - >-
+        ¿Qué pide la raíz para estar definida, y qué pide el denominador? Una raíz y un polinomio, ¿dónde son continuos?
+    explicacion: >-
+      **Dominio.** La raíz pide $x-2\ge0$, es decir, $x\ge2$, y el denominador pide $x\neq5$. **Continuidad.** $\sqrt{x-2}$ y $x-5$ son continuas en su dominio, y un cociente de continuas es continuo donde el de abajo no vale 0: $f$ es continua en cada punto de su dominio. **Los bordes.** En 2 cuenta solo el lateral derecho: $\lim_{x\to2^+}f(x)=\frac{0}{-3}=0=f(2)$, así que el 2 entra con corchete. El 5 no está en el dominio (ahí hay una discontinuidad infinita: arriba tiende a $\sqrt3$ y abajo a 0), así que queda fuera de los dos intervalos. Resultado: $[2,5)\cup(5,\infty)$. Para $x<2$, $f$ no está definida, así que ahí no se habla de continuidad. Revisa: $f(2.01)=\frac{0.1}{-2.99}\approx-0.033$, cerca de $f(2)=0$.
+    tiempo_estimado_s: 50
+
+  # razonamiento: algorítmico (grado n + 1 sobre n: la oblicua es el cociente de la división) · R0
+  # verificar: m = lim f/x y b = lim (f - m x) en oo (la explicación va por división).
+  - id: calc-02-006
+    tipo: simbolico
+    dificultad: 2
+    conceptos: [asintota-oblicua]
+    enunciado: >-
+      Encuentra la asíntota oblicua de $f(x)=\dfrac{2x^2+3x-1}{x+1}$. Escribe solo la expresión de la recta, sin «y =»; cada producto lleva `*`.
+    respuesta: "2*x + 1"
+    variables: [x]
+    verificar: { sympy: "(lambda f: (lambda m: m*x + limit(f - m*x, x, oo))(limit(f/x, x, oo)))((2*x**2 + 3*x - 1)/(x + 1))" }
+    pistas:
+      - >-
+        ¿Cuántos grados más tiene arriba que abajo? Si divides el numerador entre $x+1$, ¿qué parte se va a 0 cuando $x$ crece sin tope?
+    explicacion: >-
+      Arriba el grado es 2 y abajo 1: uno más, así que hay oblicua y es el cociente de la división. **Divide.** $2x^2\div x=2x$; $2x(x+1)=2x^2+2x$, y queda $x-1$. Luego $x\div x=1$; $1\cdot(x+1)=x+1$, y queda $-2$. Así, $f(x)=2x+1-\frac{2}{x+1}$. **Por qué es la asíntota.** $f(x)-(2x+1)=-\frac{2}{x+1}\to0$ cuando $x\to\infty$ y cuando $x\to-\infty$: la recta $y=2x+1$ sirve en los dos lados. Por límites sale lo mismo: $m=\lim\frac{f(x)}{x}=2$ y $b=\lim\left(f(x)-2x\right)=\lim\frac{x-1}{x+1}=1$. En la app escribe la expresión sin «y =». Revisa: $f(10)=\frac{229}{11}\approx20.82$ y la recta da 21; la curva va un poco abajo, como dice $-\frac{2}{x+1}$.
+    tiempo_estimado_s: 60
+
+  # razonamiento: deductivo (armar el argumento del TVI: continuidad, cambio de signo y conclusión) · R1
+  # verificar: el a de [-1, 2] con g(a)·g(a + 1) < 0, con g evaluada por sympy.
+  - id: calc-02-007
+    tipo: opcion_multiple
+    dificultad: 2
+    conceptos: [teorema-valor-intermedio]
+    enunciado: >-
+      Sea $g(x)=x^3+3x-5$. ¿En cuál de estos intervalos garantiza el TVI que $g$ tiene una raíz?
+    opciones:
+      - '$[-1,0]$'
+      - '$[0,1]$'
+      - '$[1,2]$'
+      - '$[2,3]$'
+    valores: [-1, 0, 1, 2]
+    correcta: 2
+    verificar: { sympy: "(lambda g: (lambda L: L[0] if len(L) == 1 else nan)([a for a in range(-1, 3) if g.subs(x, a)*g.subs(x, a + 1) < 0]))(x**3 + 3*x - 5)" }
+    pistas:
+      - >-
+        ¿Qué dos hipótesis pide el TVI para asegurar una raíz en $[a,b]$? ¿Cuánto vale $g$ en cada borde de cada intervalo?
+    explicacion: >-
+      **Hipótesis 1.** $g$ es un polinomio: es continua en cualquier intervalo cerrado. **Valores.** $g(-1)=-9$, $g(0)=-5$, $g(1)=-1$, $g(2)=9$ y $g(3)=31$. **Hipótesis 2.** Solo en $[1,2]$ cambia el signo: $g(1)=-1<0<9=g(2)$, así que 0 está estrictamente entre $g(1)$ y $g(2)$. **Conclusión.** Por el TVI con $N=0$, existe al menos un $c\in(1,2)$ con $g(c)=0$. En los otros intervalos, los dos bordes tienen el mismo signo y el TVI no dice nada: eso no prueba que no haya raíz. Aquí no la hay porque $g$ siempre crece ($g'(x)=3x^2+3>0$), pero eso no lo dice el TVI. Revisa: $g(1.5)=2.875>0$, así que la raíz está entre 1 y 1.5.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (igualar el lateral izquierdo con f(-1)) · R1
+  # verificar: el lateral izquierdo con h y f(-1) de sympy; se despeja k.
+  - id: calc-02-008
+    tipo: numerico
+    dificultad: 2
+    conceptos: [continuidad-punto]
+    enunciado: >-
+      Sea $f(x)=\begin{cases}kx+5 & \text{si } x<-1\\ x^2-2k & \text{si } x\ge-1\end{cases}$. ¿Qué valor de $k$ hace que $f$ sea continua en $x=-1$?
+    respuesta: -4
+    tolerancia: 0
+    verificar: { sympy: "(lambda f, h: solve(limit(f.subs(x, -1 - h), h, 0) - f.subs(x, -1), k)[0])(Piecewise((k*x + 5, x < -1), (x**2 - 2*k, True)), Symbol('h', positive=True))" }
+    pistas:
+      - >-
+        ¿Qué pieza da $f(-1)$, y cuál da el lateral izquierdo? ¿Qué ecuación en $k$ sale de pedir que sean iguales?
+    explicacion: >-
+      En $x=-1$ manda la pieza de $x\ge-1$: $f(-1)=1-2k$, y el lateral derecho vale lo mismo. Por la izquierda manda $kx+5$: $\lim_{x\to-1^-}f(x)=-k+5$. Para que el límite exista y valga $f(-1)$: $-k+5=1-2k$, así que $k=-4$. Con cualquier otro $k$ habría un salto. Revisa: con $k=-4$, $f(-1)=9$ y $f(-1.01)=9.04$, cerca de 9.
+    tiempo_estimado_s: 50
+
+  # razonamiento: algorítmico (signo de c/0 de un solo lado) · R1
+  # verificar: el lateral derecho con h.
+  - id: calc-02-009
+    tipo: numerico
+    dificultad: 2
+    conceptos: [limite-infinito-vertical]
+    enunciado: >-
+      Calcula $\lim_{x\to2^+}\dfrac{x-5}{x-2}$. Si el límite es infinito, escribe `oo` (o ∞), con `-` delante si es negativo.
+    respuesta: -oo
+    tolerancia: 0
+    verificar: { sympy: "(lambda h: limit(((x - 5)/(x - 2)).subs(x, 2 + h), h, 0))(Symbol('h', positive=True))" }
+    pistas:
+      - >-
+        Al sustituir $x=2$, ¿qué sale arriba? Con $x$ un poco mayor que 2, ¿qué signo tiene $x-2$?
+    explicacion: >-
+      Sustituir da $\frac{-3}{0}$: el cociente crece sin tope en valor absoluto. El signo: arriba, $x-5\to-3<0$; abajo, con $x>2$, $x-2>0$ y tiende a 0. Negativo entre positivo pequeño da negativo grande: $\lim_{x\to2^+}\frac{x-5}{x-2}=-\infty$. Por la izquierda sería $\infty$, y con un solo lado ya basta para que $x=2$ sea asíntota vertical. Revisa: en $x=2.01$ vale $\frac{-2.99}{0.01}=-299$.
+    tiempo_estimado_s: 30
+
+  # razonamiento: algorítmico (0/0 con raíz: racionalizar; el valor que tapa el hueco) · R1
+  # verificar: los dos laterales con h; si coinciden, ese valor.
+  - id: calc-02-010
+    tipo: numerico
+    dificultad: 2
+    conceptos: [tipos-discontinuidad]
+    enunciado: >-
+      La función $f(x)=\dfrac{\sqrt{3x+10}-4}{x-2}$ no está definida en $x=2$. ¿Qué valor hay que darle a $f(2)$ para que $f$ sea continua en 2? Escribe la respuesta exacta, como fracción, o redondeada a 3 decimales.
+    respuesta: "3/8"
+    tolerancia: 0.0005
+    verificar: { sympy: "(lambda f, h: (lambda l, r: l if l == r else nan)(limit(f.subs(x, 2 - h), h, 0), limit(f.subs(x, 2 + h), h, 0)))((sqrt(3*x + 10) - 4)/(x - 2), Symbol('h', positive=True))" }
+    pistas:
+      - >-
+        Al sustituir $x=2$, ¿qué forma sale? Con una raíz arriba, ¿por qué expresión conviene multiplicar arriba y abajo? Después de cancelar, ¿a qué tiende lo que queda?
+    explicacion: >-
+      Sustituir da $\frac00$. Multiplica arriba y abajo por el conjugado, $\sqrt{3x+10}+4$: arriba queda $(3x+10)-16=3x-6=3(x-2)$, y el $x-2$ se cancela con el de abajo, así que $f(x)=\frac{3}{\sqrt{3x+10}+4}$ para $x\neq2$. Entonces $\lim_{x\to2}f(x)=\frac{3}{4+4}=\frac38=0.375$. El límite existe, pero $f(2)$ no: la discontinuidad es removible, y con $f(2)=\frac38$ queda continua. Revisa: $f(2.01)\approx0.37482$.
+    tiempo_estimado_s: 75
+
+  # razonamiento: deductivo (basta un lateral infinito; distinguir de hueco y salto) · R1
+  # verificar: el lateral derecho de cada función con h y, si está definida a la izquierda, también el izquierdo.
+  - id: calc-02-011
+    tipo: seleccion_multiple
+    dificultad: 3
+    conceptos: [limite-infinito-vertical]
+    enunciado: >-
+      ¿Cuáles de estas funciones tienen la asíntota vertical $x=0$? Puede haber varias.
+    opciones:
+      - '$\ln x$'
+      - '$e^{1/x}$'
+      - '$\dfrac{\operatorname{sen}x}{x}$'
+      - '$\dfrac{x}{\lvert x\rvert}$'
+      - '$\dfrac{1}{x^2}$'
+    correctas: [0, 1, 4]
+    verificar: { sympy: "(lambda h: [bool(limit(f.subs(x, h), h, 0).is_infinite or (lado and limit(f.subs(x, -h), h, 0).is_infinite)) for f, lado in [(log(x), False), (exp(1/x), True), (sin(x)/x, True), (x/Abs(x), True), (1/x**2, True)]])(Symbol('h', positive=True))" }
+    pistas:
+      - >-
+        ¿Qué hace cada función cerca de $x=0$, por cada lado donde está definida?
+      - >-
+        En cada una, ¿cuánto vale el lateral derecho en 0, y el izquierdo si la función está definida ahí? ¿Basta con que uno de los dos sea infinito?
+    explicacion: >-
+      **Tipo.** El candidato es $x=0$ en todas, y basta con que un lateral sea $\pm\infty$. **Sí:** $\ln x\to-\infty$ cuando $x\to0^+$ (por la izquierda no está definida, y basta el derecho); $e^{1/x}\to\infty$ cuando $x\to0^+$, porque $\frac1x\to\infty$ (por la izquierda tiende a 0); $\frac1{x^2}\to\infty$ por los dos lados. **No:** $\frac{\operatorname{sen}x}{x}\to1$, un hueco (removible); $\frac{x}{\lvert x\rvert}$ vale $-1$ a la izquierda y $1$ a la derecha, un salto. Que el denominador se anule no basta. Revisa: en $x=0.01$, $\ln x\approx-4.6$, $e^{1/x}=e^{100}$, enorme, $\frac1{x^2}=10000$, $\frac{\operatorname{sen}x}{x}\approx0.99998$ y $\frac{x}{\lvert x\rvert}=1$. Eso detecta errores, pero no demuestra: $\ln x$ baja tan despacio que en 0.01 apenas va en $-4.6$.
+    tiempo_estimado_s: 75
+
+  # razonamiento: deductivo (calcular la AH y comprobar que la curva la cruza: contraejemplo de «nunca la cruza») · R1
+  # verificar: la AH en oo, la misma que en -oo, y la solución de f = AH con solve.
+  - id: calc-02-012
+    tipo: completar
+    dificultad: 3
+    conceptos: [asintota-horizontal]
+    enunciado: >-
+      Sea $f(x)=\dfrac{5-4x^2}{2x^2+x}$. Encuentra su asíntota horizontal y el valor de $x$ donde la gráfica la cruza. Escribe decimales sin redondear o fracciones como `1/6`, y los negativos con `-`.
+    texto: >-
+      asíntota horizontal: $y=$ ___ · la gráfica la cruza en $x=$ ___
+    respuestas: ["-2", "-2.5"]
+    verificar: { sympy: "(lambda f: (lambda L: [L] + solve(f - L, x) if L == limit(f, x, -oo) else [nan])(limit(f, x, oo)))((5 - 4*x**2)/(2*x**2 + x))" }
+    pistas:
+      - >-
+        ¿Qué hace $f$ cuando $x\to\infty$ y cuando $x\to-\infty$, cada lado aparte?
+      - >-
+        Con los grados iguales, ¿qué cociente da la asíntota? Para el cruce, ¿qué ecuación sale de pedir que $f(x)$ valga exactamente esa altura, y la solución está en el dominio?
+    explicacion: >-
+      **Tipo.** Grados iguales (2 y 2). Divide entre $x^2$: $\frac{5/x^2-4}{2+1/x^2}\to\frac{-4}{2}=-2$, por los dos lados. La asíntota horizontal es $y=-2$. **Cruce.** $f(x)=-2$ da $5-4x^2=-2(2x^2+x)=-4x^2-2x$; los $x^2$ se van y queda $5=-2x$, así que $x=-2.5$, que está en el dominio, porque $2(-2.5)^2-2.5=10\neq0$. La curva cruza su asíntota: la asíntota describe lo que pasa lejos, no cerca. Revisa: $f(-2.5)=\frac{5-25}{12.5-2.5}=-2$ y $f(100)\approx-1.99$. Eso detecta errores, pero no demuestra: lo que demuestra es la ecuación.
+    tiempo_estimado_s: 90
+
+  # razonamiento: algorítmico (todas las asíntotas, como en el examen: la vertical por el signo de cada lateral y la
+  # oblicua por la división) · R1. El concepto sigue siendo AO; la vertical es la parte de AV que pide el examen.
+  # verificar: la vertical (ceros del denominador de singularities, filtrados con un lateral infinito con h, como en
+  # el 015) y luego m y b por límites en oo (la explicación va por división). Comprobado aparte: en -oo, m y b son los
+  # mismos (2 y -5).
+  - id: calc-02-013
+    tipo: completar
+    dificultad: 3
+    conceptos: [asintota-oblicua]
+    enunciado: >-
+      Sea $f(x)=\dfrac{2x^2-3x+4}{x+1}$. Encuentra todas sus asíntotas, como en el examen. La que tiene al infinito escríbela como $y=mx+b$, con $m=0$ si resulta horizontal. Escribe los negativos con `-`.
+    texto: >-
+      asíntota vertical: $x=$ ___ · cuando $x\to\pm\infty$: $m=$ ___ y $b=$ ___
+    respuestas: ["-1", "2", "-5"]
+    verificar: { sympy: "(lambda f, h: (lambda V, m: V + [m, limit(f - m*x, x, oo)])([c for c in sorted(singularities(f, x)) if {limit(f.subs(x, c - h), h, 0), limit(f.subs(x, c + h), h, 0)} & {oo, -oo}], limit(f/x, x, oo)))((2*x**2 - 3*x + 4)/(x + 1), Symbol('h', positive=True))" }
+    pistas:
+      - >-
+        ¿Qué hace $f$ junto a cada cero que queda abajo, y cuando $x\to\pm\infty$, cada lado aparte?
+      - >-
+        ¿El numerador vale 0 donde se anula el denominador? Al dividir el numerador entre $x+1$, ¿cuál es el cociente, cuál el residuo y qué parte se va a 0?
+    explicacion: >-
+      **Tipo en $-1$.** Arriba tiende a 9 y abajo $x+1\to0$, negativo a la izquierda y positivo a la derecha: $-\infty$ e $\infty$; $x=-1$ es asíntota vertical. **Al infinito.** Grado 2 arriba y 1 abajo: no hay horizontal; hay oblicua y es el cociente. **Divide.** $2x^2\div x=2x$; $2x(x+1)=2x^2+2x$, y queda $-5x+4$. Luego $-5x\div x=-5$; $-5(x+1)=-5x-5$, y queda 9. Así, $f(x)=2x-5+\frac{9}{x+1}$, y $\frac{9}{x+1}\to0$ por los dos lados: $m=2$ y $b=-5$. Un error común es tomar como $b$ el residuo (9) o el término independiente de arriba (4). Revisa: $f(100)=\frac{19704}{101}\approx195.09$ y la recta da 195. Eso detecta errores, pero no demuestra.
+    tiempo_estimado_s: 120
+
+  # razonamiento: algorítmico (dos cortes, dos ecuaciones lineales en a y b) · R1
+  # verificar: los laterales con h en -1 (izquierdo) y en 2 (derecho) contra f en cada corte; se resuelve el sistema.
+  - id: calc-02-014
+    tipo: completar
+    dificultad: 3
+    conceptos: [continuidad-punto]
+    enunciado: >-
+      Sea $f(x)=\begin{cases}ax+5 & \text{si } x<-1\\ x^2+bx-1 & \text{si } -1\le x\le2\\ 2ax-11 & \text{si } x>2\end{cases}$. Encuentra $a$ y $b$ para que $f$ sea continua en todo $\mathbb R$. Escribe los negativos con `-`.
+    texto: >-
+      $a=$ ___ · $b=$ ___
+    respuestas: ["2", "-3"]
+    verificar: { sympy: "(lambda a, b, h: (lambda f: (lambda s: [s[a], s[b]])(solve([limit(f.subs(x, -1 - h), h, 0) - f.subs(x, -1), limit(f.subs(x, 2 + h), h, 0) - f.subs(x, 2)], [a, b], dict=True)[0]))(Piecewise((a*x + 5, x < -1), (x**2 + b*x - 1, x <= 2), (2*a*x - 11, True))))(Symbol('a'), Symbol('b'), Symbol('h', positive=True))" }
+    pistas:
+      - >-
+        Recorre la rutina. 1) ¿Dónde puede fallar? Busca ceros del denominador, cortes y bordes del dominio. 2) En cada candidato $c$: ¿existe $f(c)$? ¿Existe el límite en $c$, con cada lateral calculado con la pieza de su lado? ¿Vale $f(c)$? 3) Si falla, ¿el límite es un número (removible), los laterales son números distintos (salto) o algún lateral es $\pm\infty$ (infinita)?
+      - >-
+        En cada corte, ¿qué pieza da el valor de $f$ y qué pieza da el lateral del otro lado? ¿Cuántas ecuaciones salen, y cómo despejas una letra para sustituirla en la otra?
+    explicacion: >-
+      **Candidatos.** Cada pieza es un polinomio, continuo en su tramo: solo pueden fallar los cortes, $-1$ y $2$. **En $-1$.** Manda la pieza del medio, que incluye a $-1$: $f(-1)=1-b-1=-b$, y por la izquierda $\lim_{x\to-1^-}(ax+5)=-a+5$. Iguala: $-a+5=-b$. **En 2.** También manda la del medio: $f(2)=4+2b-1=3+2b$, y por la derecha $\lim_{x\to2^+}(2ax-11)=4a-11$. Iguala: $3+2b=4a-11$. **Resuelve.** De la primera, $b=a-5$; en la segunda, $3+2a-10=4a-11$, así que $a=2$ y $b=-3$. Revisa: con esos valores, $f(-1.01)=2.98$, cerca de $f(-1)=3$, y $f(2.01)=-2.96$, cerca de $f(2)=-3$. Eso detecta errores, pero no demuestra: lo que demuestra es que en cada corte los laterales valen $f$.
+    tiempo_estimado_s: 120
+
+  # razonamiento: abductivo (encontrar la causa del error: decidir sin simplificar) · R2
+  # verificar: el polinomio cuyas raíces son las asíntotas verticales (candidatos de singularities filtrados con los
+  # laterales); cada opción lleva el que afirma. Comprobado con sympy: el límite en 3 es 7/4.
+  - id: calc-02-015
+    tipo: opcion_multiple
+    dificultad: 3
+    conceptos: [tipos-discontinuidad]
+    enunciado: >-
+      Luis afirma: «$f(x)=\dfrac{x^2+x-12}{x^2-2x-3}$ tiene asíntotas verticales en $x=3$ y en $x=-1$, porque ahí se anula el denominador». ¿Qué le dirías?
+    opciones:
+      - >-
+        Tiene razón: el denominador se anula en 3 y en $-1$, y en los dos hay asíntota vertical.
+      - >-
+        Se equivoca en $-1$: ahí el factor se cancela y hay un hueco; la única asíntota vertical es $x=3$.
+      - >-
+        Se equivoca en 3: ahí el factor $x-3$ se cancela y hay un hueco; la única asíntota vertical es $x=-1$.
+      - >-
+        Se equivoca en los dos: los dos factores se cancelan y no hay asíntotas verticales.
+    valores: ["(x - 3)*(x + 1)", "x - 3", "x + 1", "1"]
+    correcta: 2
+    verificar: { sympy: "(lambda f, h: Mul(*[x - c for c in sorted(singularities(f, x)) if {limit(f.subs(x, c - h), h, 0), limit(f.subs(x, c + h), h, 0)} & {oo, -oo}]))((x**2 + x - 12)/(x**2 - 2*x - 3), Symbol('h', positive=True))" }
+    pistas:
+      - >-
+        ¿Qué te piden: decidir, en cada cero del denominador, si Luis tiene razón? ¿Qué tiene que pasar con los laterales para que haya asíntota vertical?
+      - >-
+        Si factorizas arriba y abajo, ¿se cancela algún factor? Después de cancelar, ¿qué valor anula todavía el denominador, y qué hace el numerador ahí?
+    explicacion: >-
+      **Candidatos.** Abajo, $x^2-2x-3=(x-3)(x+1)$ se anula en 3 y en $-1$. Arriba, $x^2+x-12=(x+4)(x-3)$. Para $x\neq3$, $f(x)=\frac{x+4}{x+1}$. **En 3.** El factor $x-3$ se cancela: $\lim_{x\to3}f(x)=\frac74$, finito, y $f(3)$ no existe; es una discontinuidad removible (un hueco en $\left(3,\frac74\right)$), no una asíntota. **En $-1$.** Arriba tiende a 3 y abajo a 0, sin cancelarse: los laterales son $-\infty$ por la izquierda e $\infty$ por la derecha, y $x=-1$ sí es asíntota vertical. Luis decidió con el denominador sin simplificar. Revisa: $f(2.99)\approx1.7519$ y $f(3.01)\approx1.7481$, cerca de 1.75; $f(-0.99)=301$. Eso detecta errores, pero no demuestra.
+    tiempo_estimado_s: 90
+
+  # razonamiento: deductivo (en un intervalo cerrado, cada borde con el lateral de adentro) · R1
+  # verificar (de experto-matematicas): laterales de s en 1 con h y s(1); un intervalo sirve si el 1 no está adentro
+  # (o, si lo está, los dos laterales valen s(1)) y, si el 1 es un borde cerrado, el lateral de adentro vale s(1).
+  - id: calc-02-016
+    tipo: seleccion_multiple
+    dificultad: 3
+    conceptos: [continuidad-intervalo]
+    enunciado: >-
+      Sea $s(x)=\begin{cases}x^2-3x & \text{si } x<1\\ 4-x & \text{si } x\ge1\end{cases}$. ¿En cuáles de estos intervalos es continua $s$, según la definición de continuidad en un intervalo? Puede haber varios.
+    opciones:
+      - '$[0,1]$'
+      - '$[1,4]$'
+      - '$[-1,2]$'
+      - '$(0,1)$'
+    correctas: [1, 3]
+    verificar: { sympy: "(lambda f, h, c: (lambda l, r, v: [(not (p < c < q) or l == r == v) and (not cl or p != c or r == v) and (not cr or q != c or l == v) for p, q, cl, cr in [(0, 1, True, True), (1, 4, True, True), (-1, 2, True, True), (0, 1, False, False)]])(limit(f.subs(x, c - h), h, 0), limit(f.subs(x, c + h), h, 0), f.subs(x, c)))(Piecewise((x**2 - 3*x, x < 1), (4 - x, True)), Symbol('h', positive=True), 1)" }
+    pistas:
+      - >-
+        Recorre la rutina. 1) ¿Dónde puede fallar? Busca ceros del denominador, cortes y bordes del dominio. 2) En cada candidato $c$: ¿existe $s(c)$? ¿Existe el límite en $c$, con cada lateral calculado con la pieza de su lado? ¿Vale $s(c)$? 3) Si falla, ¿el límite es un número (removible), los laterales son números distintos (salto) o algún lateral es $\pm\infty$ (infinita)?
+      - >-
+        En el corte, ¿cuánto valen $s(1)$ y cada lateral? En cada intervalo, ¿el 1 queda adentro, en un borde o afuera? Si es un borde cerrado, ¿qué lateral cuenta?
+    explicacion: >-
+      **Candidatos.** Cada pieza es un polinomio, continuo en su tramo: solo puede fallar el corte, $x=1$. **En 1.** $s(1)=4-1=3$; $\lim_{x\to1^-}(x^2-3x)=-2$ y $\lim_{x\to1^+}(4-x)=3$: un salto, así que $s$ no es continua en 1. Pero en el borde de un intervalo cerrado solo cuenta el lateral de adentro. **$[1,4]$:** el 1 es el borde izquierdo y cuenta el lateral derecho, que vale $3=s(1)$: sí. **$(0,1)$:** el 1 queda fuera: sí. **$[0,1]$:** el 1 es el borde derecho y cuenta el lateral izquierdo, $-2\neq3$: no. **$[-1,2]$:** el salto queda adentro: no. Revisa: $s(0.99)=-1.9899$, lejos de $s(1)=3$, y $s(1.01)=2.99$, cerca. Eso detecta errores, pero no demuestra.
+    tiempo_estimado_s: 90
+
+  # razonamiento: deductivo (revisar las dos hipótesis del TVI; que no las cumpla no quiere decir que no haya raíz) · R2
+  # verificar (de experto-matematicas): sin singularidades en [a, b] y f(a)·f(b) < 0.
+  - id: calc-02-017
+    tipo: seleccion_multiple
+    dificultad: 3
+    conceptos: [teorema-valor-intermedio]
+    enunciado: >-
+      En cada caso, aplica el TVI una sola vez: en el intervalo dado, con $N=0$ y los valores en sus dos bordes. ¿En cuáles garantiza el teorema que la función tiene una raíz en ese intervalo? Puede haber varios.
+    opciones:
+      - '$x^3+3x-5$ en $[1,2]$'
+      - '$\dfrac{1}{x-1}$ en $[0,2]$'
+      - '$x^2-2$ en $[0,1]$'
+      - '$\cos x$ en $[0,3]$'
+      - '$x^2-1$ en $[-2,2]$'
+    correctas: [0, 3]
+    verificar: { sympy: "[bool(singularities(f, x).intersect(Interval(a, b)) == S.EmptySet and f.subs(x, a)*f.subs(x, b) < 0) for f, a, b in [(x**3 + 3*x - 5, 1, 2), (1/(x - 1), 0, 2), (x**2 - 2, 0, 1), (cos(x), 0, 3), (x**2 - 1, -2, 2)]]" }
+    pistas:
+      - >-
+        ¿Qué te piden: que haya raíz, o que el TVI la garantice? ¿Qué dos hipótesis pide el teorema?
+      - >-
+        En cada caso, ¿la función es continua en todo el intervalo cerrado? ¿Los valores en los dos bordes tienen signos opuestos?
+    explicacion: >-
+      **Candidatos.** El TVI pide continuidad en todo $[a,b]$ y signos opuestos en los bordes. Solo $\frac1{x-1}$ tiene un punto donde falla la continuidad, $x=1$, y está en $[0,2]$. **Sí:** $x^3+3x-5$ es un polinomio y vale $-1$ en 1 y 9 en 2; $\cos x$ es continua, con $\cos0=1>0$ y $\cos3\approx-0.99<0$. **No:** $\frac1{x-1}$ vale $-1$ y $1$ en los bordes, pero no es continua en $[0,2]$, y nunca vale 0; $x^2-2$ vale $-2$ y $-1$, sin cambio de signo (y no tiene raíz en $[0,1]$, porque $\sqrt2>1$); $x^2-1$ vale 3 en los dos bordes, así que el TVI no garantiza nada, aunque sí tiene raíces, en $-1$ y en 1. (Si lo aplicaras en $[0,2]$, con $f(0)=-1$, sí garantizaría una: así se trabaja en el 025.) Que el TVI no la garantice no quiere decir que no haya raíz. Revisa: $\frac1{x-1}$ vale $-100$ en 0.99 y 100 en 1.01; salta de un signo al otro sin pasar por 0. Eso detecta el problema, pero no demuestra.
+    tiempo_estimado_s: 90
+
+  # razonamiento: deductivo (decidir la oblicua por grados o por m y b, cada lado aparte) · R2
+  # verificar (de experto-matematicas): en algún lado, m = lim f/x finito y distinto de 0, y b = lim (f - m x) finito.
+  - id: calc-02-018
+    tipo: seleccion_multiple
+    dificultad: 4
+    conceptos: [asintota-oblicua]
+    enunciado: >-
+      ¿Cuáles de estas funciones tienen asíntota oblicua al menos de un lado ($x\to\infty$ o $x\to-\infty$)? Puede haber varias.
+    opciones:
+      - '$\dfrac{x^3+2}{x^2-1}$'
+      - '$\dfrac{3x^2+1}{x^2+4}$'
+      - '$\dfrac{x^4}{x^2+1}$'
+      - '$x+\dfrac1x$'
+      - '$\sqrt{x^2+1}$'
+      - '$\dfrac{2x+1}{x-3}$'
+    correctas: [0, 3, 4]
+    verificar: { sympy: "[any((lambda m: bool(m.is_finite and m != 0 and limit(f - m*x, x, s).is_finite))(limit(f/x, x, s)) for s in (oo, -oo)) for f in [(x**3 + 2)/(x**2 - 1), (3*x**2 + 1)/(x**2 + 4), x**4/(x**2 + 1), x + 1/x, sqrt(x**2 + 1), (2*x + 1)/(x - 3)]]" }
+    pistas:
+      - >-
+        ¿Qué hace cada función cuando $x\to\infty$ y cuando $x\to-\infty$, cada lado aparte?
+      - >-
+        En las racionales, ¿cuántos grados de diferencia hay entre arriba y abajo, y qué te dice eso? En las otras, ¿a qué se parece $f$ cuando $x$ es muy grande, y cuando es muy negativa?
+      - >-
+        Para las que no son racionales, ¿cuánto valen $\lim\frac{f(x)}{x}$ y $\lim\left(f(x)-mx\right)$ en cada lado? ¿Te dio $m\neq0$ y $b$ finito? Revisa con un valor grande: ¿qué tan cerca queda $f$ de tu recta?
+    explicacion: >-
+      **Tipo.** Una racional tiene oblicua si arriba el grado es mayor en exactamente uno. **Sí:** $\frac{x^3+2}{x^2-1}=x+\frac{x+2}{x^2-1}$, con oblicua $y=x$; $\left(x+\frac1x\right)-x=\frac1x\to0$, con oblicua $y=x$ (y una vertical en 0); en $\sqrt{x^2+1}$, $m=\lim\frac{\sqrt{x^2+1}}{x}$ vale 1 a la derecha y $-1$ a la izquierda, porque $\sqrt{x^2}=\lvert x\rvert$, y $b=0$ en los dos: $y=x$ a la derecha e $y=-x$ a la izquierda. **No:** $\frac{3x^2+1}{x^2+4}$ y $\frac{2x+1}{x-3}$ tienen grados iguales, con horizontales $y=3$ e $y=2$; $\frac{x^4}{x^2+1}$ tiene dos grados de diferencia: crece como $x^2$ y no se pega a ninguna recta. Revisa: $\sqrt{100^2+1}-100\approx0.005$ y $\frac{100^3+2}{100^2-1}-100\approx0.0102$. Eso detecta errores, pero no demuestra.
+    tiempo_estimado_s: 120
+
+  # razonamiento: metacognitivo (monitorear un plan: una tabla de un solo lado solo sugiere un lateral) · R2
+  # Revisión manual (la respuesta es un juicio sobre el plan). Comprobado con sympy: f(2) = 5, lateral izquierdo 5 y
+  # derecho 4.
+  - id: calc-02-019
+    tipo: opcion_multiple
+    dificultad: 4
+    conceptos: [continuidad-punto]
+    enunciado: >-
+      Sea $f(x)=\begin{cases}x+3 & \text{si } x\le2\\ x^2 & \text{si } x>2\end{cases}$. Marta quiere saber si $f$ es continua en 2. Calcula $f(2)=5$, hace una tabla con $x=1.9$, $1.99$ y $1.999$ (los valores se acercan a 5) y concluye: «es continua en 2». ¿Qué le dirías?
+    opciones:
+      - >-
+        Tiene razón: $f(2)$ existe y la tabla se acerca a $f(2)$, así que se cumplen las tres condiciones.
+      - >-
+        Le faltó el lado derecho: ahí manda $x^2$, que tiende a 4; los laterales son distintos, el límite no existe y hay un salto en 2.
+      - >-
+        Le faltó el lado derecho, pero da lo mismo: en un corte basta un lateral que coincida con $f(2)$.
+      - >-
+        Su único error es usar una tabla: si sustituye $x=2$ en $x+3$, comprueba que el límite vale 5 y que es continua.
+    correcta: 1
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        ¿Qué te piden: revisar la conclusión de Marta o calcular algo nuevo? ¿Qué pide exactamente la condición 2?
+      - >-
+        ¿De qué lado de 2 tomó Marta sus valores? En un corte, ¿qué pieza da cada lateral?
+      - >-
+        Si calculas el lateral que le falta, ¿coincide con el que encontró? Revisa: ¿cuánto vale $f(2.01)$, y queda cerca de $f(2)$?
+    explicacion: >-
+      **Candidatos.** El único candidato es el corte, $x=2$. Marta revisó bien la condición 1 ($f(2)=5$, con $x+3$ por el «$\le$») y el lateral izquierdo, que vale 5. Pero la condición 2 pide los dos laterales, y en un corte cada uno sale de la pieza de su lado: $\lim_{x\to2^+}x^2=4$. Como $5\neq4$, el límite no existe: es un salto. Lo que le faltó fue revisar su plan: una tabla de un solo lado solo sugiere un lateral. Las otras: un solo lateral basta en el borde de un intervalo, no en un punto interior; y sustituir $x=2$ en $x+3$ da $f(2)$, no el límite. Revisa: $f(2.01)=4.0401$, lejos de $f(2)=5$. Eso detecta el salto, pero no lo demuestra: lo demuestra el lateral derecho.
+    tiempo_estimado_s: 90
+
+  # razonamiento: deductivo (√(x²) = |x|: cada lado aparte da una AH distinta) · R1
+  # verificar (de experto-matematicas): los límites en oo y en -oo.
+  - id: calc-02-020
+    tipo: completar
+    dificultad: 4
+    conceptos: [asintota-horizontal]
+    enunciado: >-
+      Sea $f(x)=\dfrac{\sqrt{9x^2+5}-2x}{x+4}$. Encuentra sus asíntotas horizontales, cada lado aparte. Escribe los negativos con `-`.
+    texto: >-
+      cuando $x\to\infty$: $y=$ ___ · cuando $x\to-\infty$: $y=$ ___
+    respuestas: ["1", "-5"]
+    verificar: { sympy: "(lambda f: [limit(f, x, oo), limit(f, x, -oo)])((sqrt(9*x**2 + 5) - 2*x)/(x + 4))" }
+    pistas:
+      - >-
+        ¿Qué hace $f$ cuando $x\to\infty$ y cuando $x\to-\infty$, cada lado aparte?
+      - >-
+        ¿Entre qué potencia de $x$ conviene dividir arriba y abajo? Al meter esa $x$ dentro de la raíz, ¿qué pasa con su signo?
+      - >-
+        ¿Cuánto vale $\sqrt{x^2}$ cuando $x<0$? Revisa con un $x$ muy negativo, como $-1000$: ¿a qué se parece $f$?
+    explicacion: >-
+      **Tipo.** Se pide cada lado al infinito por separado (en $-4$ hay además una asíntota vertical, que aquí no se pide). Divide arriba y abajo entre $x$. Para meter $x$ en la raíz, $\sqrt{9x^2+5}=\lvert x\rvert\sqrt{9+\frac5{x^2}}$. **Derecha** ($x>0$, $\lvert x\rvert=x$): $\frac{\sqrt{9+5/x^2}-2}{1+4/x}\to\frac{3-2}{1}=1$. **Izquierda** ($x<0$, $\lvert x\rvert=-x$): $\frac{-\sqrt{9+5/x^2}-2}{1+4/x}\to\frac{-3-2}{1}=-5$. Son dos asíntotas horizontales: $y=1$ a la derecha e $y=-5$ a la izquierda. El error común es escribir $\sqrt{9x^2}=3x$ en los dos lados, y entonces sale 1 dos veces. Revisa: $f(1000)\approx0.996$ y $f(-1000)\approx-5.02$. Eso detecta errores, pero no demuestra.
+    tiempo_estimado_s: 120
+
+  # razonamiento: deductivo (un lateral infinito no se arregla con ningún valor: no todo «¿qué k?» tiene solución) · R2
+  # Textos de arquitecto-razonamiento. verificar: los k reales con lateral izquierdo = f(1) y lateral derecho = f(1)
+  # (solveset en los reales, laterales con h). Cada opción lleva el polinomio mónico en k cuyas raíces son los k que
+  # afirma: 1 si ninguno, 0 si todos.
+  - id: calc-02-021
+    tipo: opcion_multiple
+    dificultad: 4
+    conceptos: [limite-infinito-vertical]
+    enunciado: >-
+      Sea $f(x)=\dfrac{x+2}{x-1}$ si $x<1$ y $f(x)=kx+3$ si $x\ge1$. ¿Qué valor de $k$ hace que $f$ sea continua en $x=1$?
+    opciones:
+      - >-
+        $k=0$: así $f(1)=3$, el numerador de la izquierda en 1.
+      - >-
+        $k=-3$: así $f(1)=0$, lo que vale el denominador de la izquierda en 1.
+      - >-
+        Cualquier $k$: la fórmula de la izquierda no está definida en 1.
+      - >-
+        Ningún $k$: por la izquierda $f\to-\infty$, y eso no lo arregla ningún valor de $f(1)$.
+    valores: ["k", "k + 3", "0", "1"]
+    correcta: 3
+    verificar: { sympy: "(lambda f, h: (lambda l, r, v: (lambda s: Mul(*[k - c for c in s]) if s.is_FiniteSet else 0)(solveset(Eq(l, v), k, S.Reals).intersect(solveset(Eq(r, v), k, S.Reals))))(limit(f.subs(x, 1 - h), h, 0), limit(f.subs(x, 1 + h), h, 0), f.subs(x, 1)))(Piecewise(((x + 2)/(x - 1), x < 1), (k*x + 3, True)), Symbol('h', positive=True))" }
+    pistas:
+      - >-
+        Recorre la rutina. 1) ¿Dónde puede fallar? Factoriza y busca ceros del denominador, cortes y bordes del dominio. 2) En cada candidato $c$: ¿existe $f(c)$? ¿Existe el límite en $c$, con cada lateral calculado con la pieza de su lado? ¿Vale $f(c)$? 3) Si falla, ¿el límite es un número (removible), los laterales son números distintos (salto) o algún lateral es $\pm\infty$ (infinita)?
+      - >-
+        Por la izquierda de 1, ¿qué fórmula manda? Al sustituir $x=1$ en ella, ¿sale un número, $0/0$ o un número distinto de 0 entre 0? ¿Qué te dice esa forma sobre el lateral, y con qué signo?
+      - >-
+        Si un lateral no es un número, ¿puede alguna elección de $f(1)$ hacer que el límite exista? Revisa: evalúa la pieza de la izquierda en $x=0.99$ y en $x=0.999$. ¿Se acerca a algún número?
+    explicacion: >-
+      **Candidatos.** El corte, $x=1$, que además anula el denominador de la pieza izquierda. **Lateral izquierdo.** Con $x<1$ manda $\frac{x+2}{x-1}$: arriba tiende a 3 y abajo $x-1\to0$ con $x-1<0$, así que $\lim_{x\to1^-}f(x)=-\infty$. **Conclusión.** La condición 2 pide que el límite exista, y un lateral infinito no se arregla con ningún valor de $f(1)=k+3$, aunque el lateral derecho sí valga $k+3$. Ningún $k$ sirve: en 1 hay una discontinuidad infinita, y $x=1$ es asíntota vertical (basta un lado). Las otras: $k=0$ copia el numerador en 1 como si fuera el límite; $k=-3$ hace $f(1)=0$, que no tiene que ver con el lateral; y que la pieza izquierda no esté definida en 1 no importa, porque $f(1)$ lo da la pieza de $x\ge1$. Revisa: la pieza izquierda vale $-299$ en 0.99 y $-2999$ en 0.999; no se acerca a ningún número. Eso detecta el problema, pero no lo demuestra.
+    tiempo_estimado_s: 90
+
+  # razonamiento: metacognitivo (planear los candidatos, revisar las tres condiciones con límites, clasificar y comprobar con un valor cercano, como en el examen) · R3
+  # Textos de arquitecto-razonamiento, tal cual. Comprobado con sympy: k = -3; en -2 el límite es 2; en 1, +∞ por la
+  # izquierda y -∞ por la derecha; en 2, laterales -2 = f(2); AH y = 1 en -∞; f(1.99) ≈ -2.0303, f(-2.01) ≈ 1.9967 y
+  # f(2.01) = -1.9899.
+  - id: calc-02-022
+    tipo: autoevaluacion
+    dificultad: 4
+    conceptos: [continuidad-intervalo]
+    enunciado: >-
+      Sea $f(x)=\begin{cases}\dfrac{x^2-2x-8}{x^2+x-2} & \text{si } x<2\\ x^2+kx & \text{si } x\ge2\end{cases}$. (a) Encuentra el valor de $k$ que hace a $f$ continua en $x=2$. (b) Con ese $k$, analiza la continuidad de $f$ en todo $\mathbb R$ como en el examen: en cada punto donde podría fallar, revisa las tres condiciones con límites, clasifica la discontinuidad (removible, de salto o infinita) y di cuáles son las asíntotas verticales, horizontales y oblicuas de $f$. Termina con los intervalos donde $f$ es continua, y comprueba tu conclusión con un valor cercano a un candidato.
+    rubrica:
+      - >-
+        Factoriza $x^2-2x-8=(x-4)(x+2)$ y $x^2+x-2=(x-1)(x+2)$, y de ahí saca los puntos donde la continuidad puede fallar: $x=-2$ y $x=1$, donde se anula el denominador (los dos son menores que 2, así que caen en el primer tramo), y el corte $x=2$. Justifica que en cualquier otro punto $f$ es continua: en $x<2$ es una racional con denominador distinto de 0, y en $x>2$, un polinomio.
+      - >-
+        En $x=2$ escribe las tres condiciones con la pieza correcta de cada lado: $f(2)=4+2k$; $\lim_{x\to2^-}f(x)=\frac{4-4-8}{4+2-2}=-2$, sustituyendo en la fracción, cuyo denominador vale $4\neq0$; y $\lim_{x\to2^+}f(x)=4+2k$. Iguala y obtiene $k=-3$. No cumple si solo dice «igualo las piezas» sin nombrar $f(2)$ y los dos laterales.
+      - >-
+        Clasifica cada candidato con límites, no solo con «se cancela o no se cancela». En $x=-2$: $f(-2)$ no está definida (sale $0/0$) y $\lim_{x\to-2}f(x)=\lim\frac{x-4}{x-1}=\frac{-6}{-3}=2$, así que la discontinuidad es removible y se quitaría con $f(-2)=2$. En $x=1$: el numerador tiende a $-3$ y $x-1\to0$; justifica el signo de cada lado, $\lim_{x\to1^-}f(x)=\infty$ y $\lim_{x\to1^+}f(x)=-\infty$, así que la discontinuidad es infinita y $x=1$ es asíntota vertical. Con $k=-3$, en $x=2$ es continua.
+      - >-
+        Calcula por separado los dos límites al infinito: $\lim_{x\to-\infty}f(x)=1$, así que $y=1$ es asíntota horizontal solo por la izquierda; por la derecha, $x^2-3x\to\infty$ y $\frac{f(x)}{x}=x-3\to\infty$, así que no hay horizontal ni oblicua. Concluye que $f$ es continua en $(-\infty,-2)\cup(-2,1)\cup(1,\infty)$. Revisa con al menos un valor cercano, como $f(1.99)\approx-2.03$ o $f(-2.01)\approx1.997$. Esa revisión detecta errores, pero no sustituye a los límites.
+    respuesta_modelo: >-
+      Factorizo: $x^2-2x-8=(x-4)(x+2)$ y $x^2+x-2=(x-1)(x+2)$. Para $x<2$, $f(x)=\frac{(x-4)(x+2)}{(x-1)(x+2)}$ no está definida en $x=-2$ ni en $x=1$, y en los demás puntos de ese tramo vale $\frac{x-4}{x-1}$. Los candidatos son $-2$ y $1$ (ceros del denominador) y el corte, $2$. En cualquier otro $x<2$, $f$ es una racional con denominador distinto de 0, y en $x>2$ es un polinomio: ahí es continua. (a) En $x=2$ manda la pieza de $x\ge2$, así que $f(2)=4+2k$. Por la izquierda uso la fracción; su denominador en 2 vale $4\neq0$, así que sustituyo: $\lim_{x\to2^-}f(x)=\frac{4-4-8}{4+2-2}=-2$. Por la derecha, $\lim_{x\to2^+}(x^2+kx)=4+2k$. Para que el límite exista y valga $f(2)$, necesito $4+2k=-2$, es decir, $k=-3$. Con cualquier otro $k$, los laterales serían finitos y distintos: un salto. (b) Con $k=-3$: en $x=-2$, $f(-2)$ no existe (sale $0/0$) y falla la condición 1, pero $\lim_{x\to-2}\frac{x-4}{x-1}=\frac{-6}{-3}=2$ sí existe: la discontinuidad es removible, y con $f(-2)=2$ sería continua. En $x=1$, $f(1)$ no existe; el numerador tiende a $-3$ y $x-1\to0$. Por la izquierda, $x-1<0$, así que $\lim_{x\to1^-}f(x)=\infty$; por la derecha, $\lim_{x\to1^+}f(x)=-\infty$. La discontinuidad es infinita y $x=1$ es asíntota vertical. En $x=2$, $f(2)=4-6=-2$ y los dos laterales valen $-2$: es continua. Al infinito, cada lado por separado: $\lim_{x\to-\infty}\frac{x-4}{x-1}=1$, así que $y=1$ es asíntota horizontal por la izquierda. Por la derecha, $f(x)=x^2-3x\to\infty$ y $\frac{f(x)}{x}=x-3\to\infty$: no hay horizontal ni oblicua. Conclusión: $f$ es continua en $(-\infty,-2)\cup(-2,1)\cup(1,\infty)$, con una discontinuidad removible en $-2$ y una infinita en $1$. Reviso: $f(1.99)=\frac{-2.01}{0.99}\approx-2.03$, cerca de $f(2)=-2$, y $f(-2.01)=\frac{-6.01}{-3.01}\approx1.997$, cerca de 2.
+    pistas:
+      - >-
+        ¿Dónde puede fallar la continuidad de esta $f$? Si factorizas arriba y abajo, ¿qué valores anulan el denominador, en qué tramo caen, y dónde cambia la fórmula?
+      - >-
+        En $x=2$, ¿qué pieza usas para $f(2)$, cuál para cada lateral, y qué ecuación en $k$ sale de pedir las tres condiciones? En cada cero del denominador, ¿el factor se cancela o no, y qué te dice el límite de cada lado?
+      - >-
+        Para las asíntotas al infinito, ¿calculaste por separado $x\to\infty$ y $x\to-\infty$? ¿Qué fórmula manda en cada sentido? Antes de cerrar, ¿con qué valor cercano a un candidato comprobarías tu conclusión sin ver la respuesta?
+    explicacion: >-
+      El error más común es clasificar sin calcular: decir que hay asíntotas en $x=-2$ y en $x=1$ porque ahí se anula el denominador. En $x=-2$ el factor $x+2$ se cancela y el límite existe (vale 2): es una discontinuidad removible, no una asíntota. El segundo es llamar a $y=1$ «la asíntota horizontal de $f$» sin aclarar que solo vale por la izquierda: por la derecha manda $x^2-3x$. El tercero es despejar $k$ igualando las piezas sin revisar que, en $x=2$, la fracción sí está definida. Revisa: con $k=-3$, $f(2.01)=-1.9899$ y $f(1.99)\approx-2.0303$, los dos cerca de $f(2)=-2$. Con otro $k$, $f(2)$ y $f(2.01)$ se mueven juntos y $f(1.99)$ queda lejos: eso delata el salto.
+    tarjeta: false
+    tiempo_estimado_s: 360
+
+  # razonamiento: analógico (softplus frente a la rampa max(0, 2x): oblicua de un lado y horizontal del otro) · R2
+  # verificar (de experto-matematicas): m = lim f/x y b = lim (f - m x) en oo, y el límite en -oo.
+  - id: calc-02-023
+    tipo: completar
+    dificultad: 5
+    conceptos: [asintota-oblicua]
+    enunciado: >-
+      En redes neuronales se usa la activación *softplus*, $\ln\left(1+e^{z}\right)$. Con un 2 en el exponente, sea $f(x)=\ln\left(1+e^{2x}\right)$. Encuentra su asíntota oblicua $y=mx+b$ cuando $x\to\infty$ y su asíntota horizontal cuando $x\to-\infty$.
+    texto: >-
+      cuando $x\to\infty$: $m=$ ___ y $b=$ ___ · cuando $x\to-\infty$: $y=$ ___
+    respuestas: ["2", "0", "0"]
+    verificar: { sympy: "(lambda f: (lambda m: [m, limit(f - m*x, x, oo), limit(f, x, -oo)])(limit(f/x, x, oo)))(log(1 + exp(2*x)))" }
+    pistas:
+      - >-
+        ¿Hay algún punto donde $f$ pueda fallar? ¿Qué hace cuando $x\to\infty$ y cuando $x\to-\infty$, cada lado aparte?
+      - >-
+        Cuando $x\to\infty$, ¿qué término domina dentro del logaritmo? Si sacas $e^{2x}$ como factor, ¿en qué se convierte $\ln\left(1+e^{2x}\right)$?
+      - >-
+        Cuando $x\to-\infty$, ¿a qué tiende $e^{2x}$, y entonces el logaritmo? Revisa: con tu $m$ y tu $b$, ¿cuánto vale $f(5)-(5m+b)$, y es pequeño?
+    explicacion: >-
+      **Tipo.** No hay denominador ni cortes: $f$ es continua en todo $\mathbb R$ y solo quedan los dos lados al infinito. **Hacia $\infty$.** Saca $e^{2x}$: $1+e^{2x}=e^{2x}\left(1+e^{-2x}\right)$, así que $f(x)=2x+\ln\left(1+e^{-2x}\right)$. Como $e^{-2x}\to0$, $f(x)-2x=\ln\left(1+e^{-2x}\right)\to\ln1=0$: la oblicua es $y=2x$, con $m=2$ y $b=0$. Por límites sale lo mismo: $m=\lim\frac{f(x)}{x}=2$ y $b=\lim\left(f(x)-2x\right)=0$. **Hacia $-\infty$.** $e^{2x}\to0$ y $f(x)\to\ln1=0$: la horizontal es $y=0$. Lejos del origen, $f$ se parece a la rampa $\max(0,2x)$ (una ReLU escalada), pero sin esquina en 0. Una función puede tener oblicua de un lado y horizontal del otro; del mismo lado, no. Revisa: $f(5)-10=\ln\left(1+e^{-10}\right)\approx0.000045$, y $f(-5)$ da el mismo número, cerca de 0. Eso detecta errores, pero no demuestra.
+    tiempo_estimado_s: 150
+
+  # razonamiento: deductivo (el parámetro decide si el factor se cancela en cada cero del denominador) · R4
+  # Textos de arquitecto-razonamiento. verificar: recorre k entero en [-20, 20] y cuenta los polos de la fracción ya
+  # simplificada (cancel deja fuera los huecos). Para todos los reales (argumento, no verificado por código): el
+  # numerador vale 10 - 2k en 2 y 10 + 2k en -2; solo k = 5 o k = -5 anula uno, nunca los dos, y con cualquier otro k
+  # hay dos asíntotas. El numerador no puede tener (x - 2)² ni (x + 2)² como factor (su término independiente es 6).
+  - id: calc-02-024
+    tipo: conjunto
+    dificultad: 5
+    conceptos: [tipos-discontinuidad]
+    enunciado: >-
+      Para cada número real $k$, sea $f_k(x)=\dfrac{x^2-kx+6}{x^2-4}$. ¿Para qué valores de $k$ tiene $f_k$ exactamente una asíntota vertical? Escribe el conjunto entre llaves, con los valores separados por comas.
+    respuesta: ["-5", "5"]
+    verificar: { sympy: "{v for v in range(-20, 21) if len(singularities(cancel((x**2 - v*x + 6)/(x**2 - 4)), x)) == 1}" }
+    pistas:
+      - >-
+        Recorre la rutina con $k$ como parámetro: ¿dónde se anula el denominador? En cada uno de esos puntos, ¿de qué depende que haya asíntota o hueco?
+      - >-
+        ¿Cuánto vale el numerador en $x=2$ y en $x=-2$, en términos de $k$? Si vale 0, ¿qué factor comparte con el denominador y qué le pasa al límite?
+      - >-
+        ¿Puede el numerador anularse en los dos puntos a la vez? Revisa cada $k$ de tu conjunto: con él, simplifica y calcula el límite en cada cero del denominador. ¿Te faltó algún caso?
+    explicacion: >-
+      **Candidatos.** El denominador, $(x-2)(x+2)$, se anula en 2 y en $-2$; en cada uno hay asíntota, salvo que el numerador también se anule ahí y el factor se cancele. **El numerador en cada candidato.** En $x=2$ vale $10-2k$, que es 0 solo con $k=5$; en $x=-2$ vale $10+2k$, que es 0 solo con $k=-5$. No pueden anularse los dos a la vez. **Clasifica.** Con $k=5$: $x^2-5x+6=(x-2)(x-3)$, y $f_5(x)=\frac{x-3}{x+2}$ para $x\neq2$: hueco en 2 (removible) y una sola asíntota, $x=-2$. Con $k=-5$: $x^2+5x+6=(x+2)(x+3)$, y $f_{-5}(x)=\frac{x+3}{x-2}$ para $x\neq-2$: hueco en $-2$ y una sola asíntota, $x=2$. Con cualquier otro $k$, el numerador no se anula en ninguno de los dos y hay dos asíntotas. El conjunto es $\{-5,5\}$. Revisa: con $k=5$, $f_5(2.01)=\frac{-0.99}{4.01}\approx-0.247$, cerca de $-\frac14$ (el hueco), y $f_5(-1.99)=\frac{-4.99}{0.01}=-499$ (la asíntota). Eso detecta errores, pero no demuestra.
+    tiempo_estimado_s: 150
+
+  # razonamiento: deductivo (aplicar el TVI por subintervalos; con solo los extremos no se garantiza nada) · R2
+  # Datos hipotéticos («Supón»). verificar: cuenta los subintervalos [a, a + 1] de la tabla en los que 40 queda
+  # estrictamente entre T(a) y T(a + 1), con T evaluada por sympy. Comprobado aparte: real_roots da exactamente dos
+  # soluciones de T = 40 en [0, 3] (0.8926 y 2.9305), así que el TVI no garantiza más de las que hay. Combinar bordes
+  # no contiguos, como [1, 3] o [0, 2], no da un tercero: T - 40 vale -10, 1, 6 y -1 en 0, 1, 2 y 3 (dos cambios de
+  # signo), y esos instantes pueden ser los mismos de (0, 1) y (2, 3). La respuesta sigue en 2.
+  - id: calc-02-025
+    tipo: numerico
+    dificultad: 5
+    conceptos: [teorema-valor-intermedio]
+    enunciado: >-
+      Supón que la temperatura de un chip, en °C, a los $t$ minutos de iniciar una prueba es $T(t)=30+12t-t^3$, con $0\le t\le3$ (modelo hipotético). Algunos valores: $$\begin{array}{c|cccc}t & 0 & 1 & 2 & 3\\ \hline T(t) & 30 & 41 & 46 & 39\end{array}$$ Usando solo estos cuatro valores y el TVI, ¿cuál es el mayor número de instantes distintos $t$ en $[0,3]$ con $T(t)=40$ que puedes garantizar? Escribe un entero.
+    respuesta: 2
+    tolerancia: 0
+    verificar: { sympy: "(lambda T: sum(1 for a in range(3) if (T.subs(t, a) - 40)*(T.subs(t, a + 1) - 40) < 0))(30 + 12*t - t**3)" }
+    pistas:
+      - >-
+        ¿Qué te piden: cuántas veces vale 40 en realidad, o cuántas veces lo asegura el TVI con estos datos? ¿Qué hipótesis pide el teorema, y cuál es aquí el $N$?
+      - >-
+        Si solo miras los extremos, $T(0)$ y $T(3)$, ¿está 40 estrictamente entre ellos? ¿Y en cada subintervalo de la tabla, $[0,1]$, $[1,2]$ y $[2,3]$?
+      - >-
+        Los instantes que encuentras en subintervalos distintos, ¿pueden ser el mismo? Revisa: en cada subintervalo donde lo garantizaste, ¿un borde queda abajo de 40 y el otro arriba?
+    explicacion: >-
+      **Candidatos.** $T$ es un polinomio: no hay puntos donde falle la continuidad, así que $T$ es continua en $[0,3]$ y en cada subintervalo. Con $N=40$: **con solo los extremos**, $T(0)=30$ y $T(3)=39$ están los dos abajo de 40, y el TVI en $[0,3]$ no garantiza nada. **Por subintervalos:** en $[0,1]$, $30<40<41$, así que hay al menos un instante; en $[1,2]$, 41 y 46 están arriba de 40, así que nada está garantizado; en $[2,3]$, $46>40>39$, así que hay al menos uno. Los dos están en intervalos abiertos distintos, $(0,1)$ y $(2,3)$: son instantes diferentes, y el TVI garantiza al menos **2**. (De hecho son exactamente 2, pero eso ya no lo dice el TVI.) Revisa: $T(0.89)\approx39.98$ y $T(0.9)\approx40.07$, así que el primero está entre 0.89 y 0.9; $T(2.93)\approx40.01$ y $T(2.94)\approx39.87$. Eso detecta errores, pero no demuestra.
+    tiempo_estimado_s: 120
