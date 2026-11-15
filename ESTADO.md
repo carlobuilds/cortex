@@ -274,7 +274,7 @@ Plan (2026-10-13, rama `fase-3-calculo-discretas`): 0) rama y registro · 1) pru
   - [ ] 09 · [ ] 02
 - [ ] Matemáticas discretas
   - [x] Puerta de temario (paso 9, 2026-11-13): el programa oficial en `curriculum/programas/matematicas-discretas.pdf`, el temario aprobado por Carlo y `conceptos.yaml` completo (132 conceptos en 23 unidades: 21 del programa y 2 extra)
-  - [ ] Unidad IV para el 3.er parcial, en orden 13 → 21: [x] 13 (2026-11-13) · [x] 14 (2026-11-14) · [x] 15 (2026-11-14) · [x] 16 (2026-11-14) · [x] 17 (2026-11-14) · [x] 18 (2026-11-14) · [ ] 19 · [ ] 20 · [ ] 21
+  - [ ] Unidad IV para el 3.er parcial, en orden 13 → 21: [x] 13 (2026-11-13) · [x] 14 (2026-11-14) · [x] 15 (2026-11-14) · [x] 16 (2026-11-14) · [x] 17 (2026-11-14) · [x] 18 (2026-11-14) · [x] 19 (2026-11-15) · [ ] 20 · [ ] 21
   - [ ] Deuda: los jefes de la IV no tienen el 25–35 % de repaso de las unidades I–III, porque aún no existen. Cuando se escriban, se agrega sin cambiar ids.
   - [ ] Unidades 01 a 12, después del parcial
   - [ ] Extra: 22 conteo · 23 recurrencias
@@ -384,6 +384,36 @@ Complementan los ADR-001 a 008 de `docs/02`. Cada uno se escribe en el commit de
 **ADR-013 · Nomenclatura** (paso 1, decisión D1). Código, tablas y campos de IndexedDB en inglés, con equivalencias en `docs/02`. Las claves de YAML y del front matter siguen en español (son el formato de contenido). Los componentes MDX conservan su nombre en español porque son la API del contenido (`Predice` se implementa como `PredictPrompt`). Las URL van en español porque son interfaz. `APP_ID = 'cortex'` es inmutable (nombre de la base y marca de los respaldos); renombrar la app solo cambia `APP_NAME`. *Descartado:* todo en español (contradice `CLAUDE.md`) o una capa de traducción.
 
 ## Bitácora
+- 2026-11-15 · **Unidad `matematicas-discretas/19-grafos`** (3.er parcial; Unidad IV, 4.5.1 y 4.5.2).
+  - *Esquema:* v1, aprobado por Carlo; revisado por M, P y A.
+    - Euler en multigrafo conexo («0 o 2 impares») y Dirac con «simple» y $n\ge3$.
+    - El gancho del barrendero y el inspector.
+    - Sin Königsberg ni los grafos de Rosen 10.5.
+    - Ningún perímetro del visual `grafo` es ciclo ni trayectoria hamiltoniana (lo comprobó M, en cualquier rotación).
+  - *Escrita* por `autor-contenido`: lección de 25 min (1,647 palabras con `wc -w`), 25 ejercicios 6/6/6/4/3 (24 por código y 1 manual) y jefe de 10 más 4 de repaso de la 15 a la 18 (`disc-15-008`, `disc-16-001`, `disc-17-005` y `disc-18-013`), con 1,850 s.
+    - El autor reetiquetó el 013 porque una rotación del perímetro era trayectoria hamiltoniana.
+    - Se agregaron a la `notacion` $\deg$, $\deg^-$ y $\deg^+$.
+  - *`/revisar-contenido`:*
+    - a ciegas, 24/24;
+    - checklist M, L y P con objeción:
+      - el 024 tenía tres lecturas, y una daba 0 y 0;
+      - el hueco 3 del 015 tenía tres lecturas;
+      - el desvanecido de Hamilton narraba la idea;
+      - dos frases de la lección eran falsas: «un camino no es una trayectoria» y «no hay criterio de grados», que choca con Dirac.
+  - *Arreglos:* Carlo aprobó «errores + mejoras» (`arreglos-19.md`).
+    - El jefe cambia el 013 por el 016, para evaluar el apretón de manos.
+    - El visual del 024 se reetiquetó, porque su perímetro mostraba 5 aristas del ciclo.
+    - La lección se recortó de 1,731 a 1,647 palabras, porque había pasado el tope de 1,700.
+    - Segunda ronda a ciegas: 7/7.
+  - *Evidencia:*
+    - `pnpm content:check` en verde (8 unidades y 195 ejercicios; la 20 está escrita, sin commit);
+    - `pnpm test`: 1236;
+    - `pnpm lint`;
+    - lección en el puerto 3200: 182 fórmulas, 0 `.katex-error`, sin errores de consola y el visual del barrio con 6 vértices y 9 aristas;
+    - el jefe arranca con 14 preguntas.
+  - *Hallazgos:*
+    - el servidor de desarrollo arma el índice de los jefes al arrancar, así que el jefe de una unidad nueva da 404 hasta que se reinicia (la lección sí carga);
+    - desde el 2026-11-15, el harness no deja que los subagentes escriban archivos de reporte en la carpeta de notas: los reportes llegan en el mensaje.
 - 2026-11-14 · **Unidad `matematicas-discretas/18-modulo-n`** (3.er parcial; Unidad IV, 4.4.1 a 4.4.3).
   - *Esquema:* v1, aprobado por Carlo; revisado por M, P y A.
     - Congruencia como equivalencia, con remisión a la 17.

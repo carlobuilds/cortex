@@ -1,0 +1,136 @@
+---
+titulo: "Grafos: pasar por cada calle o por cada esquina"
+materia: matematicas-discretas
+unidad: 19-grafos
+duracion_min: 25
+prerrequisitos: [relacion-binaria, representaciones-relacion, propiedades-relaciones, relacion-equivalencia, clases-equivalencia, aritmetica-modular]
+conceptos: [grafo-tipos, grado-vertice, representacion-grafos, caminos-conexidad, euleriano, hamiltoniano]
+programa_ref: "Matemáticas discretas, Unidad IV, 4.5.1 (grafos dirigidos, no dirigidos y conexos) y 4.5.2 (recorridos y circuitos eulerianos y hamiltonianos)"
+---
+
+## El problema
+
+Supón un barrio con seis esquinas, de $a$ a $f$, y las nueve calles del dibujo. Un barrendero quiere pasar exactamente una vez por cada calle, y un inspector de semáforos, por cada esquina; los dos van por las calles.
+
+<Visual id="grafo" vertices="a, b, c, d, e, f" aristas="a-b, a-c, b-c, b-d, c-d, c-e, d-e, d-f, e-f" titulo="El barrio B: esquinas y calles" />
+
+<Predice pregunta="¿Cuál de los dos puede terminar en la esquina donde empezó?" revela="El inspector sí: $a,b,d,f,e,c,a$. El barrendero no; sin volver, sí, pero solo saliendo de $b$ o de $e$." />
+
+## Grafos
+
+<Concepto titulo="Grafo, tipos y representación">
+Un **grafo** $G=(V,E)$ tiene **vértices** $V$ y **aristas** $E$; cada arista une dos vértices, sus **extremos**. La arista $\{u,v\}$ se abrevia $uv$ (o $vu$), y sus extremos son **vecinos**.
+
+- **Simple:** sin **lazos** (aristas de un vértice a sí mismo) ni **aristas múltiples** (con los mismos extremos). Un **multigrafo** las permite.
+- **$K_n$**, el **completo**: simple, con $n$ vértices y una arista entre cada dos distintos.
+- **Dirigido:** cada arista es una flecha $(u,v)$, de $u$ a $v$. Sin flechas repetidas es una relación sobre $V$ (unidad 15).
+
+La **lista de adyacencia** da los vecinos de cada vértice; en un no dirigido, $uv$ sale en la lista de $u$ y en la de $v$. La **matriz de adyacencia** lleva en la entrada $(u,v)$ el número de aristas entre $u$ y $v$, o de flechas de $u$ a $v$ (sin flechas repetidas, es la $M_R$). Aquí ninguna matriz tiene lazos: su diagonal va en 0. La de un no dirigido es simétrica (unidad 16).
+</Concepto>
+
+## Grado
+
+<Concepto titulo="Grado y apretón de manos">
+El **grado** $\deg(v)$ es el número de aristas que tocan a $v$; un lazo suma 2: sus dos extremos caen en $v$.
+
+**Lema del apretón de manos.** En todo grafo, $\sum_{v\in V}\deg(v)=2\lvert E\rvert$. **Por qué:** cada arista tiene dos extremos, y cada uno suma 1 al grado del vértice donde cae; así, toda arista aporta 2. En el barrio: $2+3+4+4+3+2=18=2\cdot9$.
+
+**Corolario.** El número de vértices de grado impar es par; lo demuestras en la práctica.
+
+**En un dirigido**, el **grado de entrada** $\deg^-(v)$ cuenta las flechas que llegan a $v$, y el **de salida** $\deg^+(v)$, las que salen. En la matriz, $\deg^+(v)$ es la suma de la fila de $v$, y $\deg^-(v)$, la de su columna. Como cada flecha suma 1 a una salida y 1 a una entrada, $\sum\deg^+(v)=\sum\deg^-(v)=\lvert E\rvert$.
+</Concepto>
+
+## Caminos y conexidad
+
+<Concepto titulo="Caminos, recorridos y trayectorias">
+Un **camino** es una sucesión de vértices $v_0,v_1,\dots,v_k$ en la que cada dos seguidos son vecinos: usa $k$ aristas y puede repetir vértices y aristas. En un multigrafo, el camino dice además qué arista usa en cada paso. Es **cerrado** si $v_k=v_0$.
+
+| | Cualquiera | Cerrado |
+|---|---|---|
+| **No repite aristas** | recorrido | circuito |
+| **No repite vértices** | trayectoria | ciclo (solo repite el primero, al cerrar) |
+
+Un ciclo es un circuito cuyo único vértice repetido es el primero, que también es el último; $a,b,a$ no lo es, porque repite $ab$. Arriba, **Euler**: un **recorrido euleriano** usa cada arista exactamente una vez, y un **circuito euleriano** es uno cerrado. Abajo, **Hamilton**: una **trayectoria hamiltoniana** pasa por cada vértice exactamente una vez, y un **ciclo hamiltoniano** es un ciclo que pasa por todos.
+
+**Conexidad.** Un no dirigido es **conexo** si hay un camino entre cada par de vértices. «Hay un camino de $u$ a $v$» es de equivalencia (el camino $u$ sin aristas, leerlo al revés, pegar dos), y sus clases (unidad 17) son las **componentes conexas**. Un dirigido es **fuertemente conexo** si hay un camino dirigido, que sigue las flechas, de cada vértice a cada otro, y **débilmente conexo** si es conexo al ignorar las flechas.
+</Concepto>
+
+## Euler
+
+<Concepto titulo="Recorridos y circuitos eulerianos">
+**Por qué importan los grados.** Cada vez que un recorrido pasa por un vértice intermedio, entra por una arista y sale por otra: gasta dos de sus aristas. Si es cerrado, la primera salida y la última entrada también hacen pareja. Así, en un circuito euleriano todos los grados son pares, y en un recorrido euleriano de $u$ a $w\neq u$, los de grado impar son exactamente $u$ y $w$.
+
+**Teorema de Euler.** Sea $G$ un multigrafo **conexo**.
+
+- Tiene circuito euleriano si y solo si todos sus grados son pares.
+- Tiene recorrido euleriano si y solo si tiene 0 o 2 vértices de grado impar.
+- Tiene un recorrido euleriano que no es circuito si y solo si tiene exactamente 2 vértices de grado impar, y todo recorrido así va de uno al otro.
+
+La ida es el conteo de arriba; el regreso se demuestra pegando circuitos, y aquí se usa sin demostrar. Sin «conexo» falla si hay aristas en dos componentes, porque ningún recorrido pasa de una a otra; un vértice aislado no estorba.
+</Concepto>
+
+<Ejemplo titulo="El barrendero y el inspector">
+En el barrio $B$, con calles $ab$, $ac$, $bc$, $bd$, $cd$, $ce$, $de$, $df$ y $ef$:
+
+1. **Conexo:** desde $a$ se llega a todas las esquinas, por $a,b,d,f$ y por $a,c,e$.
+2. **Grados:** $a$ 2, $b$ 3, $c$ 4, $d$ 4, $e$ 3 y $f$ 2. Los de grado impar son exactamente $b$ y $e$.
+3. **El barrendero:** con 2 impares no hay circuito euleriano, pero sí recorrido euleriano, de $b$ a $e$ o de $e$ a $b$. Uno es $b,a,c,b,d,c,e,d,f,e$.
+4. **El inspector:** un ciclo hamiltoniano es $a,b,d,f,e,c,a$: seis esquinas distintas, y de $c$ vuelve a $a$ por $ca$.
+5. **Revisa:** el recorrido usa 9 aristas, $ba$, $ac$, $cb$, $bd$, $dc$, $ce$, $ed$, $df$ y $fe$, y cada calle sale una vez.
+</Ejemplo>
+
+<Desvanecido titulo="Ahora tú: ¿hay recorrido euleriano?" pasos={[
+  "Un grafo conexo tiene vértices $a$ a $g$ y aristas $ac$, $ae$, $bc$, $bd$, $be$, $ce$, $cf$, $df$, $dg$ y $eg$. Decide si tiene circuito o recorrido euleriano.",
+  "Grados que ya están: $\\deg(a)=2$, $\\deg(b)=3$, $\\deg(c)=4$, $\\deg(f)=2$ y $\\deg(g)=2$. Los que faltan: $\\deg(d)=$ ___ y $\\deg(e)=$ ___ .",
+  "Número de vértices de grado impar: ___ .",
+  "Con ese número, el teorema decide. Si hay un recorrido euleriano que empieza en $b$, el vértice en que termina es el ___ . Escribe uno y revisa que use las 10 aristas una vez."
+]} respuestas={["3", "4", "2", "d"]} />
+
+## Hamilton
+
+<Concepto titulo="Ciclos hamiltonianos">
+Para Hamilton, los grados no deciden: $C_6$, el grafo formado por un solo ciclo de seis vértices, y dos triángulos separados tienen todos sus grados en 2, y solo $C_6$ tiene ciclo hamiltoniano. Para decir «sí» basta dar el ciclo o una condición suficiente, como la de Dirac (más abajo); decir «no» es dar un argumento que descarte todos los órdenes. El más usado: en un ciclo, cada vértice tiene **exactamente dos** aristas del ciclo, así que un vértice de grado 2 obliga a usar sus dos aristas.
+</Concepto>
+
+<Ejemplo titulo="Aristas obligadas">
+¿Tiene ciclo hamiltoniano el grafo con aristas $ab$, $ax$, $ay$, $az$, $bx$, $by$ y $bz$?
+
+1. **Grados:** $x$, $y$ y $z$ tienen grado 2; $a$ y $b$, grado 4.
+2. **Obligadas:** las seis aristas de $x$, $y$ y $z$ van en el ciclo: $ax$, $bx$, $ay$, $by$, $az$ y $bz$.
+3. **Choque:** entonces $a$ tendría tres aristas del ciclo, $ax$, $ay$ y $az$, y en un ciclo cada vértice tiene exactamente dos.
+4. **Conclusión:** no hay ciclo hamiltoniano, y el argumento descarta todos los órdenes a la vez.
+</Ejemplo>
+
+**Teorema de Dirac.** Si $G$ es **simple**, con $n\ge3$ vértices, y $\deg(v)\ge n/2$ para todo $v$, entonces tiene ciclo hamiltoniano. Es suficiente, no necesario: $C_5$ tiene ciclo hamiltoniano con grados $2<5/2$.
+
+<Desvanecido titulo="Ahora tú: ¿hay ciclo hamiltoniano?" pasos={[
+  "El grafo tiene vértices $p$, $q$, $r$, $s$, $x$ y $y$, y aristas $pr$, $px$, $py$, $qr$, $qs$, $qx$, $qy$ y $rs$. Decide si tiene ciclo hamiltoniano.",
+  "$\\deg(x)=\\deg(y)=$ ___ . Con ese grado, cualquier ciclo hamiltoniano usa todas las aristas de $x$ y de $y$.",
+  "Sigue solo esas aristas desde $p$: $p,x,q,y,$ ___ (un vértice).",
+  "Número de vértices que esa sucesión no visita: ___ .",
+  "Otra vía: con $s$ pasa lo mismo que con $x$ y $y$, y $q$ tendría ___ aristas del ciclo. Por cualquiera de las dos, no hay."
+]} respuestas={["2", "p", "2", "3"]} />
+
+## Errores comunes
+
+<Ojo>
+- **Euler es de aristas; Hamilton, de vértices.** Un circuito euleriano puede repetir vértices; un ciclo hamiltoniano no repite ninguno, salvo el de regreso, y puede dejar aristas sin usar.
+- **Grados pares no bastan:** revisa la conexidad.
+- **Un camino no siempre es una trayectoria:** $a,b,a$ es un camino que repite el vértice $a$ y la arista $ab$.
+- **«Probé varios órdenes y no salió» no demuestra nada:** para decir que no hay ciclo hamiltoniano hace falta un argumento que los descarte todos, como el de las aristas obligadas: un vértice con tres, o un ciclo que se cierra antes de pasar por todos.
+- **Otros libros** dicen «camino euleriano» por recorrido euleriano, o intercambian «camino» y «trayectoria».
+</Ojo>
+
+<Conexion materia="Inteligencia artificial y robótica">
+Un robot que inspecciona tuberías busca pasar por cada tramo (Euler); uno que visita estaciones de carga, por cada estación (Hamilton). Euler se decide con los grados y la conexidad; para Hamilton no se conoce un método rápido en general.
+</Conexion>
+
+<Resumen>
+- Un grafo se da con dibujo, lista o matriz de adyacencia, y $\sum\deg(v)=2\lvert E\rvert$.
+- Recorrido y circuito no repiten aristas (Euler); trayectoria y ciclo no repiten vértices, salvo el cierre (Hamilton).
+- Un multigrafo conexo tiene circuito euleriano si y solo si todos sus grados son pares. Para Hamilton, los grados no deciden: para el «sí» se da el ciclo o Dirac; para el «no», un argumento.
+</Resumen>
+
+<Feynman>
+Explícale a un amigo por qué, si una esquina tiene 3 calles, el barrendero no puede terminar donde empezó. Si te trabas: cada vez que pasa por esa esquina, ¿cuántas de sus calles gasta?
+</Feynman>
