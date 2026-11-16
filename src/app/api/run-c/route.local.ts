@@ -3,6 +3,8 @@ import { checkRequest, compileAndRun, detectSandbox, parseRunBody } from "@/runn
 /**
  * Runner de C local (ADR-005). Solo responde con `CORTEX_LOCAL=1`, desde localhost y desde la
  * propia app. GET dice si está disponible; POST compila y ejecuta.
+ * Solo existe en la build de la Mac: `next.config.ts` incluye `local.ts` en `pageExtensions` salvo con
+ * `CORTEX_PWA=1` (ADR-005).
  */
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

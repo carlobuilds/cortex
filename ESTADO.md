@@ -312,9 +312,9 @@ Plan (2026-10-13, rama `fase-3-calculo-discretas`): 0) rama y registro · 1) pru
 Esqueleto en `docs/01`; plan detallado al arrancarla, después del sprint del parcial.
 - **Adelantado antes del parcial (iPad mínimo, decisión del 2026-11-16):**
   - [x] Flujo más barato: modelos por agente, `verificador` y tablero adelgazado (ADR-027)
-  - [ ] `/consejo` de la parte iPad (`experto-ciberseguridad` + `disenador-interaccion`)
+  - [x] `/consejo` de la parte iPad (`experto-ciberseguridad` + `disenador-interaccion`, 2026-11-16): objeción sin bloqueo en los dos; requisitos E1–E9 del guardián (el primer `publicar.sh` no corre sin ellos) y lista táctil, en la bitácora
   - [x] Registro DNS `A cortex → 76.13.106.210`, TTL 300, sin sobrescribir la zona (MCP de Hostinger, 2026-11-16; `dig` en 1.1.1.1 y 8.8.8.8 ya responde)
-  - [ ] `pnpm build:pwa` sin runner de C (`route.local.ts` + `pageExtensions`)
+  - [x] `pnpm build:pwa` sin runner de C (`route.local.ts` + `pageExtensions`, 2026-11-16): `out/` sin `api/`, revisada por `scripts/check-out-cli.ts`; la Mac conserva el runner
   - [ ] PWA instalable y sin conexión: manifiesto, íconos, `appleWebApp`, service worker solo en la build del iPad
   - [ ] Uso táctil: teclado matemático en pantalla con puntero grueso, botón visible por atajo, objetivos ≥ 44 pt, e2e WebKit de iPad
   - [ ] Puente de respaldo con aviso (ADR-028, `importRisk` es aporte de Carlo)
