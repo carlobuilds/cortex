@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "tsx scripts/vendor-assets.ts && NEXT_TELEMETRY_DISABLED=1 CORTEX_LOCAL=1 next dev -H localhost -p 3000",
     "build": "tsx scripts/vendor-assets.ts && NEXT_TELEMETRY_DISABLED=1 next build",
-    "build:pwa": "tsx scripts/vendor-assets.ts && NEXT_TELEMETRY_DISABLED=1 CORTEX_PWA=1 next build && tsx scripts/check-out-cli.ts",
+    "build:pwa": "tsx scripts/vendor-assets.ts && NEXT_TELEMETRY_DISABLED=1 CORTEX_PWA=1 next build && tsx scripts/build-sw.ts && tsx scripts/check-out-cli.ts",
     "start": "NEXT_TELEMETRY_DISABLED=1 CORTEX_LOCAL=1 next start -H localhost -p 3000",
     "typecheck": "NEXT_TELEMETRY_DISABLED=1 next typegen && tsc --noEmit",
     "telemetry:check": "NEXT_TELEMETRY_DISABLED=1 next telemetry status",
@@ -23,6 +23,7 @@
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:content",
     "content:check": "tsx scripts/content-check.ts",
     "test:content": "vitest run --project content",
+    "icons": "tsx scripts/icons.ts",
     "mcp:cortex": "tsx mcp/cortex/main.ts"
   },
   "dependencies": {

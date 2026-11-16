@@ -24,3 +24,6 @@ export function resolveTheme(preference: ThemePreference, prefersDark: boolean):
  * `dark` del HTML del servidor.
  */
 export const THEME_BOOT = `(function(){var t=null;try{t=localStorage.getItem("${THEME_KEY}")}catch(e){}var d=t==="dark"||(t!=="light"&&!!window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d)})()`;
+
+/** `--bg` de Arcano (globals.css) para `<meta name="theme-color">`; mantenlos iguales a los tokens. */
+export const THEME_COLOR = { light: "#F6F5FB", dark: "#0E0C19" } as const;

@@ -7,12 +7,13 @@ import { createHash } from "node:crypto";
 import { lstatSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 
-// B2 agregará `sw.js` y `manifest.webmanifest`.
 export const REQUIRED_OUT_FILES: readonly string[] = [
   "index.html",
   "404.html",
   "catalogo.json",
   "robots.txt",
+  "sw.js",
+  "manifest.webmanifest",
   "vendor/python-worker.mjs",
   "vendor/pyodide/pyodide.asm.wasm",
 ];
@@ -49,11 +50,30 @@ const FORBIDDEN_SUFFIXES = [
   ".tsx",
 ];
 
-/** `files`: rutas relativas a `out/` con `/` como separador. */
+/** Id de build de Next: carpeta `_next/static/<id>/` que contiene `_buildManifest.js`. */
+export function findBuildIds(files: readonly string[]): string[] {
+  const ids: string[] = [];
+  for (const file of files) {
+    const m = /^_next\/static\/([^/]+)\/_buildManifest\.js$/.exec(file);
+    if (m?.[1]) ids.push(m[1]);
+  }
+  return ids;
+}
+
+export interface SwCheckOptions {
+  /** Contenido de `scripts/sw-kill.js` (el único `sw.js` alternativo permitido). */
+  swKillSource: string;
+}
+
+/**
+ * `files`: rutas relativas a `out/` con `/` como separador. Con `swCheck` también se revisa que
+ * `sw.js` sea el generado de esta build (o el kill switch) y que no haya otros scripts en la raíz.
+ */
 export function findOutProblems(
   files: readonly string[],
   read: (path: string) => string,
   isPristine: (path: string) => boolean = () => false,
+  swCheck?: SwCheckOptions,
 ): string[] {
   const problems: string[] = [];
   const present = new Set(files);
@@ -73,6 +93,23 @@ export function findOutProblems(
       for (const marker of RUNNER_MARKERS) {
         if (allowed.includes(marker)) continue;
         if (text.includes(marker)) problems.push(`Marcador del runner «${marker}» en out/${file}`);
+      }
+    }
+  }
+
+  if (swCheck) {
+    // Solo un script en la raíz puede reclamar el scope "/": que sea `sw.js` y no otro.
+    for (const file of files) {
+      if (!file.includes("/") && /\.m?js$/.test(file) && file !== "sw.js") {
+        problems.push(`Script en la raíz de out/ que podría reclamar el scope "/": out/${file}`);
+      }
+    }
+    if (present.has("sw.js")) {
+      const sw = read("sw.js");
+      const ids = findBuildIds(files);
+      const generated = ids.length > 0 && ids.some((id) => sw.includes(`"buildId":${JSON.stringify(id)}`));
+      if (!generated && sw !== swCheck.swKillSource) {
+        problems.push("out/sw.js no es el generado de esta build (buildId distinto) ni el kill switch (scripts/sw-kill.js).");
       }
     }
   }
@@ -118,7 +155,9 @@ export function main(): void {
       return false;
     }
   };
-  problems.push(...findOutProblems(files, (p) => readFileSync(join(root, p), "utf8"), isPristine));
+  problems.push(...findOutProblems(files, (p) => readFileSync(join(root, p), "utf8"), isPristine, {
+      swKillSource: readFileSync(join(process.cwd(), "scripts/sw-kill.js"), "utf8"),
+    }));
   if (problems.length > 0) {
     console.error(`out/ no pasa la revisión (${problems.length} problema(s)):`);
     for (const p of problems) console.error(`  - ${p}`);

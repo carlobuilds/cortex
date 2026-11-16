@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { BackupPanel } from "@/components/settings/backup-panel";
 import { SoundToggle } from "@/components/settings/sound-toggle";
 import { ChestOddsTable, ReportsPanel, StudyPreferences } from "@/components/settings/study-settings";
+import { OfflineStatus } from "@/components/pwa/offline-status";
 import { StorageStatus } from "@/components/settings/storage-status";
 import { APP_NAME } from "@/lib/app";
 import { PageHeader } from "@/components/layout/page-header";
@@ -40,6 +41,7 @@ export default function SettingsPage() {
         <Panel id="datos" title="Tus datos">
           <div className="grid gap-6">
             <StorageStatus />
+            <OfflineStatus />
             <div className="border-t pt-6">
               <BackupPanel />
             </div>

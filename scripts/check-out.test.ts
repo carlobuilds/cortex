@@ -51,3 +51,28 @@ describe("findOutProblems", () => {
     expect(problems).toEqual(["Falta el archivo requerido: out/robots.txt"]);
   });
 });
+
+describe("findOutProblems: service worker (E1)", () => {
+  const KILL = "// kill switch";
+  const withSw = (sw: string, extra: Record<string, string> = {}) => {
+    const { files, read } = clean({ "_next/static/ID1/_buildManifest.js": "x", "sw.js": sw, ...extra });
+    return findOutProblems(files, read, () => false, { swKillSource: KILL });
+  };
+  it("acepta el sw.js generado con el buildId de esta build", () => {
+    expect(withSw('const CONFIG = {"buildId":"ID1"};')).toEqual([]);
+  });
+  it("acepta el kill switch idéntico byte a byte", () => {
+    expect(withSw(KILL)).toEqual([]);
+  });
+  it("rechaza un sw.js de otra build o ajeno", () => {
+    expect(withSw('const CONFIG = {"buildId":"OTRO"};').join()).toMatch(/sw\.js no es el generado/);
+    expect(withSw(KILL + " ").join()).toMatch(/sw\.js no es el generado/);
+  });
+  it("rechaza otros .js/.mjs en la raíz, pero no los de subcarpetas", () => {
+    const good = 'x {"buildId":"ID1"}';
+    expect(withSw(good, { "otro.js": "" }).join()).toMatch(/out\/otro\.js/);
+    expect(withSw(good, { "worker.mjs": "" }).join()).toMatch(/out\/worker\.mjs/);
+    expect(withSw(good, { "vendor/python-worker.mjs": "" })).toEqual([]);
+  });
+});
+
