@@ -5,6 +5,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { CRunResponse, ProcResult } from "@/engine/code/types";
+import { type Access, checkLocalRequest, localEnabled } from "@/server/local-access";
 
 /**
  * Runner de C local (ADR-005). Compila con `gcc -Wall -O0 ... -lm` (lo mismo que
@@ -172,15 +173,17 @@ export function gccAvailable(): boolean {
 }
 
 // ---------------------------------------------------------------- candados de acceso (ADR-005)
-const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]", "::1"]);
+export type { Access } from "@/server/local-access";
 
-export type Access = { readonly ok: true } | { readonly ok: false; readonly status: number; readonly message: string };
+const C_GUARD = {
+  header: "x-cortex-runner",
+  headerMessage: "Falta el encabezado del runner.",
+  disabledMessage: "El runner de C está apagado: arranca la app con `pnpm dev` o `pnpm start` en tu máquina (CORTEX_LOCAL=1).",
+} as const;
 
 /** ¿El runner está habilitado en este proceso? Solo con `CORTEX_LOCAL=1`. */
 export function runnerEnabled(env: NodeJS.ProcessEnv = process.env): Access {
-  return env.CORTEX_LOCAL === "1"
-    ? { ok: true }
-    : { ok: false, status: 403, message: "El runner de C está apagado: arranca la app con `pnpm dev` o `pnpm start` en tu máquina (CORTEX_LOCAL=1)." };
+  return localEnabled(env, C_GUARD.disabledMessage);
 }
 
 /**
@@ -188,20 +191,7 @@ export function runnerEnabled(env: NodeJS.ProcessEnv = process.env): Access {
  * del navegador la dispare) y encabezado propio (fuerza la verificación previa de CORS).
  */
 export function checkRequest(headers: Headers, method: string, env: NodeJS.ProcessEnv = process.env): Access {
-  const enabled = runnerEnabled(env);
-  if (!enabled.ok) return enabled;
-  const host = headers.get("host") ?? "";
-  const hostname = host.startsWith("[") ? host.slice(0, host.indexOf("]") + 1) : (host.split(":")[0] ?? "");
-  if (!LOCAL_HOSTS.has(hostname)) return { ok: false, status: 403, message: "Solo desde localhost." };
-  if (method === "POST") {
-    if (headers.get("x-cortex-runner") !== "1") return { ok: false, status: 403, message: "Falta el encabezado del runner." };
-    const origin = headers.get("origin");
-    if (origin && origin !== `http://${host}`) return { ok: false, status: 403, message: "Origen no permitido." };
-    const site = headers.get("sec-fetch-site");
-    if (site && site !== "same-origin") return { ok: false, status: 403, message: "Solo desde la propia app." };
-    if (!(headers.get("content-type") ?? "").startsWith("application/json")) return { ok: false, status: 415, message: "Se espera JSON." };
-  }
-  return { ok: true };
+  return checkLocalRequest(headers, method, C_GUARD, env);
 }
 
 /** Valida el cuerpo de la petición; devuelve el código y las entradas o un mensaje. */
