@@ -77,3 +77,20 @@ Complementan los ADR-001 a 008 de `docs/02`. Cada uno se escribe en el commit de
 - **Cómo se cambia:** una línea `model:` (y `effort:`) en el frontmatter del agente; se nota al abrir una sesión nueva en `cortex/`. Precedencia de Claude Code: parámetro `model` de la llamada → frontmatter → `CLAUDE_CODE_SUBAGENT_MODEL` → modelo de la sesión.
 - **Modelo de la sesión principal:** se elige al abrirla (cambiarlo a media sesión invalida la caché). Opus para planear y para `/consejo`; Sonnet basta para sesiones largas de `/equipo` en UI o infraestructura.
 - *Descartado:* todo en Sonnet salvo el guardián (más riesgo en el contenido de matemáticas, que es lo que más pesa en el parcial) y dejar todo en Opus.
+
+**ADR-028 · Puente de respaldo Mac ↔ iPad, con aviso** (2026-11-16; decisión de Carlo; temporal; revisa la alternativa que ADR-025 descartó).
+- **Contexto:** el iPad mínimo llega antes del parcial (23 al 27 de noviembre), pero el relay y el sync no (paso 5 de la Fase 3.5). ADR-025 había descartado el respaldo manual por AirDrop, por la fricción y el riesgo de pisar datos. Se acepta **solo como puente**, con un aviso que baja ese riesgo.
+- **Flujo:** Exportar en la Mac → AirDrop → «En mi iPad» en Archivos → Importar **dentro de la app instalada**, y al revés al volver. Safari y la app de inicio no comparten almacenamiento: importar en Safari y luego instalar deja la app vacía. Regla de uso: **un dispositivo a la vez** («Exporta al terminar, importa al empezar»).
+- **Mecánica:**
+  - importar sigue reemplazando todo en una sola transacción (D7);
+  - `BackupSummary` gana `lastActivityAt`, el máximo de `attempts.at`, `sessions.startedAt` y `gymResults.at`, en el respaldo, recorriendo sus filas; en el dispositivo, por los índices de Dexie (una cota inferior: las filas sin fecha indexable se cuentan como ilegibles);
+  - la función pura `importRisk(local, incoming)` de `src/db/backup.ts` decide si el diálogo de confirmación avisa. Su regla la escribe Carlo (`TODO(Carlo)`).
+  - **Falla cerrado** (guardián): una fecha que no se puede leer, un `exportedAt` en el futuro o actividad del respaldo posterior a su propio `exportedAt` dan el aviso más alto. Las tablas son `looseObject`, así que esas fechas no vienen validadas.
+- **Seguridad y privacidad:** AirDrop en «Solo contactos»; el archivo queda en el iPad (o en iCloud, si Carlo lo acepta). En la hoja de compartir, el destino es solo «AirDrop a tu Mac» o «Guardar en Archivos», nunca Mensajes, Mail ni otras apps; los respaldos viejos se borran de Descargas y de Archivos. Importa solo respaldos que tú exportaste: las tablas sueltas solo validan clave y versión. Un respaldo del iPad que llegue a `respaldos/` lo lee el coach como siempre: el MCP copia campo por campo (ADR-026).
+- **El dispositivo también falla cerrado:** si tiene fechas ilegibles, o filas sin ninguna fecha legible, el aviso es «alto».
+- **Límites:** no fusiona; lo hecho en el otro dispositivo después del respaldo se pierde si se importa encima. C no corre en el iPad, y no hay pizarra.
+- **Caduca** cuando existan el relay y el cliente de sync. Entonces importar vuelve a ser solo restaurar.
+- *Descartado:*
+  - fusionar respaldos: necesita eventos y Dexie v3, que llegan después del parcial;
+  - bloquear la importación: sin salida si el aviso se equivoca;
+  - el relay antes del parcial: no da tiempo, y exige antes la CSP estricta y el token.

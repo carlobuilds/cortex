@@ -4,6 +4,10 @@ Se movió desde `ESTADO.md` el 2026-11-16 (ADR-027), sin cambiar su texto. Lo m�
 
 **Regla desde el 2026-11-16:** una entrada por paso, de **máximo unas 8 líneas**: qué se hizo, evidencia (comandos y conteos) y hallazgos. El detalle largo va al mensaje del commit. Las entradas anteriores se quedan como están.
 
+- 2026-11-16 · **B4 · Puente de respaldo con aviso (ADR-028)** (`dev-sync` + `dev-interfaz`; revisión de código, `silent-failure-hunter` y guardián: objeción sin bloqueo, arreglos incluidos).
+  - *Qué:* `lastActivity` y `summarizeDevice` (por índices, con las filas sin índice contadas como ilegibles); `importRisk` en dos capas. La capa fija falla cerrado de los dos lados (fechas ilegibles, `exportedAt` ilegible o futuro, actividad posterior a la exportación, actividad local sin fecha) y la otra es la regla de Carlo (`decideImportRisk`, `TODO(Carlo)`), que mientras tanto siempre da «aviso». El diálogo muestra hechos en dos columnas, bloque de aviso, foco en Cancelar y «Guardar primero una copia». «Compartir (AirDrop)» usa un archivo preparado antes del toque y que nunca queda viejo. Zod con `jitless` (CSP); errores de importación acotados a 20 × 200 caracteres. ADR-029 (despliegue) redactado.
+  - *Evidencia:* lint, typecheck, 1429 unitarias (4 `todo` de la regla), 313 de contenido y `test:e2e` 34/34 (chromium 26, ipad 4, ipad-landscape 4); la e2e 9 exporta, importa y ve el aviso y los hechos. Un `test:content` corrido en paralelo con el e2e se colgó: un Python de la paridad YAML se quedó dormido. Solo, pasó (313 en 649 s).
+  - *Pendiente:* la regla de Carlo, y probar compartir en el iPad (Chromium no ofrece `canShare` de archivos).
 - 2026-11-16 · **B3 · Uso táctil, solo pantalla y Pencil** (`dev-interfaz`; revisión de código y de `disenador-interaccion`: objeción sin bloqueo, arreglos incluidos).
   - *Qué:*
     - variante `touch:` (`pointer: coarse` o el interruptor «Modo de entrada» de Ajustes, guardado en `localStorage` y aplicado por `INPUT_BOOT` antes de pintar);

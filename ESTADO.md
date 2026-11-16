@@ -317,7 +317,7 @@ Esqueleto en `docs/01`; plan detallado al arrancarla, después del sprint del pa
   - [x] `pnpm build:pwa` sin runner de C (`route.local.ts` + `pageExtensions`, 2026-11-16): `out/` sin `api/`, revisada por `scripts/check-out-cli.ts`; la Mac conserva el runner
   - [x] PWA instalable y sin conexión: manifiesto, íconos, `appleWebApp`, service worker solo en la build del iPad (2026-11-16; la prueba con Caddy, Safari y Python sin red queda para B5)
   - [x] Uso táctil: teclado matemático en pantalla con puntero grueso, botón visible por atajo, objetivos ≥ 44 pt, e2e WebKit de iPad (2026-11-16; interruptor «Modo de entrada» en Ajustes; lo que solo se ve en el iPad, en el CP-iPad)
-  - [ ] Puente de respaldo con aviso (ADR-028, `importRisk` es aporte de Carlo)
+  - [ ] Puente de respaldo con aviso (ADR-028, `importRisk` es aporte de Carlo): estructura, chequeos que fallan cerrado, diálogo y «Compartir (AirDrop)» hechos el 2026-11-16; falta la regla de Carlo en `decideImportRisk` (`src/db/backup.ts`), y mientras tanto el aviso sale siempre
   - [ ] `deploy/` (compose con Caddy detrás de Traefik, encabezados, `publicar.sh`, runbook) probado con Docker local; Carlo lo levanta en el VPS
   - [ ] CP-iPad de Carlo: instalar, importar, sesión de 20 min, modo avión, al día siguiente
 - **Después del parcial, en su orden:**

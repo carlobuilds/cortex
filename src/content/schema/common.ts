@@ -1,7 +1,9 @@
 import { z } from "zod";
 
-// Mensajes de error de Zod en español.
+// Mensajes de error de Zod en español. `jitless`: Zod 4 prueba `new Function("")` para compilar
+// validadores, y eso dispara una violación de CSP sin 'unsafe-eval' (config. se combina, no pisa el locale).
 z.config(z.locales.es());
+z.config({ jitless: true });
 
 /** `<prefijo>-<NN unidad>-<NNN>`, p. ej. `calc-01-001` (docs/05). Igual que ID_RE de verify_content.py. */
 export const EXERCISE_ID_RE = /^[a-z]+-\d{2}-\d{3}$/;
