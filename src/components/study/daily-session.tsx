@@ -13,6 +13,7 @@ import type { ProfileRecord } from "@/db/types";
 import { CONFIG } from "@/engine/config";
 import { createRng, seedFrom } from "@/engine/rng";
 import { chooseMission, gymGameFor, type MissionStep } from "@/engine/session";
+import { syncStudyToCuartel } from "@/lib/cuartel-sync";
 import { playSound } from "@/lib/sound";
 import { missionContext, unitHref } from "@/lib/study";
 import { markMissionDone, readToday, type TodayStatus, unitStates } from "@/lib/today";
@@ -183,7 +184,7 @@ function CloseScreen({ db, catalog, profile, status }: { db: CortexDb; catalog: 
   const [chest, setChest] = useState<ChestResult | null>(null);
   const [opened, setOpened] = useState(status.dayRecord.chestOpened);
   useEffect(() => {
-    void finishDailySession(db, Date.now());
+    void finishDailySession(db, Date.now()).then(() => syncStudyToCuartel(db));
   }, [db]);
   const d = status.dayRecord;
   const tomorrow = useMemo(() => {

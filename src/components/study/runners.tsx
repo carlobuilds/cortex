@@ -12,6 +12,7 @@ import { CONFIG, type Difficulty } from "@/engine/config";
 import { type FlowAnswer, type FlowItem, initialLevel, nextFlow, pickExercise, workedExampleFor } from "@/engine/flow";
 import { createRng, seedFrom, shuffle } from "@/engine/rng";
 import { intervalDays, warmupQueue } from "@/engine/srs";
+import { syncStudyToCuartel } from "@/lib/cuartel-sync";
 import { playSound } from "@/lib/sound";
 import { exerciseRef, missionContext, unitRef } from "@/lib/study";
 import { useCelebrate } from "./celebrations";
@@ -81,11 +82,11 @@ function useSession(db: CortexDb, kind: SessionKind, unitKey?: string): number |
     void startSession(db, kind, Date.now(), unitKey).then((sid) => {
       opened = sid;
       if (alive) setId(sid);
-      else void endSession(db, sid, Date.now());
+      else void endSession(db, sid, Date.now()).then(() => syncStudyToCuartel(db));
     });
     return () => {
       alive = false;
-      if (opened !== null) void endSession(db, opened, Date.now());
+      if (opened !== null) void endSession(db, opened, Date.now()).then(() => syncStudyToCuartel(db));
     };
   }, [db, kind, unitKey]);
   return id;
