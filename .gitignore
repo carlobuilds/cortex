@@ -23,3 +23,5 @@ public/vendor/
 # Next.js y TypeScript
 next-env.d.ts
 *.tsbuildinfo
+# Worktrees de sesiones de Claude Code (copias del repo con su propio node_modules)
+.claude/worktrees/

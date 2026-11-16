@@ -71,5 +71,7 @@ export default defineConfig([
     "test-results/**",
     // Copias de node_modules para el navegador (scripts/vendor-assets.ts): código de terceros.
     "public/vendor/**",
+    // Worktrees de sesiones de Claude Code: son otras copias del repo, no código de esta rama.
+    ".claude/worktrees/**",
   ]),
 ]);
