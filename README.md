@@ -35,6 +35,17 @@ Estado: **Fases 1 y 2** implementadas (ver `ESTADO.md`). Botón "Empezar sesión
 5. Verificaciones: `pnpm content:check` (contenido) y `pnpm check` (lint, tipos y pruebas). Para las pruebas de navegador, una vez: `pnpm exec playwright install chromium` (en Linux/WSL2: `pnpm exec playwright install --with-deps chromium`); luego `pnpm test:e2e`.
 6. Tus datos: **Ajustes → Descargar respaldo** de vez en cuando. Importar un respaldo reemplaza todo, tras confirmar.
 
+7. Opcional, envío a Cuartel (ADR-022): con `pnpm dev`/`pnpm start`, cada cierre de sesión manda a Cuartel 7 cifras por día (tiempo activo, respondidas, aciertos, repasos, lecciones y misión mínima; nada de respuestas ni notas). Sin estos archivos no se envía nada:
+   ```bash
+   # ~/.cuartel/config (ya existe si usas el CLI de Cuartel)
+   CUARTEL_URL=https://personalos.carlogarza.dev
+   # token solo con scope ingest, creado desde el repo de Cuartel:
+   #   DATABASE_URL=… pnpm token:create cortex-mac --scopes ingest
+   # guárdalo en ~/.cuartel/cortex-token con permisos 0600:
+   umask 077 && pbpaste > ~/.cuartel/cortex-token && chmod 600 ~/.cuartel/cortex-token
+   ```
+   Si algo falla, la terminal de `pnpm dev` dice qué (`[cuartel] …`, solo con el código HTTP) y el estudio sigue igual; el siguiente cierre reenvía los días.
+
 Para trabajar con Claude Code, abre esta carpeta y usa `/fase` (o lee `PRIMER-PROMPT.md`).
 
 ## Idea central

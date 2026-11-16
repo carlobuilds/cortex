@@ -43,6 +43,8 @@ cortex/
     db/              (además) migrations.ts (v1→v2) · progress.ts (reglas del motor en una transacción)
     runners/         python-worker.mjs + python-client.ts (Pyodide local), c-runner.ts (servidor) + c-client.ts
     app/api/run-c/   ruta local del runner de C (ADR-005)
+    app/api/cuartel/ ruta local que reenvía 7 cifras por día a Cuartel (ADR-022 en ESTADO.md)
+    server/          local-access.ts (candados de las rutas locales) · cuartel.ts (config, token y POST)
     lib/  styles/
   tests/             pruebas con Python (paridad, content:check) y stubs
   e2e/               Playwright (smoke)
@@ -99,6 +101,6 @@ Fechas en milisegundos desde epoch; días como `AAAA-MM-DD` en hora local. Cada 
 - Accesibilidad: contraste AA, foco visible, `prefers-reduced-motion` respetado, sonido opcional y apagado por defecto.
 
 ## Seguridad
-- El runner de C es la única superficie sensible (ADR-005).
+- El runner de C es la superficie más sensible (ADR-005). La otra ruta local es `/api/cuartel` (ADR-022, en `ESTADO.md`): mismos candados y un token que nunca sale del servidor.
 - El contenido MDX es de confianza (lo escribimos nosotros), pero no se habilita HTML arbitrario de fuentes externas.
-- Sin telemetría. Ningún dato sale de la máquina.
+- Sin telemetría. Ningún dato sale de la máquina, salvo la excepción de ADR-022: con `CORTEX_LOCAL=1`, 7 cifras de estudio por día (`day`, `activeMs`, `answered`, `correct`, `reviews`, `lessons`, `minimumMet`) hacia Cuartel, el sistema personal de Carlo. Nada de respuestas, notas ni contenido.

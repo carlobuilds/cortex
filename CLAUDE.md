@@ -26,6 +26,7 @@ Cortex es una app web **local-first** de un solo usuario (Carlo) para estudiar t
 - TypeScript estricto, sin `any` salvo justificación comentada.
 - `src/engine/` es lógica pura: **sin React ni DOM**, con pruebas unitarias (Vitest). Todas las constantes de mecánicas (XP, niveles, ligas, dificultad) viven en `src/engine/config.ts`.
 - Datos solo en el navegador (Dexie/IndexedDB). Sin backend, sin telemetría, sin servicios externos. Toda migración de Dexie lleva prueba.
+- Única excepción (ADR-022): con `CORTEX_LOCAL=1`, al cerrar una sesión se mandan a Cuartel 7 cifras por día (`studyDayFrom`), desde el servidor local y con el token de `~/.cuartel/cortex-token`. No agregues campos ni otros destinos sin preguntarle a Carlo.
 - El runner de C compila con `gcc` solo si `CORTEX_LOCAL=1` y el host es `localhost`, con directorio temporal, `timeout` y límite de salida (ver ADR-005). Nunca lo expongas fuera de local.
 - Teclado primero, retroalimentación < 100 ms, respetar `prefers-reduced-motion`, sonido apagado por defecto.
 - Antes de añadir una dependencia: ¿ya hay una en el stack de `docs/02`? Si no, justifica y registra un ADR en `ESTADO.md`.
