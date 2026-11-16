@@ -22,6 +22,60 @@ Carlo estudia con la compu y una libreta de papel: dos dispositivos, y la mitad 
 - **Pizarra primero:** **no se reconoce la letra** en la app. La respuesta final va con opciones, MathLive (con teclado virtual) o Scribble. Desde el coach, Claude puede ver la tinta si Carlo lo pide (v1.1, opt-in en cada petición).
 - **Un solo progreso** entre iPad y Mac, sincronizado por un relay propio en el VPS de Hostinger (HTTPS + token por dispositivo, sin E2EE; ADR-025).
 
+## v1.1 mínima: el iPad antes del parcial (2026-11-16)
+Adelantada de la Fase 3.5 (`docs/01`). Lo que ya existe:
+- **PWA** en `https://cortex.carlogarza.dev`: pública y sin indexar (ADR-029). Se instala desde Safari con Compartir → Agregar a inicio.
+- **Sin conexión:** el service worker precarga unos 58 MB, entre páginas, estáticos, Pyodide y fuentes. Python corre sin red.
+  - Cada versión nueva se baja en segundo plano y se aplica al cerrar y reabrir la app.
+  - Ajustes dice cuándo está «Listo para usar sin conexión».
+- **Solo pantalla y Pencil:** «Modo de entrada» en Ajustes (Automático, Táctil o Teclado y ratón).
+  - Botones de 44 pt y teclado de fórmulas de MathLive con su botón.
+  - «Escribir a mano o con teclado de texto», un campo nativo que acepta Scribble.
+  - Barra de sangría y símbolos en el editor de código, y botón visible para cada atajo.
+- **Puente de progreso** (ADR-028), temporal hasta el sync: **un dispositivo a la vez**.
+  - De la Mac al iPad: Exportar en la Mac → AirDrop («Solo contactos») → «En mi iPad» en Archivos → Importar **dentro de la app instalada**. Safari y la app de inicio no comparten datos.
+  - De vuelta: en el iPad, «Compartir (AirDrop)» → la Mac importa.
+  - Antes de reemplazar, el diálogo compara la última actividad y avisa si se perdería algo. La regla del aviso es aporte de Carlo (`decideImportRisk`).
+
+**Límites:**
+- C no corre en el iPad: se practica en la Mac.
+- No hay pizarra.
+- No hay fusión: importar reemplaza todo.
+- El campo de MathLive no acepta Scribble.
+- **Nunca** «eliminar la app» ni «Borrar datos del sitio», porque borran la IndexedDB. Si algo falla, primero exporta.
+
+### CP-iPad (Carlo, en el iPad real)
+Los umbrales marcados «propuesto» son de `disenador-interaccion`; ajústalos si no te parecen.
+
+0. **En la Mac:** exporta el respaldo.
+1. **Safari, sin instalar:** abre el sitio (HTTPS sin aviso) y espera «Listo» en Ajustes (propuesto: menos de 3 min con wifi). **No importes aquí.**
+2. **Instalar:** Compartir → Agregar a inicio y abre desde el ícono. Debe verse sin barra de Safari, con su ícono y con la barra de estado legible.
+3. **Importar dentro de la app instalada:** intentos, XP y racha deben coincidir con la Mac. El aviso solo sale si la regla detecta algo, con el foco en Cancelar.
+   - Prueba también la vuelta con «Compartir (AirDrop)». Si falla, anótalo y usa Descargar.
+4. **Sesión de 20 min solo con toques:** opción múltiple, numérico, simbólico, completar, ordenar, Python, Cálculo relámpago, Secuencias, confianza y cofre. Ninguna acción debe pedir teclado, y no debe aparecer Esc, ⏎ ni H.
+5. **Modo avión:** cierra la app y reábrela.
+   - Debe abrir sin pantalla en blanco y la sesión debe ser jugable.
+   - El teclado de fórmulas debe mostrar √, ∫ y π.
+   - «Probar» de Python debe dar resultado (propuesto: menos de 10 s).
+   - Lo que hagas debe persistir.
+6. **Al día siguiente:** todo intacto. Exporta y repite la ida a la Mac.
+
+Lo que solo se ve en el iPad, cada punto con su criterio:
+- **a. Modo Automático:** la interfaz debe salir táctil sola. Si no, pon «Táctil» y anótalo.
+- **b. Teclados:** ninguno se abre antes del primer toque. En simbólico debe salir el de fórmulas y no el del sistema.
+- **c. Teclado sin tapar:** Comprobar y Pista quedan sobre el teclado, en vertical, en horizontal y al rotar.
+- **d. Envío:** ¿la tecla ↵ del teclado de fórmulas envía la respuesta?
+- **e. Scribble** (Ajustes de iPadOS → Apple Pencil): en el campo de texto escribe `x^2+1`, `sqrt(2)/2`, `1/3` y `oo`. Meta: 8 de 10 sin corregir.
+- **f. Gimnasio:** 20 respuestas en 60 s sin volver a tocar el campo.
+- **g. Texto sin autocorrección:** lo que escribas llega sin mayúscula inicial ni autocorrección, en el numérico y en el código.
+- **h. Barra de código:** escribe un `def` con `if` y sangrías, y el teclado no se cierra.
+- **i. Deslizar para volver:** desde un ejercicio y a medio simulacro. Anota si saca del examen.
+- **j. Respuesta al toque:** el estado `:active` se nota al tocar.
+- **k. Zoom:** al pellizcar no sube la barra, y al cerrar el teclado no queda hueco.
+- **l. Precisión:** acierta 19 de 20 toques y no hay toques fantasma con la palma.
+
+El resultado va a la bitácora.
+
 ## Catálogo del brainstorm (priorizado)
 
 ### Pizarra · MVP de v1.1
@@ -60,5 +114,5 @@ Carlo estudia con la compu y una libreta de papel: dos dispositivos, y la mitad 
 
 ## Riesgos conocidos (detalle en el plan de la Fase 3.5)
 - **Latencia del lápiz en Safari:** se mide en el spike A contra la app Notas. Si no convence, la pizarra sale para usos menos exigentes y la vía nativa se adelanta.
-- **La UI asume teclado:** el selector de confianza solo dice «Esc para corregir», `math-field.tsx` tiene el teclado virtual en `manual` y hay controles de 32 px por debajo de los 44 pt.
+- **La UI asumía teclado:** se resolvió para la v1.1 mínima (B3, 2026-11-16) con el modo táctil. Falta confirmarlo en el iPad real con el CP-iPad.
 - **Escribir a mano es más lento:** cada intento se etiqueta con su método de entrada para no sesgar FSRS ni los récords.

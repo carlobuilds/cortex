@@ -99,6 +99,15 @@ Carlo tiene parcial de Cálculo en menos de 4 semanas. Antes de la Fase 3.5:
 ## Fase 3.5 · v1.1 · iPad (PWA), Pizarra, Sync y coach vivo
 Se planea en detalle al arrancarla (modo plan + `/consejo`). Visión y catálogo de ideas en `docs/09`. Esqueleto:
 
+**Adelantado antes del parcial (v1.1 mínima, decisión de Carlo del 2026-11-16).** Para estudiar en el iPad antes del 3.er parcial de Cálculo:
+- del paso 1, `pnpm build:pwa` sin runner de C. El VPS no lleva Caddy con TLS propio: el sitio estático vive detrás del Traefik compartido (ADR-029);
+- del paso 2, el spike C, que es el CP-iPad de `docs/09`;
+- del paso 4, solo lo táctil mínimo (botones de 44 pt, teclado de fórmulas, sin teclado físico), más el manifiesto y el service worker;
+- del paso 7, un despliegue mínimo en `cortex.carlogarza.dev`, público sin indexar;
+- el puente de respaldo con aviso (ADR-028), que es temporal hasta el sync.
+
+Después del parcial sigue el orden original: 0 (deuda) → 2 (spikes A y B) → 3 (eventos) → 4 (pizarra) → 5 (relay y sync, con la CSP estricta antes del token) → 6 (coach vivo) → 7 (simulacro de restauración y cierre).
+
 **0. Deuda del sprint del parcial (antes del paso 1).** En las revisiones de las unidades 03 a 09 y del esquema de la 02 salieron arreglos que hoy el contenido esquiva desde el enunciado. Se pasaron aquí por decisión de Carlo el 2026-11-13. La lista detallada está en `ESTADO.md`, sección «Para la Fase 3.5 · deuda del sprint del parcial».
 - **Entrada de respuestas** (`src/engine/answers/`):
   - `sen^(-1)` y `tan^(-1)` se leen como el recíproco, y `cos x^2` como $\cos(x)^2$, sin avisar;

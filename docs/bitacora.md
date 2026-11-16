@@ -4,6 +4,7 @@ Se movió desde `ESTADO.md` el 2026-11-16 (ADR-027), sin cambiar su texto. Lo m�
 
 **Regla desde el 2026-11-16:** una entrada por paso, de **máximo unas 8 líneas**: qué se hizo, evidencia (comandos y conteos) y hallazgos. El detalle largo va al mensaje del commit. Las entradas anteriores se quedan como están.
 
+- 2026-11-16 · **B7 · Docs de la v1.1 mínima.** `docs/01` (Fase 3.5) dice qué se adelantó antes del parcial y el orden de lo demás. `docs/09` suma «v1.1 mínima»: qué hay, el flujo del puente, los límites (no corre C, sin pizarra, un dispositivo a la vez, nunca «eliminar la app») y la lista del **CP-iPad** con criterios de `disenador-interaccion`. Pendiente de Carlo: levantar el VPS con `deploy/README.md`, la regla de `decideImportRisk` y el CP-iPad; el resultado va aquí.
 - 2026-11-16 · **B5 · `deploy/` para `cortex.carlogarza.dev` (ADR-029)** (`dev-infra`; revisión de código y guardián: objeción sin bloqueo, con visto bueno para el primer `publicar.sh` tras C1).
   - *Qué:*
     - compose `cortex` con `caddy:2.11.7-alpine` fijado por digest: `user 1000`, `read_only`, sin capacidades salvo `NET_BIND_SERVICE`, 64 MB, sin puertos y solo `traefik-public`, con healthcheck en `/healthz`;
