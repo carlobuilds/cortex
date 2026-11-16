@@ -126,7 +126,7 @@ export function DailySession({ db, catalog, profile }: { db: CortexDb; catalog: 
             ¿Hoy no?{" "}
             <button
               type="button"
-              className="underline underline-offset-2 hover:text-ink"
+              className="underline underline-offset-2 hover:text-ink touch:inline-flex touch:min-h-11 touch:items-center"
               onClick={() => {
                 markMissionDone(status.day);
                 void refresh();
@@ -143,7 +143,7 @@ export function DailySession({ db, catalog, profile }: { db: CortexDb; catalog: 
       {step === "close" ? <CloseScreen db={db} catalog={catalog} profile={profile} status={status} /> : null}
 
       <p className="text-sm text-muted-foreground">
-        <Link href="/" className="inline-flex items-center gap-1.5 underline underline-offset-2 hover:text-ink">
+        <Link href="/" className="inline-flex items-center gap-1.5 underline underline-offset-2 hover:text-ink touch:min-h-11">
           <Home aria-hidden className="size-3.5" /> Terminar por hoy
         </Link>{" "}
         · Parar nunca tiene castigo.

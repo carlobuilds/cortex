@@ -316,7 +316,7 @@ Esqueleto en `docs/01`; plan detallado al arrancarla, después del sprint del pa
   - [x] Registro DNS `A cortex → 76.13.106.210`, TTL 300, sin sobrescribir la zona (MCP de Hostinger, 2026-11-16; `dig` en 1.1.1.1 y 8.8.8.8 ya responde)
   - [x] `pnpm build:pwa` sin runner de C (`route.local.ts` + `pageExtensions`, 2026-11-16): `out/` sin `api/`, revisada por `scripts/check-out-cli.ts`; la Mac conserva el runner
   - [x] PWA instalable y sin conexión: manifiesto, íconos, `appleWebApp`, service worker solo en la build del iPad (2026-11-16; la prueba con Caddy, Safari y Python sin red queda para B5)
-  - [ ] Uso táctil: teclado matemático en pantalla con puntero grueso, botón visible por atajo, objetivos ≥ 44 pt, e2e WebKit de iPad
+  - [x] Uso táctil: teclado matemático en pantalla con puntero grueso, botón visible por atajo, objetivos ≥ 44 pt, e2e WebKit de iPad (2026-11-16; interruptor «Modo de entrada» en Ajustes; lo que solo se ve en el iPad, en el CP-iPad)
   - [ ] Puente de respaldo con aviso (ADR-028, `importRisk` es aporte de Carlo)
   - [ ] `deploy/` (compose con Caddy detrás de Traefik, encabezados, `publicar.sh`, runbook) probado con Docker local; Carlo lo levanta en el VPS
   - [ ] CP-iPad de Carlo: instalar, importar, sesión de 20 min, modo avión, al día siguiente

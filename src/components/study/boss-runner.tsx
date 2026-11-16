@@ -168,7 +168,7 @@ export function BossRunner({
                     </p>
                     <RichText text={ex.enunciado} className="mt-2" />
                     <details className="mt-2">
-                      <summary className="cursor-pointer text-brand">Ver la explicación</summary>
+                      <summary className="cursor-pointer text-brand touch:inline-flex touch:min-h-11 touch:items-center">Ver la explicación</summary>
                       <RichText text={ex.explicacion} className="mt-2" />
                     </details>
                   </li>

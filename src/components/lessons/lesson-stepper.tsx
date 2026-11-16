@@ -181,7 +181,7 @@ export function LessonSteps({ children }: { children?: ReactNode }) {
                       onClick={() => go(i)}
                       aria-label={`Paso ${i + 1}: ${s.title}`}
                       aria-current={isCurrent ? "step" : undefined}
-                      className="group block w-full rounded-sm py-2"
+                      className="group block w-full rounded-sm py-2 touch:py-[1.1875rem]"
                     >
                       <span
                         aria-hidden
@@ -196,7 +196,7 @@ export function LessonSteps({ children }: { children?: ReactNode }) {
               type="button"
               onClick={toggleAll}
               aria-pressed={!stepsMode}
-              className="tactile inline-flex shrink-0 items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-label text-ink-2 hover:text-ink aria-pressed:bg-brand-soft aria-pressed:text-brand"
+              className="tactile inline-flex shrink-0 items-center gap-1.5 rounded-md border px-2.5 py-1.5 touch:min-h-11 text-label text-ink-2 hover:text-ink aria-pressed:bg-brand-soft aria-pressed:text-brand"
             >
               {stepsMode ? <BookOpen aria-hidden className="size-4" /> : <ListOrdered aria-hidden className="size-4" />}
               <span className="max-sm:sr-only">{stepsMode ? "Ver toda la lección" : "Ver por pasos"}</span>
@@ -209,7 +209,7 @@ export function LessonSteps({ children }: { children?: ReactNode }) {
         {children}
 
         {stepsMode ? (
-          <div className="mt-10 flex items-center justify-between gap-3 border-t pt-6 max-lg:sticky max-lg:bottom-0 max-lg:-mx-4 max-lg:border-t max-lg:bg-[color-mix(in_srgb,var(--bg)_92%,transparent)] max-lg:px-4 max-lg:py-3 max-lg:pb-[calc(0.75rem+env(safe-area-inset-bottom))] max-lg:backdrop-blur sm:max-lg:-mx-6 sm:max-lg:px-6">
+          <div className="mt-10 flex items-center justify-between gap-3 border-t pt-6 max-lg:sticky max-lg:bottom-[var(--kb,0px)] touch:sticky touch:bottom-[var(--kb,0px)] touch:z-10 touch:bg-[color-mix(in_srgb,var(--bg)_92%,transparent)] touch:py-3 touch:backdrop-blur max-lg:-mx-4 max-lg:border-t max-lg:bg-[color-mix(in_srgb,var(--bg)_92%,transparent)] max-lg:px-4 max-lg:py-3 max-lg:pb-[calc(0.75rem+env(safe-area-inset-bottom))] max-lg:backdrop-blur sm:max-lg:-mx-6 sm:max-lg:px-6">
             <Button variant="secondary" onClick={() => go(current - 1)} disabled={current === 0}>
               <ArrowLeft aria-hidden /> <span className="max-sm:sr-only">Paso anterior</span> <Kbd>←</Kbd>
             </Button>

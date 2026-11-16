@@ -267,7 +267,7 @@ export function ExamRunner({
                       </p>
                     ) : null}
                     <details className="mt-2">
-                      <summary className="cursor-pointer text-brand">Ver la explicación</summary>
+                      <summary className="cursor-pointer text-brand touch:inline-flex touch:min-h-11 touch:items-center">Ver la explicación</summary>
                       <RichText text={ex.explicacion} className="mt-2" />
                     </details>
                   </li>
@@ -307,7 +307,7 @@ export function ExamRunner({
           </li>
           <li>Sin pistas y sin saber si acertaste hasta que entregues. Apruebas con {pct(CONFIG.exam.passRatio)}.</li>
           <li>
-            Puedes saltar una pregunta (<Kbd>S</Kbd>) y vuelve al final de la fila.
+            Puedes saltar una pregunta<span className="touch:hidden"> (<Kbd>S</Kbd>)</span> y vuelve al final de la fila.
           </li>
           {best !== null ? <li>Tu mejor simulacro de esta materia: {best}%.</li> : null}
         </ul>
@@ -324,8 +324,8 @@ export function ExamRunner({
           <ul className="grid gap-1.5">
             {subject.units.map((u) => (
               <li key={u.key}>
-                <label className="flex items-center gap-2.5">
-                  <input type="checkbox" className="size-4 accent-[var(--brand)]" checked={chosen.includes(u.key)} onChange={() => toggle(u.key)} />
+                <label className="flex items-center gap-2.5 touch:min-h-11">
+                  <input type="checkbox" className="size-4 touch:size-6 accent-[var(--brand)]" checked={chosen.includes(u.key)} onChange={() => toggle(u.key)} />
                   <span>
                     <span className="font-mono text-xp-text tabular-nums">{String(u.number).padStart(2, "0")}</span> {u.title}
                   </span>

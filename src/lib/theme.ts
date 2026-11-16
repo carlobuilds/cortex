@@ -1,4 +1,5 @@
 import type { ThemePreference } from "@/db/types";
+import { INPUT_BOOT } from "./input-mode";
 
 export const THEME_KEY = "cortex-theme";
 
@@ -20,10 +21,10 @@ export function resolveTheme(preference: ThemePreference, prefersDark: boolean):
 
 /**
  * Se corre en <head> antes de pintar (sin destello del tema equivocado). Repite `resolveTheme`
- * en JS plano: no puede importar nada. Sin localStorage sigue al sistema; sin JS queda la clase
+ * en JS plano: no puede importar nada. También aplica `data-input` (modo de entrada del dispositivo). Sin localStorage sigue al sistema; sin JS queda la clase
  * `dark` del HTML del servidor.
  */
-export const THEME_BOOT = `(function(){var t=null;try{t=localStorage.getItem("${THEME_KEY}")}catch(e){}var d=t==="dark"||(t!=="light"&&!!window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d)})()`;
+export const THEME_BOOT = `(function(){var t=null;try{t=localStorage.getItem("${THEME_KEY}")}catch(e){}var d=t==="dark"||(t!=="light"&&!!window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.toggle("dark",d)})();${INPUT_BOOT}`;
 
 /** `--bg` de Arcano (globals.css) para `<meta name="theme-color">`; mantenlos iguales a los tokens. */
 export const THEME_COLOR = { light: "#F6F5FB", dark: "#0E0C19" } as const;

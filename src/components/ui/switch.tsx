@@ -10,7 +10,8 @@ function Switch({ className, ...props }: React.ComponentProps<typeof SwitchPrimi
     <SwitchPrimitive.Root
       data-slot="switch"
       className={cn(
-        "peer inline-flex h-6 w-11 shrink-0 items-center rounded-full border-2 border-input transition-colors duration-[var(--dur-fast)] disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:border-brand data-[state=checked]:bg-brand data-[state=unchecked]:bg-surface-2",
+        // En táctil el área de toque crece a 44 pt de alto sin cambiar el dibujo.
+        "peer relative inline-flex h-6 w-11 shrink-0 touch:after:absolute touch:after:-inset-y-2.5 touch:after:inset-x-0 touch:after:content-[''] items-center rounded-full border-2 border-input transition-colors duration-[var(--dur-fast)] disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:border-brand data-[state=checked]:bg-brand data-[state=unchecked]:bg-surface-2",
         className,
       )}
       {...props}

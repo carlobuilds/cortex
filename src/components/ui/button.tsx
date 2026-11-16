@@ -19,10 +19,11 @@ const buttonVariants = cva(
         link: "text-brand underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-10 px-4 has-[>svg]:px-3",
-        sm: "h-8 gap-1.5 px-3 text-xs has-[>svg]:px-2.5",
+        // En modo táctil (`touch:`) todo mide ≥ 44 pt; en la Mac no cambia.
+        default: "h-10 px-4 has-[>svg]:px-3 touch:h-11",
+        sm: "h-8 gap-1.5 px-3 text-xs has-[>svg]:px-2.5 touch:h-11",
         lg: "h-12 px-6 text-base has-[>svg]:px-5",
-        icon: "size-10",
+        icon: "size-10 touch:size-11",
       },
     },
     defaultVariants: { variant: "default", size: "default" },

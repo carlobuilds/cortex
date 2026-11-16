@@ -82,7 +82,7 @@ export function CelebrationProvider({ children }: { children: ReactNode }) {
                 <p className="font-semibold">{t.title}</p>
                 {t.detail ? <p className="text-sm text-ink-2">{t.detail}</p> : null}
               </div>
-              <button type="button" aria-label="Cerrar aviso" onClick={() => dismiss(t.id)} className="rounded-sm text-muted-foreground hover:text-ink">
+              <button type="button" aria-label="Cerrar aviso" onClick={() => dismiss(t.id)} className="grid place-items-center rounded-sm text-muted-foreground hover:text-ink touch:size-11">
                 <X className="size-4" aria-hidden />
               </button>
             </div>

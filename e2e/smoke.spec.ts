@@ -365,3 +365,11 @@ test("7 - si el navegador borra los datos del sitio, la pestaña lo dice en vez 
   await expect(sound).toBeEnabled();
   expect(errors).toEqual([]);
 });
+
+test("8 - en la Mac no hay service worker: sin registros y /sw.js da 404", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Tu sesión de hoy");
+  expect(await page.evaluate(async () => (await navigator.serviceWorker.getRegistrations()).length)).toBe(0);
+  const res = await page.request.get("/sw.js");
+  expect(res.status()).toBe(404);
+});

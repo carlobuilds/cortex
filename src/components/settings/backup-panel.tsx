@@ -218,7 +218,7 @@ export function BackupPanel() {
           <label
             htmlFor={inputId}
             aria-hidden
-            className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-md border border-border-strong bg-surface-2 px-3 text-sm font-semibold hover:bg-surface-3 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--ring)]"
+            className="inline-flex h-9 touch:h-11 cursor-pointer items-center gap-2 rounded-md border border-border-strong bg-surface-2 px-3 text-sm font-semibold hover:bg-surface-3 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--ring)]"
           >
             <Upload aria-hidden className="size-4" /> Elegir archivo…
           </label>
@@ -272,7 +272,7 @@ export function BackupPanel() {
             <AlertDialogTrigger asChild>
               <Button
                 variant="destructive"
-                className="mt-4 h-auto min-h-9 py-2 whitespace-normal"
+                className="mt-4 h-auto min-h-9 py-2 whitespace-normal touch:h-auto touch:min-h-11"
                 disabled={busy}
                 onClick={() => {
                   confirmed.current = false;
@@ -298,7 +298,7 @@ export function BackupPanel() {
               <div className="grid gap-2">
                 <Button
                   variant="outline"
-                  className="h-auto min-h-9 py-2 whitespace-normal"
+                  className="h-auto min-h-9 py-2 whitespace-normal touch:h-auto touch:min-h-11"
                   onClick={() => void download().then(setDialogNote)}
                 >
                   <Download aria-hidden /> Descargar mis datos actuales primero

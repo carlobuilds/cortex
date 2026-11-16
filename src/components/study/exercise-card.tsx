@@ -252,7 +252,8 @@ export function ExerciseCard({
       ) : null}
 
       {answering ? (
-        <div className="mt-5 flex flex-wrap items-center gap-3">
+        // En táctil la barra queda pegada abajo, por encima del teclado en pantalla (`--kb`, ver keyboard-inset.ts).
+        <div className="mt-5 flex flex-wrap items-center gap-3 touch:sticky touch:bottom-[var(--kb,0px)] touch:z-10 touch:border-t touch:bg-surface touch:py-3">
           <Button onClick={() => void submit()} disabled={busy}>
             {busy ? "Ejecutando pruebas…" : reveal ? "Comprobar" : "Responder"} <Kbd className="border-current/40 text-current">{CODE_TYPES.has(exercise.tipo) ? "Ctrl ⏎" : "⏎"}</Kbd>
           </Button>
@@ -332,7 +333,7 @@ export function ExerciseCard({
           </div>
           {exercise.tipo === "codigo" || exercise.tipo === "depurar" ? (
             <details className="mt-3 text-sm">
-              <summary className="cursor-pointer text-brand">Ver una solución</summary>
+              <summary className="cursor-pointer text-brand touch:inline-flex touch:min-h-11 touch:items-center">Ver una solución</summary>
               <pre className="code-view mt-2">{exercise.solucion.replace(/\n$/, "")}</pre>
             </details>
           ) : null}
@@ -373,8 +374,8 @@ function SelfGrade({
         <ul className="grid gap-2">
           {exercise.rubrica.map((r, i) => (
             <li key={i}>
-              <label className="flex items-start gap-2">
-                <input type="checkbox" className="mt-1.5 size-4 accent-[var(--brand)]" checked={met[i] ?? false} onChange={(e) => setMet(met.map((m, j) => (j === i ? e.target.checked : m)))} />
+              <label className="flex items-start gap-2 touch:min-h-11 touch:items-center">
+                <input type="checkbox" className="mt-1.5 size-4 touch:mt-0 touch:size-6 accent-[var(--brand)]" checked={met[i] ?? false} onChange={(e) => setMet(met.map((m, j) => (j === i ? e.target.checked : m)))} />
                 <RichText text={r} inline />
               </label>
             </li>

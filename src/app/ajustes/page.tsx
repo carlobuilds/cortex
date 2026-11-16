@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { BackupPanel } from "@/components/settings/backup-panel";
+import { InputModeSetting } from "@/components/settings/input-mode-setting";
 import { SoundToggle } from "@/components/settings/sound-toggle";
 import { ChestOddsTable, ReportsPanel, StudyPreferences } from "@/components/settings/study-settings";
 import { OfflineStatus } from "@/components/pwa/offline-status";
@@ -29,6 +30,7 @@ export default function SettingsPage() {
         <Panel id="preferencias" title="Preferencias">
           <div className="grid gap-6">
             <SoundToggle />
+            <InputModeSetting />
             <StudyPreferences />
           </div>
         </Panel>

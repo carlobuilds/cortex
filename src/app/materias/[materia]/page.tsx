@@ -40,7 +40,7 @@ export default async function SubjectPage({ params }: PageProps<"/materias/[mate
         description={
           <>
             {content.concepts?.conceptos.length ?? 0} conceptos · {content.units.length} {content.units.length === 1 ? "unidad" : "unidades"} ·{" "}
-            <Link href={`/materias/${materia}/mapa`} className="text-brand underline underline-offset-2">
+            <Link href={`/materias/${materia}/mapa`} className="text-brand underline underline-offset-2 touch:inline-flex touch:min-h-11 touch:items-center">
               ver mapa de maestría
             </Link>
           </>

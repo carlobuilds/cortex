@@ -29,7 +29,7 @@ function DropdownMenuContent({ className, sideOffset = 6, ...props }: React.Comp
 }
 
 const itemBase =
-  "relative flex cursor-default items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[highlighted]:bg-surface-3 [&_svg]:size-4 [&_svg]:shrink-0";
+  "relative flex cursor-default items-center gap-2 rounded-md px-2 py-1.5 touch:min-h-11 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[highlighted]:bg-surface-3 [&_svg]:size-4 [&_svg]:shrink-0";
 
 function DropdownMenuItem({ className, ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Item>) {
   return <DropdownMenuPrimitive.Item data-slot="dropdown-menu-item" className={cn(itemBase, className)} {...props} />;

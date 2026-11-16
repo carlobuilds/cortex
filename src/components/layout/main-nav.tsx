@@ -26,7 +26,7 @@ export function DesktopNav() {
           key={item.href}
           href={item.href}
           {...activeProps(pathname, item.href)}
-          className="rounded-md px-2.5 py-1.5 font-medium text-ink-2 hover:bg-surface-2 hover:text-ink data-[active]:bg-brand-soft data-[active]:text-brand"
+          className="inline-flex touch:min-h-11 items-center rounded-md px-2.5 py-1.5 font-medium text-ink-2 hover:bg-surface-2 hover:text-ink data-[active]:bg-brand-soft data-[active]:text-brand"
         >
           {item.label}
         </Link>
@@ -34,7 +34,7 @@ export function DesktopNav() {
       <DropdownMenu>
         <DropdownMenuTrigger
           data-active={moreActive ? "" : undefined}
-          className="inline-flex items-center gap-1 rounded-md px-2.5 py-1.5 font-medium text-ink-2 hover:bg-surface-2 hover:text-ink data-[active]:bg-brand-soft data-[active]:text-brand"
+          className="inline-flex touch:min-h-11 items-center gap-1 rounded-md px-2.5 py-1.5 font-medium text-ink-2 hover:bg-surface-2 hover:text-ink data-[active]:bg-brand-soft data-[active]:text-brand"
         >
           Más <ChevronDown aria-hidden className="size-3.5" />
         </DropdownMenuTrigger>

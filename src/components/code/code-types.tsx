@@ -35,7 +35,7 @@ function TestList({ tests, language }: { tests: readonly (PythonTest | CTest)[];
   const hidden = tests.length - visible.length;
   return (
     <details className="rounded-md border bg-surface-2 p-3 text-sm" open>
-      <summary className="cursor-pointer font-mono text-xs text-muted-foreground">
+      <summary className="cursor-pointer font-mono text-xs text-muted-foreground touch:inline-flex touch:min-h-11 touch:items-center">
         Pruebas: {visible.length} visibles{hidden ? ` + ${hidden} ocultas` : ""}
       </summary>
       <ul className="mt-2 grid gap-1 font-mono text-xs">
@@ -83,7 +83,7 @@ function Results({ run }: { run: TestRun | null }) {
       </ul>
       {run.stdout ? (
         <details>
-          <summary className="cursor-pointer font-mono text-xs text-muted-foreground">Salida de tu programa</summary>
+          <summary className="cursor-pointer font-mono text-xs text-muted-foreground touch:inline-flex touch:min-h-11 touch:items-center">Salida de tu programa</summary>
           <pre className="code-view mt-1 text-xs">{run.stdout.slice(0, 4000)}</pre>
         </details>
       ) : null}
@@ -180,7 +180,7 @@ function DebugInput({ exercise, draft, setDraft, disabled, onEnter }: InputProps
   if (draft.picked === null) {
     return (
       <div className="grid gap-2">
-        <p className="eyebrow">Paso 1 · ¿En qué línea está el error? Haz clic en ella.</p>
+        <p className="eyebrow">Paso 1 · ¿En qué línea está el error? Toca o haz clic en ella.</p>
         <ol className="code-view grid !whitespace-normal p-1" aria-label="Código con un error">
           {lines.map((l, i) => (
             <li key={i}>
@@ -189,7 +189,7 @@ function DebugInput({ exercise, draft, setDraft, disabled, onEnter }: InputProps
                 disabled={disabled}
                 onClick={() => setDraft({ ...draft, picked: i + 1 })}
                 aria-label={`Línea ${i + 1}: ${l.trim() || "(vacía)"}`}
-                className="flex w-full gap-3 rounded-sm px-2 text-left hover:bg-surface-3 focus-visible:bg-surface-3"
+                className="flex w-full gap-3 rounded-sm px-2 text-left hover:bg-surface-3 focus-visible:bg-surface-3 touch:min-h-11 touch:items-center"
               >
                 <span className="w-6 shrink-0 text-right text-muted-foreground tabular-nums">{i + 1}</span>
                 <span className="whitespace-pre">{l || " "}</span>
@@ -294,7 +294,7 @@ function ParsonsInput({ exercise, draft, setDraft, disabled }: InputProps<Parson
                 type="button"
                 disabled={disabled}
                 onClick={() => place(item)}
-                className="w-full rounded-md border border-border-strong bg-surface-2 px-3 py-1.5 text-left font-mono text-sm whitespace-pre hover:border-brand"
+                className="w-full rounded-md border border-border-strong bg-surface-2 px-3 py-1.5 text-left font-mono text-sm whitespace-pre hover:border-brand touch:min-h-11"
               >
                 {item.text}
               </button>
@@ -305,7 +305,8 @@ function ParsonsInput({ exercise, draft, setDraft, disabled }: InputProps<Parson
       </section>
       <section aria-labelledby="parsons-program">
         <h3 id="parsons-program" className="eyebrow mb-2">
-          Tu programa {python ? "· Alt+←/→ sangría, Alt+↑/↓ mover, Supr quitar" : "· Alt+↑/↓ mover, Supr quitar"}
+          Tu programa
+          <span className="touch:hidden"> {python ? "· Alt+←/→ sangría, Alt+↑/↓ mover, Supr quitar" : "· Alt+↑/↓ mover, Supr quitar"}</span>
         </h3>
         <ol className="code-view grid gap-1 !whitespace-normal p-2" aria-label="Tu programa">
           {draft.placed.map((item, i) => (
@@ -335,30 +336,30 @@ function ParsonsInput({ exercise, draft, setDraft, disabled }: InputProps<Parson
                   action();
                 }
               }}
-              className="flex items-center gap-1 rounded-sm bg-surface px-1"
+              className="flex items-center gap-1 rounded-sm bg-surface px-1 touch:flex-wrap"
             >
-              <span className="min-w-0 flex-1 overflow-x-auto py-0.5 whitespace-pre" style={{ paddingLeft: `${item.indent * 2}ch` }}>
+              <span className="min-w-0 flex-1 overflow-x-auto py-0.5 whitespace-pre touch:basis-full touch:py-1" style={{ paddingLeft: `${item.indent * 2}ch` }}>
                 {item.text}
               </span>
               {!disabled ? (
                 <span className="flex shrink-0">
                   {python ? (
                     <>
-                      <button type="button" aria-label={`Quitar sangría a la línea ${i + 1}`} onClick={() => indent(i, -1)} className="rounded-sm p-1 hover:bg-surface-3">
+                      <button type="button" aria-label={`Quitar sangría a la línea ${i + 1}`} onClick={() => indent(i, -1)} className="grid place-items-center rounded-sm p-1 hover:bg-surface-3 touch:size-11">
                         <IndentDecrease aria-hidden className="size-3.5" />
                       </button>
-                      <button type="button" aria-label={`Dar sangría a la línea ${i + 1}`} onClick={() => indent(i, 1)} className="rounded-sm p-1 hover:bg-surface-3">
+                      <button type="button" aria-label={`Dar sangría a la línea ${i + 1}`} onClick={() => indent(i, 1)} className="grid place-items-center rounded-sm p-1 hover:bg-surface-3 touch:size-11">
                         <IndentIncrease aria-hidden className="size-3.5" />
                       </button>
                     </>
                   ) : null}
-                  <button type="button" aria-label={`Subir la línea ${i + 1}`} onClick={() => move(i, -1)} className="rounded-sm p-1 hover:bg-surface-3">
+                  <button type="button" aria-label={`Subir la línea ${i + 1}`} onClick={() => move(i, -1)} className="grid place-items-center rounded-sm p-1 hover:bg-surface-3 touch:size-11">
                     <ArrowUp aria-hidden className="size-3.5" />
                   </button>
-                  <button type="button" aria-label={`Bajar la línea ${i + 1}`} onClick={() => move(i, 1)} className="rounded-sm p-1 hover:bg-surface-3">
+                  <button type="button" aria-label={`Bajar la línea ${i + 1}`} onClick={() => move(i, 1)} className="grid place-items-center rounded-sm p-1 hover:bg-surface-3 touch:size-11">
                     <ArrowDown aria-hidden className="size-3.5" />
                   </button>
-                  <button type="button" aria-label={`Quitar la línea ${i + 1}`} onClick={() => unplace(i)} className="rounded-sm p-1 hover:bg-surface-3">
+                  <button type="button" aria-label={`Quitar la línea ${i + 1}`} onClick={() => unplace(i)} className="grid place-items-center rounded-sm p-1 hover:bg-surface-3 touch:size-11">
                     <X aria-hidden className="size-3.5" />
                   </button>
                 </span>
@@ -476,6 +477,9 @@ function TraceInput({ exercise, draft, setDraft, disabled, onEnter }: InputProps
               disabled={disabled}
               value={draft.answers[draft.step] ?? ""}
               autoComplete="off"
+              autoCapitalize="off"
+              autoCorrect="off"
+              enterKeyHint="done"
               spellCheck={false}
               onChange={(e) => setDraft({ ...draft, answers: { ...draft.answers, [draft.step]: e.target.value } })}
               onKeyDown={(e) => {
@@ -484,7 +488,7 @@ function TraceInput({ exercise, draft, setDraft, disabled, onEnter }: InputProps
                 if (draft.step < total - 1) go(1);
                 else onEnter();
               }}
-              className="h-10 rounded-md border border-input bg-surface px-3 font-mono"
+              className="h-10 touch:h-11 rounded-md border border-input bg-surface px-3 font-mono"
             />
           </label>
         ) : null}

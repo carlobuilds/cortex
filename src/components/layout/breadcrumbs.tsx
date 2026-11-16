@@ -17,7 +17,7 @@ export function Breadcrumbs({ items, className }: { items: readonly Crumb[]; cla
           return (
             <li key={`${i}-${item.label}`} className="flex min-w-0 items-center gap-1.5">
               {item.href && !last ? (
-                <Link href={item.href} className="truncate rounded-sm hover:text-ink">
+                <Link href={item.href} className="truncate rounded-sm hover:text-ink touch:inline-flex touch:min-h-11 touch:items-center">
                   {item.label}
                 </Link>
               ) : (

@@ -10,6 +10,7 @@ import { elementKey, formatSet, parseSet, SetError } from "@/engine/answers/sets
 import { displayOrder, TRUTH_STYLE, truthSymbol } from "@/engine/logic/convention";
 import { parseFormula } from "@/engine/logic/formula";
 import { type TruthTable, truthTable } from "@/engine/logic/truth-table";
+import { useTouchMode } from "@/lib/use-touch-mode";
 import { isTyping } from "@/lib/keyboard";
 import { cn } from "@/lib/utils";
 import type { InputProps, TypeModule } from "./exercise-types";
@@ -43,7 +44,11 @@ function MultiSelectInput({ exercise, draft, setDraft, disabled }: InputProps<re
   return (
     <div className="grid gap-2">
       <p id={hint} className="text-caption text-muted-foreground">
-        Puede haber varias correctas: marca todas. Teclas <span className="kbd">A</span>, <span className="kbd">B</span>, <span className="kbd">C</span>…
+        Puede haber varias correctas: marca todas.
+        <span className="touch:hidden">
+          {" "}
+          Teclas <span className="kbd">A</span>, <span className="kbd">B</span>, <span className="kbd">C</span>…
+        </span>
       </p>
       <div role="group" aria-label="Opciones" aria-describedby={hint} className="grid gap-2">
         {ex.opciones.map((o, i) => {
@@ -64,7 +69,7 @@ function MultiSelectInput({ exercise, draft, setDraft, disabled }: InputProps<re
               <span aria-hidden className={cn("grid size-5 shrink-0 place-items-center rounded-sm border", on ? "border-brand bg-brand text-brand-ink" : "border-border-strong")}>
                 {on ? <Check className="size-3.5" /> : null}
               </span>
-              <span className="kbd" aria-hidden>
+              <span className="kbd kbd-label" aria-hidden>
                 {LETTERS[i]}
               </span>
               <RichText text={o} inline />
@@ -79,7 +84,7 @@ function MultiSelectInput({ exercise, draft, setDraft, disabled }: InputProps<re
 const multipleSelect: TypeModule<readonly number[]> = {
   initial: () => [],
   Input: MultiSelectInput,
-  toAnswer: (_ex, d) => (d.length ? { kind: "choices", indexes: d } : "Marca al menos una opción (teclas A, B, C…)."),
+  toAnswer: (_ex, d) => (d.length ? { kind: "choices", indexes: d } : "Marca al menos una opción."),
   describe: (ex, d) => (ex.tipo === "seleccion_multiple" ? d.map((i) => ex.opciones[i] ?? String(i)).join(" · ") : ""),
 };
 
@@ -97,6 +102,7 @@ function previewSet(text: string): SetPreview | null {
 }
 
 function SetInput({ draft, setDraft, disabled, onEnter }: InputProps<string>) {
+  const touch = useTouchMode();
   const hint = useId();
   const preview = useMemo(() => previewSet(draft), [draft]);
   return (
@@ -104,9 +110,11 @@ function SetInput({ draft, setDraft, disabled, onEnter }: InputProps<string>) {
       <input
         aria-label="Tu conjunto"
         aria-describedby={hint}
-        autoFocus
+        autoFocus={!touch}
         autoComplete="off"
         autoCapitalize="off"
+        autoCorrect="off"
+        enterKeyHint="done"
         spellCheck={false}
         disabled={disabled}
         value={draft}
@@ -200,8 +208,11 @@ function TruthTableInput({ exercise, draft, setDraft, disabled }: InputProps<Tru
   return (
     <div className="grid gap-2">
       <p id={hint} className="text-caption text-muted-foreground">
-        Llena la columna de la fórmula. En cada fila: <span className="kbd">{TRUTH_STYLE.symbols[0]}</span> o <span className="kbd">{TRUTH_STYLE.symbols[1]}</span> (también <span className="kbd">1</span>/
-        <span className="kbd">0</span>) y baja sola; <span className="kbd">↑</span>/<span className="kbd">↓</span> para moverte.
+        <span className="notouch:hidden">Llena la columna de la fórmula: toca {TRUTH_STYLE.symbols[0]} o {TRUTH_STYLE.symbols[1]} en cada fila.</span>
+        <span className="touch:hidden">
+          Llena la columna de la fórmula. En cada fila: <span className="kbd">{TRUTH_STYLE.symbols[0]}</span> o <span className="kbd">{TRUTH_STYLE.symbols[1]}</span> (también <span className="kbd">1</span>/
+          <span className="kbd">0</span>) y baja sola; <span className="kbd">↑</span>/<span className="kbd">↓</span> para moverte.
+        </span>
       </p>
       <div className="truth-scroll" role="region" aria-label="Tabla por llenar" aria-describedby={hint}>
         <table className="truth-table">
@@ -249,7 +260,7 @@ function TruthTableInput({ exercise, draft, setDraft, disabled }: InputProps<Tru
                             onClick={() => assign(row, option)}
                             onKeyDown={(e) => onKey(e, pos, row)}
                             className={cn(
-                              "tactile h-8 min-w-9 rounded-sm border px-2 font-mono text-sm disabled:opacity-80",
+                              "tactile h-8 min-w-9 rounded-sm border px-2 font-mono text-sm disabled:opacity-80 touch:h-11 touch:min-w-11",
                               checked ? "border-brand bg-brand-soft font-semibold text-ink" : "border-border-strong bg-surface text-muted-foreground hover:border-brand/60",
                             )}
                           >

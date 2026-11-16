@@ -29,7 +29,7 @@ export function FormulaDemo() {
   return (
     <div className="grid max-w-xl gap-3">
       <p className="text-sm text-ink-2">
-        Escribe algo equivalente a <code>x+3</code> (por ejemplo <code>(x^2-9)/(x-3)</code>) y pulsa Enter.
+        Escribe algo equivalente a <code>x+3</code> (por ejemplo <code>(x^2-9)/(x-3)</code>) y <span className="touch:hidden">pulsa Enter</span><span className="hidden touch:inline">toca el botón de comprobar</span>.
       </p>
       <MathField label="Expresión de prueba" value={value} onChange={setValue} onEnter={check} />
       <p aria-live="polite" className="font-mono text-sm" data-testid="formula-demo-result">

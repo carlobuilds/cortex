@@ -39,7 +39,7 @@ export function PredictInteractive({ reveal }: { reveal: ReactNode | null }) {
             <button
               type="button"
               onClick={() => setShown(true)}
-              className="tactile rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:brightness-110"
+              className="tactile rounded-md bg-primary px-3 py-1.5 touch:min-h-11 touch:px-4 text-sm font-semibold text-primary-foreground hover:brightness-110"
             >
               {text.trim() ? "Comparar con la idea" : "No sé: muéstrame la idea"}
             </button>
@@ -89,7 +89,7 @@ export function FadedInteractive({
                         onChange={(e) => setValues(values.map((v, x) => (x === k ? e.target.value : v)))}
                         style={{ width: `${Math.max(4, (values[k] ?? "").length + 2)}ch` }}
                         className={cn(
-                          "mx-1 h-8 rounded-sm border-b-2 border-dashed bg-surface-2 px-1.5 font-mono text-sm",
+                          "mx-1 h-8 touch:h-11 touch:min-w-11 rounded-sm border-b-2 border-dashed bg-surface-2 px-1.5 font-mono text-sm",
                           ok === null ? "border-xp" : ok ? "border-success" : "border-danger",
                         )}
                       />
@@ -117,7 +117,7 @@ export function FadedInteractive({
             <button
               type="button"
               onClick={() => setChecked(true)}
-              className="tactile rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:brightness-110"
+              className="tactile rounded-md bg-primary px-3 py-1.5 touch:min-h-11 touch:px-4 text-sm font-semibold text-primary-foreground hover:brightness-110"
             >
               Comprobar
             </button>

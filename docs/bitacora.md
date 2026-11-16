@@ -4,6 +4,15 @@ Se movió desde `ESTADO.md` el 2026-11-16 (ADR-027), sin cambiar su texto. Lo m�
 
 **Regla desde el 2026-11-16:** una entrada por paso, de **máximo unas 8 líneas**: qué se hizo, evidencia (comandos y conteos) y hallazgos. El detalle largo va al mensaje del commit. Las entradas anteriores se quedan como están.
 
+- 2026-11-16 · **B3 · Uso táctil, solo pantalla y Pencil** (`dev-interfaz`; revisión de código y de `disenador-interaccion`: objeción sin bloqueo, arreglos incluidos).
+  - *Qué:*
+    - variante `touch:` (`pointer: coarse` o el interruptor «Modo de entrada» de Ajustes, guardado en `localStorage` y aplicado por `INPUT_BOOT` antes de pintar);
+    - `Button` y controles a 44 pt; «Corregir mi respuesta» sin Esc; `inputMode="text"` en lo numérico; autofoco solo fuera de táctil;
+    - MathLive en `auto` con botón «Teclado de fórmulas»; `--kb` desde `visualViewport` (sin contar el zoom) y el teclado de MathLive, con la barra Comprobar/Pista pegada encima;
+    - barra de código con sangría, símbolos de Python o C y Deshacer; gimnasio con «Responder» y «±» sin perder el foco;
+    - `.kbd` oculto en táctil.
+  - *Evidencia:* `pnpm test` 1392; `test:e2e` 33/33 (Chromium 25, `ipad` 4, `ipad-landscape` 4). Las de WebKit usan solo toques, miden ≥ 44 pt en ejercicio, confianza, retroalimentación, lección y Ajustes, y comprueban que Comprobar queda sobre el teclado de fórmulas. En la Mac no cambia nada: atajos, `Kbd`, 40 px. La flaky de `exam.spec.ts` se arregló con `data-step` (8/8 repeticiones).
+  - *Hallazgos:* `next typegen` y un `pnpm dev` simultáneo corrompieron `.next/dev/types/validator.ts` (regla 5 de `docs/08`). `::part()` de MathLive no funciona dentro de `@variant`. Lo que solo se ve en el iPad va a la lista del CP-iPad (`docs/09`).
 - 2026-11-16 · **B2 · PWA instalable y sin conexión** (`dev-ipad` + `dev-interfaz`).
   - *Qué:* `src/app/manifest.ts` (standalone, `#0E0C19`, íconos 192/512 y maskable); `scripts/icons.ts` con Playwright → `public/icons/` (con `apple-touch-icon` de 180); `layout.tsx` con `appleWebApp`, `themeColor` claro y oscuro, `robots` noindex y `<SwRegister/>`; `<OfflineStatus/>` en Ajustes. `scripts/build-sw.ts` genera `out/sw.js`: la lógica pura de `scripts/lib/sw-core.ts` se transpila e incrusta, con lista permitida, precarga atómica con `cache: "reload"`, Pyodide en caché aparte (`cortex-pyodide-<versión>-<hash>`), cachés viejas borradas solo en `activate`, sin `skipWaiting` y reparación si iOS desaloja la caché. Kill switch en `scripts/sw-kill.js`. Fuera de la PWA, el registro da de baja cualquier SW.
   - *Evidencia:* `pnpm check` en verde (1368 unitarias, 313 de contenido); 64 pruebas del SW (con `node:vm`); precarga de 945 URL / 45 MB más 5 / 12.9 MB de Pyodide; en Chromium con servidor temporal, sin red abrieron inicio, materia, unidad y la 404. Los `.txt` RSC no se precargan: sin red, Next cae a navegación completa (se confirma en B5).

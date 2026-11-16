@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import type { Confidence } from "@/engine/xp";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const LEVELS: readonly { value: Confidence; label: string; hint: string }[] = [
@@ -12,7 +13,7 @@ const LEVELS: readonly { value: Confidence; label: string; hint: string }[] = [
 
 /**
  * Calibración de confianza (docs/03): antes de ver si acertaste, marcas qué tan seguro estás.
- * Teclas 1, 2 y 3. Acertar con "Seguro" da un pequeño bonus; fallar con "Seguro" marca una
+ * Teclas 1, 2 y 3 (o toca un nivel); «Corregir mi respuesta» vuelve al ejercicio (Esc). Acertar con "Seguro" da un pequeño bonus; fallar con "Seguro" marca una
  * "ilusión de saber" que se repasa primero.
  */
 export function ConfidencePicker({ onPick, onCancel }: { onPick: (c: Confidence) => void; onCancel?: () => void }) {
@@ -58,9 +59,11 @@ export function ConfidencePicker({ onPick, onCancel }: { onPick: (c: Confidence)
         ))}
       </div>
       {onCancel ? (
-        <p className="mt-2 text-xs text-muted-foreground">
-          <span className="kbd">Esc</span> para corregir tu respuesta.
-        </p>
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+          <Button type="button" variant="outline" size="sm" onClick={onCancel}>
+            Corregir mi respuesta <span className="kbd">Esc</span>
+          </Button>
+        </div>
       ) : null}
     </fieldset>
   );

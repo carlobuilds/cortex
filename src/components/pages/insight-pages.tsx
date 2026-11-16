@@ -71,7 +71,7 @@ function Notebook({ db, catalog }: StudyContext) {
               <code className="font-mono">{m.lastAnswer || "—"}</code>
             </p>
             <details className="mt-2 text-sm">
-              <summary className="cursor-pointer text-brand">Ver la explicación</summary>
+              <summary className="cursor-pointer text-brand touch:inline-flex touch:min-h-11 touch:items-center">Ver la explicación</summary>
               <RichText text={ex.explicacion} className="mt-2" />
             </details>
             <label className="mt-3 grid gap-1 text-sm">

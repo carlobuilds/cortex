@@ -19,7 +19,7 @@ export function ThemeToggle() {
       <DropdownMenuTrigger
         disabled={disabled}
         aria-label={`Tema: ${THEME_LABELS[preference ?? "system"]}`}
-        className="tactile grid size-8 shrink-0 place-items-center rounded-md text-ink-2 hover:bg-surface-2 hover:text-ink disabled:opacity-50"
+        className="tactile grid size-8 touch:size-11 shrink-0 place-items-center rounded-md text-ink-2 hover:bg-surface-2 hover:text-ink disabled:opacity-50"
       >
         <Icon aria-hidden className="size-4" />
       </DropdownMenuTrigger>
