@@ -1,0 +1,122 @@
+unidad: matematicas-discretas/21-arboles-binarios
+nombre: "El Jardinero de la Raíz"
+vidas: 3
+# Jefe final del programa (esquema v1; arreglos aprobados por Carlo el 2026-11-15: entra el 018). Aviso para Carlo (P):
+# boss-runner.tsx:69-71 llama «Jefe final de la materia» al jefe de la ÚLTIMA unidad del catálogo; si después se
+# escriben la 22 y la 23 (extras), ese nombre pasa a la 23. Queda para /equipo con un ADR.
+# tiempo_segundos: suma de los tiempo_estimado_s de las 15 preguntas más 10 %, con el tiempo del dibujo dentro (020,
+# 022 y 025 piden dibujar; v1).
+# Propias: 013 (150) + 014 (120) + 016 (120) + 017 (150) + 018 (90) + 020 (250) + 021 (150) + 022 (180) + 023 (210) +
+# 024 (180) + 025 (240) = 1840. Repaso: 15-017 (60) + 16-021 (120) + 19-016 (120) + 20-016 (120) = 420. Total 2260;
+# con el 10 %, 2486, redondeado hacia arriba a 2490 s (41 min 30 s). El 020 subió de 240 a 250 s por su hueco nuevo
+# (el subárbol izquierdo de i); el 025 se queda en 240, porque cambió un hueco por otro de la misma cuenta. Sumas
+# leídas de los archivos con código el 2026-11-15.
+tiempo_segundos: 2490
+aprobado_minimo: 0.8
+preguntas:
+  # Propias, 11: la lista de P con el 024 (el torneo) en lugar del 015, más el 018 (prefija a valor), que agregó P en
+  # los arreglos del 2026-11-15 para que la pila tenga pregunta (aprobado por Carlo). d3: 013, 014, 016, 017, 018 · d4:
+  # 020, 021, 022 · d5: 023, 024, 025. Cubren los seis conceptos: AR (016, 021, 024), AB (017, 022, 023, 024), PR (014,
+  # 020, 023), IN (013, 020, 023, 025), PO (023, 025) y AE (018, 022).
+  # Sin manuales ni autoevaluación: el 019 se queda fuera.
+  propias: [disc-21-013, disc-21-014, disc-21-016, disc-21-017, disc-21-018, disc-21-020, disc-21-021, disc-21-022, disc-21-023, disc-21-024, disc-21-025]
+  # Repaso: 4 de 15 (26.7 %, dentro del 25–35 % de docs/03), elegidos a mano entre pares que se confunden (P y M). Por
+  # qué no más (P): con 11 propias, 6 de repaso serían 6 de 17 (35.3 %), fuera del 25–35 %, y con 3 vidas exigiría en la
+  # práctica 14/17; la amplitud del parcial (13 a 21) la da el simulacro. Comprobado el 2026-11-15 contra los archivos:
+  # los cuatro existen y no están retirados (15-017, d3, 60 s; 16-021, d4, 120 s; 19-016, d3, 120 s; 20-016, d3,
+  # 120 s). Los cuatro están en HEAD (a162d49, el commit de la 20), el 20-016 con el enunciado «el vecino sin visitar
+  # que quieras» del v1 y `correctas` [0, 1, 3]. En content/*/*/jefe.yaml ninguno va en otro `repaso_de`, y cada uno va
+  # en las propias del jefe de su unidad (15, 16, 19 y 20), así que con este quedan en dos jefes, el tope. La
+  # alternativa de P, disc-14-012, no sirve: ya va en las propias del 14 y en el repaso del 15, y quedaría en tres (M).
+  # El 018 no está en ningún otro jefe. Cada repaso tiene su pareja aquí:
+  # - 15-017 (d3, «exactamente una imagen»: el diagnóstico de la F de Luis) con el 016 (d3, «padre de» es función e
+  #   «hijo de» no).
+  # - 16-021 (d4, maximales del orden producto) con el 017 (d3, el orden «y = x o y es ancestro de x», con la raíz como
+  #   máximo y las hojas como minimales, que el espejo no cambia).
+  # - 19-016 (d3, listas de grados realizables) con el 021 (d4, grados de dos árboles, A y B, con el apretón de manos y
+  #   n − 1).
+  # - 20-016 (d3, órdenes DFS con elección libre) con el 014 (d3, Lucía: el orden por niveles contra el preorden).
+  # Ninguna explicación resuelve otra pregunta de este jefe (el jefe muestra la explicación tras cada respuesta,
+  # boss-runner.tsx). Lo que se cruza, revisado par por par (v1, y otra vez con los textos de los arreglos del
+  # 2026-11-15):
+  # - 018 y 022 (pueden caer juntos en la 2.ª oleada, en cualquier orden): la del 018 arma el árbol de su prefija y la
+  #   evalúa con el árbol y con la pila; no habla de intercambiar hijos ni de alturas, y no da ningún valor del 022. Su
+  #   «Revisa:» ya no cuenta números y operadores. La del 022 dice que intercambiar los hijos de una resta le cambia el
+  #   signo y da los valores de su árbol; no lee prefijas ni da el 8 del 018.
+  # - 018 y el R4 (023): la del 018 dice que la raíz es el primer símbolo y que el operando izquierdo empieza justo
+  #   después; es la definición del preorden de §4, en una expresión, y no decide la (0), que pide el posorden y un
+  #   árbol cualquiera, ni la (2) o la (4). El 018 (d3) sale siempre antes que el 023 (d5), así que la del 023 no
+  #   puede ayudarle.
+  # - 018 y 024: el «Revisa:» de antes del 018 («6 números y 5 operadores; cada operador junta dos valores en uno») era
+  #   la cuenta de partidos del 024, y por eso cambió a «el árbol y la pila dan lo mismo, 8». La del 018 ya no cuenta
+  #   nada. El 018 sale siempre antes que el 024 (d5).
+  # - 024 y el R4 (M): con el R4 v1 ya no está «lleno ⇒ hojas = internos + 1», que era el 024 con números. La del 023
+  #   no lo enuncia; su contraejemplo de la (3) recuerda el máximo de la lección, 2^(h+1) − 1, que el 024 usa para las
+  #   rondas mínimas, sin dar ningún número del torneo (es la fórmula de §3, no la respuesta). La del 024 usa ese máximo,
+  #   que es lo correcto, sin decir nada de 2^h: no decide la (3). Los dos van en la 3.ª oleada.
+  # - 021 y el R4 (M): el apretón de manos aplicado a un lleno daría hojas = internos + 1, pero esa opción ya no está, y
+  #   la del 021 trata solo árboles sin raíz: no habla de raíz, binarios, llenos ni nodos internos. La del 023 no da
+  #   grados.
+  # - 021 y 024: la del 024 cuenta partidos por eliminados, sin grados ni apretón de manos; la del 021 no habla de
+  #   torneos, hojas ni partidos. El 021 (d4) puede caer en la 3.ª oleada con el 024, en cualquier orden: no hay fuga.
+  # - 025 y el R4 (M: sin cruce con el v1, que ya no trae «posorden e inorden determinan»): el 025 pide el último del
+  #   preorden de su árbol, que es la hoja g; la (4) del R4 dice que el último del preorden siempre es hoja. Es un dato
+  #   de un árbol que primero hay que reconstruir, no una prueba, y la explicación del 025 no lo generaliza. Al revés,
+  #   la del 023 explica dónde está el último del preorden (en el subárbol derecho si lo hay, si no en el izquierdo), y
+  #   la de su (0), nueva, parte el posorden con el segundo del preorden; el 025 no trae preorden, y la del 023 no da
+  #   su árbol. Los dos en la 3.ª oleada, en orden al azar. El hueco nuevo del 025 (los nodos del subárbol derecho de
+  #   d) es un dato de su árbol.
+  # - 013, 022 y la (3) del R4 (M, cruce débil): los dos árboles tienen 9 nodos y altura 3 (9 > 2^3), un dato del dibujo
+  #   del 013 y de la lista del 022, no una afirmación. La (3) también cae con el máximo 2^(h+1) − 1 de la lección.
+  # - 022 y 024: la lista del 022 tiene 5 hojas y 4 operadores (un dato de un lleno); no enuncia la relación, y el 024 se
+  #   contesta contando eliminados. La del 024 no habla de expresiones.
+  # - 022 y 017: el 022 no usa el espejo: intercambia los hijos de un solo nodo cada vez, y su explicación no habla de
+  #   inórdenes al revés (M).
+  # - 017 y el R4: la del 017 da el preorden, el inorden y el posorden de T y de T' como datos de su árbol; no enuncia
+  #   «el preorden del espejo es el posorden al revés» (que con «el primero del posorden es hoja» daría la (4)) ni que
+  #   las hojas salgan en el mismo orden en las tres listas (la (2)). El 017 (d3) sale antes que el 023 (d5).
+  # - 013 y el R4: la del 013 dice que un hijo único que cambia de lado no cambia el preorden, y ahora nombra el error de
+  #   Diego (un hijo único derecho tomado como izquierdo: si es derecho, su padre va antes que su subárbol en el
+  #   inorden). Eso explica por qué el preorden y el posorden no bastan con un hijo único, que ya da §7 de la lección, y
+  #   no decide la (0), que es sobre árboles con 0 o 2 hijos, ni la (1). El 013 (d3) sale antes que el 023.
+  # - 014 y el R4: la del 014 (de A) dice que en un preorden cada nodo va justo antes de su subárbol, que ocupa
+  #   posiciones seguidas: es la definición de §4 de la lección, no la prueba de la (4). El 014 sale antes que el 023.
+  # - 013 y 014 (los dos d3, en las oleadas 1 y 2): la del 013 da el inorden y el preorden de su árbol; la del 014, el
+  #   preorden y el orden por niveles del suyo. Ninguna da números ni posiciones de la otra.
+  # - 016 y el R4: el contraejemplo de la (5) del 016 es una raíz con dos hijos (2 hojas), no una cadena, para no dar la
+  #   (5) del R4 (un árbol de 2 nodos con 1 hoja; ese ejemplo ya está en §7 de la lección). La del 016 no habla de
+  #   árboles binarios ni de preorden, inorden o posorden.
+  # - 016 y 021, 024: el «Revisa:» nuevo del 016 cuenta una arista por cada vértice distinto de la raíz, su extremo más
+  #   lejano: es el n − 1 que la lección ya da. No da grados ni ecuaciones del 021, ni partidos o nodos del 024.
+  # - 020 y 025 (los dos reconstruyen, con árboles distintos): la del 020 usa preorden e inorden; la del 025, posorden
+  #   e inorden. El método es el de §7; ninguna da nodos ni datos de la otra. Sus huecos nuevos (el subárbol izquierdo
+  #   de i en el 020 y el derecho de d en el 025) son datos de cada árbol.
+  # - 020, 022 y 023: la del 020 cuenta los nodos del subárbol izquierdo de i, los nodos con un solo hijo y la altura de
+  #   su árbol, sin afirmaciones generales.
+  # - Repaso contra propias:
+  #   - 15-017 y 016 (los dos d3, en las oleadas 1 y 2, en cualquier orden): la del 016 aplica la definición de función
+  #     a «padre de» (exactamente un valor) y a «hijo de» (ninguno o varios). Es la definición que el 15-017 también
+  #     pide, pero no habla de pares, de la F de Luis ni de inyectividad, y no decide entre sus cuatro diagnósticos (hay
+  #     que ver que el 1 tiene dos imágenes). La del 15-017 no habla de árboles. Cruce débil, el que busca el par.
+  #   - 16-021 y 017: la del 017 dice cuál es el máximo y cuáles los minimales de su orden de ancestros; no habla de
+  #     pares, del orden producto ni de sumas, y no da maximales de otro conjunto. La del 16-021 no habla de árboles.
+  #     El 017 (d3) sale en la 1.ª o 2.ª oleada, y el 16-021 (d4) en la 2.ª o 3.ª.
+  #   - 19-016 y 021: la del 021 recuerda el apretón de manos (de la lección de la 19) y el n − 1, y resuelve dos
+  #     sistemas de ecuaciones de sus árboles. No evalúa ninguna lista del 19-016 ni dice que «suma par» no basta, y los
+  #     grados de sus ejemplos (3, 3, 3 y cinco 1; 5, 3 y seis 1) no son opciones del 19-016, que tampoco usa
+  #     4, 4, 1, 1, 1, 1 (M). La del 19-016 no habla de árboles ni de n − 1. Pueden caer juntos en la 2.ª oleada.
+  #   - 20-016 y 014: la del 20-016 dice qué sucesiones son órdenes DFS de su grafo y cuál es el BFS; no habla de
+  #     árboles binarios, preorden ni niveles de un árbol. La del 014 no habla de búsquedas, BFS ni DFS (el «como un BFS»
+  #     de A salió en el v1). La del 013 tampoco.
+  #   - 20-016 y 013, 017, 018: no comparten nada; sus datos son de un grafo, y los de ellas, de árboles y expresiones.
+  #   - 018 y los cuatro de repaso: la del 018 es de una expresión; no habla de funciones, órdenes, grados ni búsquedas,
+  #     y ninguna de las cuatro habla de prefijas ni de pilas.
+  repaso_de: [disc-15-017, disc-16-021, disc-19-016, disc-20-016]
+  # Oleadas 4/6/5 (waveSizes(15) del motor, corrido el 2026-11-15: apportion(15, [0.3, 0.4, 0.3]) da 4.5/6/4.5 →
+  # 4/6/4, y el residuo va a la 3.ª, porque la 1.ª y la 3.ª empatan y en empate gana la más difícil), por dificultad y
+  # con desempate al azar. Hay 8 de d3 (013, 014, 016, 017, 018, 15-017, 19-016 y 20-016), 4 de d4 (020, 021, 022 y
+  # 16-021) y 3 de d5 (023, 024 y 025): 1.ª = cuatro de los ocho d3; 2.ª = los cuatro d3 que quedan y dos de los cuatro
+  # d4; 3.ª = los otros dos d4, 023, 024 y 025. Así, los d3 (013, 014, 016, 017 y 018) salen siempre antes que el R4 y
+  # el 024; el 018 y el 022 pueden caer juntos en la 2.ª; cada par del repaso puede caer en la misma oleada o en oleadas
+  # vecinas; y dos de 020, 021, 022 o 16-021 caen con los d5. Dentro de cada oleada el orden es al azar (boss.ts).
+recompensa: { xp: 300, insignia: "de-las-hojas-a-la-raiz" }

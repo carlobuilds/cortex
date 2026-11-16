@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import type { CatalogExercise, CatalogUnit, StudyCatalog } from "@/content/core/study-catalog";
 import type { CortexDb } from "@/db/db";
+import { pushStudySummary } from "@/sync/study-push";
 import { type BossOutcome, finishBoss, recordAnswer, scheduleNow } from "@/db/progress";
 import type { ProfileRecord } from "@/db/types";
 import {
@@ -112,6 +113,7 @@ export function BossRunner({
         now: t,
         ctx: await missionContext(db, catalog, t),
       });
+      pushStudySummary(db);
       playSound(out.passed ? "level" : "wrong", profile.preferences.sound);
       fromOutcome(out);
       setOutcome(out);
@@ -168,7 +170,7 @@ export function BossRunner({
                     </p>
                     <RichText text={ex.enunciado} className="mt-2" />
                     <details className="mt-2">
-                      <summary className="cursor-pointer text-brand">Ver la explicación</summary>
+                      <summary className="cursor-pointer text-brand touch:inline-flex touch:min-h-11 touch:items-center">Ver la explicación</summary>
                       <RichText text={ex.explicacion} className="mt-2" />
                     </details>
                   </li>

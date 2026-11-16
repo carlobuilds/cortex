@@ -14,7 +14,11 @@ function boot(stored: string | null | "throws", prefersDark: boolean | "missing"
     },
   };
   const fakeDocument = {
-    documentElement: { classList: { toggle: (c: string, on: boolean) => (on ? classes.add(c) : classes.delete(c)) } },
+    documentElement: {
+      classList: { toggle: (c: string, on: boolean) => (on ? classes.add(c) : classes.delete(c)) },
+      setAttribute: () => undefined,
+      removeAttribute: () => undefined,
+    },
   };
   new Function("window", "localStorage", "document", THEME_BOOT)(fakeWindow, fakeStorage, fakeDocument);
   return classes.has("dark");

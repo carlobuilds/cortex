@@ -30,7 +30,7 @@ export function ReportButton({ exerciseId, subtle = false }: { exerciseId: strin
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={cn("inline-flex items-center gap-1.5 rounded-sm text-sm text-muted-foreground hover:text-ink", subtle && "text-xs")}
+        className={cn("inline-flex items-center gap-1.5 rounded-sm text-sm text-muted-foreground hover:text-ink touch:min-h-11 touch:px-2", subtle && "text-xs")}
       >
         <Flag aria-hidden className="size-3.5" /> {sent ?? "Reportar problema"}
       </button>
@@ -43,7 +43,7 @@ export function ReportButton({ exerciseId, subtle = false }: { exerciseId: strin
           <label htmlFor={id} className="sr-only">
             Describe el problema
           </label>
-          <textarea id={id} rows={4} value={text} onChange={(e) => setText(e.target.value)} className="w-full rounded-md border border-input bg-surface px-3 py-2" />
+          <textarea id={id} rows={4} value={text} onChange={(e) => setText(e.target.value)} className="w-full rounded-md border border-input bg-surface px-3 py-2 text-base" />
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction

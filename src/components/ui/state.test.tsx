@@ -58,6 +58,6 @@ describe("estados", () => {
   });
 
   it("Kbd se oculta en pantallas táctiles", () => {
-    expect(html(<Kbd>H</Kbd>)).toContain("[@media(pointer:coarse)]:hidden");
+    expect(html(<Kbd>H</Kbd>)).toContain("touch:hidden");
   });
 });

@@ -12,6 +12,7 @@ import { MathField } from "./math-field";
 import { MATH_TYPE_MODULES } from "./math-types";
 import { RichText } from "./rich-text";
 import { isTyping } from "@/lib/keyboard";
+import { useTouchMode } from "@/lib/use-touch-mode";
 
 /**
  * Un módulo por tipo de ejercicio: borrador inicial, componente de entrada y cómo se convierte
@@ -73,7 +74,7 @@ function ChoiceInput({ exercise, draft, setDraft, disabled }: InputProps<number 
             draft === i ? "border-brand bg-surface-2" : "border-border-strong",
           )}
         >
-          <span className="kbd" aria-hidden>
+          <span className="kbd kbd-label" aria-hidden>
             {LETTERS[i]}
           </span>
           <RichText text={o} inline />
@@ -86,17 +87,22 @@ function ChoiceInput({ exercise, draft, setDraft, disabled }: InputProps<number 
 const choice: TypeModule<number | null> = {
   initial: () => null,
   Input: ChoiceInput,
-  toAnswer: (_ex, d) => (d === null ? "Elige una opción (teclas A, B, C...)." : { kind: "choice", index: d }),
+  toAnswer: (_ex, d) => (d === null ? "Elige una opción." : { kind: "choice", index: d }),
   describe: (ex, d) => (ex.tipo === "opcion_multiple" && d !== null ? (ex.opciones[d] ?? String(d)) : ""),
 };
 
 // ---------------------------------------------------------------- numérico y salida
 function NumericInput({ draft, setDraft, disabled, onEnter }: InputProps<string>) {
+  const touch = useTouchMode();
   return (
     <input
       aria-label="Tu respuesta"
-      autoFocus
-      inputMode="decimal"
+      autoFocus={!touch}
+      // El teclado decimal del iPad no trae "/", letras ni paréntesis, y el placeholder los pide.
+      inputMode={touch ? "text" : "decimal"}
+      autoCapitalize="off"
+      autoCorrect="off"
+      enterKeyHint="done"
       autoComplete="off"
       spellCheck={false}
       disabled={disabled}
@@ -135,6 +141,7 @@ const symbolic: TypeModule<string> = { ...numeric, Input: SymbolicInput };
 
 function OutputInput({ exercise, draft, setDraft, disabled, onEnter }: InputProps<string>) {
   const ex = exercise as Extract<CatalogExercise, { tipo: "predecir_salida" }>;
+  const touch = useTouchMode();
   return (
     <div className="grid gap-3">
       <pre className="code-view" aria-label={`Código en ${ex.lenguaje}`}>
@@ -144,7 +151,7 @@ function OutputInput({ exercise, draft, setDraft, disabled, onEnter }: InputProp
         <span className="eyebrow">Salida exacta (una línea por renglón)</span>
         <textarea
           aria-label="Salida exacta"
-          autoFocus
+          autoFocus={!touch}
           disabled={disabled}
           value={draft}
           spellCheck={false}
@@ -158,7 +165,7 @@ function OutputInput({ exercise, draft, setDraft, disabled, onEnter }: InputProp
           }}
           className="w-full rounded-md border border-input bg-surface px-3 py-2 font-mono text-base"
         />
-        <span className="text-xs text-muted-foreground">
+        <span className="text-xs text-muted-foreground touch:hidden">
           <span className="kbd">Ctrl</span> + <span className="kbd">Enter</span> para comprobar
         </span>
       </label>
@@ -172,6 +179,7 @@ const output: TypeModule<string> = { ...numeric, Input: OutputInput };
 function BlanksInput({ exercise, draft, setDraft, disabled, onEnter }: InputProps<string[]>) {
   const ex = exercise as Extract<CatalogExercise, { tipo: "completar" }>;
   const parts = splitBlanks(ex.texto);
+  const touch = useTouchMode();
   return (
     <p className="rich text-lg leading-[2.4]">
       {parts.map((part, i) => (
@@ -180,10 +188,12 @@ function BlanksInput({ exercise, draft, setDraft, disabled, onEnter }: InputProp
           {i < parts.length - 1 ? (
             <input
               aria-label={`Hueco ${i + 1} de ${parts.length - 1}`}
-              autoFocus={i === 0}
+              autoFocus={i === 0 && !touch}
               disabled={disabled}
               value={draft[i] ?? ""}
               spellCheck={false}
+              autoCapitalize="off"
+              autoCorrect="off"
               autoComplete="off"
               onChange={(e) => setDraft(draft.map((v, j) => (j === i ? e.target.value : v)))}
               onKeyDown={(e) => {
@@ -193,7 +203,7 @@ function BlanksInput({ exercise, draft, setDraft, disabled, onEnter }: InputProp
                 }
               }}
               style={{ width: `${Math.max(5, (draft[i] ?? "").length + 2)}ch` }}
-              className="mx-1 inline-block h-9 rounded-sm border-b-2 border-dashed border-xp bg-surface-2 px-2 align-baseline font-mono text-base"
+              className="mx-1 inline-block h-9 touch:h-11 touch:min-w-11 rounded-sm border-b-2 border-dashed border-xp bg-surface-2 px-2 align-baseline font-mono text-base"
             />
           ) : null}
         </Fragment>
@@ -210,7 +220,8 @@ const blanks: TypeModule<string[]> = {
 };
 
 // ---------------------------------------------------------------- ordenar
-function OrderInput({ draft, setDraft, disabled }: InputProps<string[]>) {
+function OrderInput({ exercise, draft, setDraft, disabled }: InputProps<string[]>) {
+  const ex = exercise as Extract<CatalogExercise, { tipo: "ordenar" }>;
   const refs = useRef<(HTMLLIElement | null)[]>([]);
   const move = (i: number, delta: number) => {
     const j = i + delta;
@@ -223,12 +234,17 @@ function OrderInput({ draft, setDraft, disabled }: InputProps<string[]>) {
   return (
     <div>
       <p className="mb-2 text-xs text-muted-foreground">
-        Enfoca un paso y usa <span className="kbd">Alt</span> + <span className="kbd">↑</span>/<span className="kbd">↓</span>, o los botones.
+        <span className="touch:hidden">
+          Enfoca un paso y usa <span className="kbd">Alt</span> + <span className="kbd">↑</span>/<span className="kbd">↓</span>, o los botones.
+        </span>
+        <span className="hidden touch:inline">Usa las flechas de cada paso para subirlo o bajarlo.</span>
       </p>
       <ol className="grid gap-2" aria-label="Pasos en tu orden">
         {draft.map((item, i) => (
           <li
             key={item}
+            // Índice original en `elementos` (estable aunque el texto lleve LaTeX renderizado): lo usan las pruebas e2e.
+            data-step={ex.elementos.indexOf(item)}
             ref={(el) => {
               refs.current[i] = el;
             }}
@@ -251,10 +267,10 @@ function OrderInput({ draft, setDraft, disabled }: InputProps<string[]>) {
               <RichText text={item} inline />
             </span>
             <span className="flex gap-1">
-              <button type="button" disabled={disabled || i === 0} onClick={() => move(i, -1)} aria-label={`Subir paso ${i + 1}`} className="rounded-sm p-1 hover:bg-surface-2 disabled:opacity-30">
+              <button type="button" disabled={disabled || i === 0} onClick={() => move(i, -1)} aria-label={`Subir paso ${i + 1}`} className="grid place-items-center rounded-sm p-1 hover:bg-surface-2 disabled:opacity-30 touch:size-11">
                 <ArrowUp className="size-4" aria-hidden />
               </button>
-              <button type="button" disabled={disabled || i === draft.length - 1} onClick={() => move(i, 1)} aria-label={`Bajar paso ${i + 1}`} className="rounded-sm p-1 hover:bg-surface-2 disabled:opacity-30">
+              <button type="button" disabled={disabled || i === draft.length - 1} onClick={() => move(i, 1)} aria-label={`Bajar paso ${i + 1}`} className="grid place-items-center rounded-sm p-1 hover:bg-surface-2 disabled:opacity-30 touch:size-11">
                 <ArrowDown className="size-4" aria-hidden />
               </button>
             </span>
@@ -286,11 +302,12 @@ export interface SelfDraft {
 }
 
 function SelfInput({ draft, setDraft, disabled, onEnter }: InputProps<SelfDraft>) {
+  const touch = useTouchMode();
   return (
     <label className="grid gap-1.5">
       <span className="eyebrow">Tu explicación (con tus palabras)</span>
       <textarea
-        autoFocus
+        autoFocus={!touch}
         disabled={disabled}
         value={draft.text}
         rows={5}
@@ -304,7 +321,11 @@ function SelfInput({ draft, setDraft, disabled, onEnter }: InputProps<SelfDraft>
         className="w-full rounded-md border border-input bg-surface px-3 py-2 text-base"
       />
       <span className="text-xs text-muted-foreground">
-        Después compararás con una respuesta modelo y una rúbrica. <span className="kbd">Ctrl</span> + <span className="kbd">Enter</span>
+        Después compararás con una respuesta modelo y una rúbrica.
+        <span className="touch:hidden">
+          {" "}
+          <span className="kbd">Ctrl</span> + <span className="kbd">Enter</span>
+        </span>
       </span>
     </label>
   );

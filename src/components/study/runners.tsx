@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { CatalogExercise, CatalogUnit, StudyCatalog } from "@/content/core/study-catalog";
 import type { CortexDb } from "@/db/db";
+import { pushStudySummary } from "@/sync/study-push";
 import { completeLesson, completeReviewBlock, endSession, illusionIds, recordAnswer, startSession } from "@/db/progress";
 import type { AttemptMode, ProfileRecord, SessionKind } from "@/db/types";
 import { CONFIG, type Difficulty } from "@/engine/config";
@@ -85,7 +86,7 @@ function useSession(db: CortexDb, kind: SessionKind, unitKey?: string): number |
     });
     return () => {
       alive = false;
-      if (opened !== null) void endSession(db, opened, Date.now());
+      if (opened !== null) void endSession(db, opened, Date.now()).finally(() => pushStudySummary(db));
     };
   }, [db, kind, unitKey]);
   return id;

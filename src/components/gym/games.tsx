@@ -1,7 +1,7 @@
 "use client";
 
 import { Brain, Calculator, Sigma } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { type MouseEvent, type PointerEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CONFIG } from "@/engine/config";
 import { generateArithmetic } from "@/engine/gym/arithmetic";
@@ -11,7 +11,29 @@ import { createStaircase, stepStaircase } from "@/engine/gym/staircase";
 import type { RecordCandidate } from "@/engine/records";
 import { createRng, type Rng, seedFrom } from "@/engine/rng";
 import type { GymGame } from "@/engine/session";
+import { useTouchMode } from "@/lib/use-touch-mode";
 import { cn } from "@/lib/utils";
+
+/** Antepone o quita el «-» (el teclado numérico del iPad puede no traerlo). */
+export function toggleSign(v: string): string {
+  return v.startsWith("-") ? v.slice(1) : `-${v}`;
+}
+
+/** Botón «±» de 44 pt, solo en modo táctil, para respuestas que pueden ser negativas. */
+/** El botón no le quita el foco al campo: el teclado en pantalla se queda abierto entre respuestas. */
+const keepFocus = (e: PointerEvent | MouseEvent) => e.preventDefault();
+
+function SignButton({ value, setValue, disabled }: { value: string; setValue: (v: string) => void; disabled?: boolean }) {
+  const touch = useTouchMode();
+  if (!touch) return null;
+  return (
+    <Button type="button" variant="secondary" size="icon" aria-label="Cambiar signo" disabled={disabled} onPointerDown={keepFocus} onMouseDown={keepFocus} onClick={() => setValue(toggleSign(value))}>
+      <span aria-hidden className="text-xl">
+        ±
+      </span>
+    </Button>
+  );
+}
 
 /**
  * Gimnasio mínimo de la Fase 1 (docs/06): n-back, cálculo mental y secuencias. La lógica vive en
@@ -103,7 +125,10 @@ export function NbackGame({ level, onDone }: { level: number; onDone: (r: GymRou
   return (
     <div className="grid justify-items-center gap-5">
       <p className="text-center text-ink-2">
-        Pulsa <span className="kbd">Espacio</span> cuando la casilla sea la misma que hace <strong>{n}</strong> {n === 1 ? "paso" : "pasos"}.
+        <span className="touch:hidden">
+          Pulsa <span className="kbd">Espacio</span>
+        </span>
+        <span className="hidden touch:inline">Toca «¡Coincide!»</span> cuando la casilla sea la misma que hace <strong>{n}</strong> {n === 1 ? "paso" : "pasos"}.
       </p>
       <div className="grid grid-cols-3 gap-2" aria-hidden>
         {Array.from({ length: 9 }, (_, i) => (
@@ -133,6 +158,7 @@ export function NbackGame({ level, onDone }: { level: number; onDone: (r: GymRou
 
 // ---------------------------------------------------------------- cálculo mental
 export function ArithmeticGame({ level, onDone, seconds = 60 }: { level: number; onDone: (r: GymRoundResult) => void; seconds?: number }) {
+  const touch = useTouchMode();
   const rng = useSeededRng("arithmetic");
   const [stair, setStair] = useState(() => createStaircase(level, 1, 10));
   const [item, setItem] = useState(() => generateArithmetic(rng, level));
@@ -170,6 +196,7 @@ export function ArithmeticGame({ level, onDone, seconds = 60 }: { level: number;
     return () => window.clearInterval(t);
   }, [onDone, seconds, stair.level, started]);
 
+  const inputRef = useRef<HTMLInputElement>(null);
   const submit = () => {
     if (started === null || finished.current || !value.trim()) return;
     const ok = Number(value.replace(",", ".")) === item.answer;
@@ -187,12 +214,16 @@ export function ArithmeticGame({ level, onDone, seconds = 60 }: { level: number;
     setValue("");
     setFlash(ok ? "ok" : "bad");
     setShown({ correct: s.correct, answered: s.answered });
+    inputRef.current?.focus();
   };
 
   if (started === null) {
     return (
       <div className="grid justify-items-center gap-4">
-        <p className="text-ink-2">{seconds} segundos. Escribe el resultado y pulsa Enter. Nivel inicial {level}.</p>
+        <p className="text-ink-2">
+          {seconds} segundos. Escribe el resultado y <span className="touch:hidden">pulsa Enter</span>
+          <span className="hidden touch:inline">toca «Responder»</span>. Nivel inicial {level}.
+        </p>
         <Button size="lg" onClick={() => setStarted(Date.now())} autoFocus>
           Empezar
         </Button>
@@ -207,10 +238,13 @@ export function ArithmeticGame({ level, onDone, seconds = 60 }: { level: number;
       <p key={shown.answered} className={cn("font-mono text-5xl font-semibold tabular-nums", flash === "bad" && "fx-wrong", flash === "ok" && "fx-right")}>
         {item.prompt}
       </p>
-      <input
+      <div className="flex items-center gap-2">
+        <input
         aria-label="Resultado"
-        autoFocus
+        ref={inputRef}
+        autoFocus={!touch}
         inputMode="numeric"
+        enterKeyHint="done"
         autoComplete="off"
         value={value}
         onChange={(e) => setValue(e.target.value)}
@@ -222,12 +256,18 @@ export function ArithmeticGame({ level, onDone, seconds = 60 }: { level: number;
         }}
         className="h-14 w-48 rounded-md border border-input bg-surface px-3 text-center font-mono text-3xl"
       />
+        <SignButton value={value} setValue={setValue} />
+      </div>
+      <Button onClick={submit} onPointerDown={keepFocus} onMouseDown={keepFocus}>
+        Responder
+      </Button>
     </div>
   );
 }
 
 // ---------------------------------------------------------------- secuencias
 export function SequencesGame({ level, onDone, items = 6 }: { level: number; onDone: (r: GymRoundResult) => void; items?: number }) {
+  const touch = useTouchMode();
   const rng = useSeededRng("sequences");
   const [stair, setStair] = useState(() => createStaircase(level, 1, SEQUENCE_MAX_LEVEL));
   const [item, setItem] = useState(() => generateSequence(rng, level));
@@ -236,10 +276,15 @@ export function SequencesGame({ level, onDone, items = 6 }: { level: number; onD
   const [feedback, setFeedback] = useState<{ ok: boolean; rule: string; answer: number } | null>(null);
   const stats = useRef({ correct: 0, bestLevel: 0 });
   const nextRef = useRef<HTMLButtonElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (feedback) nextRef.current?.focus();
   }, [feedback]);
+  // En táctil no hay autofoco al empezar; tras «Siguiente» el campo vuelve a recibir el foco.
+  useEffect(() => {
+    if (touch && count > 0) inputRef.current?.focus();
+  }, [touch, count]);
 
   const submit = () => {
     if (feedback || !value.trim()) return;
@@ -279,10 +324,13 @@ export function SequencesGame({ level, onDone, items = 6 }: { level: number; onD
         {count + 1}/{items} · nivel {item.level}
       </p>
       <p className="font-mono text-3xl font-semibold tabular-nums sm:text-4xl">{item.terms.join(", ")}, ?</p>
-      <input
+      <div className="flex items-center gap-2">
+        <input
         aria-label="Siguiente término"
-        autoFocus
+        ref={inputRef}
+        autoFocus={!touch}
         inputMode="numeric"
+        enterKeyHint="done"
         autoComplete="off"
         disabled={!!feedback}
         value={value}
@@ -295,6 +343,8 @@ export function SequencesGame({ level, onDone, items = 6 }: { level: number; onD
         }}
         className="h-14 w-48 rounded-md border border-input bg-surface px-3 text-center font-mono text-3xl"
       />
+        <SignButton value={value} setValue={setValue} disabled={!!feedback} />
+      </div>
       {feedback ? (
         <div aria-live="polite" className="grid justify-items-center gap-3">
           <p className={feedback.ok ? "text-success" : "text-danger"}>
@@ -305,7 +355,9 @@ export function SequencesGame({ level, onDone, items = 6 }: { level: number; onD
           </Button>
         </div>
       ) : (
-        <Button onClick={submit}>Comprobar</Button>
+        <Button onClick={submit} onPointerDown={keepFocus} onMouseDown={keepFocus}>
+          Responder
+        </Button>
       )}
     </div>
   );

@@ -1,0 +1,15 @@
+unidad: calculo/04-reglas-derivacion
+nombre: "El Forjador de Atajos"
+vidas: 3
+# Con reglas se deriva más rápido que por definición: 11 preguntas, 105 s cada una (19.25 min).
+tiempo_segundos: 1155
+aprobado_minimo: 0.8
+preguntas:
+  # d2: 006 · d3: 010, 011, 013, 014 · d4: 018, 019 · d5: 023 (sin autoevaluación)
+  propias: [calc-04-006, calc-04-010, calc-04-011, calc-04-013, calc-04-014, calc-04-018, calc-04-019, calc-04-023]
+  # 3 de 11 (27 %), elegidas a mano: cociente de diferencias sin límite (03, d3), salto en una función
+  # por tramos (03, d4) y un 0/0 que se resuelve factorizando (01, d3).
+  # Oleadas 3/5/3 (30/40/30 por mayor residuo), por dificultad: 1.ª = 006 y dos d3; 2.ª = los otros
+  # cuatro d3 y uno de los tres d4; 3.ª = los otros dos d4 y 023.
+  repaso_de: [calc-03-009, calc-03-019, calc-01-014]
+recompensa: { xp: 300, insignia: "forjador-de-atajos" }

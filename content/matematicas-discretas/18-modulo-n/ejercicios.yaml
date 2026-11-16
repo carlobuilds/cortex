@@ -1,0 +1,631 @@
+# Unidad 18 · Enteros módulo n (Unidad IV, 4.4.1 a 4.4.3). Para el 3.er parcial (semana del 23 al 27 de noviembre de
+# 2026). La congruencia como equivalencia se apoya en la 17 («misma etiqueta»); Euclides y el mcd, en la 10.
+# Esquema v1 aprobado por Carlo el 2026-11-14 (esquema-18), revisado por experto-matematicas, pedagogo y
+# arquitecto-razonamiento. Datos de experto-matematicas, comprobados por la sesión principal con código propio; el autor
+# los volvió a comprobar con sympy y enumeración, junto con los números de las explicaciones.
+# Ids en el orden de la tabla del v1, escalera 6/6/6/4/3: d1 001–006, d2 007–012, d3 013–018, d4 019–022, d5 023–025.
+# Anclas (primer ejercicio de cada concepto, workedExampleFor): 001 CM, 002 CR, 003 AM, 004 IM, 005 CL y 006 TC, con
+# explicación completa y con lo que se pide escrito en el enunciado (WorkedExample muestra solo enunciado y explicación).
+# Los ejercicios con dos conceptos (019, 023, 024 y 025) muestran el ancla d1 de cualquiera de los dos, y todas son de d1.
+# Abreviaturas: CM congruencia-modulo · CR clases-residuo · AM aritmetica-modular · IM inverso-modular ·
+# CL congruencias-lineales · TC teorema-chino-residuo.
+# Hipótesis escritas (v1, experto-matematicas): n ≥ 2 siempre, también en el R4; «coprimos dos a dos» en el teorema
+# chino (con 4, 6 y 9 el mcd de los tres es 1, pero x ≡ 1 (mod 4) y x ≡ 2 (mod 6) no tienen solución); siempre \pmod{n},
+# nunca «(n)». Las respuestas van en {0, …, n − 1}, salvo los conjuntos pedidos en un intervalo; un inverso se pide en
+# {0, …, n − 1}, nunca como par de Bézout, que no es único.
+# Términos con un solo sentido: «representante» es el elemento de [a]_n en {0, …, n − 1}, como lo fija la lección (en la
+# 17 era cualquier elemento con que se nombra una clase); «residuo», el r de la división con 0 ≤ r < n; «clase», la
+# clase residual. No se usa «testigo»: los casos que tumban un «siempre» se llaman contraejemplos, y los enteros del
+# «existe» no tienen nombre.
+# `verificar`: los de experto-matematicas (herramientas/m18/verificar-18.py), en Python puro y sin cambios, desde la
+# definición (n ∣ a − b, búsqueda en {0, …, n − 1}), con enteros exactos para las potencias (no cuadrados sucesivos) y
+# simulando días en la transferencia; nunca se copia el número. U(L), «el único elemento de L, o −1 si hay 0 o varios»,
+# va incrustada donde una respuesta numérica exige unicidad. Probados con check_exercise (M) y, sobre este archivo, con
+# una respuesta alterada por ejercicio. El % con negativos se comprobó con a % abs(n) en Python y con gcc (C da −2 para
+# −47 % 9 y −3 para −23 % 5).
+# `conjunto`: el ejemplo de formato de cada enunciado no contiene elementos de la respuesta.
+# `completar`: huecos fuera de KaTeX y solo enteros; cada hueco dice si pide un número o un valor; el sí o no va con
+# 1 (sí) o 0 (no).
+# Pistas como preguntas, sin valores intermedios: 1 en d1–2, 2 en d3 y 3 en d4–5 (las del 020 y el 023 son de
+# arquitecto-razonamiento). Desde d3, la explicación cierra con «Revisa:», con una comprobación que no repite el cálculo.
+# Las explicaciones de selección múltiple dicen cuáles son las correctas, porque WorkedExample no muestra las opciones.
+# Manuales: el 019 y el 020 (autoevaluación, tarjeta: false). El 020 va tal cual del esquema (arquitecto-razonamiento).
+# Textos con LaTeX en bloques `>-`: así no hay que escapar comillas ni barras.
+unidad: matematicas-discretas/18-modulo-n
+ejercicios:
+  # razonamiento: deductivo (aplicar la definición: ¿el módulo divide la diferencia?) · R1
+  # Ancla de CM. Opciones en el orden de experto-matematicas; la de −3 ≡ 3 (mod 5) atrapa a quien compara sin signo.
+  # verificar: busca un k con a − b = nk, sin %.
+  - id: disc-18-001
+    tipo: seleccion_multiple
+    dificultad: 1
+    conceptos: [congruencia-modulo]
+    enunciado: >-
+      Dos enteros son congruentes módulo $n$, y se escribe $a\equiv b\pmod{n}$, si $n$ divide a $a-b$. ¿Cuáles de estas congruencias son ciertas? Puede haber varias.
+    opciones:
+      - >-
+        $47\equiv11\pmod{9}$
+      - >-
+        $-8\equiv13\pmod{7}$
+      - >-
+        $25\equiv4\pmod{6}$
+      - >-
+        $100\equiv1\pmod{11}$
+      - >-
+        $-3\equiv3\pmod{5}$
+      - >-
+        $30\equiv12\pmod{8}$
+    correctas: [0, 1, 3]
+    verificar: { python: "[any(a - b == n * k for k in range(-20, 21)) for (a, b, n) in [(47, 11, 9), (-8, 13, 7), (25, 4, 6), (100, 1, 11), (-3, 3, 5), (30, 12, 8)]]" }
+    pistas:
+      - >-
+        En cada una, ¿cuánto vale $a-b$? ¿Es múltiplo del módulo?
+    explicacion: >-
+      Son ciertas $47\equiv11\pmod{9}$, $-8\equiv13\pmod{7}$ y $100\equiv1\pmod{11}$; las otras tres no. En cada una se resta y se revisa si el módulo divide la diferencia. **Ciertas:** $47-11=36=4\cdot9$, $-8-13=-21=(-3)\cdot7$ y $100-1=99=9\cdot11$. **Falsas:** $25-4=21$ no es múltiplo de 6, $30-12=18$ no es múltiplo de 8 y $-3-3=-6$ no es múltiplo de 5. En la última, $-3$ y $3$ tienen el mismo valor absoluto, pero eso no cuenta: $-3\equiv2\pmod{5}$, porque $-3-2=-5$.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (escribir −47 = 9q + r con 0 ≤ r < 9) · R0
+  # Ancla de CR. Los errores típicos, −2 (el % de C) y 2 (47 mod 9), los rechaza el verificar (neg.py de M).
+  # verificar: el único r de {0, …, 8} con −47 − r = 9k, sin %.
+  - id: disc-18-002
+    tipo: numerico
+    dificultad: 1
+    conceptos: [clases-residuo]
+    enunciado: >-
+      En esta unidad, el representante de la clase $[a]_n$ es su único elemento en $\{0,1,\dots,n-1\}$, que es $a\bmod n$. ¿Cuál es el representante de $[-47]_9$?
+    respuesta: 7
+    tolerancia: 0
+    verificar: { python: "(lambda L: L[0] if len(L) == 1 else -1)([r for r in range(9) if any(-47 - r == 9 * k for k in range(-10, 11))])" }
+    pistas:
+      - >-
+        ¿Qué múltiplo de 9 queda justo debajo de $-47$?
+    explicacion: >-
+      Se escribe $-47=9q+r$ con $0\le r<9$. El múltiplo de 9 que queda justo debajo de $-47$ es $-54=(-6)\cdot9$, así que $-47=(-6)\cdot9+7$ y el representante es 7: $[-47]_9=[7]_9$. Hay dos errores comunes. $-2$ es lo que da el `%` de C, porque $-47=(-5)\cdot9-2$: está en la clase, pero no en $\{0,\dots,8\}$. Y 2 es $47\bmod9$, de otra clase: $-47-2=-49$ no es múltiplo de 9. En Python, `-47 % 9` ya da 7.
+    tiempo_estimado_s: 45
+
+  # razonamiento: algorítmico (reducir cada número antes de operar) · R0
+  # Ancla de AM.
+  # verificar: el único r de {0, …, 11} con 86 · 53 + 41 − r = 12k, sin %.
+  - id: disc-18-003
+    tipo: numerico
+    dificultad: 1
+    conceptos: [aritmetica-modular]
+    enunciado: >-
+      Calcula $(86\cdot53+41)\bmod12$, el representante en $\{0,\dots,11\}$.
+    respuesta: 3
+    tolerancia: 0
+    verificar: { python: "(lambda L: L[0] if len(L) == 1 else -1)([r for r in range(12) if any(86 * 53 + 41 - r == 12 * k for k in range(0, 400))])" }
+    pistas:
+      - >-
+        ¿Qué pasa si reduces cada número módulo 12 antes de multiplicar?
+    explicacion: >-
+      Como la suma y el producto no dependen del elemento que se tome de cada clase, se reduce primero: $86=7\cdot12+2$, $53=4\cdot12+5$ y $41=3\cdot12+5$. Entonces $86\cdot53+41\equiv2\cdot5+5=15\equiv3\pmod{12}$. Sin reducir sale lo mismo, con más cuentas: $86\cdot53+41=4599=383\cdot12+3$.
+    tiempo_estimado_s: 45
+
+  # razonamiento: algorítmico (Euclides extendido con dos divisiones) · R1
+  # Ancla de IM. El inverso se pide en {0, …, 16}.
+  # verificar: el único x de {0, …, 16} con 17 ∣ 7x − 1.
+  - id: disc-18-004
+    tipo: numerico
+    dificultad: 1
+    conceptos: [inverso-modular]
+    enunciado: >-
+      Un inverso de $a$ módulo $n$ es un $x$ con $ax\equiv1\pmod{n}$. Calcula $7^{-1}\bmod17$, el inverso de 7 módulo 17 en $\{0,\dots,16\}$.
+    respuesta: 5
+    tolerancia: 0
+    verificar: { python: "(lambda L: L[0] if len(L) == 1 else -1)([x for x in range(17) if (7 * x - 1) % 17 == 0])" }
+    pistas:
+      - >-
+        ¿Qué múltiplo de 7 es uno más que un múltiplo de 17?
+    explicacion: >-
+      Como $\mathrm{mcd}(7,17)=1$, el inverso existe. **Euclides:** $17=2\cdot7+3$ y $7=2\cdot3+1$. **Hacia atrás:** $1=7-2\cdot3=7-2(17-2\cdot7)=5\cdot7-2\cdot17$. Así, $7\cdot5\equiv1\pmod{17}$ y $7^{-1}\bmod17=5$. Comprueba: $7\cdot5=35=2\cdot17+1$. Con números chicos también sirve probar $7\cdot1$, $7\cdot2$, … hasta que uno deje residuo 1 al dividir entre 17.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (mcd = 1; multiplicar por el inverso de 3) · R1
+  # Ancla de CL. El ejemplo de formato, `2, 6`, no contiene el 9.
+  # verificar: los x de {0, …, 9} con 10 ∣ 3x − 7.
+  - id: disc-18-005
+    tipo: conjunto
+    dificultad: 1
+    conceptos: [congruencias-lineales]
+    enunciado: >-
+      Resuelve $3x\equiv7\pmod{10}$: escribe todas sus soluciones en $\{0,1,\dots,9\}$, como `2, 6`.
+    respuesta: ["9"]
+    verificar: { python: "{x for x in range(10) if (3 * x - 7) % 10 == 0}" }
+    pistas:
+      - >-
+        ¿Cuánto vale $\mathrm{mcd}(3,10)$? ¿Cuántas soluciones da eso?
+    explicacion: >-
+      Como $\mathrm{mcd}(3,10)=1$ y 1 divide a 7, hay exactamente una solución. $3^{-1}\bmod10=7$, porque $3\cdot7=21\equiv1$. Al multiplicar los dos lados por 7: $x\equiv49\equiv9\pmod{10}$. Así, la única solución es 9. Comprueba: $3\cdot9=27=2\cdot10+7$. No se «divide 7 entre 3»: se multiplica por el inverso.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (sustitución: x = 2 + 5k en la segunda) · R1
+  # Ancla de TC.
+  # verificar: el único x de {0, …, 34} que cumple las dos.
+  - id: disc-18-006
+    tipo: numerico
+    dificultad: 1
+    conceptos: [teorema-chino-residuo]
+    enunciado: >-
+      Resuelve el sistema $x\equiv2\pmod{5}$, $x\equiv4\pmod{7}$. Como 5 y 7 son coprimos, tiene una sola solución módulo 35: escríbela en $\{0,\dots,34\}$.
+    respuesta: 32
+    tolerancia: 0
+    verificar: { python: "(lambda L: L[0] if len(L) == 1 else -1)([x for x in range(35) if (x - 2) % 5 == 0 and (x - 4) % 7 == 0])" }
+    pistas:
+      - >-
+        Si escribes $x=2+5k$ y lo sustituyes en la segunda, ¿qué congruencia queda para $k$?
+    explicacion: >-
+      Por sustitución. **De la primera:** $x=2+5k$. **En la segunda:** $2+5k\equiv4\pmod{7}$, o sea $5k\equiv2$. Como $5\cdot3=15\equiv1$, $5^{-1}\bmod7=3$, y $k\equiv6\pmod{7}$. **La solución:** $x=2+5\cdot6=32$, y todas las demás son $32+35t$. Comprueba en las dos: $32=6\cdot5+2$ y $32=4\cdot7+4$.
+    tiempo_estimado_s: 60
+
+  # razonamiento: deductivo (38 ≡ 14 (mod n) si y solo si n ∣ 24) · R1
+  # verificar: busca los n ≥ 2 con 38 − 14 = nk, sin divisors().
+  - id: disc-18-007
+    tipo: conjunto
+    dificultad: 2
+    conceptos: [congruencia-modulo]
+    enunciado: >-
+      Escribe todos los enteros $n\ge2$ con $38\equiv14\pmod{n}$, como `5, 9`.
+    respuesta: ["2", "3", "4", "6", "8", "12", "24"]
+    verificar: { python: "{n for n in range(2, 200) if any(38 - 14 == n * k for k in range(-30, 31))}" }
+    pistas:
+      - >-
+        Por la definición, ¿a qué número tiene que dividir $n$?
+    explicacion: >-
+      Por la definición, $38\equiv14\pmod{n}$ si y solo si $n\mid38-14=24$. Los divisores positivos de 24 son 1, 2, 3, 4, 6, 8, 12 y 24; sin el 1, porque aquí $n\ge2$, quedan $\{2,3,4,6,8,12,24\}$.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (sumar y restar 12 desde el 8 sin salir del intervalo) · R0
+  # El ejemplo de formato lleva un negativo, `-3, 10`, sin elementos de la respuesta.
+  # verificar: los x de −30 a 30 con x − 8 = 12k.
+  - id: disc-18-008
+    tipo: conjunto
+    dificultad: 2
+    conceptos: [clases-residuo]
+    enunciado: >-
+      Escribe los elementos de $[8]_{12}$ que están entre $-30$ y $30$, incluidos, como `-3, 10`.
+    respuesta: ["-28", "-16", "-4", "8", "20"]
+    verificar: { python: "{x for x in range(-30, 31) if any(x - 8 == 12 * k for k in range(-5, 6))}" }
+    pistas:
+      - >-
+        ¿De cuánto en cuánto van los elementos de $[8]_{12}$? ¿Hasta dónde llegas hacia cada lado?
+    explicacion: >-
+      $[8]_{12}=\{8+12k:k\in\mathbb Z\}=\{\dots,-40,-28,-16,-4,8,20,32,\dots\}$. Entre $-30$ y $30$ quedan $-28$, $-16$, $-4$, 8 y 20: el que sigue del 20 es el 32 y el anterior al $-28$ es el $-40$, los dos fuera. Todos tienen representante 8; por ejemplo, $-28=(-3)\cdot12+8$.
+    tiempo_estimado_s: 45
+
+  # razonamiento: algorítmico (cuadrados sucesivos y 37 = 32 + 4 + 1) · R1
+  # verificar: el entero exacto 3³⁷ menos 17 por su cociente, sin cuadrados sucesivos.
+  - id: disc-18-009
+    tipo: numerico
+    dificultad: 2
+    conceptos: [aritmetica-modular]
+    enunciado: >-
+      Calcula $3^{37}\bmod17$ por cuadrados sucesivos.
+    respuesta: 5
+    tolerancia: 0
+    verificar: { python: "(3 ** 37) - 17 * ((3 ** 37) // 17)" }
+    pistas:
+      - >-
+        ¿Cómo se escribe 37 como suma de potencias de 2? ¿Cuánto valen $3^2$, $3^4$, $3^8$, … módulo 17?
+    explicacion: >-
+      **Cuadrados:** módulo 17, $3^1\equiv3$, $3^2\equiv9$, $3^4=81\equiv13$, $3^8\equiv13^2=169\equiv16$, $3^{16}\equiv16^2=256\equiv1$ y $3^{32}\equiv1$. **Exponente:** $37=32+4+1$. **Producto:** $3^{37}\equiv1\cdot13\cdot3=39\equiv5\pmod{17}$. Como $16\equiv-1$, también se ve que $3^{16}\equiv(-1)^2=1$.
+    tiempo_estimado_s: 75
+
+  # razonamiento: deductivo (tiene inverso si y solo si mcd(a, 18) = 1) · R1
+  # Dice «los elementos que tienen inverso», no «los inversos» (M). El ejemplo de formato, `2, 4`, no está en la respuesta.
+  # verificar: por búsqueda de un x con ax ≡ 1, sin mcd.
+  - id: disc-18-010
+    tipo: conjunto
+    dificultad: 2
+    conceptos: [inverso-modular]
+    enunciado: >-
+      Escribe los elementos de $\mathbb Z_{18}$ que tienen inverso, cada uno por su representante en $\{0,\dots,17\}$, como `2, 4`.
+    respuesta: ["1", "5", "7", "11", "13", "17"]
+    verificar: { python: "{a for a in range(18) if any((a * x) % 18 == 1 for x in range(18))}" }
+    pistas:
+      - >-
+        ¿Qué tiene que cumplir $\mathrm{mcd}(a,18)$ para que $a$ tenga inverso?
+    explicacion: >-
+      $a$ tiene inverso módulo 18 si y solo si $\mathrm{mcd}(a,18)=1$. Como $18=2\cdot3^2$, son los de $\{0,\dots,17\}$ que no son múltiplos de 2 ni de 3: $\{1,5,7,11,13,17\}$. Sus inversos salen en parejas: $5\cdot11=55=3\cdot18+1$ y $7\cdot13=91=5\cdot18+1$; el 1 y el 17 son su propio inverso, porque $17\cdot17=289=16\cdot18+1$.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (d = mcd(a, n); ¿d ∣ b?; si sí, d soluciones) · R1
+  # verificar: cuenta por búsqueda en {0, …, n − 1}, sin mcd.
+  - id: disc-18-011
+    tipo: completar
+    dificultad: 2
+    conceptos: [congruencias-lineales]
+    enunciado: >-
+      ¿Cuántas soluciones tiene cada congruencia en $\{0,1,\dots,n-1\}$, donde $n$ es su módulo? Si no tiene, escribe 0.
+    texto: >-
+      Número de soluciones de $8x\equiv12\pmod{20}$: ___ · de $6x\equiv9\pmod{21}$: ___ · de $10x\equiv5\pmod{25}$: ___ · de $14x\equiv7\pmod{28}$: ___
+    respuestas: ["4", "3", "5", "0"]
+    verificar: { python: "[len([x for x in range(n) if (a * x - b) % n == 0]) for (a, b, n) in [(8, 12, 20), (6, 9, 21), (10, 5, 25), (14, 7, 28)]]" }
+    pistas:
+      - >-
+        ¿Cuánto vale $\mathrm{mcd}(a,n)$ en cada una? ¿Divide al lado derecho?
+    explicacion: >-
+      Con $d=\mathrm{mcd}(a,n)$: si $d\nmid b$ no hay solución, y si $d\mid b$ hay exactamente $d$. **$8x\equiv12\pmod{20}$:** $d=4$ y $4\mid12$, así que 4. **$6x\equiv9\pmod{21}$:** $d=3$ y $3\mid9$, así que 3. **$10x\equiv5\pmod{25}$:** $d=5$ y $5\mid5$, así que 5. **$14x\equiv7\pmod{28}$:** $d=14$ y $14\nmid7$, así que 0. En la última, $14x$ módulo 28 vale 0 o 14, nunca 7.
+    tiempo_estimado_s: 75
+
+  # razonamiento: algorítmico (sustitución, empezando por la de módulo 10) · R1
+  # verificar: el único x de {0, …, 89} que cumple las dos.
+  - id: disc-18-012
+    tipo: numerico
+    dificultad: 2
+    conceptos: [teorema-chino-residuo]
+    enunciado: >-
+      Resuelve el sistema $x\equiv4\pmod{9}$, $x\equiv7\pmod{10}$ y escribe la solución en $\{0,\dots,89\}$.
+    respuesta: 67
+    tolerancia: 0
+    verificar: { python: "(lambda L: L[0] if len(L) == 1 else -1)([x for x in range(90) if (x - 4) % 9 == 0 and (x - 7) % 10 == 0])" }
+    pistas:
+      - >-
+        ¿Con cuál de las dos conviene empezar para que la otra quede fácil?
+    explicacion: >-
+      9 y 10 son coprimos, así que hay una sola solución módulo 90. **De la segunda:** $x=7+10k$. **En la primera:** $7+10k\equiv4\pmod{9}$; como $10\equiv1$, queda $7+k\equiv4$, o sea $k\equiv-3\equiv6$. **La solución:** $x=7+10\cdot6=67$. Comprueba: $67=7\cdot9+4$ y $67=6\cdot10+7$.
+    tiempo_estimado_s: 60
+
+  # razonamiento: inductivo (de la fila del 8 al patrón: un no coprimo con 12 se queda en los múltiplos de su mcd) · R2
+  # Fuera del jefe: su fila del 8 tiene ceros fuera de la columna del 0, y eso tumba la (1) del R4 (M).
+  # Se pregunta la columna 11, no la 7 (arreglos-18, M y P): la 7 da 1 y contestaba el hueco de «la columna del 1».
+  # verificar: arma la fila del 7 y la del 8 por productos, sin tabla escrita a mano.
+  - id: disc-18-013
+    tipo: completar
+    dificultad: 3
+    conceptos: [aritmetica-modular]
+    enunciado: >-
+      En la tabla de multiplicar de $\mathbb Z_{12}$, la fila del $a$ tiene en la columna $c$ el valor $ac\bmod12$, para $c=0,1,\dots,11$. Contesta sobre la fila del 7 y la del 8.
+    texto: >-
+      Valor de la fila del 7 en la columna 3: ___ · en la columna 5: ___ · en la columna 11: ___ · número de la columna en la que la fila del 7 tiene el 1: ___ · número de valores distintos en la fila del 8: ___
+    respuestas: ["9", "11", "5", "7", "3"]
+    verificar: { python: "(lambda row: [row[3], row[5], row[11], (lambda L: L[0] if len(L) == 1 else -1)([c for c in range(12) if row[c] == 1]), len({(8 * c) % 12 for c in range(12)})])([(7 * c) % 12 for c in range(12)])" }
+    pistas:
+      - >-
+        ¿Cuánto vale $ac$ en cada casilla, y qué residuo deja al dividir entre 12?
+      - >-
+        ¿Qué tienen en común todos los valores de la fila del 8? ¿Tiene que ver $\mathrm{mcd}(8,12)$?
+    explicacion: >-
+      **Fila del 7:** $7\cdot3=21\equiv9$, $7\cdot5=35\equiv11$ y $7\cdot11=77\equiv5$. El 1 está en la columna 7, porque $7\cdot7=49\equiv1$: el 7 es su propio inverso módulo 12. Como $\mathrm{mcd}(7,12)=1$, la fila del 7 tiene cada número del 0 al 11 una vez. **Fila del 8:** $8c$ módulo 12 da 0, 8, 4, 0, 8, 4, …: tres valores, 0, 4 y 8, los múltiplos de $\mathrm{mcd}(8,12)=4$. Son las mismas marcas que visita la ficha del reloj con saltos de 4. Revisa: $8\cdot5=40=3\cdot12+4$, y ninguna casilla de la fila del 8 vale 1, porque el 8 no tiene inverso módulo 12.
+    tiempo_estimado_s: 90
+
+  # razonamiento: abductivo (de un procedimiento con un error plantado a la causa: dividir sin inverso deja el módulo mal) · R2
+  # Error plantado de M. La personaje es Sofía, porque Ana ya sale en el 17-010 y en el 19-014 (encargo-18). Hace par con
+  # disc-17-010 (la transitividad equivocada de Ana) en el jefe: un error plantado en un procedimiento.
+  # verificar: compara conjuntos de soluciones por búsqueda, módulo 12 y módulo 13.
+  - id: disc-18-014
+    tipo: seleccion_multiple
+    dificultad: 3
+    conceptos: [congruencias-lineales]
+    enunciado: >-
+      Sofía resuelve $4x\equiv8\pmod{12}$: «Divido los dos lados entre 4 y queda $x\equiv2\pmod{12}$, así que la única solución en $\{0,\dots,11\}$ es el 2». ¿Cuáles de estas afirmaciones son ciertas? Puede haber varias.
+    opciones:
+      - >-
+        2 es solución de $4x\equiv8\pmod{12}$.
+      - >-
+        Lo correcto era $x\equiv2\pmod{3}$: las soluciones en $\{0,\dots,11\}$ son las de esa congruencia.
+      - >-
+        $4x\equiv8\pmod{12}$ no tiene solución.
+      - >-
+        Dividir entre 4 no cambia el módulo, porque $4\mid8$: $4x\equiv8\pmod{12}$ equivale a $x\equiv2\pmod{12}$.
+      - >-
+        Con módulo 13 sí se puede: $4x\equiv8\pmod{13}$ equivale a $x\equiv2\pmod{13}$.
+      - >-
+        8 no es solución de $4x\equiv8\pmod{12}$.
+    correctas: [0, 1, 4]
+    verificar: { python: "(lambda S: [(4 * 2 - 8) % 12 == 0, S(4, 8, 12) == {x for x in range(12) if (x - 2) % 3 == 0}, len(S(4, 8, 12)) == 0, S(4, 8, 12) == S(1, 2, 12), S(4, 8, 13) == S(1, 2, 13), (4 * 8 - 8) % 12 != 0])(lambda a, b, n: {x for x in range(n) if (a * x - b) % n == 0})" }
+    pistas:
+      - >-
+        ¿Qué paso de Sofía usa algo que la congruencia no le da? ¿Tiene inverso el 4 módulo 12?
+      - >-
+        ¿Algún otro número de $\{0,\dots,11\}$ cumple $4x\equiv8\pmod{12}$?
+    explicacion: >-
+      Son ciertas «2 es solución», «lo correcto era $x\equiv2\pmod{3}$» y «con módulo 13 sí se puede»; las otras tres no. **El error:** dividir entre 4 es multiplicar por el inverso de 4, y módulo 12 no existe, porque $\mathrm{mcd}(4,12)=4$. Con la regla de cancelación, $4x\equiv4\cdot2\pmod{12}$ equivale a $x\equiv2\pmod{12/4}$, es decir, módulo 3. **Las soluciones:** 2, 5, 8 y 11. Sofía perdió tres, entre ellas el 8, porque $4\cdot8=32=2\cdot12+8$; así que sí hay solución, y el módulo sí cambia. **Con 13:** $\mathrm{mcd}(4,13)=1$, el 4 tiene inverso y cancelarlo no cambia el módulo. Revisa: hay $\mathrm{mcd}(4,12)=4$ soluciones, y Sofía dio una.
+    tiempo_estimado_s: 90
+
+  # razonamiento: metacognitivo (revisar el resultado en todas las congruencias antes de entregarlo) · R2
+  # Metacognitivo de M, con el personaje Iris; cierre de arquitecto-razonamiento. Hace par con disc-17-012 (Beto y las
+  # clases que se traslapan) en el jefe: los dos errores se atrapan con una revisión final. La explicación despeja con
+  # 7 ≡ −2 (mod 9) y no da 7⁻¹ mod 9 (4 · 7 ≡ 1), que serviría en el 024 del mismo jefe si se sustituye en el orden
+  # 8, 5, 9 (4j ≡ 5 (mod 9)). La del 024 ya no pasa por ahí: va en el orden 5, 9, 8.
+  # verificar: 61 mod 7 y 61 mod 9 por cociente, el lado derecho que sale del k de la solución y la solución por búsqueda.
+  - id: disc-18-015
+    tipo: completar
+    dificultad: 3
+    conceptos: [teorema-chino-residuo]
+    enunciado: >-
+      Iris resuelve el sistema $x\equiv5\pmod{7}$, $x\equiv2\pmod{9}$. Escribe $x=5+7k$, plantea $7k\equiv2\pmod{9}$, despeja $k\equiv8$ y entrega $x=5+7\cdot8=61$, sin comprobarlo.
+    texto: >-
+      Valor de $61\bmod7$: ___ · valor de $61\bmod9$: ___ · número que debió ir a la derecha de la congruencia de $k$, en $\{0,\dots,8\}$: $7k\equiv$ ___ $\pmod{9}$ · solución correcta del sistema, en $\{0,\dots,62\}$: ___
+    respuestas: ["5", "7", "6", "47"]
+    verificar: { python: "(lambda x: [61 - 7 * (61 // 7), 61 - 9 * (61 // 9), (7 * ((x - 5) // 7)) % 9, x])((lambda L: L[0] if len(L) == 1 else -1)([x for x in range(63) if (x - 5) % 7 == 0 and (x - 2) % 9 == 0]))" }
+    pistas:
+      - >-
+        ¿Cumple 61 las dos congruencias? ¿Cuál falla?
+      - >-
+        Al sustituir $x=5+7k$ en la segunda, ¿qué pasa con el 5?
+    explicacion: >-
+      **La revisión que faltó:** sustituir en las dos. $61=8\cdot7+5$ cumple la primera, pero $61=6\cdot9+7$ deja 7, no 2. **El error:** al sustituir, $5+7k\equiv2\pmod{9}$ pide $7k\equiv2-5=-3\equiv6$; Iris no pasó el 5 al otro lado. **La correcta:** como $7\equiv-2\pmod{9}$, queda $-2k\equiv6=(-2)\cdot(-3)$, y como $\mathrm{mcd}(2,9)=1$, se cancela el $-2$: $k\equiv-3\equiv6$. Así, $x=5+7\cdot6=47$. ¿Qué revisión harás siempre al terminar un teorema chino? Revisa: $47=6\cdot7+5$ y $47=5\cdot9+2$.
+    tiempo_estimado_s: 120
+
+  # razonamiento: algorítmico (Euclides extendido: tres divisiones y sustitución hacia atrás) · R1
+  # Hace par con disc-15-018 (f⁻¹ de una función racional) en el jefe: la inversa de una función contra el inverso
+  # módulo n. Ninguna de las dos explicaciones habla de la otra.
+  # verificar: el único x de {0, …, 79} con 80 ∣ 29x − 1. El 11, el coeficiente sin signo, lo rechaza (neg.py de M).
+  - id: disc-18-016
+    tipo: numerico
+    dificultad: 3
+    conceptos: [inverso-modular]
+    enunciado: >-
+      Calcula $29^{-1}\bmod80$ con el algoritmo de Euclides extendido. Escribe el inverso en $\{0,\dots,79\}$.
+    respuesta: 69
+    tolerancia: 0
+    verificar: { python: "(lambda L: L[0] if len(L) == 1 else -1)([x for x in range(80) if (29 * x - 1) % 80 == 0])" }
+    pistas:
+      - >-
+        ¿Cuáles son las divisiones de Euclides para 80 y 29? ¿Terminan en residuo 1?
+      - >-
+        Al sustituir hacia atrás, ¿qué coeficiente acompaña al 29, y cómo lo llevas a $\{0,\dots,79\}$?
+    explicacion: >-
+      **Euclides:** $80=2\cdot29+22$, $29=1\cdot22+7$ y $22=3\cdot7+1$; el último residuo no nulo es 1, así que el inverso existe. **Hacia atrás:** $1=22-3\cdot7=22-3(29-22)=4\cdot22-3\cdot29=4(80-2\cdot29)-3\cdot29=4\cdot80-11\cdot29$. **El inverso:** $29\cdot(-11)\equiv1\pmod{80}$, y $-11+80=69$. Un error común es dar 11, el coeficiente sin su signo: $29\cdot11=319=3\cdot80+79\equiv-1$. Revisa: $29\cdot69=2001=25\cdot80+1$.
+    tiempo_estimado_s: 90
+
+  # razonamiento: deductivo (probar con la definición o tumbar con un par concreto) · R2
+  # Opciones en el orden de experto-matematicas. La explicación tumba «a² ≡ b² ⇒ a ≡ b» con 1 y −1 módulo 5, sin hablar
+  # de primos, para no tocar la (2) del R4.
+  # verificar: a y b de −40 a 40; n de 2 a 12 donde aparece n.
+  - id: disc-18-017
+    tipo: seleccion_multiple
+    dificultad: 3
+    conceptos: [congruencia-modulo]
+    enunciado: >-
+      ¿Cuáles de estas implicaciones valen para todos los enteros $a$ y $b$ y, donde aparece $n$, para todo $n\ge2$? Puede haber varias.
+    opciones:
+      - >-
+        Si $a\equiv b\pmod{12}$, entonces $a\equiv b\pmod{4}$.
+      - >-
+        Si $a\equiv b\pmod{4}$, entonces $a\equiv b\pmod{12}$.
+      - >-
+        Si $a\equiv b\pmod{n}$, entonces $a^2\equiv b^2\pmod{n}$.
+      - >-
+        Si $a^2\equiv b^2\pmod{n}$, entonces $a\equiv b\pmod{n}$.
+      - >-
+        Si $a\equiv b\pmod{4}$ y $a\equiv b\pmod{6}$, entonces $a\equiv b\pmod{24}$.
+      - >-
+        Si $a\equiv b\pmod{4}$ y $a\equiv b\pmod{9}$, entonces $a\equiv b\pmod{36}$.
+    correctas: [0, 2, 5]
+    verificar: { python: "(lambda W, c: [all(c(a, b, 4) for a in W for b in W if c(a, b, 12)), all(c(a, b, 12) for a in W for b in W if c(a, b, 4)), all(c(a * a, b * b, n) for n in range(2, 13) for a in W for b in W if c(a, b, n)), all(c(a, b, n) for n in range(2, 13) for a in W for b in W if c(a * a, b * b, n)), all(c(a, b, 24) for a in W for b in W if c(a, b, 4) and c(a, b, 6)), all(c(a, b, 36) for a in W for b in W if c(a, b, 4) and c(a, b, 9))])(range(-40, 41), lambda a, b, n: (a - b) % n == 0)" }
+    pistas:
+      - >-
+        ¿Qué dice cada una con la definición, $n\mid a-b$?
+      - >-
+        Para las que dudes, ¿hay un par chico de enteros que cumpla la hipótesis y no la conclusión?
+    explicacion: >-
+      Valen «si $a\equiv b\pmod{12}$, entonces $a\equiv b\pmod{4}$», «si $a\equiv b$, entonces $a^2\equiv b^2$» y «módulo 4 y módulo 9 dan módulo 36»; las otras tres no. **Las que valen:** si $12\mid a-b$, como $4\mid12$, también $4\mid a-b$. Si $n\mid a-b$, entonces $n$ divide a $a^2-b^2=(a-b)(a+b)$. Si $4\mid a-b$ y $9\mid a-b$, escribe $a-b=4s$; como $\mathrm{mcd}(4,9)=1$, el 4 tiene inverso módulo 9, y de $4s\equiv0\pmod{9}$ sale $s\equiv0$, así que $36\mid a-b$. **Las que no:** $4\equiv0\pmod{4}$, pero no módulo 12. $1^2=(-1)^2$, pero $1\not\equiv-1\pmod{5}$. Y $12\equiv0$ módulo 4 y módulo 6, pero no módulo 24: con 4 y 6, que comparten el 2, lo que se obtiene es módulo $\mathrm{mcm}(4,6)=12$. Revisa: $37\equiv1$ módulo 4 y módulo 9, y $37-1=36$ también es múltiplo de 36.
+    tiempo_estimado_s: 120
+
+  # razonamiento: algorítmico (contar vueltas completas de 13 y lo que sobra) · R1
+  # Hace par con disc-17-006 ([8] de «mismo mcd con 12») en el jefe: una clase residual contra la clase de otra
+  # equivalencia sobre los enteros.
+  # verificar: cuenta en {1, …, 1000} por la definición, con −6 tal cual, sin reducirlo a mano.
+  - id: disc-18-018
+    tipo: completar
+    dificultad: 3
+    conceptos: [clases-residuo]
+    enunciado: >-
+      ¿Cuántos elementos de $\{1,2,\dots,1000\}$ hay en cada una de estas clases módulo 13?
+    texto: >-
+      Número de elementos de $\{1,\dots,1000\}$ en $[7]_{13}$: ___ · en $[-6]_{13}$: ___ · en $[0]_{13}$: ___
+    respuestas: ["77", "77", "76"]
+    verificar: { python: "[sum(1 for x in range(1, 1001) if (x - r) % 13 == 0) for r in (7, -6, 0)]" }
+    pistas:
+      - >-
+        ¿Cuántas vueltas completas de 13 números caben en 1000, y qué residuos tienen los que sobran?
+      - >-
+        ¿Son $[7]_{13}$ y $[-6]_{13}$ clases distintas?
+    explicacion: >-
+      **Vueltas:** $1000=76\cdot13+12$. Del 1 al 988 hay 76 vueltas completas de 13 números, con un elemento de cada clase por vuelta; del 989 al 1000 sobran 12 números, con residuos del 1 al 12. **Las cuentas:** $[7]_{13}$ tiene $76+1=77$, porque el residuo 7 está entre los que sobran. $[-6]_{13}$ es la misma clase, porque $-6+13=7$: también 77. $[0]_{13}$, la de los múltiplos de 13, se queda en 76: el último es el 988. Revisa: las 12 clases de residuo 1 a 12 tienen 77 y la del 0 tiene 76, y $12\cdot77+76=1000$.
+    tiempo_estimado_s: 90
+
+  # razonamiento: deductivo (demostrar con la definición de n ∣ m, una letra por «existe») · R3
+  # Datos y modelo del producto de experto-matematicas; rúbrica con la estructura de arquitecto-razonamiento (definición
+  # con «existe» y una letra distinta por cada uno). Revisión manual. La respuesta modelo cumple cada criterio: escribe la
+  # definición y prueba con enteros cualesquiera, con 0 = n · 0 (1); nombra cada propiedad con letras distintas, k y m,
+  # y llega a b − a = n(−k) y a − c = n(k + m) (2); hace la suma con a' = a + nk y b' = b + nm (3); y llega a
+  # a'b' = ab + n(am + bk + nkm), dice por qué el paréntesis es entero y cierra con «bien definidas» (4).
+  - id: disc-18-019
+    tipo: autoevaluacion
+    dificultad: 4
+    conceptos: [congruencia-modulo, aritmetica-modular]
+    enunciado: >-
+      En papel. Sea $n\ge2$. Escribe la definición de $n\mid m$ antes de usarla. **(1)** Demuestra que la congruencia módulo $n$, $a\equiv b\pmod{n}$ si $n\mid a-b$, es una relación de equivalencia sobre $\mathbb Z$. **(2)** Demuestra que la suma y el producto de clases están bien definidos: si $a'\equiv a$ y $b'\equiv b\pmod{n}$, entonces $a'+b'\equiv a+b$ y $a'b'\equiv ab\pmod{n}$.
+    rubrica:
+      - >-
+        Escribe «$n\mid m$ si existe $k\in\mathbb Z$ con $m=nk$» y prueba cada propiedad con enteros cualesquiera, no con ejemplos. Reflexiva: $a-a=0=n\cdot0$, con $0\in\mathbb Z$.
+      - >-
+        Nombra cada propiedad y usa una letra distinta para cada «existe». Simétrica: de $a-b=nk$ llega a $b-a=n(-k)$. Transitiva: de $a-b=nk$ y $b-c=nm$ llega a $a-c=n(k+m)$.
+      - >-
+        Para la suma, escribe $a'=a+nk$ y $b'=b+nm$, con letras distintas, y llega a $(a'+b')-(a+b)=n(k+m)$.
+      - >-
+        Para el producto, llega a $a'b'=ab+n(am+bk+nkm)$ y dice por qué $am+bk+nkm$ es entero. Cierra con lo que significa «bien definido»: el resultado no depende del elemento que se tome de cada clase.
+    respuesta_modelo: >-
+      Uso la definición: $n\mid m$ si existe $k\in\mathbb Z$ con $m=nk$. Sean $a,b,c\in\mathbb Z$ cualesquiera. **(1) Reflexiva:** $a-a=0=n\cdot0$, con $0\in\mathbb Z$, así que $a\equiv a$. **Simétrica:** si $a\equiv b$, hay $k\in\mathbb Z$ con $a-b=nk$; entonces $b-a=n(-k)$, con $-k\in\mathbb Z$, así que $b\equiv a$. **Transitiva:** si $a\equiv b$ y $b\equiv c$, hay $k,m\in\mathbb Z$ con $a-b=nk$ y $b-c=nm$; entonces $a-c=(a-b)+(b-c)=n(k+m)$, con $k+m\in\mathbb Z$, así que $a\equiv c$. **(2)** Si $a'\equiv a$ y $b'\equiv b$, hay $k,m\in\mathbb Z$ con $a'=a+nk$ y $b'=b+nm$. **Suma:** $(a'+b')-(a+b)=nk+nm=n(k+m)$, así que $a'+b'\equiv a+b$. **Producto:** $a'b'=(a+nk)(b+nm)=ab+anm+bnk+n^2km=ab+n(am+bk+nkm)$, y $am+bk+nkm$ es entero porque los enteros son cerrados bajo la suma y el producto; así, $a'b'\equiv ab$. Por eso $[a]+[b]=[a+b]$ y $[a][b]=[ab]$ no dependen del elemento que se tome de cada clase: están bien definidas. Revisa: con $n=5$, $7\equiv2$ y $8\equiv3$, y $7\cdot8=56\equiv1\equiv2\cdot3$.
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        ¿Qué dice $n\mid m$ con un «existe»? Escríbelo antes que nada.
+      - >-
+        Para la transitiva, ¿cómo escribes $a-c$ con $a-b$ y $b-c$? ¿Usaste una letra distinta para cada «existe»?
+      - >-
+        En el producto, al sustituir $a'=a+nk$ y $b'=b+nm$, ¿qué término no lleva un factor $n$?
+    explicacion: >-
+      **La definición primero:** $n\mid m$ si existe $k\in\mathbb Z$ con $m=nk$; cada paso termina en «es $n$ por un entero». **Reflexiva:** $a-a=n\cdot0$. **Simétrica:** $b-a=-(a-b)=n(-k)$. **Transitiva:** $a-c=(a-b)+(b-c)=n(k+m)$. Con la misma $k$ en las dos hipótesis, solo probaste el caso en que los dos cocientes coinciden. **Suma y producto:** con $a'=a+nk$ y $b'=b+nm$, la suma difiere de $a+b$ en $n(k+m)$, y el producto, $a'b'-ab=n(am+bk+nkm)$; el único término sin $n$ es $ab$. Probarlo con números no basta: un ejemplo no cubre todos los enteros. Revisa: con $n=6$, $9\equiv3$ y $10\equiv4$, y $9\cdot10=90\equiv0\equiv3\cdot4$.
+    tarjeta: false
+    tiempo_estimado_s: 360
+
+  # razonamiento: algorítmico (el procedimiento que califica el parcial: revisar los módulos par por par, sustituir,
+  # despejar sin dividir y comprobar en todas) · R2
+  # De arquitecto-razonamiento, tal cual: rúbrica, respuesta modelo y pistas (las comillas rectas de los criterios 1 y 3
+  # pasan a «…», como en la 16). Revisión manual. Verificado con sympy (crt) y por enumeración: 259 módulo 440.
+  - id: disc-18-020
+    tipo: autoevaluacion
+    dificultad: 4
+    conceptos: [teorema-chino-residuo]
+    enunciado: >-
+      En papel, como en el parcial. Resuelve a mano el sistema $x\equiv4\pmod{5}$, $x\equiv3\pmod{8}$, $x\equiv6\pmod{11}$. Antes de calcular, di cuántas soluciones hay y módulo qué número; al final, comprueba tu resultado.
+    rubrica:
+      - >-
+        Antes de calcular, revisa que 5, 8 y 11 son coprimos dos a dos y anuncia que hay una sola solución módulo 440. No basta decir «son primos»: 8 no lo es.
+      - >-
+        Sustituye $x=3+8k$ en la de módulo 5, llega a $3k\equiv1$ y a $k\equiv2$ ($3\cdot2=6\equiv1$), y escribe $x=19+40j$. Otro orden vale. No cuenta $x=19+8j$: el nuevo módulo es el producto de los módulos usados.
+      - >-
+        Reduce a $7j\equiv9\pmod{11}$ y halla $7^{-1}\equiv8$ por Euclides ($1=2\cdot11-3\cdot7$) o mostrando $7\cdot8=56\equiv1$; llega a $j\equiv6$. No cuenta «dividir entre 7».
+      - >-
+        Da $x\equiv259\pmod{440}$ y lo sustituye en las tres: $259=51\cdot5+4=32\cdot8+3=23\cdot11+6$. No basta revisar la última congruencia, que se cumple por construcción.
+    respuesta_modelo: >-
+      Los módulos son coprimos dos a dos, así que la solución es única módulo 440. Con $x=3+8k$ queda $3k\equiv1\pmod{5}$, de donde $k\equiv2$ y $x=19+40j$. Luego $8+7j\equiv6\pmod{11}$, o sea $7j\equiv9$. Como $1=2\cdot11-3\cdot7$, $7^{-1}\equiv8$ y $j\equiv72\equiv6$. Entonces $x=259+440t$. Revisa: $259=51\cdot5+4=32\cdot8+3=23\cdot11+6$.
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        ¿Qué deben cumplir los módulos para que haya una sola solución? ¿Módulo cuánto? Revísalo par por par.
+      - >-
+        ¿Puedes resolver primero solo dos? Escribe una como $x=r+mk$ y sustitúyela en otra: ¿qué congruencia queda para $k$?
+      - >-
+        Si te queda $ak\equiv b$, ¿cómo despejas sin dividir? Al final, ¿sustituiste en las tres?
+    explicacion: >-
+      **Antes de calcular:** $\mathrm{mcd}(5,8)=\mathrm{mcd}(5,11)=\mathrm{mcd}(8,11)=1$, así que hay una sola solución módulo $5\cdot8\cdot11=440$; que 8 no sea primo no importa. **Primera ronda:** $x=3+8k$ en la de módulo 5 da $3+3k\equiv4$, o sea $3k\equiv1$ y $k\equiv2$; entonces $x=3+8(2+5j)=19+40j$, con módulo $8\cdot5=40$, no 8. **Segunda ronda:** $19+40j\equiv6\pmod{11}$ da $8+7j\equiv6$, o sea $7j\equiv9$; se multiplica por $7^{-1}\equiv8$, nunca se «divide entre 7». **Al final:** $x\equiv259\pmod{440}$, y se sustituye en las tres. La de módulo 11 se cumple por construcción; un error de la primera ronda aparece al revisar las otras dos. Revisa: $259+440=699$ también cumple las tres, porque $699=139\cdot5+4=87\cdot8+3=63\cdot11+6$.
+    tarjeta: false
+    tiempo_estimado_s: 300
+
+  # razonamiento: algorítmico (d = mcd(18, 42) = 6 ∣ 30; dividir todo entre 6 y listar las 6) · R2
+  # La explicación despeja 3x ≡ 5 (mod 7) con 5 ≡ 12 y cancela el 3, sin dar 3⁻¹ mod 7, que sirve en el 025.
+  # verificar: los x de {0, …, 41} con 42 ∣ 18x − 30.
+  - id: disc-18-021
+    tipo: conjunto
+    dificultad: 4
+    conceptos: [congruencias-lineales]
+    enunciado: >-
+      Escribe todas las soluciones de $18x\equiv30\pmod{42}$ en $\{0,1,\dots,41\}$, como `1, 2`.
+    respuesta: ["4", "11", "18", "25", "32", "39"]
+    verificar: { python: "{x for x in range(42) if (18 * x - 30) % 42 == 0}" }
+    pistas:
+      - >-
+        ¿Cuánto vale $\mathrm{mcd}(18,42)$, y divide a 30? ¿Cuántas soluciones da eso?
+      - >-
+        Si divides entre el mcd, ¿qué le pasa al módulo?
+      - >-
+        Con la solución de la congruencia reducida, ¿de cuánto en cuánto van las demás en $\{0,\dots,41\}$?
+    explicacion: >-
+      **¿Hay?** $d=\mathrm{mcd}(18,42)=6$ y $6\mid30$: hay exactamente 6 soluciones. **Reducir:** se divide todo entre 6, incluido el módulo: $3x\equiv5\pmod{7}$. Como $5\equiv12\pmod{7}$, queda $3x\equiv3\cdot4$, y como $\mathrm{mcd}(3,7)=1$, se cancela el 3: $x\equiv4\pmod{7}$. **Las 6:** de 7 en 7 desde el 4, $\{4,11,18,25,32,39\}$. Un error común es dividir entre 6 sin cambiar el módulo: $3x\equiv5\pmod{42}$ no tiene solución, porque $\mathrm{mcd}(3,42)=3\nmid5$. Revisa: $18\cdot11=198=4\cdot42+30$.
+    tiempo_estimado_s: 120
+
+  # razonamiento: inductivo (buscar la potencia que vuelve al 1 y quedarse con el resto del exponente) · R2
+  # verificar: el entero exacto 3²⁰²⁶ y sus dos últimas cifras como texto, sin aritmética modular.
+  - id: disc-18-022
+    tipo: numerico
+    dificultad: 4
+    conceptos: [aritmetica-modular]
+    enunciado: >-
+      ¿Qué número forman las dos últimas cifras de $3^{2026}$?
+    respuesta: 29
+    tolerancia: 0
+    verificar: { python: "int(str(3 ** 2026)[-2:])" }
+    pistas:
+      - >-
+        ¿Qué operación módulo algo te da las dos últimas cifras de un número?
+      - >-
+        Con cuadrados sucesivos, ¿cuánto valen $3^2$, $3^4$, $3^8$ y $3^{16}$ módulo 100? ¿Hay una potencia chica que dé 1?
+      - >-
+        Si $3^p\equiv1$, ¿qué parte de 2026 importa?
+    explicacion: >-
+      Las dos últimas cifras de $N$ son $N\bmod100$. **Cuadrados:** módulo 100, $3^2=9$, $3^4=81$, $3^8\equiv81^2=6561\equiv61$ y $3^{16}\equiv61^2=3721\equiv21$. **Un periodo:** $3^{20}=3^{16}\cdot3^4\equiv21\cdot81=1701\equiv1$. **El exponente:** $2026=20\cdot101+6$, así que $3^{2026}=(3^{20})^{101}\cdot3^6\equiv3^6=729\equiv29$. Las dos últimas cifras son 29. Aquí $2026\bmod100=26$ daría lo mismo, solo porque $3^{20}\equiv1$ y $20\mid100$; con otro módulo falla. Revisa por otro camino: $3^{10}=59049\equiv49$, y $49^2=2401\equiv1$, que confirma $3^{20}\equiv1$.
+    tiempo_estimado_s: 150
+
+  # razonamiento: deductivo (tumbar un «siempre» con un n concreto o demostrarlo con inversos y el lema de Euclides) · R4
+  # De experto-matematicas, con n ≥ 2; pistas de arquitecto-razonamiento, con «siempre» entre comillas latinas y «tablas
+  # de multiplicar» en lugar de «tablas». La explicación no da la regla de cancelación con n/mcd(c, n), que decidiría
+  # opciones del 014 y el 021.
+  # verificar: n de 2 a 30 y a, b, c en {0, …, n − 1}, con inversos, primos y mcd por búsqueda.
+  - id: disc-18-023
+    tipo: seleccion_multiple
+    dificultad: 5
+    conceptos: [inverso-modular, aritmetica-modular]
+    enunciado: >-
+      Sea $n\ge2$. ¿Cuáles de estas afirmaciones valen siempre, para todo $n\ge2$ y todos los enteros $a$, $b$ y $c$? Puede haber varias.
+    opciones:
+      - >-
+        Si $\mathrm{mcd}(c,n)=1$ y $ac\equiv bc\pmod{n}$, entonces $a\equiv b\pmod{n}$.
+      - >-
+        Si $ab\equiv0\pmod{n}$, entonces $a\equiv0\pmod{n}$ o $b\equiv0\pmod{n}$ (o ambas).
+      - >-
+        Si $n$ es primo y $ab\equiv0\pmod{n}$, entonces $a\equiv0\pmod{n}$ o $b\equiv0\pmod{n}$ (o ambas).
+      - >-
+        Si $c\not\equiv0\pmod{n}$ y $ac\equiv bc\pmod{n}$, entonces $a\equiv b\pmod{n}$.
+      - >-
+        $n$ es primo si y solo si todas las clases de $\mathbb Z_n$ distintas de $[0]_n$ tienen inverso.
+      - >-
+        Si $a$ y $b$ tienen inverso módulo $n$, entonces $a+b$ también tiene inverso módulo $n$.
+    correctas: [0, 2, 4]
+    verificar: { python: "(lambda N, u, p, g: [all((a - b) % n == 0 for n in N for c in range(n) if g(c, n) == 1 for a in range(n) for b in range(n) if (a * c - b * c) % n == 0), all(a % n == 0 or b % n == 0 for n in N for a in range(n) for b in range(n) if (a * b) % n == 0), all(a % n == 0 or b % n == 0 for n in N if p(n) for a in range(n) for b in range(n) if (a * b) % n == 0), all((a - b) % n == 0 for n in N for c in range(1, n) for a in range(n) for b in range(n) if (a * c - b * c) % n == 0), all(all(u(a, n) for a in range(1, n)) == p(n) for n in N), all(u((a + b) % n, n) for n in N for a in range(n) if u(a, n) for b in range(n) if u(b, n))])(range(2, 31), lambda a, n: any((a * x - 1) % n == 0 for x in range(n)), lambda n: n > 1 and all(n % q for q in range(2, n)), lambda a, b: max(d for d in range(1, max(a, b) + 1) if a % d == 0 and b % d == 0))" }
+    pistas:
+      - >-
+        ¿Hablan de todo $n\ge2$ o solo de algunos? ¿Qué basta para tumbar un «siempre», y qué hace falta para aceptarlo?
+      - >-
+        Haz las tablas de multiplicar de $\mathbb Z_4$, $\mathbb Z_5$ y $\mathbb Z_6$. ¿Dónde sale un 0 fuera de la fila y la columna del 0? ¿Dónde tiene un 1 cada fila no nula?
+      - >-
+        Si $n=rs$ con $1<r,s<n$, ¿cuánto vale $[r][s]$? ¿Puede $[r]$ tener inverso? Si $n$ es primo y $n\mid ab$, ¿qué sabes de $a$ o de $b$?
+    explicacion: >-
+      Valen «si $\mathrm{mcd}(c,n)=1$, se cancela $c$», «con $n$ primo, $ab\equiv0$ obliga a $a\equiv0$ o $b\equiv0$» y «$n$ es primo si y solo si todas las clases no nulas tienen inverso»; las otras tres fallan. **Contraejemplos:** $3\cdot5=15\equiv0\pmod{15}$, con $3\not\equiv0$ y $5\not\equiv0$. $2\cdot1\equiv2\cdot5\pmod{8}$, porque $10-2=8$, con $2\not\equiv0$ y $1\not\equiv5$. El 1 y el 6 tienen inverso módulo 7, pero $1+6\equiv0$, que no lo tiene. **Las que valen:** si $\mathrm{mcd}(c,n)=1$, $c$ tiene inverso, y multiplicar $ac\equiv bc$ por él da $a\equiv b$. Si $n$ es primo y $n\mid ab$, el lema de Euclides da $n\mid a$ o $n\mid b$. Para la de los inversos: si $n$ es primo y $[a]\neq[0]$, entonces $n\nmid a$, así que $\mathrm{mcd}(a,n)=1$ y hay inverso; si $n$ no es primo, $n=rs$ con $1<r,s<n$, y $[r]$ no tiene inverso, porque $\mathrm{mcd}(r,n)=r>1$. Revisa: en $\mathbb Z_6$, $[2][3]=[0]$, y la fila del 2 en la tabla de multiplicar, 0, 2, 4, 0, 2, 4, no tiene ningún 1.
+    tiempo_estimado_s: 180
+
+  # razonamiento: analógico (llevar un calendario de tareas a un sistema de congruencias, y reconocer módulos no
+  # coprimos) · R2
+  # Transferencia, hipotético (M). Los días de cada tarea van listados en el enunciado, para que «desde el día 3» no
+  # tenga dos lecturas. La explicación sustituye en el orden 5, 9, 8 (5k ≡ 3 (mod 9), k ≡ 6; 5j ≡ 3 (mod 8), j ≡ 7;
+  # arreglos-18, M): no resuelve ninguna congruencia módulo 5, así que no repite la cuenta 2x ≡ 3 (mod 5) del 025, que
+  # va en la misma oleada, ni pasa por el 4j ≡ 5 (mod 9) del orden 8, 5, 9. Huecos 2 y 3 reescritos (arreglos-18): «cada
+  # cuántos días vuelven a coincidir» da 360 sin la duda entre 360 y 359.
+  # verificar: simula los días 0 a 3000 con conjuntos, sin congruencias.
+  - id: disc-18-024
+    tipo: completar
+    dificultad: 5
+    conceptos: [teorema-chino-residuo, clases-residuo]
+    enunciado: >-
+      Supón que un servidor corre cuatro tareas programadas, con los días contados desde el día 0: un respaldo cada 8 días desde el día 3 (días 3, 11, 19, …), una limpieza cada 9 días desde el día 5 (días 5, 14, 23, …), un reporte cada 5 días desde el día 2 (días 2, 7, 12, …) y una auditoría cada 6 días desde el día 4 (días 4, 10, 16, …). En el hueco de sí o no, escribe 1 (sí) o 0 (no).
+    texto: >-
+      Número del primer día en que corren el respaldo, la limpieza y el reporte, el mismo día: ___ · cada cuántos días vuelven a coincidir esas tres: ___ · en cuántos de los días 0 a 1000, los dos incluidos, corren esas tres: ___ · ¿la auditoría coincide algún día con el respaldo? ___
+    respuestas: ["347", "360", "2", "0"]
+    verificar: { python: "(lambda R, L, P, L6: (lambda C: [C[0], C[1] - C[0], len([d for d in C if d <= 1000]), int(len(R & L6) > 0)])(sorted(R & L & P)))(set(range(3, 3001, 8)), set(range(5, 3001, 9)), set(range(2, 3001, 5)), set(range(4, 3001, 6)))" }
+    pistas:
+      - >-
+        ¿Qué congruencia cumple un día en que corre el respaldo? ¿Y uno de la limpieza, y uno del reporte?
+      - >-
+        ¿Son coprimos dos a dos 8, 9 y 5? Entonces, ¿cada cuánto se repite la solución?
+      - >-
+        Para la auditoría y el respaldo, 8 y 6 no son coprimos: ¿qué tienen que cumplir sus días módulo $\mathrm{mcd}(8,6)$?
+    explicacion: >-
+      **Las congruencias:** el respaldo corre los días con $x\equiv3\pmod{8}$; la limpieza, con $x\equiv5\pmod{9}$; y el reporte, con $x\equiv2\pmod{5}$. 8, 9 y 5 son coprimos dos a dos, así que hay una sola solución módulo 360. **Por sustitución:** de la del reporte, $x=2+5k$, y en la de la limpieza queda $2+5k\equiv5$, o sea $5k\equiv3\pmod{9}$; con $5\cdot2=10\equiv1$, $k\equiv6$, así que $x=2+5(6+9j)=32+45j$. En la del respaldo, como $32\equiv0$ y $45\equiv5\pmod{8}$, queda $5j\equiv3$; con $5\cdot5=25\equiv1$, $j\equiv15\equiv7$, y $x=32+315=347$. **Las cuentas:** las tres coinciden los días 347, 707, 1067, …, de 360 en 360; del 0 al 1000, dos veces. **La auditoría:** los días del respaldo son impares, porque $x=3+8k$, y los de la auditoría son pares, porque $x=4+6t$: nunca coinciden. Aquí el teorema chino no aplica, porque 8 y 6 comparten el 2. Revisa: $347=43\cdot8+3=38\cdot9+5=69\cdot5+2$.
+    tiempo_estimado_s: 180
+
+  # razonamiento: algorítmico (resolver cada lineal, ver que la de módulo 10 es una clase módulo 5 y juntarlas con el
+  # teorema chino) · R2
+  # La explicación da x ≡ 3 (mod 7) comprobando 3 · 3 = 9 ≡ 2, sin dar 3⁻¹ mod 7, que sirve en el 021.
+  # verificar: los x de {0, …, 69} que cumplen las dos, por búsqueda.
+  - id: disc-18-025
+    tipo: conjunto
+    dificultad: 5
+    conceptos: [congruencias-lineales, teorema-chino-residuo]
+    enunciado: >-
+      Escribe todos los $x\in\{0,1,\dots,69\}$ que cumplen a la vez $3x\equiv2\pmod{7}$ y $4x\equiv6\pmod{10}$, como `5, 40`.
+    respuesta: ["24", "59"]
+    verificar: { python: "{x for x in range(70) if (3 * x - 2) % 7 == 0 and (4 * x - 6) % 10 == 0}" }
+    pistas:
+      - >-
+        ¿Cuántas soluciones tiene cada congruencia por separado, y módulo qué número?
+      - >-
+        ¿$4x\equiv6\pmod{10}$ equivale a una sola congruencia con otro módulo?
+      - >-
+        Con las dos en la forma $x\equiv r\pmod{m}$, ¿los módulos son coprimos? ¿Cuántas veces cabe su producto en $\{0,\dots,69\}$?
+    explicacion: >-
+      **La primera:** $\mathrm{mcd}(3,7)=1$, así que tiene una sola solución módulo 7, y es $x\equiv3$, porque $3\cdot3=9\equiv2$. **La segunda:** $\mathrm{mcd}(4,10)=2$ y $2\mid6$; se divide todo entre 2: $2x\equiv3\pmod{5}$, y como $2\cdot4=8\equiv3$, $x\equiv4\pmod{5}$. En $\{0,\dots,9\}$ son el 4 y el 9, una sola clase módulo 5. **Juntas:** $x\equiv3\pmod{7}$ y $x\equiv4\pmod{5}$, con 7 y 5 coprimos. Con $x=3+7k$ queda $3+2k\equiv4$, o sea $2k\equiv1$ y $k\equiv3$, así que $x\equiv24\pmod{35}$. **En $\{0,\dots,69\}$:** el 24 y el $24+35=59$. Revisa: $3\cdot59=177=25\cdot7+2$ y $4\cdot59=236=23\cdot10+6$.
+    tiempo_estimado_s: 150

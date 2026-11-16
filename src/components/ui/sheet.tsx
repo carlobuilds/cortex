@@ -31,7 +31,7 @@ function SheetContent({ className, children, side = "bottom", ...props }: React.
         {...props}
       >
         {children}
-        <DialogPrimitive.Close className="tactile absolute top-3 right-3 grid size-8 place-items-center rounded-md text-ink-2 hover:bg-surface-2 hover:text-ink">
+        <DialogPrimitive.Close className="tactile absolute top-3 right-3 grid size-8 touch:size-11 place-items-center rounded-md text-ink-2 hover:bg-surface-2 hover:text-ink">
           <X aria-hidden className="size-4" />
           <span className="sr-only">Cerrar</span>
         </DialogPrimitive.Close>

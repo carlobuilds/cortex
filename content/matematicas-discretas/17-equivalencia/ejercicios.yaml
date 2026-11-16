@@ -1,0 +1,527 @@
+# Unidad 17 · Equivalencia (Unidad IV, 4.3.3 y 4.3.4). Para el 3.er parcial (semana del 23 al 27 de noviembre de
+# 2026). La congruencia y el símbolo ≡ son de la 18 (4.4.1): aquí se dice «mismo residuo al dividir entre n».
+# Esquema v1 aprobado por Carlo el 2026-11-14 (esquema-17), revisado por experto-matematicas, pedagogo y
+# arquitecto-razonamiento. Datos de experto-matematicas, comprobados por la sesión principal con código propio.
+# Ids en el orden de la tabla del v1, escalera 4/5/5/3/3: d1 001–004, d2 005–009, d3 010–014, d4 015–017, d5 018–020.
+# Anclas (primer ejercicio de cada concepto, workedExampleFor): 001 RE, 002 CE, 003 CC y 004 PA, con explicación
+# completa y con lo que se pide escrito en el enunciado (WorkedExample muestra solo enunciado y explicación). Los
+# ejercicios con dos conceptos (012, 015 a 020) muestran el ancla d1 de cualquiera de los dos, y las cuatro son de d1.
+# Abreviaturas: RE relacion-equivalencia · CE clases-equivalencia · CC conjunto-cociente · PA particiones.
+# Ninguna respuesta es un conjunto de conjuntos (sets.ts:61, «las llaves solo van afuera»): una clase va como
+# `conjunto` plano; un cociente, como número de clases, tamaños o pares; una partición, como opción.
+# `verificar`: los de experto-matematicas (herramientas/m17/verificar-17.py), en Python puro, desde la definición y
+# por enumeración, sin cambios; la plantilla EQ(A, r), «r es reflexiva, simétrica y transitiva en A», va incrustada en
+# cada expresión que la usa. Probados con check_exercise (19/19) y con respuestas alteradas (neg.py); sobre este
+# archivo, el autor volvió a probar los 19 con una respuesta alterada por ejercicio, y los 19 la rechazan.
+# Revisión del 2026-11-14 (arreglos-17, «errores + mejoras» de Carlo) aplicada: el 012 cambió de enunciado, huecos y
+# `verificar`, que se volvió a probar con respuestas alteradas.
+# `conjunto`: pares escritos "(1, 2)"; el ejemplo de formato de cada enunciado no contiene elementos de la respuesta.
+# `completar`: huecos fuera de KaTeX y solo enteros; cada hueco dice si pide un número o un elemento.
+# Pistas como preguntas, sin valores intermedios: 1 en d1–2, 2 en d3 (el 012 lleva 3)
+# y 3 en d4–5. Desde d3, la explicación cierra con «Revisa:», con una comprobación que no repite el cálculo. Las
+# explicaciones de selección y opción múltiple dicen cuáles son las correctas, porque WorkedExample no muestra las
+# opciones.
+# Términos con un solo sentido: «clase» (de equivalencia), «bloque» (de una partición), «etiqueta» (la f de
+# «f(x) = f(y)»), «testigo» (un caso concreto que refuta una propiedad, como en la 16) e «intermedio» (el b de aRb y
+# bRc, como en la 15). En el 015, los enteros del «existe» no se llaman testigos. No se usa «cadena».
+# Manuales: solo el 015 (autoevaluación, tarjeta: false).
+# Textos con LaTeX en bloques `>-`: así no hay que escapar comillas ni barras.
+unidad: matematicas-discretas/17-equivalencia
+ejercicios:
+  # razonamiento: deductivo (buscar la etiqueta f o el testigo contra una de las tres propiedades) · R1
+  # Ancla de RE. Opciones en el orden de experto-matematicas.
+  # verificar: EQ en ventanas finitas (ℤ de −8 a 8, ℤ⁺ de 1 a 40; cifras de 1 a 119, para tener 1, 2 y 3 cifras).
+  - id: disc-17-001
+    tipo: seleccion_multiple
+    dificultad: 1
+    conceptos: [relacion-equivalencia]
+    enunciado: >-
+      Una relación de equivalencia es una relación reflexiva, simétrica y transitiva. ¿Cuáles de estas relaciones son de equivalencia? Puede haber varias.
+    opciones:
+      - >-
+        $xRy$ si $x+y$ es par, en $\mathbb Z$
+      - >-
+        $xRy$ si $x\le y$, en $\mathbb Z$
+      - >-
+        $xRy$ si $x$ y $y$ tienen el mismo número de cifras (en base 10), en $\mathbb Z^+$
+      - >-
+        $xRy$ si $x-y$ es impar, en $\mathbb Z$
+      - >-
+        $xRy$ si $x$ y $y$ tienen los mismos divisores primos, en $\mathbb Z^+$
+      - >-
+        $xRy$ si $x\mid y$, en $\mathbb Z^+$
+    correctas: [0, 2, 4]
+    verificar: { python: "(lambda eq, Z, P, pr: [eq(Z, lambda x, y: (x + y) % 2 == 0), eq(Z, lambda x, y: x <= y), eq(range(1, 120), lambda x, y: len(str(x)) == len(str(y))), eq(Z, lambda x, y: (x - y) % 2 == 1), eq(P, lambda x, y: pr(x) == pr(y)), eq(P, lambda x, y: y % x == 0)])((lambda A, r: all(r(a,a) for a in A) and all(r(b,a) for a in A for b in A if r(a,b)) and all(r(a,c) for a in A for b in A if r(a,b) for c in A if r(b,c))), range(-8, 9), range(1, 41), lambda n: frozenset(p for p in range(2, n + 1) if n % p == 0 and all(p % q for q in range(2, p))))" }
+    pistas:
+      - >-
+        En cada una, ¿hay una etiqueta $f$ con $xRy$ si y solo si $f(x)=f(y)$? Si no la hay, ¿cuál de las tres propiedades falla?
+    explicacion: >-
+      Son de equivalencia «$x+y$ es par», «mismo número de cifras» y «mismos divisores primos»; las otras tres no. Las tres buenas son de la forma «misma etiqueta», $f(x)=f(y)$, y toda regla así es reflexiva, simétrica y transitiva. **$x+y$ par:** pasa si y solo si $x$ y $y$ tienen la misma paridad, así que la etiqueta es la paridad. **Cifras:** la etiqueta es el número de cifras. **Divisores primos:** la etiqueta es el conjunto de primos que dividen a $x$; la del 1 es $\varnothing$. **Las que no**, con un testigo: $x\le y$ no es simétrica, porque $1\le2$ y no $2\le1$; «$x-y$ impar» no es reflexiva, porque $1-1=0$ es par; y $x\mid y$ no es simétrica, porque $1\mid2$ y $2\nmid1$.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (calcular la etiqueta de a y juntar a los que la comparten) · R0
+  # Ancla de CE.
+  # verificar: EQ de «misma suma de cifras» en {10, …, 40} y los y con la suma de 13.
+  - id: disc-17-002
+    tipo: conjunto
+    dificultad: 1
+    conceptos: [clases-equivalencia]
+    enunciado: >-
+      En $A=\{10,11,\dots,40\}$, sea $xRy$ si $x$ y $y$ tienen la misma suma de cifras. Es de equivalencia. Escribe la clase del 13, $[13]=\{x\in A: xR13\}$, como `5, 9`.
+    respuesta: ["13", "22", "31", "40"]
+    verificar: { python: "(lambda A, s: {y for y in A if s(y) == s(13)} if (lambda A, r: all(r(a,a) for a in A) and all(r(b,a) for a in A for b in A if r(a,b)) and all(r(a,c) for a in A for b in A if r(a,b) for c in A if r(b,c)))(A, lambda x, y: s(x) == s(y)) else set())(range(10, 41), lambda n: sum(int(c) for c in str(n)))" }
+    pistas:
+      - >-
+        ¿Cuánto suman las cifras del 13? ¿Qué números de $A$ suman lo mismo?
+    explicacion: >-
+      Es de la forma $f(x)=f(y)$, con $f(x)$ la suma de las cifras de $x$, así que $[13]$ reúne a los $x\in A$ con $f(x)=f(13)=1+3=4$. Entre 10 y 40 suman 4 el 13, el 22, el 31 y el 40; el 4 también sumaría 4, pero no está en $A$. Así, $[13]=\{13,22,31,40\}$. Por el lema de la lección, $[22]$, $[31]$ y $[40]$ son esa misma clase.
+    tiempo_estimado_s: 45
+
+  # razonamiento: algorítmico (una clase por valor distinto de la etiqueta) · R1
+  # Ancla de CC.
+  # verificar: EQ de «mismo número de divisores» en {1, …, 12} y el número de clases distintas.
+  - id: disc-17-003
+    tipo: numerico
+    dificultad: 1
+    conceptos: [conjunto-cociente]
+    enunciado: >-
+      En $A=\{1,2,\dots,12\}$, sea $xRy$ si $x$ y $y$ tienen el mismo número de divisores positivos. Es de equivalencia. ¿Cuántas clases tiene? Es decir, ¿cuántos elementos tiene el conjunto cociente $A/R$?
+    respuesta: 5
+    tolerancia: 0
+    verificar: { python: "(lambda A, d: len({frozenset(y for y in A if d(y) == d(x)) for x in A}) if (lambda A, r: all(r(a,a) for a in A) and all(r(b,a) for a in A for b in A if r(a,b)) and all(r(a,c) for a in A for b in A if r(a,b) for c in A if r(b,c)))(A, lambda x, y: d(x) == d(y)) else -1)(range(1, 13), lambda n: sum(1 for k in range(1, n + 1) if n % k == 0))" }
+    pistas:
+      - >-
+        ¿Cuántos divisores positivos tiene cada número del 1 al 12? ¿Cuántos valores distintos salen?
+    explicacion: >-
+      Es de la forma $f(x)=f(y)$, con $f(x)$ el número de divisores positivos de $x$: hay una clase por cada valor distinto de $f$. **Divisores:** el 1 tiene 1; los primos 2, 3, 5, 7 y 11 tienen 2; el 4 y el 9 tienen 3 (1, 2 y 4; 1, 3 y 9); el 6, el 8 y el 10 tienen 4; y el 12 tiene 6. **Clases:** $\{1\}$, $\{2,3,5,7,11\}$, $\{4,9\}$, $\{6,8,10\}$ y $\{12\}$. Son 5, así que $A/R$ tiene 5 elementos, y sus tamaños suman $1+5+2+3+1=12$.
+    tiempo_estimado_s: 45
+
+  # razonamiento: deductivo (revisar las tres condiciones de partición en cada colección) · R1
+  # Ancla de PA. Opciones de experto-matematicas, una por condición que falla.
+  # verificar: las tres condiciones (no vacíos, disjuntos dos a dos, unión A) y el índice de la única que las cumple.
+  - id: disc-17-004
+    tipo: opcion_multiple
+    dificultad: 1
+    conceptos: [particiones]
+    enunciado: >-
+      Una partición de $A$ es una colección de bloques no vacíos, disjuntos dos a dos, cuya unión es $A$. ¿Cuál de estas colecciones es una partición de $A=\{1,2,\dots,8\}$?
+    opciones:
+      - >-
+        $\{1,2,3\},\{3,4,5\},\{6,7,8\}$
+      - >-
+        $\{1,8\},\{2,7\},\{3,6\},\{4,5\}$
+      - >-
+        $\{1,3,5,7\},\{2,4,6\}$
+      - >-
+        $\{1,2,3,4\},\{5,6,7,8\},\varnothing$
+    valores: ["0", "1", "2", "3"]
+    correcta: 1
+    verificar: { python: "(lambda A, ops: (lambda L: L[0] if len(L) == 1 else -1)([i for i, P in enumerate(ops) if all(len(B) > 0 for B in P) and all(not (P[i2] & P[j2]) for i2 in range(len(P)) for j2 in range(len(P)) if i2 < j2) and set().union(*P) == A]))(set(range(1, 9)), [[{1,2,3}, {3,4,5}, {6,7,8}], [{1,8}, {2,7}, {3,6}, {4,5}], [{1,3,5,7}, {2,4,6}], [{1,2,3,4}, {5,6,7,8}, set()]])" }
+    pistas:
+      - >-
+        En cada colección, ¿hay un bloque vacío, un elemento en dos bloques o un elemento de $A$ que falte?
+    explicacion: >-
+      La partición es $\{1,8\},\{2,7\},\{3,6\},\{4,5\}$: cuatro bloques no vacíos, sin elementos en común, que juntos tienen los 8 elementos de $A$. Cada una de las otras falla en una condición. $\{1,2,3\},\{3,4,5\},\{6,7,8\}$ pone el 3 en dos bloques, así que no son disjuntos. $\{1,3,5,7\},\{2,4,6\}$ no tiene el 8, así que su unión no es $A$. Y $\{1,2,3,4\},\{5,6,7,8\},\varnothing$ tiene un bloque vacío, aunque los otros dos sí repartan $A$.
+    tiempo_estimado_s: 45
+
+  # razonamiento: deductivo (agregar lo que pide cada propiedad, y nada más) · R1
+  # No va en el jefe (su par natural, 16-009, va con el 012).
+  # verificar: la intersección de TODAS las equivalencias sobre {1, 2, 3, 4} que contienen a R (por etiquetados), menos R.
+  - id: disc-17-005
+    tipo: conjunto
+    dificultad: 2
+    conceptos: [relacion-equivalencia]
+    enunciado: >-
+      Sobre $\{1,2,3,4\}$, sea $R=\{(1,1),(2,2),(3,3),(4,4),(1,3),(3,4)\}$. Escribe los pares que hay que agregarle para obtener la relación de equivalencia más chica que contiene a $R$, como `(2, 1), (2, 3)`.
+    respuesta: ["(3, 1)", "(4, 3)", "(1, 4)", "(4, 1)"]
+    verificar: { python: "(lambda A, R: set.intersection(*[K for K in ({(a, b) for a in A for b in A if f[a - 1] == f[b - 1]} for f in itertools.product(range(4), repeat=4)) if R <= K]) - R)([1, 2, 3, 4], {(1,1),(2,2),(3,3),(4,4),(1,3),(3,4)})" }
+    pistas:
+      - >-
+        ¿Qué pares obliga la simétrica? Con ellos, ¿qué pares obliga la transitiva?
+    explicacion: >-
+      Faltan $(3,1)$, $(4,3)$, $(1,4)$ y $(4,1)$. **Simétrica:** $(1,3)$ y $(3,4)$ piden sus inversos, $(3,1)$ y $(4,3)$. **Transitiva:** $(1,3)$ y $(3,4)$ piden $(1,4)$, y $(4,3)$ y $(3,1)$ piden $(4,1)$. Con eso, el 1, el 3 y el 4 se relacionan todos entre sí y el 2 se relaciona nada más consigo mismo: es la equivalencia de la partición $\{1,3,4\},\{2\}$. **Es la más chica:** toda equivalencia que contenga a $R$ junta al 1 con el 3 y al 3 con el 4, así que tiene los 9 pares de $\{1,3,4\}^2$; $R$ ya tenía 5 y faltan estos 4.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (calcular la etiqueta mcd(x, 12) y juntar a los que la comparten) · R1
+  # verificar: EQ de mcd(x, 12) = mcd(y, 12) en {1, …, 30} y los y con el mcd del 8.
+  - id: disc-17-006
+    tipo: conjunto
+    dificultad: 2
+    conceptos: [clases-equivalencia]
+    enunciado: >-
+      En $A=\{1,2,\dots,30\}$, sea $xRy$ si $\mathrm{mcd}(x,12)=\mathrm{mcd}(y,12)$. Escribe la clase $[8]$, como `5, 7`.
+    respuesta: ["4", "8", "16", "20", "28"]
+    verificar: { python: "(lambda A, g: {y for y in A if g(y) == g(8)} if (lambda A, r: all(r(a,a) for a in A) and all(r(b,a) for a in A for b in A if r(a,b)) and all(r(a,c) for a in A for b in A if r(a,b) for c in A if r(b,c)))(A, lambda x, y: g(x) == g(y)) else set())(range(1, 31), lambda n: math.gcd(n, 12))" }
+    pistas:
+      - >-
+        ¿Cuánto vale $\mathrm{mcd}(8,12)$? ¿Qué números $x$ de $A$ dan ese mismo mcd con 12?
+    explicacion: >-
+      Es de equivalencia porque es de la forma $f(x)=f(y)$, con $f(x)=\mathrm{mcd}(x,12)$. Como $\mathrm{mcd}(8,12)=4$, $[8]$ tiene los $x\in A$ con $\mathrm{mcd}(x,12)=4$: los múltiplos de 4 que no son múltiplos de 3, porque si además $3\mid x$, el mcd sería 12. Del 1 al 30, los múltiplos de 4 son 4, 8, 12, 16, 20, 24 y 28; sin el 12 y el 24 queda $[8]=\{4,8,16,20,28\}$.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (de la partición a los pares: k² por bloque) · R1
+  # verificar: arma R desde los bloques y cuenta.
+  - id: disc-17-007
+    tipo: completar
+    dificultad: 2
+    conceptos: [particiones]
+    enunciado: >-
+      Sobre $A=\{1,2,\dots,7\}$, la partición $\{1,6\},\{2,4,7\},\{3,5\}$ define la relación de equivalencia «$xRy$ si $x$ y $y$ están en el mismo bloque». En el hueco de sí o no, escribe 1 (sí) o 0 (no).
+    texto: >-
+      Número de pares de $R$: ___ · número de pares $(a,b)$ de $R$ con $a\neq b$: ___ · ¿$(6,1)\in R$? ___
+    respuestas: ["17", "10", "1"]
+    verificar: { python: "(lambda P: (lambda R: [len(R), sum(1 for (a, b) in R if a != b), int((6, 1) in R)])({(a, b) for B in P for a in B for b in B}))([{1, 6}, {2, 4, 7}, {3, 5}])" }
+    pistas:
+      - >-
+        ¿Qué pares aporta un bloque de 2 elementos? ¿Y uno de 3? ¿Cuántos de ellos son de la forma $(a,a)$?
+    explicacion: >-
+      Un bloque de $k$ elementos aporta $k^2$ pares: todas las parejas ordenadas $(x,y)$ con $x$ y $y$ en él, incluidas las $(a,a)$. Así, $R$ tiene $2^2+3^2+2^2=4+9+4=17$ pares. De ellos, 7 son de la forma $(a,a)$, uno por elemento de $A$, así que $17-7=10$ tienen $a\neq b$. El 6 y el 1 comparten el bloque $\{1,6\}$, así que $(6,1)\in R$: 1.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (contar las longitudes en binario entre potencias de 2) · R1
+  # verificar: escribe cada número en binario (sin bin(), con una recursión) y cuenta las clases distintas.
+  - id: disc-17-008
+    tipo: numerico
+    dificultad: 2
+    conceptos: [conjunto-cociente]
+    enunciado: >-
+      En $A=\{1,2,\dots,40\}$, sea $xRy$ si $x$ y $y$ tienen el mismo número de cifras al escribirse en binario. ¿Cuántos elementos tiene el conjunto cociente $A/R$?
+    respuesta: 6
+    tolerancia: 0
+    verificar: { python: "(lambda A, b: len({frozenset(y for y in A if len(b(y)) == len(b(x))) for x in A}))(range(1, 41), lambda n: (lambda f: f(f, n))(lambda f, m: '' if m == 0 else f(f, m // 2) + str(m % 2)))" }
+    pistas:
+      - >-
+        ¿Entre qué potencias de 2 está un número que tiene $k$ cifras en binario?
+    explicacion: >-
+      Es de la forma $f(x)=f(y)$, con $f(x)$ el número de cifras de $x$ en binario, así que hay una clase por valor de $f$. Un número tiene $k$ cifras en binario cuando $2^{k-1}\le n<2^k$. Del 1 al 40: el 1 tiene 1 cifra; el 2 y el 3, 2; del 4 al 7, 3; del 8 al 15, 4; del 16 al 31, 5; y del 32 al 40, 6, porque $40<64$. Son 6 valores, así que $A/R$ tiene 6 elementos.
+    tiempo_estimado_s: 45
+
+  # razonamiento: deductivo (revisar las tres condiciones de partición con reglas en palabras) · R1
+  # Opciones de experto-matematicas: el 1 (ni primo ni compuesto), el 10 y el 20 en dos bloques, y el 4 y el 16.
+  # verificar: arma cada colección y revisa las tres condiciones.
+  - id: disc-17-009
+    tipo: seleccion_multiple
+    dificultad: 2
+    conceptos: [particiones]
+    enunciado: >-
+      ¿Cuáles de estas colecciones son particiones de $A=\{1,2,\dots,20\}$? Puede haber varias.
+    opciones:
+      - >-
+        Los primos y los compuestos
+      - >-
+        $\{1\}$, los primos y los compuestos
+      - >-
+        Los múltiplos de 2, los múltiplos de 5 y los que no son múltiplos de ninguno de los dos
+      - >-
+        Los de una cifra y los de dos cifras
+      - >-
+        Los cuadrados perfectos, los impares que no son cuadrados perfectos y los pares
+      - >-
+        Los que dejan residuo 0, los que dejan residuo 1 y los que dejan residuo 2 al dividir entre 3
+    correctas: [1, 3, 5]
+    verificar: { python: "(lambda A, pr: (lambda part: [part([{n for n in A if pr(n)}, {n for n in A if n > 1 and not pr(n)}]), part([{1}, {n for n in A if pr(n)}, {n for n in A if n > 1 and not pr(n)}]), part([{n for n in A if n % 2 == 0}, {n for n in A if n % 5 == 0}, {n for n in A if n % 2 and n % 5}]), part([{n for n in A if n < 10}, {n for n in A if n >= 10}]), part([{n for n in A if any(k * k == n for k in A)}, {n for n in A if n % 2 and not any(k * k == n for k in A)}, {n for n in A if n % 2 == 0}]), part([{n for n in A if n % 3 == r} for r in range(3)])])(lambda P: all(P[i] for i in range(len(P))) and all(not (P[i] & P[j]) for i in range(len(P)) for j in range(i + 1, len(P))) and set().union(*P) == A))(set(range(1, 21)), lambda n: n > 1 and all(n % q for q in range(2, n)))" }
+    pistas:
+      - >-
+        En cada colección, ¿algún número de $A$ queda fuera o cae en dos bloques?
+    explicacion: >-
+      Son particiones «$\{1\}$, los primos y los compuestos», «los de una cifra y los de dos cifras» y «los de residuo 0, 1 y 2 al dividir entre 3»; las otras tres no. **Primos y compuestos, sin el $\{1\}$:** el 1 no es primo ni compuesto, así que la unión no es $A$. **Múltiplos de 2 y de 5:** el 10 y el 20 caen en los dos bloques. **Cuadrados, impares y pares:** el 4 y el 16 son cuadrados perfectos y pares. Las tres buenas sí cumplen todo: cada número del 1 al 20 cae en exactamente un bloque y ningún bloque es vacío.
+    tiempo_estimado_s: 60
+
+  # razonamiento: abductivo (de una demostración con un error plantado a la causa: xy ≥ 0 no es «mismo signo») · R2
+  # Hace par con disc-16-022 (Luis) en el jefe: un error plantado en una demostración de propiedades. La explicación no
+  # habla de relaciones simétricas y transitivas que no sean reflexivas.
+  # verificar: reflexiva y simétrica en ℤ (de −8 a 8), el testigo 1, 0, −1, el no testigo 1, 2, 3 y EQ en ℤ − {0}.
+  - id: disc-17-010
+    tipo: seleccion_multiple
+    dificultad: 3
+    conceptos: [relacion-equivalencia]
+    enunciado: >-
+      Sobre $\mathbb Z$, sea $xRy$ si $xy\ge0$. Ana dice que es de equivalencia: «Es reflexiva, porque $x\cdot x=x^2\ge0$; simétrica, porque $xy=yx$; y transitiva, porque si $xy\ge0$ y $yz\ge0$, entonces $x$ y $y$ tienen el mismo signo, y $y$ y $z$ también, así que $x$ y $z$ tienen el mismo signo y $xz\ge0$». ¿Cuáles de estas afirmaciones son ciertas? Puede haber varias.
+    opciones:
+      - >-
+        Sus argumentos de la reflexividad y de la simetría están bien.
+      - >-
+        La transitividad falla con $x=1$, $y=0$ y $z=-1$.
+      - >-
+        La transitividad falla con $x=1$, $y=2$ y $z=3$.
+      - >-
+        Sobre $\mathbb Z-\{0\}$, la misma regla sí es de equivalencia.
+      - >-
+        $R$ no es reflexiva.
+    correctas: [0, 1, 3]
+    verificar: { python: "(lambda eq, Z, r: [all(r(a, a) for a in Z) and all(r(b, a) for a in Z for b in Z if r(a, b)), r(1, 0) and r(0, -1) and not r(1, -1), r(1, 2) and r(2, 3) and not r(1, 3), eq([z for z in Z if z != 0], r), not all(r(a, a) for a in Z)])((lambda A, r: all(r(a,a) for a in A) and all(r(b,a) for a in A for b in A if r(a,b)) and all(r(a,c) for a in A for b in A if r(a,b) for c in A if r(b,c))), range(-8, 9), lambda x, y: x * y >= 0)" }
+    pistas:
+      - >-
+        ¿Qué paso de Ana usa algo que $xy\ge0$ no dice? ¿Qué número cumple $xy\ge0$ con todos?
+      - >-
+        Si quitas ese número, ¿a qué etiqueta equivale $xy\ge0$?
+    explicacion: >-
+      Son ciertas «sus argumentos de la reflexividad y de la simetría están bien», «la transitividad falla con 1, 0 y −1» y «sobre $\mathbb Z-\{0\}$ sí es de equivalencia»; las otras dos no. **Lo que está bien:** $x^2\ge0$ para todo entero, así que es reflexiva, y $xy=yx$ la hace simétrica. **El error:** $xy\ge0$ no dice «mismo signo», porque el 0 cumple $0\cdot y\ge0$ con todos. Con $x=1$, $y=0$ y $z=-1$: $1\cdot0\ge0$ y $0\cdot(-1)\ge0$, pero $1\cdot(-1)=-1<0$. Es un testigo contra la transitividad, con el 0 de intermedio. Con 1, 2 y 3 no hay testigo, porque $1\cdot3\ge0$. **Sin el 0**, $xy\ge0$ sí equivale a «mismo signo», que es de la forma $f(x)=f(y)$ con $f$ el signo, y sus clases son los positivos y los negativos. Revisa: en $\mathbb Z$, el 0 se relaciona con el 1 y con el −1, que no se relacionan entre sí, como «luz» con «sol» y «paz».
+    tiempo_estimado_s: 90
+
+  # razonamiento: algorítmico (la etiqueta max(a, b) y los pares que la comparten) · R1
+  # verificar: EQ de max(p) = max(q) en {0, …, 3}² y los q con el máximo de (1, 2).
+  - id: disc-17-011
+    tipo: conjunto
+    dificultad: 3
+    conceptos: [clases-equivalencia]
+    enunciado: >-
+      En $A=\{0,1,2,3\}^2$, sea $(a,b)R(c,d)$ si $\max(a,b)=\max(c,d)$. Es de equivalencia. Escribe la clase $[(1,2)]$, como `(1, 0), (3, 3)`.
+    respuesta: ["(0, 2)", "(1, 2)", "(2, 2)", "(2, 0)", "(2, 1)"]
+    verificar: { python: "(lambda A, r: {q for q in A if r(q, (1, 2))} if (lambda A, r: all(r(a,a) for a in A) and all(r(b,a) for a in A for b in A if r(a,b)) and all(r(a,c) for a in A for b in A if r(a,b) for c in A if r(b,c)))(A, r) else set())([(a, b) for a in range(4) for b in range(4)], lambda p, q: max(p) == max(q))" }
+    pistas:
+      - >-
+        ¿Cuál es la etiqueta de $(1,2)$?
+      - >-
+        Si el máximo de $(c,d)$ es esa etiqueta, ¿cuánto puede valer cada coordenada? ¿Contaste dos veces algún par?
+    explicacion: >-
+      Es de la forma $f(p)=f(q)$, con $f(a,b)=\max(a,b)$, y $f(1,2)=2$. Así, $[(1,2)]$ tiene los pares de $A$ con máximo 2: una coordenada vale 2 y la otra, a lo más 2. Con el 2 en la primera: $(2,0)$, $(2,1)$ y $(2,2)$; con el 2 en la segunda: $(0,2)$, $(1,2)$ y otra vez $(2,2)$. Son 5: $\{(0,2),(1,2),(2,2),(2,0),(2,1)\}$. Revisa: las clases de máximo 0, 1, 2 y 3 tienen 1, 3, 5 y 7 pares, que suman $16=4^2$, todos los de $A$.
+    tiempo_estimado_s: 75
+
+  # razonamiento: metacognitivo (revisar que las clases listadas sean iguales o disjuntas antes de aceptarlas) · R2
+  # De experto-matematicas, con (2, 5) para no delatar el 018; cierre de arquitecto-razonamiento. Rediseñado en la
+  # revisión (arreglos-17, M): el enunciado ya no dice que R no sea de equivalencia, ni qué falla, ni la forma de lo que
+  # falta; lo pregunta el 2.º hueco y lo dice la explicación. Pistas 1 y 3 de L y P.
+  # Hace par con disc-16-009 en el jefe (los dos cierran una relación). La explicación no dice que R sea la unión de
+  # dos equivalencias, porque eso tumbaría una opción del 018, que va en el mismo jefe.
+  # verificar: [2] ∩ [5] (0 si es vacía), int(EQ) con la plantilla de arriba, y el único (a, c) con a < c que agrega la
+  # cerradura transitiva, calculada hasta el punto fijo ((0, 0) si no agrega ninguno); devuelve [] si [2] ∩ [5] o esos
+  # pares tienen más de un elemento. Probado con respuestas alteradas y con tres R de control.
+  - id: disc-17-012
+    tipo: completar
+    dificultad: 3
+    conceptos: [particiones, relacion-equivalencia]
+    enunciado: >-
+      Sobre $A=\{1,2,3,4,5\}$, sea $R=I_A\cup\{(2,4),(4,2),(4,5),(5,4),(1,3),(3,1)\}$, donde $I_A=\{(a,a):a\in A\}$. Beto calcula $[a]=\{x\in A: xRa\}$ para tres elementos y obtiene $[2]=\{2,4\}$, $[4]=\{2,4,5\}$ y $[5]=\{4,5\}$; las tres cuentas están bien. Con eso da por hecho que $R$ es de equivalencia.
+    texto: >-
+      Elemento que comparten $[2]$ y $[5]$ (si no comparten ninguno, 0): ___ · ¿$R$ es de equivalencia? (1 sí, 0 no): ___ · par $(a,c)$, con $a<c$, que hay que agregarle, junto con su inverso, para que sea transitiva (si ya lo es, escribe 0 y 0): (___, ___)
+    respuestas: ["4", "0", "2", "5"]
+    verificar: { python: "(lambda A, R, EQ: (lambda C, T: (lambda K, P: [sorted(K)[0] if K else 0, int(EQ(A, lambda x, y: (x, y) in R))] + list(sorted(P)[0] if P else (0, 0)) if len(K) <= 1 and len(P) <= 1 else [])(C(2) & C(5), {(a, c) for (a, c) in T - R if a < c}))(lambda x: {y for y in A if (y, x) in R}, (lambda f: f(f, R))(lambda f, S: S if all((a, d) in S for (a, b) in S for (c, d) in S if b == c) else f(f, S | {(a, d) for (a, b) in S for (c, d) in S if b == c}))))([1, 2, 3, 4, 5], {(a, a) for a in range(1, 6)} | {(2,4),(4,2),(4,5),(5,4),(1,3),(3,1)}, (lambda A, r: all(r(a,a) for a in A) and all(r(b,a) for a in A for b in A if r(a,b)) and all(r(a,c) for a in A for b in A if r(a,b) for c in A if r(b,c))))" }
+    pistas:
+      - >-
+        ¿Qué condición de una partición deberían cumplir $[2]$ y $[5]$?
+      - >-
+        ¿Dos clases pueden compartir un elemento sin ser iguales?
+      - >-
+        Si tomas como intermedio el elemento que comparten, ¿qué par pide la transitiva?
+    explicacion: >-
+      **La revisión que faltó:** $[2]$ y $[5]$ son distintas, pero comparten el 4, y en una equivalencia dos clases son iguales o disjuntas. Eso basta para saber que $R$ no es de equivalencia, sin revisar par por par: 0. **Qué falla:** $R$ es reflexiva, porque contiene a $I_A$, y simétrica, porque cada par con coordenadas distintas viene con su inverso. Pero no es transitiva: $(2,4)$ y $(4,5)$ están en $R$, con el 4 de intermedio, y $(2,5)$ no. **El par que falta** es ese, $(2,5)$; su inverso, $(5,2)$, tampoco está, y lo piden $(5,4)$ y $(4,2)$. Con los dos agregados, la relación que queda ya es transitiva. Beto tampoco miró el 1 ni el 3: con los dos pares nuevos, las clases quedan $\{1,3\}$ y $\{2,4,5\}$, y entre las dos cubren $A$. ¿Qué revisión harás siempre al terminar de listar clases? Revisa: con los dos pares agregados, $[2]=[4]=[5]=\{2,4,5\}$.
+    tiempo_estimado_s: 120
+
+  # razonamiento: deductivo (|R| es la suma de los cuadrados de los tamaños; repartir 6 en 3 partes) · R2
+  # verificar: enumera las 6⁶ funciones de etiqueta con exactamente 3 valores y cuenta los pares de cada relación.
+  - id: disc-17-013
+    tipo: completar
+    dificultad: 3
+    conceptos: [conjunto-cociente]
+    enunciado: >-
+      Sobre un conjunto $A$ de 6 elementos, $R$ es una relación de equivalencia con exactamente 3 clases. ¿Cuántos pares puede tener $R$?
+    texto: >-
+      Menor número posible de pares de $R$: ___ · mayor número posible de pares de $R$: ___
+    respuestas: ["12", "18"]
+    verificar: { python: "(lambda S: [min(S), max(S)])({sum(1 for i in range(6) for j in range(6) if f[i] == f[j]) for f in itertools.product(range(6), repeat=6) if len(set(f)) == 3})" }
+    pistas:
+      - >-
+        ¿Cuántos pares de $R$ salen de una clase de $k$ elementos?
+      - >-
+        ¿De qué maneras se reparten 6 elementos en 3 clases no vacías? ¿Cuál da más pares y cuál menos?
+    explicacion: >-
+      Una clase de $k$ elementos aporta $k^2$ pares, todos los $(x,y)$ con $x$ y $y$ en ella, y ningún par de $R$ junta dos clases distintas. Así, $\lvert R\rvert$ es la suma de los cuadrados de los tamaños de las clases. Con 6 elementos en 3 clases no vacías, los tamaños pueden ser 4, 1 y 1; 3, 2 y 1; o 2, 2 y 2, que dan $16+1+1=18$, $9+4+1=14$ y $4+4+4=12$. El menor es 12, con las clases parejas, y el mayor es 18, con una clase grande. Revisa: con tamaños 2, 2 y 2, $R$ tiene los 6 pares $(a,a)$ y, por cada clase, un par con coordenadas distintas y su inverso: $6+6=12$.
+    tiempo_estimado_s: 90
+
+  # razonamiento: deductivo (encontrar la etiqueta, la parte impar, y probar cada afirmación con ella) · R2
+  # Hace par con disc-16-017 en el jefe (la opción «y = 2ᵏx, k ≥ 0», que es un orden parcial): antisimétrica contra
+  # simétrica. La explicación no menciona k ≥ 0, ni el signo de k, ni la antisimetría, ni órdenes.
+  # verificar: EQ en {1, …, 64}, con k de −8 a 8 (con Fraction), y cada afirmación.
+  - id: disc-17-014
+    tipo: seleccion_multiple
+    dificultad: 3
+    conceptos: [clases-equivalencia]
+    enunciado: >-
+      Sobre $\mathbb Z^+$, sea $x\sim y$ si $x/y=2^k$ para algún $k\in\mathbb Z$. Es de equivalencia. ¿Cuáles de estas afirmaciones son ciertas? Puede haber varias.
+    opciones:
+      - >-
+        $24\sim96$
+      - >-
+        $12\sim18$
+      - >-
+        $[40]$ tiene exactamente 5 elementos menores que 100.
+      - >-
+        Cada clase tiene exactamente un número impar.
+      - >-
+        $3\sim6$ y $6\sim12$, pero $3\nsim12$.
+    correctas: [0, 2, 3]
+    verificar: { python: "(lambda r, W: [r(24, 96), r(12, 18), sum(1 for y in range(1, 100) if r(y, 40)) == 5, all(sum(1 for y in W if y % 2 and r(y, x)) == 1 for x in W), r(3, 6) and r(6, 12) and not r(3, 12)] if (lambda A, r: all(r(a,a) for a in A) and all(r(b,a) for a in A for b in A if r(a,b)) and all(r(a,c) for a in A for b in A if r(a,b) for c in A if r(b,c)))(W, r) else [])(lambda x, y: any(Fraction(x, y) == Fraction(2) ** k for k in range(-8, 9)), range(1, 65))" }
+    pistas:
+      - >-
+        Si escribes cada número como una potencia de 2 por un impar, ¿qué tienen que compartir $x$ y $y$ para que $x/y$ sea una potencia de 2?
+      - >-
+        Con esa etiqueta, ¿cómo se ve la clase de un impar $m$?
+    explicacion: >-
+      Son ciertas «$24\sim96$», «$[40]$ tiene exactamente 5 elementos menores que 100» y «cada clase tiene exactamente un impar»; las otras dos no. **La etiqueta:** todo entero positivo se escribe como $2^jm$, con $m$ impar, su parte impar. Al dividir dos de ellos, las potencias de 2 dan otra potencia de 2, y el cociente de las partes impares, $m/m'$, es una potencia de 2 si y solo si $m=m'$, porque los dos son impares. Así, $x\sim y$ si y solo si tienen la misma parte impar: es de la forma $f(x)=f(y)$. **Las afirmaciones:** $96/24=4=2^2$, así que $96\sim24$, y por la simétrica, $24\sim96$. $12=2^2\cdot3$ y $18=2\cdot9$ tienen partes impares distintas, 3 y 9. $40=2^3\cdot5$, así que $[40]=\{5,10,20,40,80,160,\dots\}$, con 5 elementos menores que 100. Cada clase es $\{m,2m,4m,\dots\}$, y su único impar es $m$. Y con $3\sim6$ y $6\sim12$, la transitividad obliga a $3\sim12$; de hecho, $12/3=4=2^2$, así que $12\sim3$, y por la simétrica, $3\sim12$. Revisa: en $[40]$, el que sigue del 80 es el 160, que ya pasa de 100.
+    tiempo_estimado_s: 90
+
+  # razonamiento: deductivo (demostrar con la definición de 3 ∣ n, una letra por «existe», y las dos direcciones) · R3
+  # Datos y respuesta modelo de experto-matematicas; rúbrica con la estructura de arquitecto-razonamiento. Revisión
+  # manual. La respuesta modelo cumple cada criterio: escribe la definición y prueba con enteros cualesquiera (1),
+  # nombra cada propiedad con letras distintas, k y m (2), parte del c común y nombra la simétrica y la transitiva (3),
+  # y prueba los dos sentidos de la descripción de las clases con 3 ∣ (a − b)(a + b) y que 3 es primo (4). Desde la
+  # revisión, el criterio 4 acepta también la vía de los residuos de los cuadrados (arreglos-17, M).
+  - id: disc-17-015
+    tipo: autoevaluacion
+    dificultad: 4
+    conceptos: [relacion-equivalencia, clases-equivalencia]
+    enunciado: >-
+      En papel. Sobre $\mathbb Z$, sea $a\sim b$ si $3\mid a^2+2b^2$. Escribe la definición de $3\mid n$ antes de usarla. **(1)** Demuestra que $\sim$ es de equivalencia. **(2)** Demuestra que, en cualquier relación de equivalencia, dos clases son iguales o disjuntas. **(3)** Describe las clases de $\sim$ y demuestra tu descripción.
+    rubrica:
+      - >-
+        Escribe «$3\mid n$ si existe $k\in\mathbb Z$ con $n=3k$» y prueba cada propiedad con enteros cualesquiera, no con ejemplos. Reflexiva: $a^2+2a^2=3a^2$, con $a^2\in\mathbb Z$.
+      - >-
+        Nombra cada propiedad y usa una letra distinta para cada «existe». Simétrica: de $a^2+2b^2=3k$ llega a $b^2+2a^2=3(a^2+b^2-k)$. Transitiva: de $a^2+2b^2=3k$ y $b^2+2c^2=3m$ llega a $a^2+2c^2=3(k+m-b^2)$.
+      - >-
+        Para «iguales o disjuntas», parte de un $c$ que esté en $[a]$ y en $[b]$, y dice dónde usa la simétrica y dónde la transitiva para llegar a $[a]=[b]$.
+      - >-
+        Describe dos clases, los múltiplos de 3 y los que no lo son, y prueba los dos sentidos: de $a\sim b$ a «los dos son múltiplos de 3 o ninguno lo es», y de vuelta. Justifica el paso clave: que 3 es primo (de $3\mid(a-b)(a+b)$ sale $3\mid a-b$ o $3\mid a+b$) o que $a^2$ deja residuo 0 entre 3 si $3\mid a$, y 1 si no.
+    respuesta_modelo: >-
+      Uso la definición: $3\mid n$ si existe $k\in\mathbb Z$ con $n=3k$. Sean $a,b,c\in\mathbb Z$ cualesquiera. **(1) Reflexiva:** $a^2+2a^2=3a^2$, con $a^2\in\mathbb Z$, así que $a\sim a$. **Simétrica:** si $a\sim b$, hay $k\in\mathbb Z$ con $a^2+2b^2=3k$; entonces $b^2+2a^2=3(a^2+b^2)-(a^2+2b^2)=3(a^2+b^2-k)$, con $a^2+b^2-k\in\mathbb Z$, así que $b\sim a$. **Transitiva:** si $a\sim b$ y $b\sim c$, hay $k,m\in\mathbb Z$ con $a^2+2b^2=3k$ y $b^2+2c^2=3m$; entonces $a^2+2c^2=(a^2+2b^2)+(b^2+2c^2)-3b^2=3(k+m-b^2)$, así que $a\sim c$. **(2)** Sea $R$ de equivalencia y supón que $[a]$ y $[b]$ comparten un $c$: $cRa$ y $cRb$. Por la simétrica, $aRc$; con $cRb$, la transitiva da $aRb$. Entonces $[a]=[b]$: si $xRa$, la transitiva con $aRb$ da $xRb$; si $xRb$, la simétrica da $bRa$ a partir de $aRb$, y la transitiva, $xRa$. Así, dos clases que comparten un elemento son iguales, y si no comparten ninguno son disjuntas. **(3)** Como $a^2+2b^2=(a^2-b^2)+3b^2$, se cumple $3\mid a^2+2b^2$ si y solo si $3\mid a^2-b^2=(a-b)(a+b)$; y como 3 es primo, si y solo si $3\mid a-b$ o $3\mid a+b$. *Ida:* si $3\mid a-b$ o $3\mid a+b$, entonces $b=\pm a+3t$ para algún $t\in\mathbb Z$, así que $3\mid b$ si y solo si $3\mid a$: los dos son múltiplos de 3 o ninguno lo es. *Vuelta:* si los dos son múltiplos de 3, $3\mid a-b$. Si ninguno lo es, sus residuos al dividir entre 3 son 1 o 2; si son iguales, $3\mid a-b$, y si son distintos, suman 3 y $3\mid a+b$. Hay dos clases: los múltiplos de 3, que es $[0]$, y los que no lo son, que es $[1]$. Revisa: $1\sim2$, porque $1+8=9$, y $1\nsim3$, porque $1+18=19$.
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        ¿Qué dice $3\mid n$ con un «existe»? ¿Lo escribiste antes que nada?
+      - >-
+        Para la simétrica, ¿cómo escribes $b^2+2a^2$ usando $a^2+2b^2$ y múltiplos de 3? ¿Usaste una letra distinta para cada «existe» en la transitiva?
+      - >-
+        ¿Qué tiene que ver $a^2+2b^2$ con $a^2-b^2$? ¿Probaste los dos sentidos de tu descripción?
+    explicacion: >-
+      **La definición primero:** $3\mid n$ si existe $k\in\mathbb Z$ con $n=3k$; cada propiedad termina en «es 3 por un entero». **Simétrica:** se escribe $b^2+2a^2=3(a^2+b^2)-(a^2+2b^2)$, que es 3 por un entero. **Transitiva:** se suman las dos hipótesis y se quita $3b^2$. Con la misma $k$ en las dos, solo probaste el caso en que los dos cocientes coinciden. **Iguales o disjuntas:** el $c$ común es el intermedio; la simétrica voltea $cRa$, la transitiva da $aRb$, y con eso las dos clases tienen los mismos elementos. **Las clases:** $a^2+2b^2$ y $a^2-b^2$ difieren en $3b^2$, así que la condición es $3\mid(a-b)(a+b)$. Un error común es probar un solo sentido, o creer que un no múltiplo de 3 se relaciona nada más con los de su mismo residuo: $1\sim2$, porque $1+2\cdot2^2=9$. Revisa: $2\sim4$, porque $4+32=36$, y $3\sim6$, porque $9+72=81$.
+    tarjeta: false
+    tiempo_estimado_s: 360
+
+  # razonamiento: algorítmico (contar particiones por la forma de sus bloques) · R2
+  # verificar: enumera las 2¹⁶ relaciones sobre {1, 2, 3, 4}, se queda con las equivalencias y cuenta por definición.
+  - id: disc-17-016
+    tipo: completar
+    dificultad: 4
+    conceptos: [particiones, conjunto-cociente]
+    enunciado: >-
+      Cuenta las relaciones de equivalencia sobre $\{1,2,3,4\}$, y entre ellas, las de cada tipo que se pide.
+    texto: >-
+      Número de relaciones de equivalencia: ___ · número de ellas con al menos una clase de exactamente 2 elementos: ___ · número de ellas que contienen el par $(1,2)$ pero no el $(1,3)$: ___
+    respuestas: ["15", "9", "3"]
+    verificar: { python: "(lambda A: (lambda E: [len(E), sum(1 for R in E if any(sum(1 for y in A if (y, x) in R) == 2 for x in A)), sum(1 for R in E if (1, 2) in R and (1, 3) not in R)])([R for R in ({p for i, p in enumerate([(a, b) for a in A for b in A]) if m >> i & 1} for m in range(2 ** 16)) if all((a, a) in R for a in A) and all((b, a) in R for (a, b) in R) and all((a, d) in R for (a, b) in R for (c, d) in R if b == c)]))([1, 2, 3, 4])" }
+    pistas:
+      - >-
+        ¿Qué cuentas en realidad: relaciones o maneras de repartir $\{1,2,3,4\}$ en bloques?
+      - >-
+        ¿De qué formas, por los tamaños de sus bloques, se reparten 4 elementos? ¿Cuántas particiones hay de cada forma?
+      - >-
+        Tener $(1,2)$ y no $(1,3)$, ¿qué dice de los bloques del 1, del 2 y del 3? ¿A dónde puede ir el 4?
+    explicacion: >-
+      Cada equivalencia sobre $\{1,2,3,4\}$ da una partición y cada partición da una equivalencia, así que se cuentan particiones, por la forma de sus bloques. **Un bloque de 4:** 1. **3 y 1:** se elige el que va aparte, 4. **2 y 2:** el 1 va con uno de los otros tres, y los dos que quedan van juntos: 3. **2, 1 y 1:** se elige la pareja, de 6 maneras ($\{1,2\}$, $\{1,3\}$, …, $\{3,4\}$). **Cuatro de 1:** la igualdad, 1. Total, $1+4+3+6+1=15$. **Con al menos una clase de 2:** las formas 2 y 2, y 2, 1 y 1: $3+6=9$. **Con $(1,2)$ y sin $(1,3)$:** el 1 y el 2 van en el mismo bloque y el 3 en otro; el 4 puede ir con el 3, con el 1 y el 2, o en un bloque aparte: $\{1,2\},\{3,4\}$; $\{1,2,4\},\{3\}$; y $\{1,2\},\{3\},\{4\}$, que son 3. Revisa: de las 15, juntan al 1 con el 2 cinco (estas tres, la de un bloque y $\{1,2,3\},\{4\}$), y de esas cinco, dos también tienen $(1,3)$: $5-2=3$.
+    tiempo_estimado_s: 150
+
+  # razonamiento: algorítmico (una clase por producto; contar factorizaciones con orden) · R2
+  # verificar: las clases de «mismo producto» en {1, …, 6}², su tamaño máximo y cuántas lo alcanzan.
+  - id: disc-17-017
+    tipo: completar
+    dificultad: 4
+    conceptos: [conjunto-cociente, clases-equivalencia]
+    enunciado: >-
+      En $A=\{1,2,\dots,6\}^2$, sea $(a,b)R(c,d)$ si $ab=cd$. Es de equivalencia.
+    texto: >-
+      Número de clases: ___ · mayor número de elementos que tiene una clase: ___ · número de clases con ese número de elementos, contándolas todas: ___
+    respuestas: ["18", "4", "2"]
+    verificar: { python: "(lambda A: (lambda C: [len(C), max(map(len, C)), sum(1 for K in C if len(K) == max(map(len, C)))])({frozenset(q for q in A if q[0] * q[1] == p[0] * p[1]) for p in A}))([(a, b) for a in range(1, 7) for b in range(1, 7)])" }
+    pistas:
+      - >-
+        ¿Qué etiqueta comparten los pares de una misma clase?
+      - >-
+        ¿Cuántos productos distintos salen de dos números del 1 al 6? ¿Cómo los cuentas sin repetir?
+      - >-
+        ¿Qué productos se pueden escribir de más maneras? ¿Contaste $(a,b)$ y $(b,a)$ por separado?
+    explicacion: >-
+      Es de la forma $f(p)=f(q)$, con $f(a,b)=ab$: hay una clase por cada producto distinto. **Productos:** de la tabla del 1 al 6 salen 1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 16, 18, 20, 24, 25, 30 y 36, así que hay 18 clases. **Las más grandes:** cada producto $a\cdot b$ con $a\neq b$ da dos pares, $(a,b)$ y $(b,a)$, y uno con $a=b$ da uno. Para llegar a 4 pares, un producto necesita dos factorizaciones con factores distintos, y nada más el 6 ($1\cdot6$ y $2\cdot3$) y el 12 ($2\cdot6$ y $3\cdot4$) las tienen. Ningún producto tiene tres, así que el máximo es 4 y lo alcanzan 2 clases. El 4 ($1\cdot4$ y $2\cdot2$) da 3, porque $(2,2)$ cuenta una vez. Revisa: hay 5 clases de 1 par (1, 9, 16, 25 y 36), 1 de 3, 2 de 4 y las 10 restantes de 2, y $5+3+8+20=36=6^2$.
+    tiempo_estimado_s: 120
+
+  # razonamiento: deductivo (tumbar un «siempre» con un caso chico o demostrarlo con las tres propiedades) · R4
+  # De experto-matematicas, con un solo contraejemplo para las dos falsas; pistas de arquitecto-razonamiento (la 2.ª,
+  # pasada a pregunta en la revisión).
+  # verificar: las 15 equivalencias sobre {1, 2, 3, 4} y sus 225 parejas (R, S), con S∘R «primero R».
+  - id: disc-17-018
+    tipo: seleccion_multiple
+    dificultad: 5
+    conceptos: [relacion-equivalencia, particiones]
+    enunciado: >-
+      Sean $R$ y $S$ relaciones de equivalencia sobre el mismo conjunto $A$, con $S\circ R$ como en la unidad 15: «primero $R$, luego $S$». ¿Cuáles de estas afirmaciones valen siempre? Puede haber varias.
+    opciones:
+      - >-
+        $R\cap S$ es de equivalencia.
+      - >-
+        $R\cup S$ es de equivalencia.
+      - >-
+        $R\circ R=R$.
+      - >-
+        $S\circ R$ es de equivalencia.
+      - >-
+        Si $R\subseteq S$, cada clase de $S$ es una unión de clases de $R$.
+    correctas: [0, 2, 4]
+    verificar: { python: "(lambda A: (lambda E, iseq, comp, cl: [all(iseq(R & S) for R in E for S in E), all(iseq(R | S) for R in E for S in E), all(comp(R, R) == R for R in E), all(iseq(comp(R, S)) for R in E for S in E), all(cl(S, a) == set().union(*[cl(R, x) for x in cl(S, a)]) for R in E for S in E if R <= S for a in A)])([R for R in ({p for i, p in enumerate([(a, b) for a in A for b in A]) if m >> i & 1} for m in range(2 ** 16)) if all((a, a) in R for a in A) and all((b, a) in R for (a, b) in R) and all((a, d) in R for (a, b) in R for (c, d) in R if b == c)], lambda R: all((a, a) in R for a in A) and all((b, a) in R for (a, b) in R) and all((a, d) in R for (a, b) in R for (c, d) in R if b == c), lambda R, S: {(a, c) for (a, b) in R for (b2, c) in S if b == b2}, lambda R, x: {y for y in A if (y, x) in R}))([1, 2, 3, 4])" }
+    pistas:
+      - >-
+        ¿Qué basta para tumbar un «siempre» y qué hace falta para aceptarlo? ¿Cuál de las tres propiedades podría romperse?
+      - >-
+        ¿Qué pasa en un caso chico, con dos particiones distintas de $\{1,2,3\}$? Si listas los pares de cada relación, ¿su unión y su intersección cumplen las tres propiedades?
+      - >-
+        Si $(a,c)\in R\circ R$, ¿qué intermedio existe? Si $(a,b)\in R$, ¿puedes escribirlo como composición de dos pares de $R$? ¿Qué propiedad no usaste?
+    explicacion: >-
+      Valen siempre «$R\cap S$ es de equivalencia», «$R\circ R=R$» y «si $R\subseteq S$, cada clase de $S$ es unión de clases de $R$»; fallan «$R\cup S$» y «$S\circ R$». **Un contraejemplo para las dos:** sobre $\{1,2,3\}$, $R$ la de la partición $\{1,2\},\{3\}$ y $S$ la de $\{1\},\{2,3\}$. $R\cup S$ tiene $(1,2)$ y $(2,3)$, pero no $(1,3)$: no es transitiva. $S\circ R$ tiene $(1,3)$, por $1R2$ y $2S3$, pero no $(3,1)$, porque $R$ lleva el 3 nada más al 3, y $S$ lleva el 3 al 2 y al 3: no es simétrica. **$R\cap S$:** cada propiedad pasa a la intersección; $(a,a)$ está en las dos, si $(a,b)$ está en las dos también $(b,a)$, y si $(a,b)$ y $(b,c)$ están en las dos, también $(a,c)$. **$R\circ R=R$:** si $(a,c)\in R\circ R$, hay un intermedio $b$ con $aRb$ y $bRc$, y la transitiva da $aRc$; al revés, si $aRb$, con $aRa$ (reflexiva) queda $(a,b)\in R\circ R$, con intermedio $a$. La simétrica no se usa. **Las clases:** si $R\subseteq S$ y $x$ está en una clase $K$ de $S$, todo lo que $R$ relaciona con $x$ también lo relaciona $S$, y la clase de $x$ según $S$ es $K$, por el lema, así que la clase de $x$ según $R$ cabe en $K$; al juntar esas clases, una por cada $x\in K$, sale $K$ completa. Revisa: en el contraejemplo, $R\cap S=I_A$, que sí es de equivalencia, con clases $\{1\}$, $\{2\}$ y $\{3\}$.
+    tiempo_estimado_s: 180
+
+  # razonamiento: analógico (factorizar la etiqueta y ligar «misma imagen» con la inyectividad de la 15) · R2
+  # Hace par con disc-15-024 en el jefe: inyectiva si y solo si todas las clases de «misma imagen» tienen un elemento.
+  # verificar: EQ de f(x) = f(y) en {1, …, 20}, el número de clases, los que no están solos y el otro de [3].
+  - id: disc-17-019
+    tipo: completar
+    dificultad: 5
+    conceptos: [clases-equivalencia, conjunto-cociente]
+    enunciado: >-
+      En $A=\{1,2,\dots,20\}$, sea $xRy$ si $x^2-10x=y^2-10y$. Es de equivalencia.
+    texto: >-
+      Número de clases: ___ · número de elementos de $A$ cuya clase tiene más de un elemento: ___ · elemento de $[3]$ distinto del 3: ___
+    respuestas: ["16", "8", "7"]
+    verificar: { python: "(lambda A, f: (lambda C: [len(C), sum(len(K) for K in C if len(K) > 1), [y for y in A if f(y) == f(3) and y != 3][0]])({frozenset(y for y in A if f(y) == f(x)) for x in A}) if (lambda A, r: all(r(a,a) for a in A) and all(r(b,a) for a in A for b in A if r(a,b)) and all(r(a,c) for a in A for b in A if r(a,b) for c in A if r(b,c)))(A, lambda x, y: f(x) == f(y)) else [])(range(1, 21), lambda x: x * x - 10 * x)" }
+    pistas:
+      - >-
+        ¿Qué etiqueta comparten los elementos de una misma clase?
+      - >-
+        Si pasas todo a un lado, ¿cómo se factoriza $x^2-y^2-10(x-y)$?
+      - >-
+        Si $y\neq x$, ¿cuánto tiene que valer $x+y$? ¿Para qué $x$ de $A$ ese $y$ también está en $A$?
+    explicacion: >-
+      Es de la forma $f(x)=f(y)$, con $f(x)=x^2-10x$. **La clave:** $f(x)-f(y)=(x-y)(x+y)-10(x-y)=(x-y)(x+y-10)$, así que $xRy$ si y solo si $y=x$ o $y=10-x$. **En $A$:** $10-x$ está en $A$ si $x\le9$. Así se juntan el 1 con el 9, el 2 con el 8, el 3 con el 7 y el 4 con el 6; el 5 es su propio $10-x$, y del 10 al 20 cada uno queda en una clase de un elemento, porque $10-x\le0$. **Cuentas:** 4 clases de dos elementos, más $\{5\}$, más 11 clases del 10 al 20: 16 clases. Están en una clase de más de un elemento 8 números, y $[3]=\{3,7\}$. **La liga con la unidad 15:** $f$ es inyectiva en $A$ si y solo si todas las clases de «misma imagen» tienen un elemento; aquí no lo es, porque junta, por ejemplo, al 3 con el 7. Revisa: $f(3)=9-30=-21$ y $f(7)=49-70=-21$.
+    tiempo_estimado_s: 150
+
+  # razonamiento: analógico (llevar «buscar duplicados» a «misma etiqueta» y reconocer un parecido no transitivo) · R2
+  # Transferencia, hipotético (registros de experto-matematicas). El ejemplo de la regla, «Lima», no está en la lista.
+  # verificar: normaliza cada registro (minúsculas, sin vocales), cuenta las clases y el tamaño de [peso], y revisa la
+  # transitividad de «misma longitud y a lo más una posición distinta» en las 11³ ternas.
+  - id: disc-17-020
+    tipo: completar
+    dificultad: 5
+    conceptos: [clases-equivalencia, conjunto-cociente]
+    enunciado: >-
+      Supón que una base de datos tiene estos 11 registros: Casa, cosa, CASO, queso, cesa, piso, paso, peso, pesa, masa y pisa. Para buscar duplicados, dos registros se consideran equivalentes si quedan iguales al pasarlos a minúsculas y quitarles las vocales (a, e, i, o, u); por ejemplo, «Lima» queda «lm». En el hueco de sí o no, escribe 1 (sí) o 0 (no).
+    texto: >-
+      Número de clases: ___ · número de registros en la clase de «peso»: ___ · otra regla, «tienen la misma longitud y, sin distinguir mayúsculas, difieren a lo más en una posición», ¿es transitiva sobre estos 11 registros? ___
+    respuestas: ["4", "5", "0"]
+    verificar: { python: "(lambda W, f, h: [len({frozenset(v for v in W if f(v) == f(w)) for w in W}), sum(1 for v in W if f(v) == f('peso')), int(all(h(a, c) for a in W for b in W for c in W if h(a, b) and h(b, c)))])(['Casa', 'cosa', 'CASO', 'queso', 'cesa', 'piso', 'paso', 'peso', 'pesa', 'masa', 'pisa'], lambda w: ''.join(ch for ch in w.lower() if ch not in 'aeiou'), lambda u, v: len(u) == len(v) and sum(1 for i in range(len(u)) if u.lower()[i] != v.lower()[i]) <= 1)" }
+    pistas:
+      - >-
+        ¿Qué etiqueta le toca a cada uno de los 11 registros?
+      - >-
+        Dos registros quedan en la misma clase si y solo si tienen la misma etiqueta: ¿cuántas etiquetas distintas hay?
+      - >-
+        Para la otra regla, ¿puedes ir de un registro a otro cambiando una letra a la vez y terminar en uno que difiere en dos posiciones del primero?
+    explicacion: >-
+      La regla es de la forma $f(x)=f(y)$, con $f$ «a minúsculas y sin vocales», así que es de equivalencia y hay una clase por etiqueta. **Etiquetas:** «cs» para Casa, cosa, CASO y cesa; «qs» para queso; «ps» para piso, paso, peso, pesa y pisa; y «ms» para masa. Son 4 clases, y la de peso tiene 5 registros. **La otra regla** es de parecido, y el parecido no siempre es transitivo: peso y pesa difieren en una posición, y pesa y pisa en otra, pero peso y pisa difieren en dos. Por eso no reparte en clases: 0. Revisa: los tamaños suman $4+1+5+1=11$.
+    tiempo_estimado_s: 150

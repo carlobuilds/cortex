@@ -7,9 +7,11 @@ Cada fase termina con la app **funcionando y usable**. Una fase no se cierra has
 - [ ] `pnpm typecheck`, `pnpm lint` y `pnpm test` en verde
 - [ ] `python scripts/verify_content.py` en verde
 - [ ] Flujo principal probado a mano (y con Playwright cuando aplique)
-- [ ] `ESTADO.md` actualizado (checklist, decisiones, bitácora)
+- [ ] `ESTADO.md` actualizado (checklist y decisiones), con su entrada en `docs/bitacora.md` y los ADRs nuevos en `docs/adrs.md`
 - [ ] Commit con mensaje claro; etiqueta git `fase-N`
 - [ ] Carlo hizo una sesión real de ~20 min y anotó qué se sintió aburrido o confuso
+- [ ] Si la fase tocó la UI: probado en el iPad real (desde la Fase 3.5)
+- [ ] Si tocó una superficie de seguridad: revisión de `experto-ciberseguridad` sin bloqueos
 
 ## Orden de materias (ajustable)
 
@@ -20,7 +22,8 @@ Carlo pidió empezar por **bases duras, fundamentos económicos y fundamentos de
 | 0 | Fundaciones técnicas | Todo se apoya aquí |
 | 1 | Motor de aprendizaje + gamificación + unidad piloto | Sin enganche no hay hábito |
 | 2 | Fundamentos de programación (Python + C) | Retroalimentación rápida, ancla la identidad de builder, y se reutiliza en las demás fases |
-| 3 | Cálculo + Matemáticas discretas | Primeras bases duras |
+| 3 | Cálculo + Matemáticas discretas | Primeras bases duras. Tras el CP1, el **sprint del parcial** escribe primero las unidades del próximo examen real |
+| 3.5 | v1.1 · iPad (PWA), Pizarra, Sync y coach vivo | Lleva el lápiz al iPad y une el progreso Mac ↔ iPad; entra después del sprint del parcial |
 | 4 | Mecánica y electromagnetismo | Es de 1er semestre y cuesta; necesita Cálculo (va justo después) |
 | 5 | Fundamentos económicos | Respiro conceptual y casos reales entre materias pesadas |
 | 6 | Álgebra lineal | Base de ML |
@@ -80,9 +83,92 @@ Carlo pidió empezar por **bases duras, fundamentos económicos y fundamentos de
 ## Fase 3 · Cálculo + Matemáticas discretas
 
 - **Cálculo:** límites, continuidad, derivadas (reglas, cadena, implícita), aplicaciones (optimización, razones relacionadas, aproximación lineal), integral definida e indefinida, Teorema Fundamental, técnicas de integración, aplicaciones de la integral. Alinear con el programa oficial.
-- **Matemáticas discretas:** lógica proposicional y de predicados, conjuntos, relaciones y funciones, conteo y combinatoria, inducción, recurrencias, teoría de grafos básica.
+- **Matemáticas discretas:** las 4 unidades del programa oficial: I lógica (equivalencias, inferencias y demostraciones, cuantificadores), II conjuntos (álgebra, cardinalidad, potencia y producto cartesiano), III enteros (divisibilidad, Euclides, inducción, sistemas de numeración) y IV estructuras discretas (álgebra booleana y Karnaugh, relaciones, orden y equivalencia, módulo n, grafos y árboles). En Cortex son 21 unidades. Conteo y recurrencias no están en el programa; entran al final como extra (unidades 22 y 23). Temario en `ESTADO.md`.
 - Plataforma nueva: visualizaciones interactivas con Mafs (pendiente, secante→tangente, área bajo curva); simulador de tablas de verdad.
 - **DoH:** ambas materias jugables con jefe por unidad y un jefe final cada una; simulacro de examen disponible.
+
+### v1 · Equipo y coach (2026-11-10, antes del CP1)
+Transversal de herramientas, no toca la app: equipo de 19 agentes (`docs/08`), comandos `/consejo`, `/equipo` y `/coach`, cercas de los agentes y el MCP de Cortex con métricas agregadas y KPIs institucionales (ADR-024 a ADR-026).
+
+### Sprint del parcial de Cálculo (después del CP1)
+Carlo tiene parcial de Cálculo en menos de 4 semanas. Antes de la Fase 3.5:
+- **Temas y orden:** Carlo dice qué cubre el examen; el coach lee la fecha en Calendar, y `/consejo` (`experto-matematicas`, `pedagogo`, `cientifico-memoria`) ordena las unidades 00 a 09 según el examen y el tiempo disponible. Las 08 y 09 (Unidad IV) entraron el 2026-11-10 porque el 3.er parcial la cubre; la decisión y el orden están en `ESTADO.md`.
+- **Por unidad:** `/nueva-unidad` → `pnpm content:check` → `/revisar-contenido`. Si faltan unidades previas, el `repaso_de` del jefe usa solo las que existen.
+- **Cierre del ciclo:** simulacro unos días antes → parcial real → `/coach parcial calculo`, que registra la calificación y da el primer punto de calibración.
+
+## Fase 3.5 · v1.1 · iPad (PWA), Pizarra, Sync y coach vivo
+Se planea en detalle al arrancarla (modo plan + `/consejo`). Visión y catálogo de ideas en `docs/09`. Esqueleto:
+
+**Adelantado antes del parcial (v1.1 mínima, decisión de Carlo del 2026-11-16).** Para estudiar en el iPad antes del 3.er parcial de Cálculo:
+- del paso 1, `pnpm build:pwa` sin runner de C. El VPS no lleva Caddy con TLS propio: el sitio estático vive detrás del Traefik compartido (ADR-029);
+- del paso 2, el spike C, que es el CP-iPad de `docs/09`;
+- del paso 4, solo lo táctil mínimo (botones de 44 pt, teclado de fórmulas, sin teclado físico), más el manifiesto y el service worker;
+- del paso 7, un despliegue mínimo en `cortex.carlogarza.dev`, público sin indexar;
+- el puente de respaldo con aviso (ADR-028), que es temporal hasta el sync.
+
+Después del parcial sigue el orden original: 0 (deuda) → 2 (spikes A y B) → 3 (eventos) → 4 (pizarra) → 5 (relay y sync, con la CSP estricta antes del token) → 6 (coach vivo) → 7 (simulacro de restauración y cierre).
+
+**0. Deuda del sprint del parcial (antes del paso 1).** En las revisiones de las unidades 03 a 09 y del esquema de la 02 salieron arreglos que hoy el contenido esquiva desde el enunciado. Se pasaron aquí por decisión de Carlo el 2026-11-13. La lista detallada está en `ESTADO.md`, sección «Para la Fase 3.5 · deuda del sprint del parcial».
+- **Entrada de respuestas** (`src/engine/answers/`):
+  - `sen^(-1)` y `tan^(-1)` se leen como el recíproco, y `cos x^2` como $\cos(x)^2$, sin avisar;
+  - con `\b` en los alias fallan las funciones pegadas a un número (`2sen(x)`);
+  - el «−» tipográfico no se reconoce en los huecos, y los huecos de `completar` no aceptan ∞;
+  - el separador de miles se lee mal;
+  - faltan alias y funciones (`asec`, `acoth`, `ctg`…);
+  - `±` en un `conjunto`;
+  - la $y'$ implícita se compara fuera de la curva.
+- **Verificador:** `verify_content.py` tiene que leer las respuestas igual que la app (alias y precedencia), y hay que documentar en `docs/07` las trampas de sympy (laterales de Piecewise y ramas de `integrate`).
+- **Visuales y lección interactiva:**
+  - etiqueta y fórmula ocultable en `grafica`;
+  - funciones por partes;
+  - huecos y saltos que hoy no se detectan;
+  - `limite` con $e^{1/x}$;
+  - un triángulo para la sustitución trigonométrica;
+  - un `<Desvanecido>` que revele los pasos uno por uno.
+- **Motor de práctica:** el ejemplo resuelto de `workedExampleFor` debe preferir el mismo tipo y el primer concepto, y no ofrecer uno más difícil que el ancla.
+
+Este paso entra antes de los spikes porque el spike B (respuesta en el iPad) usa la misma entrada de respuestas. Cada arreglo va por `/equipo` con su prueba. Si cambia cómo se califica, hay que volver a correr `pnpm content:check` y `real-answers` sobre todo el contenido.
+
+1. **VPS y build del iPad:**
+   - VPS base: Caddy, TLS y firewall con 22, 80 y 443;
+   - `pnpm build:pwa`, export estático **sin el runner de C** (`api/run-c` pasa a `route.local.ts`).
+2. **Spikes en el iPad real**, y después **CP-A** de Carlo (go o no-go):
+   - **A · tinta:** retraso de ~30 ms o menos respecto a Notas, 0 trazos perdidos en 100, sin marcas de palma en 5 min, nota de Carlo ≥ 4/5. La presión no cuenta (Pencil USB-C);
+   - **B · respuesta:** Scribble vs MathLive con teclado virtual vs opciones;
+   - **C · PWA:** instalación, modo avión y datos que sobreviven 8 días sin usarla.
+3. **Eventos:**
+   - registro de eventos con un reductor puro `applyEvent` (paso a paso = reconstrucción) y Dexie v3 con `uid` y la tabla `events`;
+   - `progress.ts` sobre eventos y respaldo formato 2.
+
+   Hoy hay estado no reproducible (cofre con azar real, misiones por dispositivo), así que el evento guarda el hecho.
+4. **Tinta:**
+   - códec puro y `<Pizarra>` web (Pointer Events, solo `pen` dibuja);
+   - UI adaptada al iPad: botón para cada atajo, objetivos de al menos 44 pt, teclado virtual de MathLive;
+   - manifiesto y service worker: nunca cachea `/api` ni la sync, y sin `skipWaiting` a media sesión;
+   - la tinta aparece en `/cuaderno` y en la autopsia.
+5. **Sync:** relay en el VPS (Node + `node:sqlite`, tokens con hash y revocables) y cliente de sync.
+6. **Coach vivo:**
+   - el MCP lee el relay;
+   - herramienta `ink_page` (visión opt-in por petición);
+   - KPIs como eventos con su pantalla;
+   - catálogo de proyectos de la Ruta IA con nivel de rigor y el recomendador.
+7. **Deploy** y simulacro de restauración. El guardián de seguridad revisa el relay, el MCP y el deploy.
+
+**DoH:**
+- Mac e iPad terminan con el mismo hash de progreso después de estudiar sin conexión en ambos.
+- La tinta se ve en el cuaderno y el coach la lee si Carlo lo pide.
+- Python funciona sin red en el iPad y C se salta con aviso.
+- Revisión de seguridad aprobada, simulacro de restauración hecho y sesión real en los dos dispositivos.
+
+**Después (sin fecha):** iPad nativo con Capacitor + PencilKit, cuando haya espacio para Xcode. Reutiliza la build estática, los eventos y el formato de la tinta.
+
+## Pista paralela · Ruta de ingeniero en IA
+A menor ritmo que las fases del plan IPN (p. ej. 1–2 sesiones por semana). Primer paso: una sesión de diseño con `/consejo` (`experto-ia`, `pedagogo`, `cientifico-memoria`, `linguista`) que proponga:
+- módulos (ML, deep learning, apps con LLMs y evals, MLOps, lectura de papers en inglés técnico);
+- proyectos como jefes, con pruebas y nivel de rigor R0–R4;
+- prefijo de ids y ritmo.
+
+Carlo lo aprueba. Mismo formato de contenido (`docs/05`) y la misma verificación.
 
 ## Fase 4 · Mecánica y electromagnetismo
 
@@ -119,6 +205,6 @@ Una materia = datos + contenido, sin cambios de plataforma salvo mecánicas nuev
 
 ## Transversales (se entregan cuando su fase los necesite)
 - Simulacros de examen cronometrados por materia.
-- PWA y uso offline.
+- PWA y uso offline → pasó a la Fase 3.5.
 - Estadísticas semanales y "tú de hace 30 días" (re-aplicar el diagnóstico).
-- Respaldo automático con File System Access API.
+- Respaldo automático con File System Access API (solo en la Mac: Safari en iPad no la tiene; ahí el relay cumple esa función).

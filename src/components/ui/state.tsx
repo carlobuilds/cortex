@@ -101,9 +101,9 @@ export function StatTile({
   );
 }
 
-/** Tecla o atajo. En pantallas táctiles (sin puntero fino) no se muestra: ahí no hay teclado. */
+/** Tecla o atajo. En modo táctil (`touch:`) no se muestra: ahí no hay teclado. */
 export function Kbd({ className, ...props }: React.ComponentProps<"kbd">) {
-  return <kbd data-slot="kbd" className={cn("kbd [@media(pointer:coarse)]:hidden", className)} {...props} />;
+  return <kbd data-slot="kbd" className={cn("kbd touch:hidden", className)} {...props} />;
 }
 
 /** Anillo de progreso (0–1) con contenido al centro. `label` es lo que oye el lector de pantalla. */

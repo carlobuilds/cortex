@@ -1,0 +1,662 @@
+# Bitácora de Cortex
+
+Se movió desde `ESTADO.md` el 2026-11-16 (ADR-027), sin cambiar su texto. Lo más nuevo va arriba.
+
+**Regla desde el 2026-11-16:** una entrada por paso, de **máximo unas 8 líneas**: qué se hizo, evidencia (comandos y conteos) y hallazgos. El detalle largo va al mensaje del commit. Las entradas anteriores se quedan como están.
+
+- 2026-11-16 · **Resumen de estudio a Cuartel (ADR-030)** (`dev-sync` → `dev-interfaz` → `dev-infra`; guardián antes y después: apoyo, sin bloqueo).
+  - *Qué:* proxy local `POST /api/cuartel` (`route.local.ts`) que reenvía 7 cifras por día de los últimos 7 días a Cuartel con un token propio `cortex-mac` (solo `ingest`, `~/.cuartel/cortex-token`, sin plan B); interruptor por perfil en Ajustes (apagado por defecto) y avisos al cerrar sesión, jefe, simulacro y la sesión del día; marcadores de Cuartel en `check-out`.
+  - *Evidencia (sobre B7):* `pnpm lint` y `typecheck` limpios; 1518 unitarias en 60 archivos (incluye 81 de `src/sync/` y las de `check-out`); `build:pwa` con 5049 archivos, sin `api/` ni marcadores; e2e 36/36 (las 2 de `cuartel.spec.ts`: en 3100 la ruta da 403 y el log solo dice `cuartel: petición rechazada (HTTP 403, prohibido)`). `test:content` con el Python del checkout principal: 311/313. Las 2 fallas son del worktree: la cerca «en la carpeta de arriba» y `find-python` sin `.venv`. `test:e2e:pwa` no corrió: OrbStack no arrancó y falta el contenedor en `:3300`.
+  - *Hallazgos:* `start:e2e` (3100) y `cortex-verificacion` (3200) también corren con `CORTEX_LOCAL=1`, y el navegador integrado de Claude abre `localhost:3000` con su propio perfil: por eso hay `Origin` exacto **e** interruptor por perfil. `activeMs` trae decimales (suma `timeMs`): la proyección redondea. El `create-token` de Cuartel sugiere guardar en `~/.cuartel/token` (pisaría `mac-carlo`): el ADR da el comando con `tail -n 1`.
+- 2026-11-16 · **B7 · Docs de la v1.1 mínima.** `docs/01` (Fase 3.5) dice qué se adelantó antes del parcial y el orden de lo demás. `docs/09` suma «v1.1 mínima»: qué hay, el flujo del puente, los límites (no corre C, sin pizarra, un dispositivo a la vez, nunca «eliminar la app») y la lista del **CP-iPad** con criterios de `disenador-interaccion`. Pendiente de Carlo: levantar el VPS con `deploy/README.md`, la regla de `decideImportRisk` y el CP-iPad; el resultado va aquí.
+- 2026-11-16 · **B5 · `deploy/` para `cortex.carlogarza.dev` (ADR-029)** (`dev-infra`; revisión de código y guardián: objeción sin bloqueo, con visto bueno para el primer `publicar.sh` tras C1).
+  - *Qué:*
+    - compose `cortex` con `caddy:2.11.7-alpine` fijado por digest: `user 1000`, `read_only`, sin capacidades salvo `NET_BIND_SERVICE`, 64 MB, sin puertos y solo `traefik-public`, con healthcheck en `/healthz`;
+    - `Caddyfile` con los encabezados de E6, `/api/*` → 404, 405 con `Allow`, `try_files` con `.html` primero y 404 con encabezados aunque el sitio esté vacío;
+    - `publicar.sh` con árbol limpio, build desde cero, E1, `version.json`, guarda de esquema por HTTPS (`--primera`, `--forzar`), permisos 644/755, `--kill-sw` y `--solo-preparar`;
+    - runbook en `deploy/README.md`; override local en 3300 (`cortex-pwa` en `launch.json`).
+  - *Evidencia:*
+    - `test:e2e:pwa` 6/6 en Chromium y WebKit: encabezados, sin violaciones de CSP, sin conexión, Python y kill switch sin tocar IndexedDB;
+    - en el navegador integrado, consola limpia;
+    - con el contenedor apagado, la lección abre y Python da 4/4.
+    - `pnpm check` en verde (1429 unitarias, 313 de contenido), `test:e2e` 34/34 (sin los `pwa-*`) y `publicar.sh --solo-preparar` completo;
+    - dos veces se colgó `test:content` (un Python de la paridad YAML se queda esperando en `read()` el EOF de stdin y Node espera en `spawnSync`); la segunda corrida pasó. Es intermitente y anterior a la Parte B: queda como seguimiento.
+  - *Hallazgos:*
+    - el `rsync` de macOS (openrsync) rechaza `--chmod`, y Turbopack deja chunks en 664: `chmod` y `find` antes de subir;
+    - con el sitio vacío, el healthcheck sobre `robots.txt` dejaba el contenedor `unhealthy`, y Traefik lo ignora (sin router ni certificado);
+    - Chromium avisa con `web-share` en `Permissions-Policy`, así que se quitó (por defecto es `self`);
+    - `pnpm audit` marca `next` y `zod` (pendiente en ESTADO).
+- 2026-11-16 · **B4 · Puente de respaldo con aviso (ADR-028)** (`dev-sync` + `dev-interfaz`; revisión de código, `silent-failure-hunter` y guardián: objeción sin bloqueo, arreglos incluidos).
+  - *Qué:* `lastActivity` y `summarizeDevice` (por índices, con las filas sin índice contadas como ilegibles); `importRisk` en dos capas. La capa fija falla cerrado de los dos lados (fechas ilegibles, `exportedAt` ilegible o futuro, actividad posterior a la exportación, actividad local sin fecha) y la otra es la regla de Carlo (`decideImportRisk`, `TODO(Carlo)`), que mientras tanto siempre da «aviso». El diálogo muestra hechos en dos columnas, bloque de aviso, foco en Cancelar y «Guardar primero una copia». «Compartir (AirDrop)» usa un archivo preparado antes del toque y que nunca queda viejo. Zod con `jitless` (CSP); errores de importación acotados a 20 × 200 caracteres. ADR-029 (despliegue) redactado.
+  - *Evidencia:* lint, typecheck, 1429 unitarias (4 `todo` de la regla), 313 de contenido y `test:e2e` 34/34 (chromium 26, ipad 4, ipad-landscape 4); la e2e 9 exporta, importa y ve el aviso y los hechos. Un `test:content` corrido en paralelo con el e2e se colgó: un Python de la paridad YAML se quedó dormido. Solo, pasó (313 en 649 s).
+  - *Pendiente:* la regla de Carlo, y probar compartir en el iPad (Chromium no ofrece `canShare` de archivos).
+- 2026-11-16 · **B3 · Uso táctil, solo pantalla y Pencil** (`dev-interfaz`; revisión de código y de `disenador-interaccion`: objeción sin bloqueo, arreglos incluidos).
+  - *Qué:*
+    - variante `touch:` (`pointer: coarse` o el interruptor «Modo de entrada» de Ajustes, guardado en `localStorage` y aplicado por `INPUT_BOOT` antes de pintar);
+    - `Button` y controles a 44 pt; «Corregir mi respuesta» sin Esc; `inputMode="text"` en lo numérico; autofoco solo fuera de táctil;
+    - MathLive en `auto` con botón «Teclado de fórmulas»; `--kb` desde `visualViewport` (sin contar el zoom) y el teclado de MathLive, con la barra Comprobar/Pista pegada encima;
+    - barra de código con sangría, símbolos de Python o C y Deshacer; gimnasio con «Responder» y «±» sin perder el foco;
+    - `.kbd` oculto en táctil.
+  - *Evidencia:* `pnpm test` 1392; `test:e2e` 33/33 (Chromium 25, `ipad` 4, `ipad-landscape` 4). Las de WebKit usan solo toques, miden ≥ 44 pt en ejercicio, confianza, retroalimentación, lección y Ajustes, y comprueban que Comprobar queda sobre el teclado de fórmulas. En la Mac no cambia nada: atajos, `Kbd`, 40 px. La flaky de `exam.spec.ts` se arregló con `data-step` (8/8 repeticiones).
+  - *Hallazgos:* `next typegen` y un `pnpm dev` simultáneo corrompieron `.next/dev/types/validator.ts` (regla 5 de `docs/08`). `::part()` de MathLive no funciona dentro de `@variant`. Lo que solo se ve en el iPad va a la lista del CP-iPad (`docs/09`).
+- 2026-11-16 · **B2 · PWA instalable y sin conexión** (`dev-ipad` + `dev-interfaz`).
+  - *Qué:* `src/app/manifest.ts` (standalone, `#0E0C19`, íconos 192/512 y maskable); `scripts/icons.ts` con Playwright → `public/icons/` (con `apple-touch-icon` de 180); `layout.tsx` con `appleWebApp`, `themeColor` claro y oscuro, `robots` noindex y `<SwRegister/>`; `<OfflineStatus/>` en Ajustes. `scripts/build-sw.ts` genera `out/sw.js`: la lógica pura de `scripts/lib/sw-core.ts` se transpila e incrusta, con lista permitida, precarga atómica con `cache: "reload"`, Pyodide en caché aparte (`cortex-pyodide-<versión>-<hash>`), cachés viejas borradas solo en `activate`, sin `skipWaiting` y reparación si iOS desaloja la caché. Kill switch en `scripts/sw-kill.js`. Fuera de la PWA, el registro da de baja cualquier SW.
+  - *Evidencia:* `pnpm check` en verde (1368 unitarias, 313 de contenido); 64 pruebas del SW (con `node:vm`); precarga de 945 URL / 45 MB más 5 / 12.9 MB de Pyodide; en Chromium con servidor temporal, sin red abrieron inicio, materia, unidad y la 404. Los `.txt` RSC no se precargan: sin red, Next cae a navegación completa (se confirma en B5).
+  - *Hallazgos:* el guardián y la revisión pidieron no borrar una caché completa con el mismo BUILD_ID, reparar una caché desalojada y validar el canal `cortex:status`. `test:e2e` dio 23/24: `exam.spec.ts` falla al azar porque `plain()` (`e2e/answer.ts:19`) no quita el LaTeX de los pasos de `ordenar` (pasa según los ejercicios que salgan). Se arregla en B3.
+- 2026-11-16 · **B1 · `pnpm build:pwa` sin runner de C** (iPad mínimo antes del parcial; `/consejo` B0 con `experto-ciberseguridad` y `disenador-interaccion`: objeción sin bloqueo en los dos, requisitos E1–E9 y lista táctil).
+  - *Qué:* `api/run-c/route.ts` → `route.local.ts`; `next.config.ts` con `pageExtensions` y `output: "export"` según `CORTEX_PWA`, que falla cerrado (solo vacío o `1`, nunca junto con `CORTEX_LOCAL=1`) y deriva `NEXT_PUBLIC_CORTEX_PWA`; `c-client.ts` responde «C no corre en el iPad» sin `fetch`; `scripts/check-out.ts` (lógica pura) + `check-out-cli.ts`, al final de `build:pwa`; `public/robots.txt`. `trailingSlash: false`: `/materias/calculo` → `out/materias/calculo.html`, sin redirección.
+  - *Evidencia:* `pnpm check` en verde (1340 unitarias, 313 de contenido); `pnpm test:e2e` 24/24 en Chromium (el runner de C sigue en la Mac: `ƒ /api/run-c`); `build:pwa` → `out/` de 5040 archivos (139 MB: 38 de HTML, 63 de RSC `.txt`, 16 de `vendor/`), sin `out/api`.
+  - *Hallazgos:* Pyodide trae `child_process`/`spawnSync` (rama de Node de emscripten): se exime solo por par exacto archivo-marcador y si es idéntico byte a byte a `node_modules/pyodide`. La guarda `argv[1] === import.meta.url` fallaba abierta con symlinks: el CLI llama a `main()` sin condición. La cadena `api/run-c` queda en un chunk (inalcanzable); el guardián la acepta.
+- 2026-11-16 · **Flujo más barato (ADR-027)** y arranque del iPad mínimo.
+  - *Modelos:* Opus en `experto-matematicas`, `experto-ciberseguridad` y `autor-contenido`; Sonnet en los otros 16 (10 con `effort: medium`); `verificador` nuevo en Haiku, usado por `/verificar`, `/equipo`, `/nueva-unidad`, `/revisar-contenido` y `/cerrar-fase`; revisores del plugin con `model: "sonnet"`.
+  - *Tablero:* `ESTADO.md` de 163 KB a unos 42 KB; ADRs a `docs/adrs.md` y bitácora a `docs/bitacora.md`, comparados línea por línea (46 y 604 líneas no vacías, iguales).
+  - *Hallazgo:* `pnpm lint` daba 426 errores, todos de `.claude/worktrees/` (dos copias viejas del repo). Se ignoran en ESLint y en git; lint queda limpio.
+  - *DNS:* `A cortex → 76.13.106.210` en Hostinger (TTL 300, sin sobrescribir); `dig` en 1.1.1.1 y 8.8.8.8 responde.
+  - *Sin verificar aún:* que los modelos nuevos carguen; se nota al abrir una sesión nueva en `cortex/`.
+- 2026-11-15 · **Unidad `matematicas-discretas/21-arboles-binarios`** (3.er parcial; Unidad IV, 4.5.5, que el PDF numera 4.4.5). Con esta unidad queda completa la Unidad IV (13 → 21).
+  - *Esquema:* v1, aprobado por Carlo. Lo consolidó la sesión principal con M (tabla de 25 y R4 v1 sin cruces con el jefe), P (un `array` por niveles en el enunciado y la lista en la explicación, y los ejemplos resueltos de reconstrucción y de la pila), A (la rúbrica de las $n-1$ aristas y el metacognitivo de Lucía) y L (preorden, inorden y posorden sin guion, «posfija», la altura en aristas y «lleno»).
+    - El ABB queda fuera.
+    - Jefe final con 4 de repaso y 3 vidas, como los demás; la amplitud del parcial la da el simulacro.
+  - *Escrita* por `autor-contenido`: lección de 25 min (1475 palabras con `wc -w`), 25 ejercicios 6/6/6/4/3 (24 por código y 1 manual) y jefe final con 11 propias y 4 de repaso de la 15, la 16, la 19 y la 20 (`disc-15-017`, `disc-16-021`, `disc-19-016` y `disc-20-016`), 15 preguntas, oleadas 4/6/5 y 2,490 s.
+    - En `conceptos.yaml`, el nombre pasa a «Recorrido en posorden».
+    - La `notacion` suma árboles y expresiones.
+  - *`/revisar-contenido`:*
+    - a ciegas, 24/24;
+    - M: apoyo, sin errores (comprobó el R4 en los 23,713 árboles de 1 a 10 nodos);
+    - L y P con objeción:
+      - el R4 no decía «en aristas»;
+      - «total» era ambiguo en el 021;
+      - «camino» estaba sin definir en el 016;
+      - el 017 tenía dos lecturas;
+      - en el jefe, ninguna pregunta detectaba el hijo único del lado equivocado.
+  - *Arreglos:* Carlo aprobó «errores + mejoras» (`arreglos-21.md`) y agregar el 018 al jefe, para que la pila tenga pregunta.
+    - El 020 y el 025 ganan un hueco que revisa el lado del hijo único.
+    - La explicación de la (0) del 023 cubre cualquier árbol binario; el autor la comprobó en los árboles de hasta 8 nodos.
+    - Segunda ronda a ciegas: 10/10.
+    - En el navegador salió que los dos árboles del gancho, en un solo bloque, se partían en dos renglones cuando la columna es angosta. La sesión principal los separó en dos bloques, uno por árbol.
+  - *Evidencia:*
+    - `pnpm content:check` en verde (9 unidades, 220 ejercicios);
+    - `pnpm test`: 1263;
+    - `pnpm lint`;
+    - lección en el puerto 3200: 118 fórmulas, 0 `.katex-error` y ningún recurso con error, con los dos árboles del gancho revisados en pantalla;
+    - el jefe final arranca con 15 preguntas y la app lo llama «Jefe final de la materia».
+  - *Pendiente para `/equipo`:* algunos dibujos de altura 4 tienen hasta 19 columnas; falta ver si caben en el iPad vertical.
+- 2026-11-15 · **Unidad `matematicas-discretas/20-recorridos-camino-corto`** (3.er parcial; Unidad IV, 4.5.3 y 4.5.4). El título visible es «Búsqueda en grafos y camino más corto».
+  - *Esquema:* v1, aprobado por Carlo. Lo consolidó la sesión principal con M (tabla de 25 con `verificar` probados), P (un solo grafo G en toda la lección, ejemplo resuelto de DFS y escalera), A (rúbrica de por qué BFS da la distancia, R4 y el metacognitivo de Iván) y L (terminología).
+    - «Búsqueda» y no «recorrido» para BFS y DFS, para no chocar con la 19.
+    - La distancia siempre con apellido.
+    - «Fijar» solo para vértices.
+    - El peso negativo, en un digrafo.
+  - *Escrita* por `autor-contenido`: lección de 25 min (1699 palabras con `wc -w`), 25 ejercicios 6/6/6/4/3 (24 por código y 1 manual) y jefe de 10 más 4 de repaso de la 15, la 16 y la 19 (`disc-15-025`, `disc-16-025`, `disc-19-011` y `disc-19-013`), con 2,120 s.
+    - Se agregaron a la `notacion` las convenciones de búsqueda y de Dijkstra: empate alfabético, relajación estricta solo hacia no fijados, y los inalcanzables no se fijan.
+  - *`/revisar-contenido`:*
+    - a ciegas, 24/24;
+    - checklist M, L y P:
+      - conteos que cambiaban según se contara o no el origen (011, 012, 025 y el desvanecido de H);
+      - un R4 con dos lecturas;
+      - el 005 decía «sin empates» y su explicación empataba;
+      - «$d(v)$ es la distancia» no decía «alcanzable».
+  - *Arreglos:* Carlo aprobó «errores + mejoras» (`arreglos-20.md`). Los desvanecidos se quedan, como recomendaron P y M. Segunda ronda a ciegas: 8/8.
+  - *Evidencia:*
+    - `pnpm content:check` en verde (8 unidades y 195 ejercicios);
+    - `pnpm test`: 1236;
+    - `pnpm lint`;
+    - lección en el puerto 3200: 290 fórmulas, 0 `.katex-error`, el visual G con 6 vértices y 7 aristas, y ningún recurso con error al recargar;
+    - el jefe arranca con 14 preguntas.
+  - *Hallazgos para `/equipo` después del parcial:*
+    - el hook `cerca-ciega.py` bloquea scripts de puro cálculo del resolutor a ciegas por palabras dentro del código: una arista «cd» se lee como el comando `cd`, y una variable `tree` como el comando `tree`;
+    - mientras la 21 no exista, la app sigue llamando «Jefe final de la materia» al jefe de la última unidad del catálogo (`boss-runner.tsx:69-71`).
+- 2026-11-15 · **Unidad `matematicas-discretas/19-grafos`** (3.er parcial; Unidad IV, 4.5.1 y 4.5.2).
+  - *Esquema:* v1, aprobado por Carlo; revisado por M, P y A.
+    - Euler en multigrafo conexo («0 o 2 impares») y Dirac con «simple» y $n\ge3$.
+    - El gancho del barrendero y el inspector.
+    - Sin Königsberg ni los grafos de Rosen 10.5.
+    - Ningún perímetro del visual `grafo` es ciclo ni trayectoria hamiltoniana (lo comprobó M, en cualquier rotación).
+  - *Escrita* por `autor-contenido`: lección de 25 min (1,647 palabras con `wc -w`), 25 ejercicios 6/6/6/4/3 (24 por código y 1 manual) y jefe de 10 más 4 de repaso de la 15 a la 18 (`disc-15-008`, `disc-16-001`, `disc-17-005` y `disc-18-013`), con 1,850 s.
+    - El autor reetiquetó el 013 porque una rotación del perímetro era trayectoria hamiltoniana.
+    - Se agregaron a la `notacion` $\deg$, $\deg^-$ y $\deg^+$.
+  - *`/revisar-contenido`:*
+    - a ciegas, 24/24;
+    - checklist M, L y P con objeción:
+      - el 024 tenía tres lecturas, y una daba 0 y 0;
+      - el hueco 3 del 015 tenía tres lecturas;
+      - el desvanecido de Hamilton narraba la idea;
+      - dos frases de la lección eran falsas: «un camino no es una trayectoria» y «no hay criterio de grados», que choca con Dirac.
+  - *Arreglos:* Carlo aprobó «errores + mejoras» (`arreglos-19.md`).
+    - El jefe cambia el 013 por el 016, para evaluar el apretón de manos.
+    - El visual del 024 se reetiquetó, porque su perímetro mostraba 5 aristas del ciclo.
+    - La lección se recortó de 1,731 a 1,647 palabras, porque había pasado el tope de 1,700.
+    - Segunda ronda a ciegas: 7/7.
+  - *Evidencia:*
+    - `pnpm content:check` en verde (8 unidades y 195 ejercicios; la 20 está escrita, sin commit);
+    - `pnpm test`: 1236;
+    - `pnpm lint`;
+    - lección en el puerto 3200: 182 fórmulas, 0 `.katex-error`, sin errores de consola y el visual del barrio con 6 vértices y 9 aristas;
+    - el jefe arranca con 14 preguntas.
+  - *Hallazgos:*
+    - el servidor de desarrollo arma el índice de los jefes al arrancar, así que el jefe de una unidad nueva da 404 hasta que se reinicia (la lección sí carga);
+    - desde el 2026-11-15, el harness no deja que los subagentes escriban archivos de reporte en la carpeta de notas: los reportes llegan en el mensaje.
+- 2026-11-14 · **Unidad `matematicas-discretas/18-modulo-n`** (3.er parcial; Unidad IV, 4.4.1 a 4.4.3).
+  - *Esquema:* v1, aprobado por Carlo; revisado por M, P y A.
+    - Congruencia como equivalencia, con remisión a la 17.
+    - El inverso se pide en $\{0,\dots,n-1\}$, nunca como par de Bézout.
+    - El teorema chino solo por sustitución.
+    - Dos autoevaluaciones, porque el parcial califica el procedimiento.
+  - *Escrita* por `autor-contenido`: lección de 25 min (1508 palabras), 25 ejercicios 6/6/6/4/3 (23 por código y 2 manuales) y jefe de 10 más 4 de repaso de la 15 y la 17 (`disc-17-006`, `disc-15-018`, `disc-17-012` y `disc-17-010`), con 1,820 s.
+    - El repaso cambia contra el esquema: `disc-17-010` va en lugar de `disc-16-022`, que ya estaba en dos jefes.
+    - Se agregaron a la `notacion` $\mathbb Z_n$ y que ≡ entre enteros es congruencia.
+    - La sesión se cortó antes de que el autor entregara su reporte. Las desviaciones del esquema las buscaron M y P en la revisión: todas son aceptables.
+  - *`/revisar-contenido`:*
+    - a ciegas, 23/23;
+    - checklist M, L y P con objeción: el resumen invitaba a reducir el exponente módulo $n$; dos huecos del desvanecido del teorema chino no decían el intervalo; un hueco del 024 se leía como 360 o 359; el 013 regalaba un hueco con otro; y había ejemplos parecidos a los de Rosen 4.1 y 4.4.
+  - *Arreglos:* Carlo aprobó «errores + mejoras» (`arreglos-18.md`). Segunda ronda a ciegas: 6/6.
+  - *Evidencia:*
+    - `pnpm content:check` en verde (6 unidades, 145 ejercicios);
+    - `pnpm test`: 1182;
+    - `pnpm lint`;
+    - lección en el puerto 3200: 229 fórmulas, 0 `.katex-error` y sin errores de consola;
+    - el jefe arranca con 14 preguntas.
+  - *Esquemas 20 y 21:* v1 consolidados de M, P, A y L, y aprobados por Carlo. El jefe final de la 21 queda con 4 de 14 de repaso y 3 vidas, como los demás. La amplitud del parcial la da el simulacro.
+- 2026-11-14 · **Unidad `matematicas-discretas/17-equivalencia`** (3.er parcial; Unidad IV, 4.3.3 y 4.3.4).
+  - *Esquema:* v1, aprobado por Carlo; revisado por M, P y A. Sin congruencia ni ≡, porque son de la 18. Ninguna respuesta es un conjunto de conjuntos: las clases se piden como `conjunto` plano, número de clases, tamaños o pares.
+  - *Escrita* por `autor-contenido`: lección de unos 20 min (1,110 palabras), 20 ejercicios 4/5/5/3/3 (19 por código y 1 manual) y jefe de 10 más 4 de repaso de la 15 y la 16 (`disc-16-017`, `disc-16-022`, `disc-16-009` y `disc-15-024`), con 1,800 s.
+    - Un cambio contra el esquema en el repaso: `disc-16-009` va con el 012 en lugar de la matriz con el 005, porque el 005 no está en el jefe.
+    - Se agregaron a la `notacion` de `conceptos.yaml` $[a]$ y $A/R$.
+  - *`/revisar-contenido`:*
+    - a ciegas, 19/19;
+    - checklist M, L y P con objeción: el desvanecido de §6 se contestaba leyendo sus otros pasos; los huecos del 017 («la clase más grande», cuando hay dos) y del 016 («alguna clase», que se lee como «una sola») tenían dos lecturas; el enunciado del 012 regalaba la conclusión.
+  - *Arreglos:* Carlo aprobó «errores + mejoras» (`arreglos-17.md`).
+    - El 012 se rediseñó: ahora pide decidir si es de equivalencia.
+    - Segunda ronda a ciegas: 5/5. En el 012, la sesión principal agregó «junto con su inverso»: agregar solo $(2,5)$ no la vuelve transitiva.
+  - *Evidencia:*
+    - `pnpm content:check` en verde (6 unidades y 145 ejercicios; la 18 está escrita, sin commit);
+    - `pnpm test`: 1182;
+    - `pnpm lint`;
+    - lección en el puerto 3200: 112 fórmulas, 0 `.katex-error` y sin errores de consola;
+    - el jefe arranca con 14 preguntas.
+  - *Hallazgos para `/equipo` después del parcial* (de M, en la revisión de los esquemas 20 y 21):
+    - `same_value` de `verify_content.py` da falso al comparar palabras como «ab» consigo mismas, porque `parse_expr` parte los símbolos;
+    - la app lee «5,040» como 5.04 (la coma es decimal);
+    - no iguala «−» con «-», ni «×» con «*».
+- 2026-11-14 · **Unidad `matematicas-discretas/16-propiedades-orden`** (3.er parcial; Unidad IV, 4.2.4, 4.3.1 y 4.3.2). Sesión nueva de Discretas: worktree `objective-stonebraker-808a0b`, rama `claude/objective-stonebraker-808a0b`, adelantada por fast-forward a `ad076b5`.
+  - *Esquema:* v1, aprobado por Carlo; revisado por M, P y A.
+    - Las cinco propiedades se refutan con un testigo.
+    - Orden parcial y total.
+    - Hasse por niveles en KaTeX, porque el visual `grafo` va en círculo.
+    - Extremos, con la hipótesis «finito no vacío» escrita.
+  - *Escrita* por `autor-contenido`: lección de 25 min (1,662 palabras), 25 ejercicios 6/5/7/4/3 (24 por código y 1 manual) y jefe de 10 más 4 de repaso de la 14 y la 15 (`disc-15-009`, `disc-15-022`, `disc-15-013` y `disc-14-019`), con 1,840 s.
+  - *`/revisar-contenido`:*
+    - a ciegas, 24/24, con dos lecturas dobles: los huecos del 025 pedían un número pero se leían como lista, y el 017 dependía de que $0\mid0$;
+    - checklist M, L y P con objeción: «el Hasse vale *solo* en finitos», que es falso; un paso del desvanecido de §9 se contestaba con la gramática; el 008 se parecía al $R_1$ de Rosen.
+  - *Arreglos:* Carlo aprobó «errores + mejoras» (`arreglos-16.md`). Entre ellos:
+    - la opción del 017 pasa a $\mathbb Z-\{0\}$;
+    - un $R$ nuevo en el 008;
+    - una demostración corta con $\subseteq$ en §5;
+    - «cadena» queda solo para el subconjunto totalmente ordenado;
+    - el 014 entra al jefe en lugar del 018, para que el par de intercalado con el 15-009 quede completo. Su matriz se reetiquetó para no repetir la cadena $(2,1),(1,4)\to(2,4)$ del 15-022.
+
+    Segunda ronda a ciegas: 8/8.
+  - *Evidencia:*
+    - `pnpm content:check` en verde (4 unidades, 100 ejercicios, 90 por código);
+    - `pnpm test`: 1134;
+    - `pnpm lint`;
+    - lección en el puerto 3200: 164 fórmulas, 0 `.katex-error` y sin errores de consola;
+    - el jefe arranca con 14 preguntas en 3 oleadas.
+  - *Para la 09:* fijar en la `notacion` si $a\mid b$ exige $a\neq0$ (la bibliografía del programa lo exige), porque el 003 y el 017 de la 16 dependen de eso.
+- 2026-11-14 · **Unidad `matematicas-discretas/15-relaciones`** (3.er parcial; Unidad IV, 4.2.1 a 4.2.3).
+  - *Esquema:* v1, aprobado por Carlo; revisado por M, P y A.
+    - Convención: $S\circ R$ = «primero $R$», y su matriz es $M_R\odot M_S$.
+    - $f^{-1}$ siempre es relación; es función ⇔ $f$ es biyectiva.
+    - Hay un ejemplo resuelto de demostrar inyectiva y suprayectiva.
+  - *Escrita:* lección de 25 min (1,521 palabras), 25 ejercicios 7/5/7/3/3 (24 por código y 1 manual) y jefe de 10 más 4 de repaso de la 13 y la 14.
+  - *`/revisar-contenido`:*
+    - a ciegas, 24/24;
+    - checklist M, L y P con objeción: la `respuesta_modelo` del 020 no cumplía su rúbrica; dobles lecturas en el 025 y el 010; el desvanecido de «no suprayectiva» no pedía la demostración; la explicación del 021 daba tres respuestas del 024 en el jefe.
+  - *Arreglos:* Carlo aprobó «errores + mejoras» (`arreglos-15.md`, 14 puntos). Segunda ronda a ciegas: 5/5.
+  - *Evidencia:*
+    - `pnpm content:check` en verde;
+    - `pnpm test`: 1107;
+    - `pnpm lint`;
+    - lección y jefe en el puerto 3200: 211 fórmulas, 0 `.katex-error` y sin errores de consola.
+  - *Huecos de la plataforma nuevos:*
+    - el pie que la app pone bajo un `grafo` de ejercicio lista sus aristas como pares, así que no se puede pedir leer los pares de un digrafo; el 008 pide leer la matriz;
+    - el visual `grafo` no dibuja lazos.
+  - *Entorno:* `tests/content/agent-hooks.test.ts` («carpeta de arriba») falla solo en el worktree, porque ahí la carpeta de arriba es `.claude/worktrees`. Los hooks y la prueba no cambiaron desde `1ddb6fd`; en la copia principal debe pasar.
+- 2026-11-14 · **Unidad `matematicas-discretas/14-circuitos-karnaugh`** (3.er parcial; Unidad IV, 4.1.4 y 4.1.5).
+  - *Esquema:* v1, aprobado por Carlo, revisado por M, P y A. Los datos salen de un minimizador por fuerza bruta (implicantes primos y todas las coberturas mínimas) y M los rehízo con el suyo.
+  - *Originalidad (M):* se cambiaron el Ejemplo 3.5 de Mano y el hexágono cíclico de los libros, que aparecían como ejercicio. El invernadero de 6 minitérminos que se había pensado era imposible.
+  - *«No importa»:* Carlo confirmó que su clase usa las condiciones d(…). Entran un párrafo y el 014.
+  - *Escrita:* lección de 25 min (1,697 palabras), 25 ejercicios 6/5/7/4/3 (23 por código, con la plantilla `K` de M en Python puro, y 2 manuales) y jefe de 11 propias más 4 de repaso de la 13 (27 %).
+  - *`/revisar-contenido`:*
+    - a ciegas, 24/24;
+    - checklist M, L y P, los tres con objeción:
+      - en el jefe, la explicación del 024 regalaba el 023 (el jefe muestra la explicación después de cada respuesta);
+      - el desvanecido del paso 3 regalaba la elección;
+      - «solo si» admitía dos lecturas en el 020;
+      - el «excepto» en el 025;
+      - «literales» podía leerse como literales distintas.
+  - *Arreglos:* Carlo aprobó «errores + mejoras» (`arreglos-14.md`, 16 puntos). Sale el 024 del jefe y entran el 018 y el 014. Segunda ronda a ciegas: 7/7.
+  - *Evidencia:*
+    - `pnpm content:check` en verde;
+    - `pnpm test`: 1080;
+    - `pnpm lint`;
+    - lección y jefe en el puerto 3200: 178 fórmulas, 0 `.katex-error` y sin errores de consola.
+  - *Huecos de la plataforma nuevos (se suman a los de la sección de Discretas):*
+    - no hay visual de circuitos (van como lista de compuertas);
+    - el jefe muestra la explicación de cada pregunta antes de la siguiente, así que dos ejercicios cuyo contenido se cruza no pueden ir en el mismo jefe.
+- 2026-11-13 · **Unidad `matematicas-discretas/13-algebra-booleana`** (3.er parcial de Discretas; Unidad IV, 4.1.1 a 4.1.3).
+  - *Esquema:* revisado por `experto-matematicas`, `pedagogo` y `arquitecto-razonamiento`, los tres «aprobado con cambios»; v1 aprobada por Carlo. Notas en `esquema-13.md`, en la carpeta de notas del grupo.
+  - *Cambios del esquema:*
+    - el ejemplo de la sección 5, el 007 y el 022 se cambiaron para no repetir el Ejemplo 2.1 de Mano;
+    - un distractor del 022 resultó verdadero por sustitución;
+    - al 021 le faltaba la conmutativa;
+    - el jefe no cubría `funcion-booleana`.
+  - *Escrita* por `autor-contenido`: lección de 25 min (1,686 palabras), 25 ejercicios 5/5/7/5/3 (19 verificados por código, por enumeración, y 6 manuales) y jefe de 10 sin repaso, porque no hay unidades previas de Discretas.
+  - *Formato:*
+    - sin `tabla_verdad`, porque su convención V/F choca con el 0/1 del álgebra booleana;
+    - respuestas como índices de minitérminos, columnas 0/1 u opciones;
+    - el 024 se verifica en 𝒫({a,b,c}), no solo en {0,1}.
+  - *`/revisar-contenido`:*
+    - a ciegas, 24/24 sin discrepancias;
+    - checklist de M (objeción por originalidad: el 015 era el Ejemplo 2.4 de Mano y el 014 usaba la función del 2.5), L (objeción por la redacción del 023, con dos lecturas que cambiaban la respuesta) y P (el 008 no decía cuáles eran las correctas, porque `WorkedExample` no muestra las opciones).
+  - *Arreglos:* Carlo aprobó «errores + mejoras» (`arreglos-13.md`, 15 puntos). Segunda ronda a ciegas de los 8 ejercicios cambiados: 8/8.
+  - *Pruebas:* el contenido de Discretas obligó a actualizar las pruebas que fijan qué materias tienen contenido (`loader.test.ts`, `server.test.ts`, `home-model.test.ts`, `src/app/materias/page.test.tsx` y `e2e/smoke.spec.ts`). Solo cambian de 2 a 3 materias; no cambia la app.
+  - *Evidencia:*
+    - `pnpm content:check` en verde;
+    - `pnpm test`: 1053;
+    - `pnpm lint`;
+    - e2e: 12/12 en smoke, study y exam;
+    - lección y práctica en el puerto 3200: 200 fórmulas KaTeX, 0 `.katex-error` y sin errores de consola.
+  - *Hallazgo, no de Discretas:* `e2e/exam.spec.ts` falla de vez en cuando cuando el simulacro de Cálculo saca el `ordenar` de arcsenh de la 05. `plain()` de `e2e/answer.ts:63` no reconoce el texto de KaTeX. Falló en la primera corrida completa y pasó al repetir. Arreglo pendiente, por `/equipo` con `dev-interfaz`.
+- 2026-11-13 · **F3 paso 9: puerta de temario de Matemáticas discretas** (sesión de Discretas, worktree `discretas-857e48`, rama `claude/discretas-857e48`; corre en paralelo con el sprint del parcial de Cálculo).
+  - *Rama:* el worktree se había cortado de `7f150cb`, 21 commits detrás de `fase-3-calculo-discretas`. Como no tenía commits propios, se adelantó por fast-forward a `1ddb6fd`.
+  - *Programa:* `matematicas-discretas.pdf`, con el mismo sha256 que registró el paso 7 (`a41a6a17…6c03db`). Se leyó con un extractor de zlib, porque no hay `pdftoppm`. Las horas suman T 81, P 27 y AA 32; hay un 3.3.4 y un 3.3.5 que en realidad son de 3.2, y un 4.4.5 que es de 4.5.
+  - *Cuadernillo de clase de Carlo* (`0IPN/Matemáticas discretas/Cuadernillo1 2026.pdf`): son imágenes escaneadas. PDFKit las convierte a PNG desde `osascript -l JavaScript`. Es la Unidad I: derivaciones por método directo, demostración condicional e indirecto, y argumentos en español para formalizar. Mezcla `~`/`¬` y `&`/`∧`. Sus ejercicios vienen de libros y no se copian.
+  - *`/consejo`:* `experto-matematicas`, `pedagogo` y `arquitecto-razonamiento` dieron los tres «aprobado con cambios»:
+    - no fusionar unidades;
+    - partir la de cuantificadores;
+    - pasar la demostración directa a la 03;
+    - Bézout entra, avisado;
+    - corregir las horas del borrador, que sumaban 117 en lugar de 108;
+    - faltaban hipótesis: mcd·mcm = |ab|, Euler exige un grafo conexo y `%` falla con negativos;
+    - en la plataforma faltan piezas para la Unidad IV.
+  - *Choque:* 19 unidades (`experto-matematicas`) contra 21 (`pedagogo`). Carlo eligió 21 y las 2 extra.
+  - *Decisiones de Carlo:* el 3.er parcial es de la Unidad IV, en la semana del 23 al 27 de noviembre; las unidades se escriben en el orden del programa, todas; la composición con la convención más común. El detalle está en «Decisiones tomadas · temario de Discretas».
+  - *Hecho:*
+    - `content/matematicas-discretas/conceptos.yaml`, con 132 conceptos, la `notacion` y un bloque por unidad con su sección del programa;
+    - un prerrequisito entre materias: `calculo:composicion-funciones`;
+    - en `docs/01`, la línea de Discretas, alineada con el programa.
+  - *Evidencia:*
+    - `pnpm content:check content/matematicas-discretas` en verde (0 errores y 0 avisos);
+    - `pnpm content:check` sin ruta en verde (19 unidades y 410 ejercicios; los 12 avisos son los `programa_ref` pendientes de Programación, que ya estaban);
+    - la materia sin unidades no aparece en la app (`hasContent` es falso).
+  - *Notas de la sesión:* borrador, programa en texto y esquemas en `~/Library/Application Support/Claude/side-session-notes/local_a6e0852a-c7ca-4753-87c7-0928b0b431e1/`.
+- 2026-11-13 · **Unidad `calculo/02-continuidad-asintotas`**. Es la última del sprint del parcial. Cubre la Unidad II del programa: 2.3 límites infinitos, 2.3.1 asíntotas y 2.4 continuidad en un punto y en un intervalo. El TVI se agrega y queda marcado como «fuera del programa oficial».
+  - **Esquema:** objeción sin bloqueo de matemáticas, pedagogía y razonamiento.
+    - ±∞ solo se pide en `numerico`.
+    - Los tipos de discontinuidad se clasifican con códigos: 1 removible, 2 salto y 3 infinita.
+    - Los intervalos se piden por sus bordes.
+    - Los laterales se verifican con $x=a\mp h$ y $h$ positivo.
+  - **Contenido (lo escribió `autor-contenido`):**
+    - 25 ejercicios: 8 completar, 5 numéricos, 5 de opción múltiple, 4 de selección múltiple, 1 simbólico, 1 conjunto y 1 autoevaluación.
+    - Escalera 5/5/7/5/3. Los 7 conceptos tienen 3 o 4 ejercicios cada uno.
+    - Lección de 1,689 palabras con front matter (tope 1,700).
+    - En `conceptos.yaml` solo cambia `notacion`: se agregó cómo se escribe un límite infinito, los nombres de los tipos de discontinuidad y que en la oblicua $m\neq0$.
+    - **Jefe:**
+      - 8 propias (012, 014, 016, 020, 021, 023, 024 y 025), cinco de ellas de d4–5;
+      - 3 de repaso de la 01: calc-01-005, calc-01-023 y calc-01-025;
+      - 1238 s y oleadas 3/5/3.
+  - **`/revisar-contenido`:**
+    - **A ciegas:** 24/24 en la primera ronda.
+      - Hubo una ambigüedad real en el 017: el TVI aplicado a un subintervalo sí garantiza una raíz de $x^2-1$ en $[-2,2]$, y el 025 enseña justo a trabajar por subintervalos.
+      - Después de los arreglos, 13/13 en los 13 ejercicios que cambiaron.
+      - La app acepta `oo`, `∞`, `inf`, `-5/2`, `2x+1`, `3/8` y `0.375`, y rechaza las respuestas equivocadas.
+    - **Checklist:** los tres revisores dieron objeción, sin ninguna respuesta errónea.
+      - Matemáticas encontró que el 010 era el mismo límite del calc-03-013, $\frac{\sqrt{9+h}-3}{h}$, y además un clásico de Stewart.
+      - Lenguaje encontró dos redacciones ambiguas: la regla de grados de la lección y el enunciado del 025.
+      - Pedagogía encontró que la lección mostraba las etiquetas de nivel del esquema, que la pista 3 del 023 regalaba $m$ y $b$, y que el ejemplo 2 no justificaba el signo de cada lado.
+    - **Arreglos aplicados con el sí de Carlo («Errores + mejoras»):**
+      - el 010 usa $\frac{\sqrt{3x+10}-4}{x-2}$ (3/8);
+      - el 013 pasa a «encuentra todas sus asíntotas» (vertical, $m$ y $b$), para practicar decidir el tipo, que es lo primero que califica el parcial;
+      - el 017 aplica el TVI una sola vez, con los valores en los bordes del intervalo dado; el 025 pregunta «el mayor número de instantes que puedes garantizar»;
+      - la pista 1 de cada ejercicio encaja con lo que pide: en el 014, el 016 y el 021, la rutina usa el candidato $c$ y ya no trae el paso de asíntotas;
+      - se ajustaron las opciones que delataban la correcta por largas (015 y 021) y los enunciados del 001, 004, 005, 016, 018, 022, 023 y 024;
+      - los `verificar` del 007 y del 016 ahora calculan lo que antes daban por hecho;
+      - en la lección:
+        - sin etiquetas de nivel;
+        - con la regla de grados reescrita;
+        - con la condición 2 («existe y es un número»);
+        - con el vocabulario pieza/tramo/corte unificado;
+        - con la Rutina de examen movida después de las asíntotas;
+        - con los ejemplos justificados paso a paso;
+      - para el tope de palabras se recortó la bisección, la línea de las oscilantes y el cierre del Feynman.
+  - **Evidencia:**
+    - `content:check content/calculo` en verde: 224 ejercicios, 182 por código y 42 manuales.
+    - `test:content` 313/313 y `real-answers` 319/319.
+    - En `localhost:3000`: 192 fórmulas KaTeX sin error, y los 6 huecos de los dos desvanecidos se califican bien (`1.5` cuenta como `3/2`).
+- 2026-11-13 · **Unidad `calculo/09-tecnicas-integracion`** (sprint del parcial; Unidad IV, 4.4 integrales trigonométricas, 4.5 sustitución trigonométrica y 4.6 fracciones parciales).
+  - **Esquema:** objeción sin bloqueo de matemáticas, pedagogía y razonamiento. Carlo decidió:
+    - el **triaje versión 2**, de 6 preguntas, con partes al final: tabla → sustitución → fracciones parciales → trigonométricas → sustitución trigonométrica → partes;
+    - en 4.4, sen/cos en el nivel A, tan/sec en el B y los productos con ángulos distintos en el C.
+  - **Contenido (lo escribió `autor-contenido`):**
+    - 25 ejercicios: 8 simbólicos, 7 completar, 4 de opción múltiple, 3 numéricos, 1 de selección múltiple, 1 conjunto y 1 autoevaluación.
+    - Escalera 5/5/7/5/3; los 4 conceptos tienen 5 o más ejercicios.
+    - Anclas 001–005 con un solo concepto.
+    - Lección de 1,700 palabras con front matter (tope 1,700). No usa conceptos nuevos en `conceptos.yaml`.
+    - Jefe con 8 propias (dos por concepto) y 3 de repaso de la 08 (calc-08-014, calc-08-017 y calc-08-018), 1617 s y oleadas 3/5/3.
+    - Sin arcsec en las respuestas (la app no lo tiene): se piden formas con atan o ln, válidas en el intervalo más grande.
+  - **`/revisar-contenido`:**
+    - **A ciegas:** 24/24.
+      - Hubo lecturas literales del triaje: la pregunta 2 con una función de adentro lineal ($x^2e^{3x}$), $\cos^3x$ entre las preguntas 2 y 4, y la sustitución del 024.
+      - Después de los arreglos, 15/15 en los 15 ejercicios que cambiaron. La app acepta todas las formas del resolutor: `e^x`, `exp(x)`, `-csc(x)`, `sen^3(x)`, `ln(abs(…))` y `0.04`.
+    - **Checklist:** los tres dieron objeción, sin respuestas erróneas.
+    - **Arreglos aplicados con el sí de Carlo («Errores + mejoras»):**
+      - el triaje versión 2 aclara tres preguntas: la 1 («¿ya está en la tabla…?»), la 2 (sin identidades; una función de adentro lineal no absorbe la $x$ de afuera) y la 4 (si la $u$ solo aparece tras una identidad, es esta); el recuadro cierra con «Si ninguna dice «sí»»;
+      - el 004 y el 017 traen en el enunciado las reglas para clasificar; el 004 suma $\int\frac{dx}{\sqrt{25-x^2}}$;
+      - el 014 pasa a `simbolico` (`asin((x - 3)/4)`);
+      - el 015 nuevo evalúa el factor lineal repetido y entra al jefe en lugar del 016;
+      - el 007, el 023 y el 024 se reescribieron;
+      - los desvanecidos piden un paso real;
+      - los `simbolico` cierran con una regla de sintaxis única («`arcsen(w)`, nunca `^(-1)`»);
+      - tolerancia de 0.0005 en el 011, el 016 y el 019;
+      - $\int\tan x\,dx$ se explica como $g'/g$;
+      - se ajustaron el Predice, el miniejemplo, el Ojo, el Resumen y la Conexión.
+      - Para respetar el tope de palabras, el autor hizo tres recortes pequeños que no estaban en la lista, sin cambiar el contenido.
+  - **Evidencia:**
+    - `content:check content/calculo` en verde: 199 ejercicios, 160 por código y 39 manuales.
+    - `test:content` 313/313 y `real-answers` 295/295.
+    - En `localhost:3000`: 193 fórmulas KaTeX sin error, y los 9 huecos de los tres desvanecidos se califican bien.
+- 2026-11-12 · **Unidad `calculo/08-antiderivadas`** (sprint del parcial; Unidad IV, 4.1 antiderivada, 4.2 sustitución y 4.3 partes).
+  - **Esquema:** objeción sin bloqueo de matemáticas, pedagogía y razonamiento.
+    - Competencia del programa: «resuelve la integral a partir de su tipología». Por eso la lección cierra con un **triaje** de 3 preguntas en orden (tabla → sustitución → partes) que la 09 extiende a 6.
+    - Primera unidad con `salvo_constante`. Reglas de formato:
+      - `variables: [x]` y C mayúscula;
+      - argumentos de ln positivos o con intervalo dado, y `ln(abs(u))`;
+      - la respuesta en la forma del intervalo más grande;
+      - el valor absoluto se califica con numéricos en $x<0$ y con el contraejemplo de las dos constantes (025).
+  - **Contenido (lo escribió `autor-contenido`):**
+    - 25 ejercicios: 10 completar, 7 simbólicos, 3 de selección múltiple, 2 de opción múltiple, 2 numéricos y 1 autoevaluación.
+    - Escalera 5/5/7/5/3; los 5 conceptos tienen 3 o más ejercicios.
+    - Anclas 001–005 con un solo concepto.
+    - Lección de 1,698 palabras con front matter (tope 1,700).
+    - Jefe con 8 propias y 3 de repaso (calc-05-010, calc-07-016 y calc-06-019; la 06 y la 07 entran por primera vez a un repaso), 1600 s y oleadas 3/5/3.
+  - **`/revisar-contenido`:**
+    - **A ciegas:** 24/24. Después de los arreglos, 14/14, y otra vez el 015 y el 024. La app acepta todas las formas del resolutor (`+0.5`, la forma factorizada del 018 y `64/5`).
+    - **Checklist:** los tres dieron objeción, sin respuestas erróneas.
+    - **Arreglos aplicados con el sí de Carlo («Errores + mejoras»):**
+      - criterios con sus dos mitades en el 009 y el 024, y el 015 amarrado a «la primera pregunta del triaje que diga sí»;
+      - la opción del 017 que se contradecía;
+      - la hipótesis $f'\neq0$ en el 022;
+      - ln|x| + C en cada intervalo, con constantes que pueden ser distintas de cada lado;
+      - el Predice con «los dos»;
+      - el 023 pasó a $e^{-x}\operatorname{sen}3x$, porque $e^{-\theta}\cos2\theta$ es de Stewart 7.1;
+      - el triaje con orden explícito y «salvo un factor constante»;
+      - «no se integra factor por factor»;
+      - desvanecidos que piden un paso real;
+      - el 021 revisado en $x=e$;
+      - senh practicado en el 002;
+      - tolerancia de 0.0005 en el 019.
+    - En `conceptos.yaml`, `integrales-inmediatas` suma el prerrequisito `derivada-hiperbolica`.
+  - **Evidencia:**
+    - `content:check content/calculo` en verde: 174 ejercicios, 141 por código y 33 manuales.
+    - `test:content` 313/313 y `real-answers` 271/271.
+    - En `localhost:3000`: 206 fórmulas KaTeX sin error, y los 6 huecos de los dos desvanecidos se califican bien.
+- 2026-11-12 · **Unidad `calculo/06-razones-diferencial`** (sprint del parcial; 3.3 razones de cambio relacionadas y 3.4 diferencial).
+  - **Esquema:** objeción sin bloqueo de matemáticas, pedagogía y razonamiento.
+    - Lección con presupuesto por sección; quedó en 1,633 palabras, unos 25 min.
+    - Método de 6 pasos con la «regla de las dos sustituciones»: lo que vale en todo instante va antes de derivar; lo del instante, después.
+    - Contextos originales, verificados con sympy: prensa de tortillas, cámara de un auto autónomo, rollo de papel térmico, proyector y lata.
+    - En los ejercicios, dx se escribe `h`, como el incremento de la notación, porque `verify_content.py` parte `dx` en d·x.
+    - Unidades y π fuera de los huecos; tolerancias que rechazan el valor de la calculadora en la aproximación lineal.
+    - Primer razonamiento causal-sistémico de Cálculo.
+  - **Contenido (lo escribió `autor-contenido`):**
+    - 25 ejercicios: 8 completar, 8 numéricos, 4 de selección múltiple, 2 simbólicos, 2 de opción múltiple y 1 autoevaluación. Escalera 5/5/7/5/3; 4 conceptos con 3 o más ejercicios de dificultades distintas.
+    - Jefe con 8 propias, 4 de razones relacionadas y 4 de 3.4, y 3 de repaso (calc-03-006, calc-05-014 y calc-04-017; el repaso solo puede venir de unidades con número menor), 1590 s.
+  - **`/revisar-contenido`:**
+    - a ciegas: 24/24 y, tras los arreglos, 15/15, sin discrepancias y con todos los signos bien;
+    - checklist de los tres con objeción y sin respuestas erróneas.
+    - Con el sí de Carlo se aplicó:
+      - la Conexión dice $\Delta y\approx f'(x)\,dx$, porque $dy$ es exacta;
+      - el 014 pide el entero cubo perfecto más cercano;
+      - «exacta» desambiguada en el 025;
+      - formatos y tolerancias con π de calculadora y sin `±`;
+      - el 024 con 40 m, porque se parecía al 3.42 de Larson;
+      - `## Errores comunes` en la lección;
+      - el 023 pide armar el modelo del anillo;
+      - el 006 se convirtió en un problema tipo escalera, tablón de 2.6 m (5-12-13);
+      - el jefe con más de 3.4.
+  - **Evidencia:**
+    - `content:check content/calculo` en verde (149 ejercicios, 121 por código y 28 manuales);
+    - `test:content` 313/313;
+    - `real-answers` 247/247;
+    - el visual `secante-tangente` de $\sqrt[3]{x}$ en 8 marca 0.0833 = 1/12 en `localhost:3000`, sin errores de KaTeX.
+- 2026-11-12 · **Unidad `calculo/07-maximos-minimos`** (sprint del parcial; 3.5 completa: criterios, gráficas y optimización).
+  - **Convenciones (decidió Carlo):** «convexa» = ∪ y «cóncava» = ∩, como su profesor; punto crítico solo interior. Las dos van en la `notacion`.
+  - **Esquema:** objeción sin bloqueo de matemáticas, pedagogía y razonamiento.
+    - Una función hilo, $(x+1)^3(x-3)$, recorre críticos, $[a,b]$, tablas de $f'$ y $f''$, segundo criterio y trazado.
+    - Gancho original del costo por lote; el planteamiento de la optimización es calificable (el modelo evaluado en un punto, el dominio, el candidato y el valor).
+    - En las gráficas, $f$ es la función dibujada y $g$ la incógnita, porque el pie muestra la fórmula.
+    - Los intervalos se piden por sus bordes en `completar`, nunca como pares.
+    - Definiciones con sus hipótesis: valor extremo, primer criterio con $f$ continua, inflexión con tangente.
+  - **Contenido (lo escribió `autor-contenido`):**
+    - lección de unas 2,340 palabras (~25–28 min, un poco más que la 05);
+    - 25 ejercicios: 9 completar, 4 numéricos, 4 de opción múltiple, 3 de conjunto, 3 de selección múltiple, 1 simbólico y 1 autoevaluación. Por dificultad, 5/5/7/5/3; 7 conceptos, cada uno con 3 o más ejercicios de dificultades distintas;
+    - jefe con 8 propias (las 7 cubren los conceptos) y 3 de repaso (calc-05-009, calc-04-016 y calc-03-020), 1560 s.
+  - **`/revisar-contenido`:**
+    - a ciegas: 24/24 y, tras los arreglos, 12/12, sin discrepancias;
+    - checklist de los tres con objeción y sin respuestas erróneas.
+    - Con el sí de Carlo se aplicó:
+      - la lección recortada;
+      - el ejemplo de «el único crítico pide un intervalo» corregido, con $x^2+\frac2x$;
+      - el 023 cambiado, porque era casi el 4.21 de Stewart: ahora $x^2+9y^2=9$ con $(2,0)$;
+      - en el 014, «sin separador de miles»;
+      - en el 020, «tiende al mínimo desde todo $c_0$»;
+      - la hipótesis $f'(c)=0$ en el Ojo y el Feynman;
+      - el 006 sin filtrar el modelo;
+      - desvanecidos que retiran la clasificación y la justificación;
+      - en el jefe, el 015 (concavidad) en lugar del 022.
+    - Las asíntotas oblicuas se quedan para la 02.
+  - **Evidencia:**
+    - `content:check content/calculo` en verde (124 ejercicios, 99 por código y 25 manuales);
+    - `test:content` 313/313;
+    - `real-answers` 223/223;
+    - la lección se abrió en `localhost:3000` sin errores de KaTeX.
+- 2026-11-12 · **Unidad `calculo/05-cadena-implicita`** (sprint del parcial; 3.2.2 a 3.2.4 más las inversas de 3.2.1).
+  - **Notación (decidió Carlo):** dy/dx en la cadena y la implícita; arcsenh, arccosh y arctanh.
+  - **Esquema:** objeción sin bloqueo de matemáticas, pedagogía y razonamiento. Integra:
+    - prueba de la cadena con φ, como bloque opcional;
+    - dominios y signos de las inversas, suponiendo derivabilidad;
+    - formato que la app sí puede calificar: dy/dx implícita solo en curvas polinomiales y sin simplificar con la ecuación; d²y/dx² en un punto; curvas implícitas como pares;
+    - una línea de sintaxis en cada simbólico;
+    - anclas de un solo concepto;
+    - retropropagación con números, tabla de (f∘g)′ y (g∘f)′, (f⁻¹)′(b) y f⁽¹⁰⁾(0) inductivo;
+    - autoevaluación de arccos.
+  - **Contenido (lo escribió `autor-contenido`):**
+    - lección de 160 líneas, unos 21–25 min;
+    - 25 ejercicios: 8 numéricos, 7 simbólicos, 4 completar, 2 de opción múltiple, 1 de selección múltiple, 1 ordenar, 1 autoevaluación y 1 conjunto. Por dificultad, 5/5/7/5/3; los 6 conceptos con 3 o más de dificultades distintas;
+    - jefe con 9 propias y 3 de repaso (calc-04-025, calc-03-024 y calc-01-019), 1260 s.
+  - **`/revisar-contenido`:**
+    - a ciegas: 24/24 y, tras los arreglos, 15/15, sin discrepancias;
+    - checklist de los tres con objeción y sin respuestas erróneas;
+    - con el sí de Carlo se aplicó:
+      - 007 → $x^{\ln x}$ en $e$ (la fórmula ingenua daba lo mismo en 1);
+      - frase falsa del 023;
+      - ejemplo de d²y/dx² implícita;
+      - lección recortada, con el esbozo como opcional;
+      - 013 ya no filtra un término de la respuesta;
+      - 025 sin `±`;
+      - notación dy/dx;
+      - en 008, $\operatorname{sen}^{-1}=\operatorname{arcsen}$ explícito;
+      - desvanecidos con el paso modelado;
+      - 010 de tres capas y 005 con cadena;
+      - regla única «cada producto lleva `*`».
+    - arcsec, arccsc y arccot entran solo en la tabla, con nota de convención (decisión de Carlo).
+  - **Evidencia:**
+    - `content:check content/calculo` en verde (99 ejercicios, 77 por código y 22 manuales);
+    - `test:content` 313/313;
+    - `real-answers` 199/199;
+    - la lección se abrió en `localhost:3000` sin errores de KaTeX.
+  - **Calendario:** con D−12 cumplido, la 05 es la última unidad que se estudia a fondo antes del parcial. Las que siguen (07, 06, 08, 09 y 02) sirven para práctica y simulacro.
+- 2026-11-11 · **Unidad `calculo/04-reglas-derivacion`** (sprint del parcial, 3.2.1 del programa, sin regla de la cadena).
+  - **Esquema:** objeción sin bloqueo de `experto-matematicas`, `pedagogo` y `arquitecto-razonamiento`. Lo que entró:
+    - demostraciones completas solo del producto, $e^x$ y sen;
+    - $\ln x$ por definición con $u=h/x$ y $v=\ln(1+u)$;
+    - cociente por el recíproco;
+    - respuestas en sintaxis de sympy y de la app;
+    - anclas por concepto para `workedExampleFor`;
+    - 4 tablas de valores, verificación con una secante, contraejemplos y diferenciación automática con pares;
+    - clásicos de libro evitados.
+  - **Unidad:** la escribió `autor-contenido`:
+    - lección de 25 min y 170 líneas;
+    - 25 ejercicios: 6 numéricos, 5 simbólicos, 5 de completar, 3 de opción múltiple, 3 de conjunto, 2 de selección múltiple y 1 autoevaluación. Por dificultad, 4/6/7/5/3;
+    - jefe con 8 propias y 3 de repaso (calc-03-009, calc-03-019 y calc-01-014), 1155 s.
+  - **`/revisar-contenido`:**
+    - a ciegas: 23 de 23 y, tras los arreglos, 16 de 16, sin discrepancias;
+    - checklist: matemáticas aprueba, pedagogo y lingüista dan objeción leve; sin errores de respuesta;
+    - con el sí de Carlo se aplicaron:
+      - «se ve en la 02» → «aquí se acepta»;
+      - «secante» → «cociente de diferencias» cuando no es la recta, porque choca con $\sec x$;
+      - 021 en positivo («marca las que fallan»);
+      - Ojo de 5 viñetas y bloque «Cómo se escribe en la app»;
+      - dominio de la potencia y de $\log_b$;
+      - formato de respuestas;
+      - en el jefe, $\ln x$ (013) y 01-014 en lugar de 01-005, que se respondía de memoria;
+      - el 025 nuevo, $5^x-4\log_2x$.
+    - La notación suma sech, csch y coth, `sec(x)^2` y `log(x, b)`.
+  - **Evidencia:**
+    - `content:check content/calculo` en verde (74 ejercicios, 55 por código y 19 manuales);
+    - `test:content` 313/313;
+    - `real-answers.test.ts` 175/175;
+    - lección y ejercicio 011 (tabla en `array`) vistos en `localhost:3000`, sin errores de KaTeX.
+- 2026-11-11 · **Unidad `calculo/03-derivada`** (sprint del parcial, 3.1 del programa: todo por definición).
+  - **Esquema:** lo revisaron `experto-matematicas`, `pedagogo` y `arquitecto-razonamiento`. Los tres dieron objeción sin bloqueo y sus cambios se integraron:
+    - pasos intermedios calificables (cociente simplificado con `variables: [x, h]`);
+    - problemas de varios pasos;
+    - ejemplo de trozos con el contraste del salto;
+    - recuadro de continuidad, porque la 02 no existe;
+    - laterales con `h` positivo y `real_root`;
+    - pistas socráticas.
+  - **La escribió** `autor-contenido`:
+    - lección de 25 min con el gancho del auto de la 01, $s(t)=3t^2-t^3/3$, que da $v(3)=9$ m/s;
+    - 24 ejercicios: 6 numéricos, 6 de opción múltiple, 5 simbólicos, 2 de completar, 2 de conjunto, 1 de ordenar con gráfica, 1 de selección múltiple y 1 autoevaluación. Por dificultad, 2/6/7/6/3. Cada concepto tiene 3 o más ejercicios de dificultades distintas;
+    - jefe con 7 propias y 3 de repaso (calc-01-003, 006 y 018), 1200 s.
+  - **`/revisar-contenido`:**
+    - resolutor a ciegas: 23 de 23, 0 discrepancias;
+    - checklist con objeción de los tres, sin bloqueo;
+    - con el sí de Carlo se aplicaron 5 errores:
+      - 022 coincidía con un ejercicio publicado de Stewart; ahora es $x^2-x$ con corte en 3, respuesta (5, −9);
+      - la rúbrica del 021 decía «solo ahí»;
+      - enunciados ambiguos en 017 (velocidad con signo), 024 (valores de $a$, no puntos) y 008 (comparar con signo);
+    - y las mejoras: enunciados de 002, 004, 009, 010, 014, 015, 019 y 020; la lección recortada (Predice y Conexión) con el desarrollo y el porqué de cada paso; el 008 pasa a `recta-tangente`; en el jefe, el 011 en lugar del 009.
+    - La notación de Cálculo suma $f'_{+}(a)$, $f'_{-}(a)$ y $\Delta x = h$ (con el sí de Carlo).
+  - **Evidencia:**
+    - `content:check content/calculo` en verde (49 ejercicios, 33 por código, 16 manuales);
+    - `test:content` 313/313;
+    - re-resolución a ciegas de los 12 cambiados: 12 de 12, 0 discrepancias;
+    - la lección abierta en `localhost:3000` (servidor de otra sesión): el visual `secante-tangente` dice «pendiente ≈ 9», sin errores de KaTeX.
+  - **Nota técnica:** con `dynamicParams = false`, un `next dev` ya corriendo no ve una unidad nueva (404) hasta que se toca la página de la unidad.
+  - **Para el motor:** propuestas en «Decisiones pendientes».
+- 2026-11-10 · **Arranca el sprint del parcial de Cálculo.** Google Calendar no tiene eventos de «parcial» ni de «examen» antes del 15 de diciembre, así que Carlo dio la fecha a mano. Respondió cobertura, fecha, orden, alcance y cuántas unidades escribir (ver «Decisiones tomadas · sprint del parcial de Cálculo»). No hay `respaldos/`, así que `/coach semana` sigue pendiente.
+- 2026-11-10 · **Arreglos de `01-limites`** (aprobados por Carlo tras `/revisar-contenido`). Los escribió `autor-contenido` con una especificación cuyos números se comprobaron antes con sympy.
+  - **Lección:**
+    - ejemplos nuevos: laterales, límite notable ($\operatorname{sen}5x/2x$) y encontrar δ;
+    - «Al infinito» y el `<Desvanecido>` usan otras funciones, para que dejen de ser copia de 004 y 006; los huecos ahora piden números (16 y 1/8);
+    - leyes de los límites y sustitución directa con sus hipótesis;
+    - corregidas las frases de 0/0, la tabla y la notación O;
+    - «Nivel experto» avisa que está fuera del programa y pasó antes del cierre;
+    - `programa_ref` precisa qué parte de 2.3 cubre;
+    - «sen» en vez de `\sin`.
+  - **Ejercicios:**
+    - 002 y 007 retirados;
+    - 010, 011, 012, 018 y 021 corregidos;
+    - `verificar` de 017 y 021 por una vía independiente (017 evita el error de `Piecewise`);
+    - nuevos 022 a 027: gráfica con hueco, `floor` con salto en `seleccion_multiple`, tabla de $(e^x-1)/x$, $x\to-\infty$ y dos de ε–δ.
+    - Quedan 25 activos: 14 numéricos, 6 de opción múltiple, 2 de completar y 1 de ordenar, 1 de autoevaluación y 1 de selección múltiple. Por dificultad 5/8/8/3/1, y todos los conceptos con 3 o más.
+  - **Jefe:** sale 004 y entra 018 (laterales); siguen 6 preguntas.
+  - **Evidencia:**
+    - `content:check` en verde (25 ejercicios: 17 por código, 8 manuales);
+    - `pnpm test:content` 313/313;
+    - resolutor a ciegas 13/13 en lo nuevo y lo cambiado, 0 discrepancias;
+    - e2e `smoke` y `study` 10/10 (la lección con 1 tabla y 2 huecos, el jefe con 6);
+    - 022 y 023 vistos en `localhost:3000/ejercicios/…` sin contestar: el hueco en (1, 2) y los saltos de `floor` se dibujan, sin errores de consola.
+  - **Fuera de estos arreglos:** el pulido en «Decisiones pendientes».
+- 2026-11-10 · **Prueba del equipo con agentes reales** (casilla de la v1). Sesión del app que arrancó en `0IPN/Cortex` y se movió a `cortex/`.
+  - **Pasos y evidencia:** en la casilla «Prueba con los agentes reales» de la v1. Pasaron descubrimiento, MCP, cercas, `/revisar-contenido` y `/consejo`. `/coach semana` queda pendiente porque no hay respaldo. El CLI sigue sin sesión (`claude auth status` → `"loggedIn": false`).
+  - **`/revisar-contenido`, checklist:**
+    - `experto-matematicas` recalculó las 21 respuestas por otra vía (Taylor, `cancel`, x = 1/t, `solveset`) y todas salen bien;
+    - los tres revisores coinciden en la calificación de `completar` y del `<Desvanecido>`, la notación «sen», la frase de 0/0 y los conceptos con menos de 3 ejercicios;
+    - `pedagogo` añade que la práctica y el jefe repiten los ejemplos de la lección;
+    - arreglos propuestos en «Decisiones pendientes»; no se tocó `content/`.
+  - **`/consejo`, veredictos:**
+
+    | Asesor | Veredicto | Punto clave | Recomendación |
+    |---|---|---|---|
+    | `experto-matematicas` | Objeción condicional | La Unidad III pesa más (21.5 de 81 h con docente; 3.5, optimización, 9 h); el tronco es 03 → 04 → 05; «00 a 07» no basta si entra la IV | Carlo dice qué secciones entran; si es solo la III: 03 → 04 → 05 → 07 → 06 |
+    | `pedagogo` | Objeción condicional | 06 y 07 son lo que pide la competencia de la III; el simulacro (12 × 120 s, solo respuesta final) no mide problemas de varios pasos | Sin temario, empezar por 02; diagnóstico de 5 problemas en papel antes de la III |
+    | `cientifico-memoria` | Objeción condicional | En el sprint caben 2–4 unidades nuevas; `currentUnits` manda a la primera unidad no dominada por número | Última unidad nueva en D−12, simulacro en D−6, `requestRetention` en 0.90 |
+
+    - *Coinciden:* sin saber qué entra y la fecha no se puede priorizar; «00 a 07» es una suposición.
+    - *Chocan:* matemáticas y pedagogo ordenan por peso del examen (07 antes que 06, y 00 al final o solo como diagnóstico); memoria pide escribir en orden de número, porque la sesión diaria manda a la primera unidad sin dominar y una 00 escrita se pondría antes que la 01.
+    - Decide Carlo con la cobertura del parcial.
+  - **Hallazgos técnicos:**
+    - sympy 1.14 da mal los límites laterales de `Piecewise` en el punto de corte: `limit(Piecewise((x**2, x<1), (3*x-1, True)), x, 1, '-')` devuelve 2 (es 1); con `x = 1 - h` y `h` positivo sale 1. Hay que evitarlo en los `verificar` de la unidad 02. El de `calc-01-017` no usa `Piecewise`.
+    - Propuestas para el motor, que decide Carlo:
+      - desempatar el calentamiento con un barajado por día (hoy se desempata por id y salen bloques por unidad, `srs.ts:124`);
+      - que `planExam` prefiera ejercicios nunca intentados;
+      - que `workedExampleFor` tome el ejemplo más cercano por debajo del nivel y no use autoevaluaciones (`flow.ts:90`).
+- 2026-11-10 · **v1 · Equipo y coach** (ADR-024 a ADR-026).
+  - **Brainstorm y plan con Carlo:**
+    - equipo de agentes;
+    - coach por MCP;
+    - KPIs reales;
+    - iPad con Pencil como PWA en la v1.1 y nativa después;
+    - sync por relay propio en el VPS;
+    - Ruta IA en paralelo;
+    - sprint del parcial de Cálculo antes de la v1.1.
+  - **Hecho:**
+    - 19 agentes y `docs/08`;
+    - 3 cercas;
+    - 3 comandos nuevos y 4 actualizados;
+    - MCP con 5 herramientas;
+    - 3 módulos puros del motor;
+    - `docs/09` con la visión del iPad y el catálogo del brainstorm.
+  - **Evidencia:**
+    - `pnpm check` en verde (lint, tipos, 860 pruebas unitarias y 277 de contenido) antes de agregar la prueba de las cercas;
+    - 36 pruebas de las cercas;
+    - 25 pruebas nuevas de motor y MCP, incluida la de privacidad y una que arranca el servidor real por stdio con el comando de `.mcp.json`.
+  - **No verificado aún:** los agentes reales y el MCP dentro de una sesión de Claude Code, porque esta sesión no carga agentes nuevos a media sesión. Queda en la checklist de v1.
+  - **Después, el mismo día:** Carlo decidió abrir sus sesiones en `cortex/`. El mapa de maestría con el motor nuevo quedó probado en el navegador (un acierto mueve solo su concepto a «Vista»). El CLI sigue sin sesión, así que la prueba de los agentes reales queda para la primera sesión abierta en `cortex/`.
+- 2026-11-10 · Decisión de Carlo: logaritmos **siempre con base** en todo lo que ve y escribe el estudiante (regla en `docs/05`, sección de funciones del verificador). Sin cambios de código. Revisado en todo `content/`: los `log` sin base que hay son de notación asintótica (`$O(\log n)$` en Programación 11 y en la conexión de `01-limites`), la excepción de la regla porque ahí la base no importa; el único `log(` evaluable es `log(1024, 2)` en un `verificar` de Programación, que ya lleva base. La ayuda del campo de fórmulas no menciona logaritmos.
+- 2026-11-10 · F3 paso 7, cierre: Carlo aprobó el temario con `00-funciones` (ver «Decisiones tomadas · temario de Cálculo»). `content/calculo/conceptos.yaml` tiene ahora 76 conceptos agrupados por unidad, con un comentario que da la sección del programa oficial: 12 de funciones, los 7 del piloto, y 7, 6, 5, 6, 4, 7, 5, 4, 8 y 5 para las unidades 02 a 11. Los ids del piloto no cambian. Solo ganan prerrequisitos de funciones: `limite-intuitivo` ← `funcion-representaciones` y `limite-notable-seno` ← `funciones-trigonometricas`. La lección `01-limites` lleva esos dos en `prerrequisitos` y `programa_ref: "Cálculo, Unidad II (2.1 a 2.3)"`, que antes decía «pendiente». La `notacion` pide escribir la base de los logaritmos (ver decisión pendiente sobre `log`). No se crearon carpetas de unidad: una carpeta sin sus tres archivos no pasa `content:check`, así que cada una nace en el paso 8 con su lección. *Revisado al diseñar:* los prerrequisitos solo afectan al mapa, que los dibuja como nodos fantasma (no se pueden enfocar y no bloquean la práctica); en ⌘K el grupo «Unidades» va antes que «Conceptos», así que los conceptos nuevos con «límite» no le quitan el primer lugar a la lección piloto (e2e de la paleta). El logro del Teorema Fundamental depende del jefe de la unidad 10, no de un id de concepto. *Para el paso 8:* (1) con `00` delante, `fill-boss-review.py calculo` le pondrá repaso al jefe de `01`, y la e2e 9 (`e2e/study.spec.ts`, que cuenta 6 preguntas) tendrá que cambiar; (2) ningún título de unidad nueva debe llevar «límites». `pnpm content:check` en verde: 0 errores; los 12 avisos son los `programa_ref` pendientes de Programación. `pnpm check` en verde (835 pruebas unitarias y 277 de contenido) y las e2e afectadas (8, 9, 10, 16 y 20: sesión, jefe del piloto, mapa en celular, lección por pasos y paleta) en verde en el puerto 3100.
+- 2026-11-10 · F3 paso 7: puerta de temario de Cálculo; programas conseguidos y propuesta de temario. *Programas:* no estaban en la Mac (solo material de clase: Tareas 1 y 2 de Cálculo, cuadernillo 1 de Discretas). Con permiso de Carlo se descargaron de la biblioteca oficial de ESCOM (`escom.ipn.mx/docs/oferta/uaIIA2020/`) `calculo_IIA2020.pdf` (138 835 B, sha256 `eebb3ec8…294355`) y `matematicasDiscretas_IIA2020.pdf` (134 757 B, sha256 `a41a6a17…6c03db`): programa sintético y de estudios de IIA, semestre I, vigentes desde enero de 2020, firmados por ESCOM y UPIIC (Coahuila). Quedaron como `calculo.pdf` y `matematicas-discretas.pdf`, sin versionar. Las Tareas 1 y 2 de Carlo (funciones, Stewart, que está en la bibliografía) coinciden con la Unidad I. *Unidades oficiales de Cálculo:* I Funciones algebraicas y trascendentes (representaciones; monotonía, simetría y periodicidad; inversas; exponenciales, logarítmicas, trigonométricas e inversas, hiperbólicas e inversas; transformaciones) · II Límites y continuidad (gráfica y numérica, analítico, indeterminadas, unilaterales, trigonométricos, infinitos y en el infinito con asíntotas horizontales, verticales y oblicuas, continuidad en un punto y en un intervalo) · III Derivada y aplicaciones (razón de cambio, reglas para algebraicas y trascendentes, cadena, implícita, orden superior, razones relacionadas, diferencial, criterios de 1.ª y 2.ª derivada, gráficas, optimización) · IV Técnicas de integración (antiderivada, sustitución, partes, trigonométricas y sustitución trigonométrica, fracciones parciales) · V Integral definida y aplicaciones (propiedades, TFC, trapecio y Simpson, área entre curvas, volúmenes por discos, arandelas y capas, longitud de arco y área de superficie). *Diferencias con el temario propuesto:* (1) falta toda la Unidad I; (2) el programa pone todas las técnicas de integración antes de la integral definida; (3) temas que no estaban: asíntotas oblicuas, integración numérica, área de superficie, derivadas de hiperbólicas. El piloto `01-limites` cubre II.1 a II.3 sin asíntotas y trae ε–δ, que el programa no pide. *Propuesta a Carlo:* `00-funciones` antes del piloto (las expresiones regulares aceptan `00`; la interfaz diría «Unidad 00»; el repaso entrelazado le agregaría preguntas al jefe de `01` y la e2e 9, que cuenta 6, tendría que cambiar) · 02 continuidad y asíntotas · 03 la derivada · 04 reglas de derivación · 05 cadena, implícita y orden superior · 06 razones relacionadas y diferencial · 07 máximos, mínimos, gráficas y optimización · 08 antiderivadas, sustitución y por partes · 09 trigonométricas, sustitución trigonométrica y fracciones parciales · 10 integral definida, TFC e integración numérica · 11 aplicaciones de la integral (jefe final). *Discretas, para el paso 9:* I Lógica · II Conjuntos · III Números enteros (divisibilidad, Euclides, teorema fundamental de la aritmética, inducción, sistemas de numeración) · IV Estructuras discretas (álgebras booleanas y Karnaugh, relaciones, orden y equivalencia, enteros módulo n y teorema chino del residuo, grafos y árboles). No trae conteo ni recurrencias, que el temario propuesto sí; el sintético numera dos veces la III (el de estudios dice IV). *Leer PDFs en esta Mac:* no hay `poppler` ni `pypdf`, y `swift` falla por un error de las Command Line Tools; PDFKit desde `osascript -l JavaScript` sí extrae el texto.
+- 2026-11-10 · F3 paso 6: simulacro de examen (ADR-023). *Motor* `src/engine/exam.ts` (puro, 15 pruebas): `planExam` reparte por turnos entre las unidades elegidas y, dentro de cada una, toma la banda de dificultad con más faltante; orden de fácil a difícil; máximo `maxLong` ejercicios largos de código; avance sin retroalimentación, saltar (al final de la fila), entregar, tiempo agotado y `examResult` (por unidad y por concepto, el más débil primero). `apportion` (mayor residuo) sale de `waveSizes` y lo comparten jefes y simulacro. *Persistencia:* `finishExam` guarda todo al entregar y en una transacción: cada respuesta por `recordAnswer` con `mode: "exam"` (mismo XP que la práctica, sin bono), sesión `exam`, errores al cuaderno y récord `best:exam:<materia>` (2 pruebas con IndexedDB falsa). *Interfaz:* `exam-runner.tsx` (configurar con unidades, examen con reloj, contador, Saltar `S` y Entregar con confirmación, resultado con desglose, tu respuesta en lo fallado y botón al repaso de hoy); `ExerciseCard` con `reveal={false}` ("Responder", sin pistas, sin decir si acertaste); Esc no saca a medio examen (`data-escape-guard`); S no salta mientras eliges la confianza. Entradas: tarjeta en la página de la materia y "Simulacro de examen · <materia>" en ⌘K. `docs/02` y `docs/03` al día. *Tu parte (TODO(Carlo)):* las reglas de `CONFIG.exam` (12 preguntas, 120 s por pregunta, 30/40/30, aprueba con 60 %, 1 largo) son un valor inicial razonable; ajústalas a tus parciales. *Verificado en la vista previa sin tocar tus datos:* en `localhost:3000` solo se miró la configuración, se contestó una pregunta (avanzó sin revelar nada), se saltó otra con S, Esc no sacó y se salió con "Salir"; la IndexedDB quedó con 0 intentos y 0 sesiones de examen. El examen completo se juega en la e2e (puerto 3100, otro origen). *Hallazgos al probar:* (1) el ayudante de e2e nunca contestaba mal un `ordenar` (siempre lo ordenaba); salió porque el simulacro baraja con la hora. Ahora entrega el orden barajado, que la app nunca muestra ya ordenado; el spec del simulacro pasó 12 veces seguidas. (2) La sección de ejemplos de `/estilo` desbordaba 17 px a 320 px (el selector no se envolvía); corregido. (3) `tests/lint-boundaries.test.ts` fallaba a veces con la máquina ocupada: su primera prueba arranca ESLint en frío y pasaba de los 5 s; ahora tiene 30 s. (4) `ExamQuestion` heredaba `id` en lugar de `exerciseId` y una prueba se quedaba en un ciclo infinito: lo atrapó la propia prueba antes de llegar a la interfaz. *Evidencia:* `pnpm check` en verde (lint, typecheck, 835 unitarias y 277 de contenido); `pnpm build` y e2e 24/24 (nuevas: `exam.spec.ts` con el examen completo, Esc, saltar, desglose, récord y tiempo agotado con el reloj de Playwright; `/materias/programacion/simulacro` en la prueba de desborde a 320 y 375 px). El `NoFallbackError` que imprime el servidor en la prueba del 404 es el registro interno de Next al servir una ruta inexistente; la prueba pasa. *Revisión de seguridad automática:* la del commit del paso 5 no se completó (el plugin recibió HTTP 401; detalle en `~/.claude/security/log.txt`).
+- 2026-11-10 · F3 paso 5: tipos nuevos de ejercicio. *Primera parte (commit `7f150cb`):* esquemas Zod de `tabla_verdad` (la columna se comprueba contra el intérprete de la app), `conjunto` y `seleccion_multiple`, campo `visual` (solo `grafica` y `grafo`: los demás anuncian su conclusión) y calificación en `check.ts`. *Segunda parte:* `verify_content.py` los verifica por otra vía: la tabla la recalcula **sympy.logic** con un lector propio de la misma gramática; los conjuntos se comparan sin orden contra lo que da `verificar` (`1/2` y `0.5` son el mismo elemento; pares como tuplas); en `seleccion_multiple`, `verificar` da un booleano por opción. Prueba nueva `tests/content/logic-parity.test.ts`: 45 fórmulas válidas y 12 inválidas leídas igual por la app y por Python (cada símbolo y palabra, precedencia, asociatividad, letras `y`/`o`/`v` como conector o variable, constantes que sympy simplifica y NFKC). Seis casos nuevos de paridad Zod ↔ Python y tres casos buenos y tres malos en `content-check.test.ts`. *Interfaz* (`src/components/study/math-types.tsx`): selección múltiple con casillas y teclas A, B, C…; conjunto con vista previa en vivo («Leo {…} · n elementos») y errores de lectura que no gastan el intento; tabla de verdad con un grupo de radio por fila, una parada de Tab por fila, V/F o 1/0 que llenan y bajan solas, ↑/↓ entre filas y la respuesta esperada «de arriba abajo» en el orden y los símbolos de `convention.ts`. El visual del enunciado va debajo con su descripción; el grafo se dibuja **fijo** (`interactive={false}`), porque elegir un vértice muestra su grado. `/estilo` tiene una sección jugable con cuatro ejemplos (`demo-exercises.ts`), validados por el esquema real, el verificador de la app y una comprobación aparte (divisibilidad, grados contados en el grafo, raíces sustituidas). `docs/05` (tipos, gramática y orden canónico, conjuntos, `visual`), plantilla de ejercicios, `/revisar-contenido` y la prueba de ida y vuelta cubren los tres tipos. *Sin cambios a propósito:* el mini quiz y `fill-boss-review.py` ya los aceptan (no son ejercicios largos de código). *Bug encontrado al probar en el navegador:* en la tabla de verdad el foco bajaba de fila con `requestAnimationFrame`; al teclear rápido (o con la pestaña oculta) la siguiente tecla caía en la misma fila. Ahora el foco se mueve en el acto (las filas no cambian de lugar) y la e2e lo cubre. *Incidente:* `.next/dev/types/routes.d.ts`, escrito por el `next dev` que ya corría, estaba truncado y rompía `pnpm typecheck` (el tsconfig lo incluye); se reemplazó con el que genera `next typegen`. Si vuelve a pasar, basta reiniciar `pnpm dev`. *Evidencia:* `pnpm check` en verde (lint, typecheck, 816 unitarias y 277 de contenido); e2e nueva `e2e/math-types.spec.ts` en verde (correcto, incorrecto, conjunto ilegible y tabla incompleta, solo con teclado, sin errores de consola); en la vista previa, los cuatro ejemplos jugados con teclado y la tabla sin desborde a 375 px. Una corrida de las unitarias falló una vez en la prueba de zonas de ESLint (corre ESLint en frío) y pasó al repetirla; no se volvió a ver.
+- 2026-10-13 · F3 paso 4: respuestas ampliadas (la app y `verify_content.py` con la misma regla). *Evaluador de la app:* `sen`, `arcsen`/`arcsin`, `arctan`/`arctg`, hiperbólicas e inversas, `binomial(n, k)` y `C(n, k)`, `P(n, k)`, `mod`, `gcd`, `lcm`, `min`, `max`; infinito como `oo`, `∞`, `inf` o `infinito` (con ayuda en el campo numérico). *Enteros exactos:* con tolerancia 0 y respuesta entera, el margen relativo de 1e-9 se topa por debajo de 0.5; antes, con 10⁹ o más, se aceptaba el entero de al lado. En Python dos enteros se comparan sin pasar por float. *`simbolico`:* `salvo_constante: true` para antiderivadas (acepta cualquier constante, escrita como `+ C` o no) y `muestreo: { desde, hasta, enteros }` para expresiones que no existen entre −3 y 6 o que solo valen en enteros. *Verificador de Python:* `completar` ya se puede verificar (`verificar` devuelve un valor por hueco), `opcion_multiple` acepta `valores` simbólicos y `verificar.python`, `verificar.python` tiene `itertools` y funciones sin efectos para verificar un conteo **enumerando** los casos, y cada expresión tiene un tope de 30 s (antes un `integrate` colgado detenía todo). *Prueba nueva* `src/content/real-answers.test.ts`: la respuesta oficial de cada ejercicio que se califica con texto (122 hoy) debe salir correcta en el verificador de la app. *Dos bugs que ya existían y salieron al escribir las pruebas:* `log10(100)` se leía como `log(10)·(100)` y daba 230.26 en vez de 2, y `log2(8)` daba 5.55 en vez de 3, **sin avisar**; `sech`, `csch` y `coth` fallaban con «variable h». La causa era la regla que permite escribir `sin x` sin paréntesis: un nombre debe ir antes que su prefijo. Ningún ejercicio actual los usaba. *Efecto en el contenido:* `prog-03-006` (opción múltiple con `verificar.python`) pasó de revisión manual a verificado por código, y sale bien: ahora son 181 verificados y 76 manuales. *Evidencia:* `pnpm check` en verde (lint, typecheck, 795 unitarias, 132 nuevas, y 213 de contenido, 3 nuevas que prueban cada regla de Python con su caso bueno, su caso malo y el corte por tiempo); `pnpm content:check` en verde (13 unidades, 257 ejercicios); e2e 21/21. La ubicación de la prueba de ida y vuelta cambió respecto al plan (`src/content/` en lugar de `tests/content/`): no necesita Python y así corre con las unitarias, en segundos.
+- 2026-10-13 · F3 paso 3: lógica, tablas de verdad y grafos. *Motor (puro, con pruebas):* `src/engine/logic/formula.ts` lee fórmulas con símbolos (`¬ ∧ ∨ ⊕ → ↔`), ASCII (`~ & | -> <->`) y palabras (`no`, `y`, `o`); una `y`, `o` o `v` suelta es variable donde va una variable y conector donde va un conector, sin ambigüedad porque dos variables nunca van juntas. Precedencia de Rosen y `→` asociando a la derecha. Al escribir una fórmula pone paréntesis siempre que se mezclan conectores (`(p → q) ↔ (¬q → ¬p)`), porque la precedencia entre `→` y `↔` no se enseña igual en todos los cursos; lo escrito vuelve a leerse como la misma fórmula (probado con 108 fórmulas anidadas). `truth-table.ts` da la tabla en un orden canónico fijo (todas verdaderas primero) con las columnas intermedias de adentro hacia afuera, y clasifica en tautología, contradicción o contingencia. `convention.ts` decide solo cómo se muestra (símbolos y orden de filas) y lleva un `TODO(Carlo)`. `src/engine/graph.ts`: vecinos, grados y acomodo en círculo. *Visuales:* `<Visual id="tabla-verdad" formula="…">` (fórmula editable, botones para insertar símbolos, columnas intermedias opcionales, veredicto) y `<Visual id="grafo" vertices="…" aristas="…">` (SVG propio, llega dibujado desde el servidor; al elegir un vértice resalta sus aristas y lee su grado; con `dirigido="si"` dibuja flechas). `ResolvedVisual` pasó a ser una unión (función, tabla de verdad, grafo). *Hallazgos al probar en el navegador:* (1) el panel de vista previa estaba oculto y ahí `requestAnimationFrame` no corre, así que el cursor no se recolocaba tras insertar un símbolo: se cambió a `flushSync`, que no depende de que la pestaña se vea; (2) el selector de Riemann desbordaba su control a 320 px: los grupos de opciones ahora bajan de línea. *Evidencia:* `pnpm check` en verde (lint, typecheck, 663 unitarias, 78 nuevas, y 210 de contenido); `pnpm content:check` en verde; e2e 21/21. En el navegador: `(p → q) ∧ ¬q` da F, F, F, V; al escribir `(p -> q) <-> (no q -> no p)` da tautología; insertar `∨` deja el cursor después del símbolo y se puede seguir escribiendo; ← y → dentro de la tabla no llegan al lector por pasos; en el grafo de 5 vértices, `a` tiene grado 3 y vecinos b, c, e; en el dirigido, de `b` sale 1 y llega 1; a 320 px la tabla se desplaza dentro de su marco y la página no desborda; sin errores de consola nuevos. *Sobre el incidente del paso 2:* esta corrida completa no tuvo ningún proceso terminado; la diferencia fue apagar el servidor de vista previa antes y aparte, no en el mismo momento de lanzar las pruebas. Regla práctica: no apagar la vista previa mientras corre `pnpm check`.
+- 2026-10-13 · F3 pasos 1 y 2: visuales de lección (ADR-021). *Mafs:* aceptado contra seis criterios, con dos hallazgos que fijan cómo se usa. (1) Numera los patrones de su cuadrícula con un contador del módulo, así que su SVG no puede venir del servidor: se usa siempre con ancho automático y nunca con `ssr`. (2) Su dependencia `use-resize-observer` declara soporte hasta React 18; pnpm solo avisa y en la práctica vuelve a medir bien con React 19. *Hecho:* `<Visual id … />` real con parámetros de texto y cuatro visuales (`grafica`, `limite`, `secante-tangente`, `riemann`); `src/content/core/visuals.ts` valida y resuelve los parámetros y la guardia reporta cada problema con su línea; `src/engine/plot.ts` con el muestreo por tramos, sumas de Riemann, Simpson y la estimación de límites laterales; `toTex` para escribir la función en la descripción que genera el servidor; estilos con tokens y el mapa de variables de Mafs sin capa; sección de visuales en `/estilo` con ambos temas; `docs/05` (sección "Visuales") y `docs/02`. La lección de límites lleva un `<Visual id="limite">` de su propia función, en el paso 2. *No se tocó* `content/_plantillas/leccion.mdx`: un visual es opcional y la plantilla es la anatomía que toda lección debe tener. *Bug que ya existía y salió al probar:* el evaluador de respuestas reescribía `log(x, 2)` como `log((x, 2))` y no se podía escribir un logaritmo con base; corregido con prueba de regresión. *Evidencia:* lint y typecheck limpios; 585 unitarias (77 nuevas: geometría, especificación de visuales, criterios de Mafs, guardia y regresión del logaritmo), entre ellas la invariante de los pasos con el visual ya dentro de la lección de límites; `pnpm content:check` en verde (13 unidades, 257 ejercicios); 210 de contenido; e2e 21/21. En el navegador (servidor de verificación, puerto 3200): cero errores de consola y de hidratación en `/estilo` (5 gráficas) y en la lección; 30 recursos cargados, ninguno fuera de `localhost`; el visual del paso oculto se dibuja al mostrarse (607 px) y se vuelve a medir a 375 px (301) y a 320 px (246), sin desborde horizontal; con el foco en el deslizador, End, ← y → mueven el control y la lección sigue en el paso 2; la conclusión del visual coincide con la lección (límite ≈ 6; la función no existe en x = 3); en `secante-tangente` con h = 0.05 la secante da ≈ 2.05 y la tangente ≈ 2; ⌊x⌋ se dibuja con punto relleno a la izquierda y hueco a la derecha de cada escalón; ambos temas revisados en captura. *Incidente al verificar:* en la primera corrida completa de `pnpm check`, un proceso de Vitest que corría `tests/content/content-check.test.ts` recibió SIGTERM a los 150 s (no fue una aserción; coincidió con apagar el servidor de vista previa). El repo no envía esa señal en ningún lado. La misma prueba pasó sola (18/18) y el proyecto de contenido completo pasó al repetirlo (210/210 en 299 s). Si vuelve a ocurrir, hay que investigarlo antes de repetir.
+- 2026-10-10 · Cierre del rediseño "Arcano": el 2026-10-08 Carlo lo probó en local y pidió fusionarlo; `rediseno-ui` entró a `fase-2-programacion` como fast-forward (14 commits, hasta `7674f47`, sin commit de merge) y se subió a `origin`. Tras la fusión no se volvieron a correr `pnpm check` ni las e2e: el árbol es idéntico al que se probó en `rediseno-ui`. El 2026-10-10 se borró la rama local `rediseno-ui` (nunca tuvo rama remota). Pendiente: GitHub movió el repo a `carlobuilds/cortex` (mismas 4 ramas y commits que la dirección vieja, comprobado con `git ls-remote`); `origin` sigue apuntando a `BLOW3ED/cortex` y funciona por redirección hasta que Carlo lo cambie con `git remote set-url`.
+- 2026-10-05 · Rediseño de interfaz "Arcano" (ADR-020), rama `rediseno-ui`, 14 commits. *Diseño:* proyecto de Stitch "Cortex — Rediseño" (`projects/5107797018426403734`); Carlo eligió en CP1 la variante "Arcano" + el jefe de "HUD cian" con glow sutil, aprobó en CP2 las pantallas de estudio (con header de foco y paleta ⌘K) y en CP3 el tema claro y el móvil; los textos de Stitch (inventados: "Tip de examen", "esencias de memoria", fechas 2024) no se copiaron: todo sale de datos reales. *Código:* tokens OKLCH nuevos validados antes con un script aparte (68 pares AA) y luego por `tokens.test.ts` (34 pares por tema); tema según el sistema con selector rápido y control en Ajustes (sin migración de Dexie: `"system"` es solo un valor más del tipo y del esquema del respaldo); primitivas de radix-ui transcritas a mano (Tooltip, Tabs, Dialog, Sheet, DropdownMenu, ToggleGroup) y estados (`LoadingState`, `EmptyState`, `StatTile`, `ProgressRing`, `Kbd`), sin dependencias nuevas; navegación con `aria-current`, barra inferior + hoja "Más" bajo `lg` y header de foco en las rutas de estudio; paleta Ctrl/⌘K (combobox ARIA, búsqueda sin acentos); inicio centrado en "Hoy" con la ruta de la sesión leída de `readToday` (la misma fuente que /sesion); /materias con el plan completo; **lección por pasos**: plugin de rehype (después de la guardia, con `steps: true`) + lector cliente con riel, →/←/V, foco al título, `aria-live`, `hidden="until-found"` (Ctrl+F) y la lección completa en el servidor; migas del servidor y Esc sin recarga (router); tarjeta de ejercicio, jefe, cierre del día y progreso reestilizados; mapa de maestría por unidad con layout por capas (camino más largo + baricentro) y aristas SVG; barrido de consistencia (`eyebrow`, bordes de 1 px, escala de texto, `PageHeader`); `/estilo` con ambos temas. *Hallazgos al verificar:* (1) un objeto exportado desde un módulo `"use client"` llega a un componente de servidor como referencia opaca y al expandirlo queda vacío (pasó con `THEME_BOOT` y con el mapa de componentes de los pasos): se arman del lado del servidor; (2) en una cuadrícula con columna `auto`, un texto con `truncate` empuja el ancho mínimo y desborda en el celular: columnas con `minmax(0,1fr)`; (3) con 6 destinos, la nav de escritorio no cabía junto al HUD extremo a 768–1023 px: aparece desde `lg`. *Aportes pendientes de Carlo (opcionales, marcados `TODO(Carlo)`):* si el calentamiento sin repasos cuenta como hecho en el anillo del inicio (`src/lib/session-route.ts`), si el final de la lección forma un paso "Cierre" (`src/content/lesson-steps.ts`) y cómo se ordenan los nodos del mapa (`src/lib/graph-layout.ts`). Evidencia: `pnpm check` en verde (lint, typecheck, 508 unitarias + 210 de contenido); `pnpm content:check` en verde (13 unidades, 257 ejercicios, `content/` sin cambios; la prueba de invariante compara el HTML con y sin pasos en las 13 lecciones); e2e 21/21 (6 nuevas: pasos, celular, navegación y hoja Más, tema según el sistema sin destello, paleta, migas y Esc sin recarga); sin desborde a 320/375 px; capturas revisadas en ambos temas, escritorio y celular, contra las pantallas aprobadas en Stitch.
+- 2026-10-02 · F2 completa (rama `fase-2-programacion`): CodeMirror 6, Pyodide local en Web Worker, runner de C local con candados (ADR-019); tipos `depurar`, `parsons`, `rastreo_memoria` y pruebas `oculto` en Zod, `verify_content.py`, paridad, docs/05 y la interfaz; 12 unidades de programación con lección, 18–20 ejercicios y jefe cada una. Verificación independiente: `verify_content.py` corre cada solución (Python y C), exige que plantillas y códigos con bug fallen, que `depurar` cambie solo las líneas marcadas y comprueba cada respuesta de rastreo insertando un `printf` tras la línea. Revisión a ciegas por subagentes (resuelven sin ver respuestas; su código se corre contra TODAS las pruebas, también las ocultas): 0 discrepancias en las 12 unidades; sus observaciones de lección y redacción se aplicaron (p. ej. De Morgan con rango estricto, `%` con negativos en C, `%lf` en `scanf`, copia superficial, `v[-1]` como comportamiento indefinido, patrón de `realloc`, `feof`, EOF de `scanf`, cota O más ajustada). La revisión también destapó y se arreglaron: archivos que persistían entre corridas de Pyodide (ahora carpeta temporal por corrida) y dos fallas de `verify_content.py` (tolerancia con `inf`; ámbito de `eval` en comprensiones), con pruebas de regresión. Evidencia: `pnpm content:check` en verde (13 unidades, 257 ejercicios; solo avisos de `programa_ref` pendiente); `pnpm check` 392 + 210 (incluye correr todas las soluciones del repo en ambos runners); `pnpm build` (325 páginas estáticas); Playwright 15/15 (smoke, sesión del día, jefe, desborde y 5 nuevas: Python con Pyodide servido en local, C con el runner, Debug Dojo, Parsons y rastreo). Al correr las e2e se corrigieron dos pruebas (no la app): la sesión del día ahora empieza por programación y el ayudante de `ordenar` comparaba Markdown crudo con el DOM; la descarga de Pyodide se mide en el contexto porque ocurre dentro del Worker.
+- 2026-10-02 · F1 pasos 2–9: Dexie v2 + capa de progreso; texto enriquecido y `/catalogo.json`; interfaz de estudio completa (tarjeta de ejercicio con teclado, confianza, pistas con costo, reporte; práctica adaptativa con ejemplo resuelto tras 2 errores; repaso FSRS; mini quiz; jefe con oleadas/vidas/tiempo/fantasma/autopsia; sesión del día con cofre y gancho para mañana; mapa, cuaderno, progreso con liga/récords/calibración/logros; gimnasio; tema claro; modo sano; `<Predice>`/`<Desvanecido>` interactivos). Prueba a mano en el navegador (puerto 3200) encontró y se arreglaron: tarjeta que se remontaba al responder, huecos dentro de código, récords que se celebraban en cada respuesta, quiz de 4 que exigía 100 %, salidas de MathLive (`sin ^2x`, `|x|`). Piloto: 7 ejercicios nuevos (21 en total), revisión a ciegas con subagente: 7/7 coinciden; se aclaró la redacción de calc-01-018 y 021. Evidencia: `pnpm check` 358 + 86; `pnpm content:check` en verde; `pnpm build` (24 rutas estáticas); Playwright 10/10 (7 de humo + sesión del día, jefe y desborde de las páginas nuevas a 320/375 px).
+- 2026-10-02 · F1 paso 1: motor puro en `src/engine/` (config, azar con semilla, fechas, niveles, XP, verificadores de respuesta, FSRS, racha con congelamientos y reparación, día, misiones, cofre con probabilidades públicas, liga personal, récords, logros, jefes con oleadas/vidas/tiempo/fantasma/autopsia, flujo adaptativo, maestría, plan de la sesión y gimnasio: escalera, n-back, cálculo mental, secuencias). Evidencia: 58 pruebas nuevas en verde, `tsc` y `eslint` limpios.
+- 2026-10-02 · `findPython` detecta el `.venv` del repo sin activarlo (orden: `CORTEX_PYTHON`, `.venv`, `python3`, `python`, `py -3`). La ruta sale del propio módulo (no de la carpeta actual) y usa `bin/python` o `Scripts\python.exe` según la plataforma; un enlace roto (Python base desinstalado) sí se prueba y aparece en lo que probó. `CORTEX_VENV` apunta a otro venv, solo para pruebas (como `CORTEX_CONTENT_ROOT`): las de runner falso y la de "sin Python" lo usan para no ver el `.venv` real. README y el error "sin Python" ya no piden activarlo. Evidencia en macOS (sin activar el venv; `python3` de Homebrew sin sympy): `pnpm check` 264 + 85; con solo `node` en el PATH, `content:check` en verde con Python 3.13 del venv; al apagar la detección fallan 5 pruebas (las 3 nuevas del venv y las 2 con Python real).
+- 2026-10-02 · Smoke 6 en macOS (Playwright 1.63.0, chrome-headless-shell 153): fallaba 10/10 con "bloqueada: la pestaña vieja no soltó la base", pero la culpa no era de la pestaña vieja. La "otra pestaña" abría `/estilo`, una página de la app: su `ProfileHud` arranca su propia sonda, y `probeDb` llama a `close()` con dos lecturas en vuelo; según la especificación esa conexión no cuenta como cerrada hasta que terminan, así que Chromium dispara un `blocked` pasajero (la subida termina 1–2 ms después). La traza de Playwright (`retain-on-failure`) agrega ~10 ms de capturas que caen justo en esa ventana; en el contenedor Linux nunca se vio. Arreglo (solo la prueba): la subida se hace desde `/icon.svg` (mismo origen, sin layout ni sonda) y se exige que responda bien (un 404 traería la sonda de vuelta); el `onblocked` estricto se queda y ahora significa lo que dice. Evidencia en macOS: antes, 5/5 fallos; una copia sin traza y con 8–10 ms de espera tras `goto` falla 7/10 con `/estilo` (todas "bloqueada") y pasa 10/10 con `/icon.svg`; ya arreglada, 10/10 con la configuración del repo (traza encendida) y 10/10 + 10/10 sin traza con 8 y 10 ms de espera; una conexión retenida en la pestaña vieja sin manejador de `versionchange` sí la hace fallar con "bloqueada" (5/5); smoke 21/21 con `--repeat-each 3`; eslint y typecheck en verde. Rareza conocida (sin riesgo para los datos): como la sonda cierra con transacciones en vuelo, una subida de versión de la propia app en ese instante ve un `blocked` pasajero y Dexie avisa en consola (visto 2 de 6 veces en el diagnóstico, en una subida 5→10 en la misma pestaña). Se atiende, con su prueba, cuando llegue la primera migración real: cerrar la sonda al terminar sus transacciones o darle manejador de `versionchange`.
+- 2026-10-02 · Arranque en macOS (Homebrew, Python 3.13): `pip install` global falla por PEP 668 (`externally-managed-environment`). README (paso 2), PRIMER-PROMPT y el error "sin Python" de `content:check` ahora recomiendan un venv en `.venv` (ya ignorado) y explican que hay que activarlo o definir `CORTEX_PYTHON`, porque `findPython` no busca en `.venv`. Evidencia en macOS con el venv activo: `pnpm check` 264 + 80; `pnpm content:check` en verde; sin Python en el PATH, el mensaje nuevo sale y termina en 1.
+- 2026-10-01 · Verificación adversarial de los arreglos (workflow de 2 lentes con verificador; se reanudó tras un reinicio del contenedor): 5 de 7 hallazgos confirmados y arreglados, 2 descartados (también se mejoraron). **Datos:** si el navegador cierra la conexión a la fuerza ("Borrar datos del sitio", DevTools) la pestaña ya no queda "lista" con una conexión muerta: cualquier cierre pasa a "Recarga la página" (`DbClosedError`); la sonda usa `indexedDB.databases()` y no crea ni borra la base cuando no existe (en el primer arranque con dos pestañas, una borraba la base recién creada por la otra: 3–4 de 25 en Chromium, 30/30 en fake-indexeddb). **Interfaz:** un fallo al descargar ya no dice "no se puede importar"; el resultado de descargar desde el diálogo se ve dentro de él; racha compacta hasta `md`, "NV" oculto bajo 360 px y aviso de error corto en móvil (con nivel 100 y racha 1,240 el HUD cabe de 320 a 1024 px); prefijo `//` con respaldo `@supports` para Safari < 17.4. Evidencia: pruebas nuevas fallan sin cada arreglo (sonda del primer arranque, smoke 7 con `Storage.clearDataForOrigin`); `pnpm check` en verde; smoke 7/7 y 21/21 con `--repeat-each 3`.
+- 2026-10-01 · Revisión adversarial final de la Fase 0 (workflow de 4 lentes: datos, interfaz, seguridad y fidelidad, cada una con verificador escéptico): 29 de 30 hallazgos confirmados y reproducidos; todos arreglados. **Datos:** una pestaña vieja ya no reabre sola una base más nueva (`autoOpen: false`, cierre ante `versionchange`, aviso de recargar) y `CortexDb` solo abre su versión nativa exacta (la smoke 6 reprodujo la carrera sonda → `open` 1 de cada 8 veces sin el candado; con él, 12/12); respaldo compacto con máximo de 100 MB, tamaño revisado antes de leer y aviso al exportar; ids autoincrementales ≤ 2³¹−1. **Seguridad:** la guardia MDX rechaza código en `<abbr title={…}>` (se ejecutaba en build y en `content:check`), imágenes Markdown (pedían a la red) y props heredadas (`toString`, `__proto__`); servidor solo en `localhost`. **Interfaz:** foco visible en botones y switch, nivel y racha con `role="img"`, sin desborde en 320 px (racha compacta en móvil, resumen y diálogo del respaldo), `scroll-padding` bajo el header fijo, foco al aviso tras importar, `//` fuera de los nombres accesibles, títulos de materia en h4, 404 en español, `--xp-text` AA. **Fidelidad:** pruebas de mayúsculas/enlaces y del venv portables a macOS/Windows (sin verificar en esas plataformas: aquí solo hay Linux), `tsx` y `dexie-react-hooks` registrados en ADR, tablas en inglés en docs/06 y 07, PRIMER-PROMPT marcado como histórico. Descartado en esta ronda: base borrada por fuera mientras la pestaña está abierta (la ronda siguiente mostró que sí había que atenderlo; ver abajo). Rareza conocida: `next start` registra `Error: Internal: NoFallbackError` al pedir una materia o unidad inexistente (`dynamicParams = false`); responde 404 bien y ya pasaba antes del cambio. Evidencia: `pnpm check` 262 + 80; `pnpm content:check` en verde; smoke 6/6 (y 24/24 con `--repeat-each 4`); `pnpm dev` responde 200 en las 6 rutas, 404 en una inexistente, y no deja archivos modificados; desde la IP de red ya no responde.
+- 2026-10-01 · Paso 14: `/ajustes` con sonido (apagado por defecto; solo guarda la preferencia), estado de almacenamiento con botón para pedir que sea persistente, y respaldo: descargar, elegir archivo (botón propio en español), validar y comparar ahora vs respaldo, y reemplazar tras un diálogo con foco en Cancelar y la opción de descargar antes los datos actuales; errores con `role=alert`, avisos con `aria-live`. Los manejadores piden la base a `getDb()` (sin carreras tras recargar). Evidencia: `pnpm check` 242 + 79; smoke 4/4, incluido el caso 4: activar sonido → descargar (JSON `cortex`/1/1 con sonido activado) → borrar la base y recargar (sonido apagado) → importar → Cancelar enfocado, Esc no cambia nada → confirmar → sonido activado → un respaldo con esquema 2 se rechaza sin tocar nada; en 375 px no desborda ninguna página. Rareza del entorno documentada en la prueba: `setInputFiles` no carga archivos de rutas con "·" (se usan carpetas temporales ASCII).
+- 2026-10-01 · Paso 13: inicio con el plan 2020 (`buildHomeModel` puro): hero con cifras, lecciones disponibles, mapa por semestre (numeral grande en mono; materias con contenido arcade y enlazadas, el resto apagadas, con fase o backlog) y catálogo de optativas; página `/materias/[materia]` (SSG, solo materias con contenido); `ProfileHud` lee el perfil de Dexie (mismo estado de carga en servidor y cliente; aviso visible si la base es de una versión más nueva). Evidencia: `pnpm check` en verde; smoke 3/3: 45 entradas y exactamente 2 con contenido, HUD real "Nivel 1 · 0 XP · Racha: empieza hoy", base `cortex` creada en IndexedDB, primer Tab al salto al contenido con foco visible, transiciones en 0 con movimiento reducido, recorrido solo con teclado inicio → Cálculo → Límites, 0 errores de consola/hidratación/HTTP; en 375 px no hay desborde (se corrigieron chips de optativas y de conceptos que no se partían).
+- 2026-10-01 · Paso 12: HUD presentacional (`src/components/hud/`): `XpBar` en ticks (`role=progressbar`, acotada a [0, 1], `null` = cargando sin inventar valores), `LevelBadge`, `StreakChip` (en 0 dice "Empieza hoy"), `Lives` ("2 de 3 vidas") y `HudBar`; solo reciben números (la curva de niveles es de la Fase 1). Estados límite en `/estilo`, revisados en captura. Evidencia: 18 pruebas (aria, acotado de 1.5/-1/NaN/∞, plurales, carga sin números, ninguna palabra de culpa, toda animación detrás de `motion-safe`); `pnpm check` 233 + 79.
+- 2026-10-01 · Paso 11: sistema visual "Consola arcade" (ADR-016) con la dirección que eligió Carlo; tokens OKLCH oscuro/claro, botón/tarjeta/chip/switch/diálogo de shadcn adaptados, `AppShell` con salto al contenido, catálogo vivo `/estilo` y página de lección con prosa de ~68ch y panel lateral. Evidencia: `pnpm check` en verde (215 + 79); 44 pruebas de contraste AA, 22 pares × 2 temas (y bajar un token hace fallar 3); capturas revisadas: en móvil (390 px) la lección no desborda (0 px) tras forzar `minmax(0,1fr)`; el encabezado ya no sale rojizo (`color-mix` en sRGB); la sombra arcade se ve en oscuro. Smoke 2/2.
+- 2026-10-01 · Revisión adversarial de la capa de contenido (pasos 4–8): workflow de 4 lentes (paridad, MDX, robustez, pruebas) con verificador escéptico por lente; 22 de 34 hallazgos confirmados y reproducidos, más 7 del pipeline MDX que quedaron sin veredicto y se revisaron a mano. Arreglos: sumas del plan (`plan-inconsistente`), enteros escritos con decimales (`4.0`), lección con BOM, textos exactos solo entre comillas (`respuesta: 3.0` se perdía como 3), regex YAML idénticas a PyYAML (`-.5`, `0:30`, `2026-1-1`), un error en un archivo ya no apaga las reglas cruzadas de los demás, prerrequisitos de otra materia cargada, mensajes claros (`falta 'tipo'`, `retirado`, `verificar`, `lenguaje`); guardia MDX: línea exacta del paso/atributo, `\href` y comandos no confiables, barra simple antes de cualquier símbolo, solo literales en atributos, HTML sin atributos, `$` sin cerrar, HTML en atributos, props validadas contra `LESSON_API`, huecos `___` contra `respuestas` y dibujados como espacio visible; `content:check`: ruta canónica con `realpath` (mayúsculas/enlaces), solo `content[/materia[/unidad]]`, una sola ruta, el plan fuera de la capa 3; loader sigue enlaces simbólicos; pruebas: limpieza de temporales, PATH vacío para "sin Python", línea exacta, sonda de findPython y venv real, `server.ts`, plantilla exacta. Evidencia: `pnpm check` 167 + 79 (55 de paridad), `pnpm content:check` en verde, build ● 2 lecciones, smoke 2/2.
+- 2026-10-01 · Paso 10: lógica de respaldo sin DOM (`src/db/backup.ts`, `backup-schema.ts`; ADR-015). Evidencia: `pnpm check` en verde (135 + 63). Pruebas: ida y vuelta con datos en las 12 tablas (ids incluidos) da tablas idénticas; base recién creada; el reemplazo borra lo ausente; una falla inyectada a la mitad deja la base exactamente igual; 15 respaldos inválidos (no JSON, truncado, otra app, formato 2, esquema 2/0/-1/1.5/"1", tabla faltante o desconocida, perfil inválido o ausente, clave repetida, registro sin clave) se rechazan con mensaje en español y los conteos intactos; límite de tamaño.
+- 2026-10-01 · Paso 9: capa de datos local con Dexie v1 y guarda de versión (ADR-014). Evidencia: `pnpm check` en verde (114 + 63). Pruebas: foto del esquema v1; 13 tablas nativas con sus índices (versión nativa 10); `populate` deja el perfil en ceros con sonido apagado y no se repite al reabrir; `schemaVersion` estampado al crear y actualizar; la sonda no crea una base inexistente; una base del futuro (con una tabla nueva o sin un índice de la v1) da `FutureSchemaError` y su esquema nativo, conteos y ausencia de `$meta` quedan idénticos; una instancia ingenua sí la abriría (por eso existe la guarda); migración sintética v1 → v2 transforma y conserva datos; un error en una transacción `rw` deshace todo; importar el módulo en Node no toca IndexedDB.
+- 2026-10-01 · Paso 8: paridad de reglas Zod ↔ `verify_content.py` (`tests/content/parity.test.ts`): 44 casos sobre una raíz mínima con una sola violación; en las reglas compartidas ambos dan la misma severidad y Python reporta la línea esperada; en las reglas "solo TS" la app da error y Python pasa. Evidencia: `pnpm test:content` 63/63 (46 de paridad); la raíz base está limpia en ambos; quitar el caso de `jefe-retirado` hace fallar la meta-prueba "un caso por regla del catálogo". `pnpm check` en verde (100 + 63).
+- 2026-10-01 · Paso 7: `pnpm content:check [ruta]` en 4 capas (esquemas y reglas sobre el índice completo, render de cada lección, paridad YAML contra PyYAML real, `verify_content.py`); buscador de Python multiplataforma (`CORTEX_PYTHON`, `python3`, `python`, `py -3`, con timeout y exigiendo 3.11+ con sympy y PyYAML, salida en UTF-8). Paquete en `"type": "module"` (las dependencias de MDX son solo ESM). Pruebas separadas: `pnpm test` (rápidas) y `pnpm test:content` (con Python); `pnpm check` corre ambas. D3 aplicado: `CLAUDE.md`, `/verificar`, `/nueva-unidad`, `/revisar-contenido` y `docs/07` usan `pnpm content:check`. Evidencia: `pnpm content:check` en verde (capa 1: 0 errores; capa 2: 3 lecciones; capa 3: 9 YAML sin diferencias; capa 4: verde); `pnpm test:content` 17/17 sobre copias temporales del repo: real → 0; respuesta alterada → 1 en capa 4; `<Desconocido />` → 1 en capa 2 con la línea; LaTeX roto en `pregunta=` → 1 en capa 2; id duplicado → 1 en capas 1 y 4; ruta acotada solo reporta lo suyo; YAML leído distinto → 1 en capa 3; sin Python → 1 con instrucciones.
+- 2026-10-01 · Paso 6: lecciones MDX con KaTeX estricto, tablas GFM, guardia de contenido y 9 componentes provisionales; ruta `/materias/[materia]/[unidad]` estática con `dynamicParams = false` (ADR-012). Evidencia: `pnpm check` en verde (100 pruebas): las 2 lecciones y la plantilla compilan, con `.katex`, 0 `.katex-error` y 1 tabla cada una, sin `$` crudos en atributos; 6 fixtures rotos fallan con la **línea exacta** del archivo (KaTeX en el cuerpo y en un atributo, componente desconocido, barra simple en `{[...]}`, `{…}` en el texto, `import`); los escapes de docs/05 (`\{`, `\$`, `\<`) funcionan. `pnpm build`: ● `/materias/calculo/01-limites` y ● `/materias/programacion/01-variables-y-tipos`. Smoke 2/2: la lección muestra > 10 fórmulas, la fuente `KaTeX_Main` carga y no hay respuestas HTTP ≥ 400.
+- 2026-10-01 · Paso 5: loader (`src/content/loader.ts`), `buildIndex` puro con todas las reglas cruzadas (ids únicos globales, conceptos, ciclos, referencias de jefes, y las "solo TS": carpeta, NN del id, prefijo, `repaso_de` previo, jefe sin autoevaluación ni retirados), lector YAML compatible con PyYAML y `server.ts` (ADR-011). El inicio ya lee el índice. Evidencia: `pnpm check` en verde (88 pruebas: 23 de reglas con fixtures en memoria, CRLF/BOM = LF, contenido real con 0 errores y exactamente los 2 avisos de `programa_ref`); el lector YAML da lo mismo que PyYAML en `[x, y, n, Y, N]`, `09`, `1e3`, `1:30`, `.inf`; `pnpm build` genera `/` estático; con `CORTEX_CONTENT_ROOT` apuntando a una copia con un id duplicado, `pnpm build` **falla** con `ContentValidationError` y los 2 errores.
+- 2026-10-01 · Paso 4: esquemas Zod 4.6.5 de docs/05 en `src/content/schema/` (plan, conceptos, front matter, ejercicios con despacho por `tipo` y por `lenguaje` en `codigo`, jefe), objetos estrictos y mensajes en español; catálogo de reglas con código estable y la severidad de `verify_content.py` (`src/content/rules/catalog.ts`). Evidencia: `pnpm test` 51/51, incluidos casos válidos/inválidos por regla y el contenido real (24 ejercicios, 2 jefes, 2 `conceptos.yaml`, 2 front matter y `plan-2020.json`) sin errores.
+- 2026-10-01 · Paso 3: ESLint 9.39.5 (config de Next + `no-explicit-any`, `consistent-type-imports`, `next/font/google` prohibido, zonas puras sin React/Next/Dexie/DOM salvo `import type`), Vitest 5.0.3 (+ vite 8.3.2; JSX sin plugin) y Playwright 1.63.0 con un smoke contra `next start -p 3100`. Evidencia: `pnpm lint` 0 problemas; `pnpm test` 10/10; al vaciar las zonas puras fallan 4 pruebas de fronteras (la prueba sí detecta); `pnpm test:e2e` 1/1 con `CORTEX_CHROMIUM_PATH` apuntando al Chromium 1194 del contenedor (el CDN de Playwright no responde aquí). El smoke detectó un 404 real (`/favicon.ico`): se agregó `src/app/icon.svg`.
+- 2026-10-01 · Paso 2: andamiaje Next 16.3.8 + React 19.3 + TS 6.0.3 estricto + Tailwind 4.3.3 + pnpm 10.28 (ADR-009, ADR-010). Evidencia: `pnpm install --frozen-lockfile` limpio sin scripts ignorados; con Node 20.20.2 pnpm rechaza la instalación (`engines`); `pnpm typecheck` y `pnpm build` en verde (`/` estático); `pnpm dev` responde 200 en `localhost:3000` con `lang="es-MX"`; un segundo `pnpm dev` falla con `EADDRINUSE` en vez de mudarse de puerto; con `CLAUDECODE=1` definido, `next dev` no creó `AGENTS.md` ni tocó `CLAUDE.md`; `tsconfig.json` sin cambios tras `typegen`, `build` y `dev`; `pnpm telemetry:check` → "You have opted-out"; `git add --renormalize .` sin cambios en `content/`; `verify_content.py` en verde.
+- 2026-10-01 · Paso 1 de la Fase 0: decisiones de Carlo registradas; Mecánica y electromagnetismo como Fase 4 (`docs/01`, `docs/06`, `cortex_fase` en `plan-2020.json`); requisitos corregidos (Node 22.12+, pnpm 10.28) en README y PRIMER-PROMPT; `docs/00` (`APP_ID`), `docs/02` (tablas en inglés + `meta`), `docs/05` (`respuestas`, componentes provisionales, escapes, YAML 1.1, campos comunes). ADR-013. `verify_content.py` en verde (2 unidades, 24 ejercicios, 17/7, 2 avisos). Versiones verificadas antes de fijar: ESLint 10 incompatible con `eslint-plugin-react` 7.37.5 (peer `^9.7`); `typescript-eslint` 8.71 exige TS < 6.1; `rehype-katex` 7.0.1 depende de `katex ^0.16`; Vitest 5 exige Node ^22.12; `next dev` 16.3.8 escribe un bloque en `CLAUDE.md`/`AGENTS.md` (`generate-agent-files.js`) salvo con `agentRules: false`.
+- 2026-10-01 · Repo base creado: docs, plan de estudios en datos, dos unidades de ejemplo verificadas (`calculo/01-limites`, `programacion/01-variables-y-tipos`), script de verificación y comandos de Claude Code.

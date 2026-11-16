@@ -1,0 +1,146 @@
+---
+titulo: "Relaciones y funciones: primero R, luego S"
+materia: matematicas-discretas
+unidad: 15-relaciones
+duracion_min: 25
+prerrequisitos: [producto-cartesiano, cuantificadores-anidados, "calculo:composicion-funciones", "calculo:funcion-inversa"]
+conceptos: [relacion-binaria, representaciones-relacion, relacion-inversa, composicion-relaciones, funcion-como-relacion, funcion-inyectiva-suprayectiva, composicion-inversa-funciones]
+programa_ref: "Matemáticas discretas, Unidad IV, 4.2.1 (representaciones de las relaciones), 4.2.2 (propiedades de la inversa y la composición) y 4.2.3 (propiedades de las funciones)"
+---
+
+## El problema
+
+Supón una red chica con cuatro cuentas, $a$, $b$, $c$ y $d$, y la relación «$x$ sigue a $y$»:
+
+$$R=\{(a,b),(a,c),(b,c),(c,d),(d,a)\}.$$
+
+Cada par es una flecha: $(a,b)$ dice que $a$ sigue a $b$.
+
+<Visual id="grafo" vertices="a, b, c, d" aristas="a-b, a-c, b-c, c-d, d-a" dirigido="si" titulo="«Sigue a» entre cuatro cuentas" />
+
+<Predice pregunta="Siguiendo exactamente dos flechas, ¿a qué cuentas llega $a$? ¿Ya seguía a alguna de ellas?" revela="A $c$ (por $b$) y a $d$ (por $c$). A $c$ ya la seguía directo. «Dos flechas seguidas» es la composición $R\circ R$, que verás en «Composición»." />
+
+## Relaciones
+
+<Concepto titulo="Relación binaria">
+Una **relación** de $A$ en $B$ es un subconjunto $R\subseteq A\times B$; si $(a,b)\in R$, se escribe $aRb$. Si $A=B$, es una relación **sobre** $A$, como «sigue a» en el problema. Sirve cualquier subconjunto, incluidos $\varnothing$ y $A\times B$. Su **dominio** es el conjunto de las primeras coordenadas de sus pares, $\mathrm{Dom}\,R=\{a:\exists b,\ aRb\}$, y su **imagen**, las segundas, $\mathrm{Im}\,R=\{b:\exists a,\ aRb\}$.
+</Concepto>
+
+## Representaciones e inversa
+
+<Concepto titulo="Pares, matriz, digrafo e inversa">
+Además de darse con una regla, como $x<y$, una relación se representa de tres maneras:
+
+- **Pares:** la lista de $R$.
+- **Matriz** $M_R$: una fila por elemento de $A$ y una columna por elemento de $B$, en el orden listado; la entrada $(a,b)$ vale 1 si $aRb$ y 0 si no.
+- **Digrafo** (si $A=B$): un punto por elemento y una flecha $a\to b$ por par; $(a,a)$ es un **lazo**. Si $A\neq B$, se ponen $A$ y $B$ en dos columnas, con flechas de una a la otra.
+
+La **inversa** $R^{-1}=\{(b,a):(a,b)\in R\}$ va de $B$ en $A$: se voltean los pares, se transpone la matriz y se invierten las flechas. Cada par da uno, así que $\lvert R^{-1}\rvert=\lvert R\rvert$. Con $R=\{(1,2),(1,3),(3,3)\}$ sobre $\{1,2,3\}$:
+
+$$M_R=\begin{array}{c|ccc} & 1 & 2 & 3\\\hline 1 & 0 & 1 & 1\\ 2 & 0 & 0 & 0\\ 3 & 0 & 0 & 1\end{array}\qquad M_{R^{-1}}=\begin{array}{c|ccc} & 1 & 2 & 3\\\hline 1 & 0 & 0 & 0\\ 2 & 1 & 0 & 0\\ 3 & 1 & 0 & 1\end{array}$$
+
+La fila 1 de $M_R$ es la columna 1 de $M_{R^{-1}}$, y el lazo $(3,3)$ se queda en su lugar.
+</Concepto>
+
+## Composición
+
+<Concepto titulo="Composición">
+Si $R\subseteq A\times B$ y $S\subseteq B\times C$,
+
+$$S\circ R=\{(a,c):\exists b\in B,\ aRb\wedge bSc\}.$$
+
+Se lee **«primero $R$, luego $S$»**, como $g\circ f$: $(a,c)$ entra si tiene un **intermedio** $b$. Sobre $A$, $R^2=R\circ R$, y la identidad $I_A=\{(a,a):a\in A\}$ cumple $R\circ I_A=I_A\circ R=R$.
+
+**Por matriz:** $M_{S\circ R}=M_R\odot M_S$, el **producto booleano**. La entrada $(a,c)$ vale 1 si y solo si hay una posición $b$ en la que la fila $a$ de $M_R$ y la columna $c$ de $M_S$ valen 1 a la vez; ese $b$ es el intermedio.
+
+**No conmuta.** En $\{1,2\}$, con $R=\{(1,2)\}$ y $S=\{(2,1)\}$: $S\circ R=\{(1,1)\}$, pero $R\circ S=\{(2,2)\}$.
+
+**Sí es asociativa**, $T\circ(S\circ R)=(T\circ S)\circ R$, y $(S\circ R)^{-1}=R^{-1}\circ S^{-1}$: $(c,a)$ está a la izquierda si y solo si hay $b$ con $aRb$ y $bSc$, es decir, con $cS^{-1}b$ y $bR^{-1}a$, que es estar a la derecha.
+
+Ojo con los libros: Grimaldi escribe $R\circ S$ para «primero $R$», y su matriz va en el mismo orden, $M(R\circ S)=M(R)\cdot M(S)$; solo cambia el nombre. Aquí siempre es $S\circ R$.
+</Concepto>
+
+<Ejemplo titulo="Dos caminos al mismo resultado">
+Sean $A=\{1,2,3\}$, $B=\{p,q,r\}$ y $C=\{u,v\}$, con $R=\{(1,p),(1,q),(2,r),(3,q)\}$ y $S=\{(p,u),(q,v),(r,u),(r,v)\}$. Calcula $S\circ R$.
+
+**1. Por pares.** Cada par de $R$ se sigue con los de $S$ que salen de su segunda coordenada: $1\to p\to u$, $1\to q\to v$, $2\to r\to u$, $2\to r\to v$ y $3\to q\to v$. Así, $S\circ R=\{(1,u),(1,v),(2,u),(2,v),(3,v)\}$.
+
+**2. Por matriz**, con filas y columnas en el orden listado:
+
+$$\begin{array}{c|ccc} & p & q & r\\\hline 1 & 1 & 1 & 0\\ 2 & 0 & 0 & 1\\ 3 & 0 & 1 & 0\end{array}\odot\begin{array}{c|cc} & u & v\\\hline p & 1 & 0\\ q & 0 & 1\\ r & 1 & 1\end{array}=\begin{array}{c|cc} & u & v\\\hline 1 & 1 & 1\\ 2 & 1 & 1\\ 3 & 0 & 1\end{array}$$
+
+La entrada $(3,u)$ vale 0: la fila 3 de $M_R$ (010) y la columna $u$ de $M_S$ (101) no tienen un 1 en la misma posición.
+
+**3. Revisa:** 5 unos y 5 pares, y cada par tiene su intermedio.
+</Ejemplo>
+
+<Desvanecido titulo="Ahora tú: los intermedios" pasos={[
+  "En $\\{1,2,3\\}$, $R=\\{(1,2),(2,1),(2,3),(3,3)\\}$ y $S=\\{(1,3),(2,2),(3,1)\\}$. Calcula $S\\circ R$.",
+  "Desde 1, $R$ solo va al 2, y $S$ lleva el 2 al 2: $(1,2)\\in S\\circ R$, con intermedio 2.",
+  "$(2,3)\\in S\\circ R$, y su intermedio es el ___ .",
+  "$(3,1)\\in S\\circ R$, y su intermedio es el ___ .",
+  "Desde 2, $R$ va al 1 y al 3; en total, $S\\circ R$ tiene ___ pares.",
+  "Por matriz, la entrada $(1,3)$ de $M_R\\odot M_S$ vale ___ ."
+]} respuestas={["1", "3", "4", "0"]} />
+
+## Funciones
+
+<Concepto titulo="Función">
+Una **función** $f:A\to B$ es una relación de $A$ en $B$ en la que cada $a\in A$ tiene **exactamente una** imagen: el único $b$ con $(a,b)\in f$, que se escribe $f(a)$. Por eso, si $A$ es finito, $f$ tiene $\lvert A\rvert$ pares. $B$ es el **codominio**, y la **imagen** $f(A)=\{f(a):a\in A\}$ puede ser más chica. Es la función de Cálculo, vista como conjunto de pares.
+</Concepto>
+
+<Concepto titulo="Inyectiva, suprayectiva y biyectiva">
+- **Inyectiva:** $\forall x_1,x_2\in A,\ f(x_1)=f(x_2)\to x_1=x_2$. No junta dos elementos en una imagen.
+- **Suprayectiva:** $\forall y\in B\ \exists x\in A,\ f(x)=y$. Su imagen es todo $B$.
+- **Biyectiva:** inyectiva y suprayectiva a la vez.
+
+Las negaciones salen como en la Unidad I: no es inyectiva si hay $x_1\neq x_2$ con $f(x_1)=f(x_2)$, y no es suprayectiva si algún $y\in B$ no es $f(x)$ para ningún $x$.
+
+Con $A$ y $B$ finitos: si $f$ es inyectiva, $\lvert A\rvert\le\lvert B\rvert$; si es suprayectiva, $\lvert A\rvert\ge\lvert B\rvert$; y si $\lvert A\rvert=\lvert B\rvert$, es inyectiva si y solo si es suprayectiva.
+</Concepto>
+
+<Ejemplo titulo="Demostrar que es biyectiva">
+Sea $f:\mathbb R\to\mathbb R$, $f(x)=5-3x$.
+
+1. **Inyectiva.** Sean $x_1,x_2\in\mathbb R$ cualesquiera con $f(x_1)=f(x_2)$, es decir, $5-3x_1=5-3x_2$. Restando 5, $-3x_1=-3x_2$, y como $-3\neq0$, $x_1=x_2$.
+2. **Suprayectiva.** Sea $y\in\mathbb R$ cualquiera. Se busca $x$ con $5-3x=y$; despejando, $x=\frac{5-y}{3}$, que es real. Comprobación: $f\left(\frac{5-y}{3}\right)=5-(5-y)=y$.
+3. **La inversa.** Ese $x$ es $f^{-1}(y)$: $f^{-1}(y)=\frac{5-y}{3}$.
+
+En los dos pasos se parte de elementos cualesquiera, no de ejemplos: un ejemplo basta para refutar un «para todo», pero no para demostrarlo. Revisa: $f(1)=2$ y $f^{-1}(2)=\frac{5-2}{3}=1$.
+</Ejemplo>
+
+<Concepto titulo="Composición e inversa de funciones">
+Con $f:A\to B$ y $g:B\to C$, $g\circ f$ es la composición de relaciones: $(g\circ f)(a)=g(f(a))$, primero $f$. La composición de dos funciones inyectivas es inyectiva.
+
+**$f^{-1}$ siempre es una relación** de $B$ en $A$, y es función si y solo si $f$ es biyectiva. En ese caso, $f^{-1}\circ f=I_A$ y $f\circ f^{-1}=I_B$. Y, como en las relaciones, $(g\circ f)^{-1}=f^{-1}\circ g^{-1}$.
+</Concepto>
+
+<Desvanecido titulo="Ahora tú: refutar con un ejemplo" pasos={[
+  "Sea $f:\\mathbb Z\\to\\mathbb Z$, $f(x)=x^2-2x$. Para negar «inyectiva» basta un par $x_1\\neq x_2$ con $f(x_1)=f(x_2)$; para negar «suprayectiva», un $y$ al que no llegue ningún entero.",
+  "No es inyectiva: $f(3)=3$, y también vale 3 en $x=$ ___ .",
+  "No es suprayectiva: el menor entero positivo que no es $f(x)$ para ningún $x\\in\\mathbb Z$ es ___ .",
+  "Y ningún entero llega al 1: $x^2-2x=1$ equivale a $(x-1)^2=$ ___ , y ningún entero al cuadrado da eso."
+]} respuestas={["-1", "1", "2"]} />
+
+## Errores comunes
+
+<Ojo>
+- **El orden:** $S\circ R$ es primero $R$; la notación se lee de derecha a izquierda.
+- **La matriz:** $M_{S\circ R}=M_R\odot M_S$, no $M_S\odot M_R$. Y $\odot$ no es el «y» casilla por casilla (eso da $M_{R\cap S}$) ni el producto ordinario, que puede dar números mayores que 1.
+- **Inversa no es complemento:** $R^{-1}$ voltea los pares; el complemento, $(A\times B)-R$, son los pares que faltan. En la Unidad I, la que voltea $p\to q$ en $q\to p$ es la **recíproca**, no la inversa.
+- **Codominio no es imagen:** la imagen puede ser más chica que $B$.
+</Ojo>
+
+<Conexion materia="Inteligencia artificial">
+Un **grafo de conocimiento** guarda ternas (sujeto, relación, objeto), como (París, capital de, Francia): cada relación es un conjunto de pares, y razonar en varios saltos es componer. Simplificado e hipotético: «personas que quizá conozcas» sale de $R\circ R$ quitando $R$ e $I_A$, los amigos de tus amigos que no son tus amigos ni tú.
+</Conexion>
+
+<Resumen>
+- Una relación es un subconjunto de $A\times B$; se da por pares, matriz o digrafo, y su inversa voltea los pares.
+- $S\circ R$ es primero $R$, luego $S$: un par entra si tiene intermedio, y $M_{S\circ R}=M_R\odot M_S$.
+- Una función da exactamente una imagen a cada elemento; solo las biyectivas tienen una función inversa.
+</Resumen>
+
+<Feynman>
+Explícale a un amigo por qué $S\circ R$ no es $R\circ S$, y cómo lo ves en la matriz. Si te trabas, vuelve a «Composición».
+</Feynman>

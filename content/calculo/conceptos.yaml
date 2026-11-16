@@ -1,9 +1,51 @@
 materia: calculo
-notacion: "Usamos f'(x) para la derivada y lim sin límites laterales salvo que se indique x→a⁺ o x→a⁻."
+notacion: "Usamos f'(x) para la derivada y lim sin límites laterales salvo que se indique x→a⁺ o x→a⁻. Escribimos sen, arcsen y senh (la app también acepta sin, asin y sinh); ln es el logaritmo natural y los de otra base llevan la base escrita (log₁₀, log₂). Las derivadas laterales se escriben f'₊(a) y f'₋(a) (con h→0⁺ y h→0⁻), no f'(a⁺); el incremento se escribe h o Δx, que son lo mismo. Las hiperbólicas recíprocas se escriben sech, csch y coth. En la app, sec² se escribe sec(x)^2 y log_b x se escribe log(x, b). En la regla de la cadena y la derivación implícita usamos dy/dx; f'' y f^(n) para orden superior. sen⁻¹x es arcsen x, no 1/sen x. Las hiperbólicas inversas se escriben arcsenh, arccosh y arctanh. En la app, |x| se escribe abs(x). Concavidad: convexa (∪, cóncava hacia arriba) si f'' > 0 y cóncava (∩, cóncava hacia abajo) si f'' < 0; en IA también convexa = ∪. Un número crítico es un c interior del dominio con f'(c) = 0 o sin derivada; los extremos locales son interiores. Un límite infinito se escribe = ∞ o = −∞: no es un número ni un límite que exista (∞ dice cómo no existe); como respuesta, «no existe» queda para laterales distintos. Discontinuidad removible (o evitable), de salto o infinita. En la asíntota oblicua, m ≠ 0."
+# Temario aprobado por Carlo el 2026-11-10 contra curriculum/programas/calculo.pdf (IIA, plan 2020).
+# Cada bloque es una unidad de Cortex; entre paréntesis, la sección del programa oficial.
+# Los números de unidad son permanentes (van en los ids de ejercicio): 00 va antes del piloto 01.
 conceptos:
+  # 00 · Funciones (Unidad I)
+  - id: funcion-representaciones
+    nombre: "Función y sus representaciones (algebraica, gráfica, numérica y verbal)"
+    prerequisitos: []
+  - id: funcion-dominio-rango
+    nombre: "Dominio y rango"
+    prerequisitos: [funcion-representaciones]
+  - id: funcion-propiedades
+    nombre: "Monotonía, simetría y periodicidad"
+    prerequisitos: [funcion-representaciones]
+  - id: transformaciones-funciones
+    nombre: "Transformaciones de funciones (traslaciones, reflexiones y escalamientos)"
+    prerequisitos: [funcion-representaciones]
+  - id: composicion-funciones
+    nombre: "Composición de funciones"
+    prerequisitos: [funcion-dominio-rango]
+  - id: funcion-inversa
+    nombre: "Función inversa"
+    prerequisitos: [composicion-funciones, funcion-propiedades]
+  - id: funcion-exponencial
+    nombre: "Funciones exponenciales (natural y general)"
+    prerequisitos: [funcion-propiedades]
+  - id: funcion-logaritmica
+    nombre: "Funciones logarítmicas (natural y general)"
+    prerequisitos: [funcion-exponencial, funcion-inversa]
+  - id: funciones-trigonometricas
+    nombre: "Funciones trigonométricas"
+    prerequisitos: [funcion-propiedades]
+  - id: trigonometricas-inversas
+    nombre: "Funciones trigonométricas inversas"
+    prerequisitos: [funciones-trigonometricas, funcion-inversa]
+  - id: funciones-hiperbolicas
+    nombre: "Funciones hiperbólicas"
+    prerequisitos: [funcion-exponencial, funcion-propiedades]
+  - id: hiperbolicas-inversas
+    nombre: "Funciones hiperbólicas inversas"
+    prerequisitos: [funciones-hiperbolicas, funcion-logaritmica]
+
+  # 01 · Límites (Unidad II, 2.1 a 2.3; piloto de la Fase 1)
   - id: limite-intuitivo
     nombre: "Límite (idea intuitiva)"
-    prerequisitos: []
+    prerequisitos: [funcion-representaciones]
   - id: limite-lateral
     nombre: "Límites laterales"
     prerequisitos: [limite-intuitivo]
@@ -15,10 +57,201 @@ conceptos:
     prerequisitos: [limite-polinomio]
   - id: limite-notable-seno
     nombre: "Límite notable sen(x)/x"
-    prerequisitos: [limite-intuitivo]
+    prerequisitos: [limite-intuitivo, funciones-trigonometricas]
   - id: limite-infinito
     nombre: "Límites al infinito"
     prerequisitos: [limite-polinomio]
   - id: definicion-epsilon-delta
     nombre: "Definición formal ε–δ"
     prerequisitos: [limite-intuitivo]
+
+  # 02 · Continuidad y asíntotas (Unidad II, 2.3.1 y 2.4)
+  - id: limite-infinito-vertical
+    nombre: "Límites infinitos y asíntotas verticales"
+    prerequisitos: [limite-lateral]
+  - id: asintota-horizontal
+    nombre: "Asíntotas horizontales"
+    prerequisitos: [limite-infinito]
+  - id: asintota-oblicua
+    nombre: "Asíntotas oblicuas"
+    prerequisitos: [asintota-horizontal]
+  - id: continuidad-punto
+    nombre: "Continuidad en un punto"
+    prerequisitos: [limite-lateral, limite-polinomio]
+  - id: tipos-discontinuidad
+    nombre: "Discontinuidades removibles, de salto e infinitas"
+    prerequisitos: [continuidad-punto, limite-infinito-vertical]
+  - id: continuidad-intervalo
+    nombre: "Continuidad en un intervalo"
+    prerequisitos: [continuidad-punto]
+  - id: teorema-valor-intermedio
+    nombre: "Teorema del valor intermedio"
+    prerequisitos: [continuidad-intervalo]
+
+  # 03 · La derivada (Unidad III, 3.1)
+  - id: razon-cambio-promedio
+    nombre: "Razón de cambio promedio y recta secante"
+    prerequisitos: [funcion-representaciones]
+  - id: derivada-punto
+    nombre: "Derivada en un punto como límite"
+    prerequisitos: [razon-cambio-promedio, indeterminacion-cero-cero]
+  - id: recta-tangente
+    nombre: "Recta tangente"
+    prerequisitos: [derivada-punto]
+  - id: razon-cambio-instantanea
+    nombre: "Velocidad y razón de cambio instantánea"
+    prerequisitos: [derivada-punto]
+  - id: funcion-derivada
+    nombre: "La derivada como función"
+    prerequisitos: [derivada-punto]
+  - id: derivabilidad-continuidad
+    nombre: "Derivabilidad y continuidad"
+    prerequisitos: [funcion-derivada, continuidad-punto]
+
+  # 04 · Reglas de derivación (Unidad III, 3.2.1)
+  - id: reglas-basicas-derivacion
+    nombre: "Reglas de la constante, la potencia y la suma"
+    prerequisitos: [funcion-derivada]
+  - id: regla-producto-cociente
+    nombre: "Reglas del producto y del cociente"
+    prerequisitos: [reglas-basicas-derivacion]
+  - id: derivada-exponencial-logaritmica
+    nombre: "Derivadas de exponenciales y logaritmos"
+    prerequisitos: [reglas-basicas-derivacion, funcion-logaritmica]
+  - id: derivada-trigonometrica
+    nombre: "Derivadas de funciones trigonométricas"
+    prerequisitos: [regla-producto-cociente, limite-notable-seno]
+  - id: derivada-hiperbolica
+    nombre: "Derivadas de funciones hiperbólicas"
+    prerequisitos: [derivada-exponencial-logaritmica, funciones-hiperbolicas]
+
+  # 05 · Cadena, implícita y orden superior (Unidad III, 3.2.2 a 3.2.4)
+  - id: regla-cadena
+    nombre: "Regla de la cadena"
+    prerequisitos: [regla-producto-cociente, composicion-funciones]
+  - id: derivacion-implicita
+    nombre: "Derivación implícita"
+    prerequisitos: [regla-cadena]
+  - id: derivada-trig-inversa
+    nombre: "Derivadas de las trigonométricas inversas"
+    prerequisitos: [derivacion-implicita, derivada-trigonometrica, trigonometricas-inversas]
+  - id: derivada-hiperbolica-inversa
+    nombre: "Derivadas de las hiperbólicas inversas"
+    prerequisitos: [derivacion-implicita, derivada-hiperbolica, hiperbolicas-inversas]
+  - id: derivacion-logaritmica
+    nombre: "Derivación logarítmica"
+    prerequisitos: [regla-cadena, derivada-exponencial-logaritmica]
+  - id: derivadas-orden-superior
+    nombre: "Derivadas de orden superior"
+    prerequisitos: [regla-cadena]
+
+  # 06 · Razones relacionadas y diferencial (Unidad III, 3.3 y 3.4)
+  - id: razones-relacionadas
+    nombre: "Razones de cambio relacionadas"
+    prerequisitos: [derivacion-implicita, razon-cambio-instantanea]
+  - id: diferencial
+    nombre: "Diferencial de una función"
+    prerequisitos: [regla-cadena]
+  - id: aproximacion-lineal
+    nombre: "Aproximación lineal"
+    prerequisitos: [diferencial, recta-tangente]
+  - id: error-con-diferenciales
+    nombre: "Estimación de errores con diferenciales"
+    prerequisitos: [diferencial]
+
+  # 07 · Máximos, mínimos, gráficas y optimización (Unidad III, 3.5)
+  - id: puntos-criticos
+    nombre: "Puntos críticos"
+    prerequisitos: [funcion-derivada]
+  - id: extremos-absolutos
+    nombre: "Extremos absolutos en un intervalo cerrado"
+    prerequisitos: [puntos-criticos, continuidad-intervalo]
+  - id: criterio-primera-derivada
+    nombre: "Crecimiento, decrecimiento y criterio de la primera derivada"
+    prerequisitos: [puntos-criticos, funcion-propiedades]
+  - id: concavidad-inflexion
+    nombre: "Concavidad y puntos de inflexión"
+    prerequisitos: [derivadas-orden-superior]
+  - id: criterio-segunda-derivada
+    nombre: "Criterio de la segunda derivada"
+    prerequisitos: [concavidad-inflexion, puntos-criticos]
+  - id: trazado-graficas
+    nombre: "Trazado de gráficas con derivadas"
+    prerequisitos: [criterio-primera-derivada, concavidad-inflexion, asintota-oblicua, limite-infinito-vertical]
+  - id: optimizacion
+    nombre: "Optimización"
+    prerequisitos: [extremos-absolutos, criterio-segunda-derivada]
+
+  # 08 · Antiderivadas, sustitución y por partes (Unidad IV, 4.1 a 4.3)
+  - id: antiderivada
+    nombre: "Antiderivada e integral indefinida"
+    prerequisitos: [reglas-basicas-derivacion]
+  - id: integrales-inmediatas
+    nombre: "Integrales inmediatas"
+    prerequisitos: [antiderivada, derivada-trigonometrica, derivada-hiperbolica, derivada-exponencial-logaritmica, derivada-trig-inversa]
+  - id: antiderivada-condicion-inicial
+    nombre: "Antiderivadas con condición inicial"
+    prerequisitos: [antiderivada]
+  - id: integracion-sustitucion
+    nombre: "Integración por sustitución"
+    prerequisitos: [integrales-inmediatas, regla-cadena]
+  - id: integracion-partes
+    nombre: "Integración por partes"
+    prerequisitos: [integrales-inmediatas, regla-producto-cociente]
+
+  # 09 · Trigonométricas, sustitución trigonométrica y fracciones parciales (Unidad IV, 4.4 y 4.5)
+  - id: integrales-trigonometricas
+    nombre: "Integrales trigonométricas"
+    prerequisitos: [integracion-sustitucion]
+  - id: sustitucion-trigonometrica
+    nombre: "Sustitución trigonométrica"
+    prerequisitos: [integrales-trigonometricas, trigonometricas-inversas]
+  - id: fracciones-parciales
+    nombre: "Integración por fracciones parciales"
+    prerequisitos: [integracion-sustitucion]
+  - id: eleccion-tecnica-integracion
+    nombre: "Elegir la técnica de integración"
+    prerequisitos: [integracion-partes, sustitucion-trigonometrica, fracciones-parciales]
+
+  # 10 · Integral definida, Teorema Fundamental e integración numérica (Unidad V, 5.1 y 5.2)
+  - id: suma-riemann
+    nombre: "Sumas de Riemann"
+    prerequisitos: [limite-infinito]
+  - id: integral-definida
+    nombre: "Integral definida como límite de sumas"
+    prerequisitos: [suma-riemann]
+  - id: propiedades-integral-definida
+    nombre: "Propiedades de la integral definida"
+    prerequisitos: [integral-definida]
+  - id: tfc-derivar-integral
+    nombre: "Teorema Fundamental, parte 1: derivar una integral"
+    prerequisitos: [integral-definida, regla-cadena]
+  - id: tfc-evaluar
+    nombre: "Teorema Fundamental, parte 2: evaluar con una antiderivada"
+    prerequisitos: [integral-definida, antiderivada]
+  - id: sustitucion-integral-definida
+    nombre: "Sustitución en integrales definidas"
+    prerequisitos: [tfc-evaluar, integracion-sustitucion]
+  - id: regla-trapecio
+    nombre: "Regla del trapecio"
+    prerequisitos: [integral-definida]
+  - id: regla-simpson
+    nombre: "Regla de Simpson"
+    prerequisitos: [regla-trapecio]
+
+  # 11 · Aplicaciones de la integral (Unidad V, 5.3; jefe final)
+  - id: area-entre-curvas
+    nombre: "Área entre curvas"
+    prerequisitos: [tfc-evaluar]
+  - id: volumen-discos-arandelas
+    nombre: "Volumen de sólidos de revolución: discos y arandelas"
+    prerequisitos: [area-entre-curvas]
+  - id: volumen-capas
+    nombre: "Volumen por capas cilíndricas"
+    prerequisitos: [volumen-discos-arandelas]
+  - id: longitud-arco
+    nombre: "Longitud de arco"
+    prerequisitos: [tfc-evaluar, funcion-derivada]
+  - id: area-superficie
+    nombre: "Área de superficie de revolución"
+    prerequisitos: [longitud-arco]

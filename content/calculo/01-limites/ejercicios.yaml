@@ -12,6 +12,7 @@ ejercicios:
     explicacion: 'Un polinomio es continuo, así que basta sustituir: $3(2)^2-5(2)+1 = 12-10+1 = 3$.'
 
   - id: calc-01-002
+    retirado: true
     tipo: numerico
     dificultad: 2
     conceptos: [indeterminacion-cero-cero]
@@ -26,13 +27,13 @@ ejercicios:
     tipo: opcion_multiple
     dificultad: 2
     conceptos: [limite-notable-seno]
-    enunciado: '¿Cuánto vale $\lim_{x\to 0}\dfrac{\sin(3x)}{x}$?'
+    enunciado: '¿Cuánto vale $\lim_{x\to 0}\dfrac{\operatorname{sen}(3x)}{x}$?'
     opciones: ["1", "3", "0", "1/3"]
     valores: [1, 3, 0, "1/3"]
     correcta: 1
     verificar: { sympy: "limit(sin(3*x)/x, x, 0)" }
-    pistas: ["Multiplica y divide por 3 para formar $\\sin(3x)/(3x)$."]
-    explicacion: 'Escribe $\dfrac{\sin 3x}{x}=3\cdot\dfrac{\sin 3x}{3x}$. Con $u=3x\to0$, $\dfrac{\sin u}{u}\to1$, así que el límite es $3\cdot1=3$.'
+    pistas: ["Multiplica y divide por 3 para formar $\\operatorname{sen}(3x)/(3x)$."]
+    explicacion: 'Escribe $\dfrac{\operatorname{sen} 3x}{x}=3\cdot\dfrac{\operatorname{sen} 3x}{3x}$. Con $u=3x\to0$, $\dfrac{\operatorname{sen} u}{u}\to1$, así que el límite es $3\cdot1=3$.'
 
   - id: calc-01-004
     tipo: numerico
@@ -53,8 +54,8 @@ ejercicios:
     respuesta: 0.5
     tolerancia: 0.001
     verificar: { sympy: "limit((1-cos(x))/x**2, x, 0)" }
-    pistas: ["Multiplica arriba y abajo por $1+\\cos x$.", "Recuerda que $1-\\cos^2x=\\sin^2x$."]
-    explicacion: 'Multiplicando por $\dfrac{1+\cos x}{1+\cos x}$: $\dfrac{1-\cos^2x}{x^2(1+\cos x)}=\dfrac{\sin^2x}{x^2}\cdot\dfrac{1}{1+\cos x}$. Cuando $x\to0$ queda $1^2\cdot\dfrac12=\dfrac12$.'
+    pistas: ["Multiplica arriba y abajo por $1+\\cos x$.", "Recuerda que $1-\\cos^2x=\\operatorname{sen}^2x$."]
+    explicacion: 'Multiplicando por $\dfrac{1+\cos x}{1+\cos x}$: $\dfrac{1-\cos^2x}{x^2(1+\cos x)}=\dfrac{\operatorname{sen}^2x}{x^2}\cdot\dfrac{1}{1+\cos x}$. Cuando $x\to0$ queda $1^2\cdot\dfrac12=\dfrac12$.'
 
   - id: calc-01-006
     tipo: numerico
@@ -68,6 +69,7 @@ ejercicios:
     explicacion: 'El numerador por el conjugado da $(x+3)-4=x-1$, que cancela el denominador. Queda $\dfrac{1}{\sqrt{x+3}+2}$, que en $x=1$ vale $\dfrac{1}{4}$.'
 
   - id: calc-01-007
+    retirado: true
     tipo: simbolico
     dificultad: 2
     conceptos: [indeterminacion-cero-cero]
@@ -81,12 +83,12 @@ ejercicios:
     tipo: numerico
     dificultad: 4
     conceptos: [limite-notable-seno, indeterminacion-cero-cero]
-    enunciado: 'Calcula $\lim_{x\to 0}\dfrac{\tan x-\sin x}{x^3}$. Puedes dar decimal.'
+    enunciado: 'Calcula $\lim_{x\to 0}\dfrac{\tan x-\operatorname{sen} x}{x^3}$. Puedes dar decimal.'
     respuesta: 0.5
     tolerancia: 0.001
     verificar: { sympy: "limit((tan(x)-sin(x))/x**3, x, 0)" }
-    pistas: ["Escribe $\\tan x=\\sin x/\\cos x$ y factoriza $\\sin x$.", "Te queda un factor $(1-\\cos x)/x^2$."]
-    explicacion: 'Como $\tan x-\sin x=\sin x\left(\dfrac1{\cos x}-1\right)=\dfrac{\sin x(1-\cos x)}{\cos x}$, la expresión es $\dfrac{\sin x}{x}\cdot\dfrac{1}{\cos x}\cdot\dfrac{1-\cos x}{x^2}$. Los límites son $1$, $1$ y $\tfrac12$ (ejercicio calc-01-005), de modo que el resultado es $\tfrac12$.'
+    pistas: ["Escribe $\\tan x=\\operatorname{sen} x/\\cos x$ y factoriza $\\operatorname{sen} x$.", "Te queda un factor $(1-\\cos x)/x^2$."]
+    explicacion: 'Como $\tan x-\operatorname{sen} x=\operatorname{sen} x\left(\dfrac1{\cos x}-1\right)=\dfrac{\operatorname{sen} x(1-\cos x)}{\cos x}$, la expresión es $\dfrac{\operatorname{sen} x}{x}\cdot\dfrac{1}{\cos x}\cdot\dfrac{1-\cos x}{x^2}$. Los límites son $1$, $1$ y $\tfrac12$ (es el límite de $\frac{1-\cos x}{x^2}$ que ya calculaste), de modo que el resultado es $\tfrac12$.'
 
   - id: calc-01-009
     tipo: numerico
@@ -102,13 +104,13 @@ ejercicios:
   - id: calc-01-010
     tipo: autoevaluacion
     dificultad: 3
-    conceptos: [limite-intuitivo, definicion-epsilon-delta]
-    enunciado: '¿Puede existir $\lim_{x\to a}f(x)$ aunque $f(a)$ no esté definida? Explícalo con tus palabras y da un ejemplo.'
+    conceptos: [limite-intuitivo]
+    enunciado: '¿Puede existir $\lim_{x\to a}f(x)$ aunque $f(a)$ no esté definida? ¿Y si $f(a)$ sí está definida, tiene que coincidir con el límite? Explícalo con tus palabras y da un ejemplo.'
     rubrica:
       - "Dice que el límite depende de los valores cerca de $a$, no del valor en $a$."
       - "Da un ejemplo concreto (p. ej. $(x^2-9)/(x-3)$ en $x=3$)."
       - "Menciona que el valor $f(a)$, si existe, puede diferir del límite."
-    respuesta_modelo: 'Sí. El límite solo mira lo que hace $f$ para $x$ cercano a $a$ pero distinto de $a$. Por ejemplo, $f(x)=(x^2-9)/(x-3)$ no está definida en $x=3$, pero para $x\neq3$ es igual a $x+3$, así que el límite es 6.'
+    respuesta_modelo: 'Sí. El límite solo mira lo que hace $f$ para $x$ cercano a $a$ pero distinto de $a$. Por ejemplo, $f(x)=(x^2-9)/(x-3)$ no está definida en $x=3$, pero para $x\neq3$ es igual a $x+3$, así que el límite es 6. Además, aunque $f(a)$ exista, puede ser distinto del límite: si $g(x)=x+3$ para $x\neq3$ y $g(3)=0$, el límite en 3 sigue siendo 6.'
     explicacion: 'Si tu explicación incluyó los tres puntos de la rúbrica, vas bien. Si omitiste el tercero, piensa en una función que valga 0 en $a$ pero cuyo límite sea 5.'
     tarjeta: false
 
@@ -117,19 +119,19 @@ ejercicios:
     dificultad: 2
     conceptos: [indeterminacion-cero-cero]
     enunciado: 'Completa el procedimiento.'
-    texto: 'Para calcular $\lim_{x\to3}\frac{x^2-9}{x-3}$ primero se ___ el numerador como $(x-3)(x+3)$ y luego se ___ el factor común.'
-    respuestas: ["factoriza", "cancela"]
-    explicacion: 'Se factoriza la diferencia de cuadrados y se cancela $(x-3)$, válido porque el límite considera $x\neq3$.'
+    texto: 'Para calcular $\lim_{x\to3}\frac{x^2-9}{x-3}$: el numerador es una diferencia de ___, así que $x^2-9=(x-3)(x+3)$. Luego se cancela $(x-3)$, que es un ___ común del numerador y del denominador, no un sumando.'
+    respuestas: ["cuadrados", "factor"]
+    explicacion: 'Como $x^2-9$ es una diferencia de cuadrados, $x^2-9=(x-3)(x+3)$. Se cancela $(x-3)$ porque es un factor común (solo se cancelan factores, nunca sumandos), y eso es válido porque el límite solo considera $x\neq3$.'
 
   - id: calc-01-012
     tipo: ordenar
     dificultad: 2
     conceptos: [indeterminacion-cero-cero]
-    enunciado: 'Ordena los pasos para calcular un límite con una raíz que da $0/0$.'
+    enunciado: 'Ordena los pasos para calcular un límite con raíz cuadrada cuando sustituir da $0/0$.'
     elementos:
       - "Sustituir y detectar la forma 0/0"
       - "Multiplicar arriba y abajo por el conjugado"
-      - "Simplificar el factor que causa el 0"
+      - "Cancelar el factor común que vale 0 en el punto"
       - "Evaluar el límite de la expresión resultante"
     explicacion: 'Primero se detecta la indeterminación; el conjugado permite eliminar la raíz y producir el factor que se cancela; al final ya se puede sustituir.'
 
@@ -182,7 +184,7 @@ ejercicios:
     enunciado: 'Sea $f(x)=x^2$ si $x<1$ y $f(x)=3x-1$ si $x\geq 1$. Calcula $\lim_{x\to 1^-}f(x)$.'
     respuesta: 1
     tolerancia: 0
-    verificar: { sympy: "limit(x**2, x, 1, '-')" }
+    verificar: { sympy: "limit(Piecewise((x**2, x<1), (3*x-1, True)).subs(x, 1-Symbol('h', positive=True)), Symbol('h', positive=True), 0)" }
     pistas: ["Por la izquierda $x<1$: ¿qué fórmula usa $f$ ahí?"]
     explicacion: 'Por la izquierda ($x<1$) la función es $x^2$, un polinomio, así que el límite lateral es $1^2=1$.'
 
@@ -191,7 +193,7 @@ ejercicios:
     dificultad: 3
     conceptos: [limite-lateral]
     enunciado: 'Sea $f(x)=x^2$ si $x<1$ y $f(x)=3x-1$ si $x\geq 1$. ¿Qué pasa con $\lim_{x\to 1}f(x)$?'
-    opciones: ["Vale 1", "Vale 2", "No existe: los laterales son 1 y 2", "Vale $\\tfrac{3}{2}$"]
+    opciones: ["Vale 1", "Vale 2", "No existe", "Vale $\\tfrac{3}{2}$"]
     correcta: 2
     pistas: ["Calcula también el límite por la derecha con $3x-1$."]
     explicacion: 'Por la izquierda el límite es $1^2=1$; por la derecha es $3(1)-1=2$. Como los laterales son distintos, el límite no existe.'
@@ -222,9 +224,75 @@ ejercicios:
     tipo: numerico
     dificultad: 4
     conceptos: [definicion-epsilon-delta]
-    enunciado: 'Para $f(x)=3x+1$ se cumple $\lim_{x\to 2}f(x)=7$. ¿Cuál es el mayor $\delta$ tal que $0<|x-2|<\delta$ implica $|f(x)-7|<0.03$?'
+    enunciado: 'Para $f(x)=3x+1$, $\lim_{x\to 2}f(x)=7$. Con $\varepsilon=0.03$, ¿cuál es el mayor $\delta>0$ tal que, para todo $x$ con $0<|x-2|<\delta$, se cumple $|f(x)-7|<\varepsilon$?'
     respuesta: 0.01
     tolerancia: 0.000001
-    verificar: { sympy: "solve(3*x+1-7-Rational(3,100), x)[0] - 2" }
+    verificar: { sympy: "(lambda I: Min(2 - I.inf, I.sup - 2))(solveset(Abs(3*x+1-7) < Rational(3,100), x, Reals))" }
     pistas: ["Escribe $|f(x)-7|$ en términos de $|x-2|$."]
-    explicacion: 'Como $|f(x)-7|=|3x-6|=3|x-2|$, pedir $3|x-2|<0.03$ equivale a $|x-2|<0.01$. El mayor $\delta$ que funciona es $0.01=\varepsilon/3$.'
+    explicacion: 'Como $|f(x)-7|=|3x-6|=3|x-2|$, pedir $3|x-2|<0.03$ equivale a $|x-2|<0.01$. Con $\delta=0.01$ funciona: si $0<|x-2|<0.01$, entonces $|f(x)-7|<0.03$. Con cualquier $\delta$ mayor falla: $x=2.01$ cumple $0<|x-2|<\delta$, pero $|f(x)-7|=0.03$, que no es menor que $0.03$. Por eso el mayor es $\delta=0.01=\varepsilon/3$.'
+
+  - id: calc-01-022
+    tipo: opcion_multiple
+    dificultad: 2
+    conceptos: [limite-intuitivo]
+    visual: { id: grafica, f: "(x^2-1)/(x-1)", dominio: "-1, 3" }
+    enunciado: 'Según la gráfica, ¿cuánto vale $\lim_{x\to 1}f(x)$?'
+    opciones: ["0", "1", "2", "No existe, porque $f(1)$ no está definida"]
+    correcta: 2
+    pistas: ["Fíjate en la altura a la que se acerca la curva por ambos lados de $x=1$, no en si hay un punto justo ahí."]
+    explicacion: 'Para $x\neq1$, $\dfrac{x^2-1}{x-1}=\dfrac{(x-1)(x+1)}{x-1}=x+1$: la gráfica es la recta $y=x+1$ con un hueco en $x=1$. Por ambos lados la curva se acerca a la altura 2, así que $\lim_{x\to1}f(x)=2$. Que $f(1)$ no esté definida no impide que el límite exista: el límite no usa el valor en el punto.'
+
+  - id: calc-01-023
+    tipo: seleccion_multiple
+    dificultad: 3
+    conceptos: [limite-lateral, limite-intuitivo]
+    visual: { id: grafica, f: "floor(x)", dominio: "0, 4" }
+    enunciado: 'Según la gráfica de $f(x)=\lfloor x\rfloor$ (la parte entera de $x$), ¿cuáles afirmaciones son verdaderas? Puede haber varias.'
+    opciones: ["$\\lim_{x\\to2^-}f(x)=1$", "$\\lim_{x\\to2^+}f(x)=2$", "$\\lim_{x\\to2}f(x)=2$", "$f(2)=2$"]
+    correctas: [0, 1, 3]
+    verificar: { sympy: "[limit(floor(x), x, 2, '-') == 1, limit(floor(x), x, 2, '+') == 2, limit(floor(x), x, 2, '-') == limit(floor(x), x, 2, '+') == 2, floor(2) == 2]" }
+    pistas: ["Mira a qué altura está la gráfica justo antes de $x=2$, justo después y exactamente en $x=2$."]
+    explicacion: 'Para $1\le x<2$, $\lfloor x\rfloor=1$, así que $\lim_{x\to2^-}f(x)=1$. Para $2\le x<3$, $\lfloor x\rfloor=2$, así que $\lim_{x\to2^+}f(x)=2$ y $f(2)=2$. Como los laterales son distintos (1 y 2), $\lim_{x\to2}f(x)$ no existe: la tercera afirmación es falsa aunque $f(2)=2$.'
+
+  - id: calc-01-024
+    tipo: numerico
+    dificultad: 1
+    conceptos: [limite-intuitivo]
+    enunciado: 'Para $g(x)=\dfrac{e^x-1}{x}$ se tiene $g(-0.01)\approx0.99502$, $g(-0.001)\approx0.99950$, $g(0.001)\approx1.00050$ y $g(0.01)\approx1.00502$. Estima $\lim_{x\to0}g(x)$.'
+    respuesta: 1
+    tolerancia: 0
+    verificar: { sympy: "limit((exp(x)-1)/x, x, 0)" }
+    pistas: ["¿A qué número se acercan los valores cuando $x$ se acerca a 0 por la izquierda? ¿Y por la derecha?"]
+    explicacion: 'Por la izquierda los valores ($0.99502$, $0.99950$) suben hacia 1; por la derecha ($1.00502$, $1.00050$) bajan hacia 1. Los dos lados se acercan al mismo número, así que la estimación es $\lim_{x\to0}g(x)=1$. Una tabla sugiere el límite, pero no lo demuestra.'
+
+  - id: calc-01-025
+    tipo: numerico
+    dificultad: 2
+    conceptos: [limite-infinito]
+    enunciado: 'Calcula $\lim_{x\to-\infty}\dfrac{4x+7}{x^2-3}$.'
+    respuesta: 0
+    tolerancia: 0
+    verificar: { sympy: "limit((4*x+7)/(x**2-3), x, -oo)" }
+    pistas: ["Divide numerador y denominador entre la mayor potencia de $x$ que aparece en el denominador."]
+    explicacion: 'Dividiendo entre $x^2$ queda $\dfrac{4/x+7/x^2}{1-3/x^2}$. Cuando $x\to-\infty$, cada término con $x$ en el denominador tiende a 0, así que el límite es $\dfrac{0}{1}=0$: el denominador crece más rápido que el numerador.'
+
+  - id: calc-01-026
+    tipo: opcion_multiple
+    dificultad: 2
+    conceptos: [definicion-epsilon-delta]
+    enunciado: 'En la definición $\varepsilon$–$\delta$ de $\lim_{x\to a}f(x)=L$, ¿qué se fija primero?'
+    opciones: ["$\\varepsilon$; luego se busca un $\\delta$ que funcione", "$\\delta$; luego se busca un $\\varepsilon$ que funcione", "Los dos a la vez, con $\\varepsilon=\\delta$", "Ninguno: los dos salen de $f(a)$"]
+    correcta: 0
+    pistas: ["Piensa en la definición como un reto: ¿cuál de las dos cantidades es la exigencia y cuál la respuesta a esa exigencia?"]
+    explicacion: 'La definición dice «para todo $\varepsilon>0$ existe $\delta>0$…»: primero se fija $\varepsilon$ (qué tan cerca de $L$ se quiere estar) y después hay que encontrar un $\delta$ que funcione, que en general depende de $\varepsilon$. No tienen por qué ser iguales, y no salen de $f(a)$: el límite ni siquiera usa el valor $f(a)$.'
+
+  - id: calc-01-027
+    tipo: completar
+    dificultad: 3
+    conceptos: [definicion-epsilon-delta]
+    enunciado: 'Completa.'
+    texto: 'Para $f(x)=5-2x$ se cumple $\lim_{x\to1}f(x)=3$. Con $\varepsilon=0.04$: como $|f(x)-3|=$ ___ $\cdot|x-1|$, el mayor $\delta$ que funciona es $\delta=$ ___.'
+    respuestas: ["2", "0.02"]
+    verificar: { sympy: "[(Abs(5-2*x-3)/Abs(x-1)).subs(x, 3), (lambda I: Min(1 - I.inf, I.sup - 1))(solveset(Abs(5-2*x-3) < Rational(4,100), x, Reals))]" }
+    pistas: ["Simplifica $f(x)-3$ y saca factor común para que aparezca $x-1$."]
+    explicacion: 'Como $f(x)-3=2-2x=-2(x-1)$, se tiene $|f(x)-3|=2|x-1|$. Pedir $2|x-1|<0.04$ equivale a $|x-1|<0.02$, así que $\delta=0.02=\varepsilon/2$ funciona. Con un $\delta$ mayor falla: $x=1.02$ da $|f(x)-3|=0.04$, que no es menor que $0.04$. Por eso el mayor es $\delta=0.02$.'

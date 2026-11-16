@@ -20,7 +20,7 @@ export function unitCrumbs(subjectId: string, slug: string, activity: string): C
 
 /**
  * "Header de foco" de las rutas de estudio (decisión de Carlo, 2026-10-03): la navegación se
- * oculta y aquí quedan dónde estás y cómo salir (Esc hace lo mismo). Funciona en el servidor, así
+ * oculta y aquí quedan dónde estás y cómo salir (Esc hace lo mismo; al tocar, el botón). Funciona en el servidor, así
  * que las migas aparecen antes de que carguen tus datos.
  */
 export function StudyFrame({ crumbs, exitHref, exitLabel = "Salir", children }: { crumbs: readonly Crumb[]; exitHref: string; exitLabel?: string; children: ReactNode }) {
@@ -28,8 +28,8 @@ export function StudyFrame({ crumbs, exitHref, exitLabel = "Salir", children }: 
     <div>
       <div className="mb-6 flex items-center justify-between gap-3">
         <Breadcrumbs items={crumbs} />
-        <Link href={exitHref} className="tactile inline-flex shrink-0 items-center gap-2 rounded-md border px-2.5 py-1.5 text-label text-ink-2 hover:border-border-strong hover:text-ink">
-          <LogOut aria-hidden className="size-4 [@media(pointer:fine)]:hidden" />
+        <Link href={exitHref} className="tactile inline-flex shrink-0 items-center gap-2 rounded-md border px-2.5 py-1.5 text-label touch:min-h-11 touch:px-3.5 text-ink-2 hover:border-border-strong hover:text-ink">
+          <LogOut aria-hidden className="size-4 notouch:hidden" />
           <Kbd>Esc</Kbd> {exitLabel}
         </Link>
       </div>

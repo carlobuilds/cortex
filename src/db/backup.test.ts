@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import { type Backup } from "./backup-schema";
 import {
+  type BackupSummary,
+  type DeviceSummary,
+  importRisk,
+  lastActivity,
+  summarizeDevice,
   backupFileName,
   backupSizeError,
   exportBackup,
@@ -211,5 +216,163 @@ describe("tamaño del respaldo", () => {
     expect(backupSizeError(bytes, bytes)).toBeNull();
     expect(backupSizeError(bytes, bytes - 1)).toMatch(/el máximo es/);
     db.close();
+  });
+});
+
+describe("lastActivity", () => {
+  it("sin filas: null y 0 ilegibles", () => {
+    expect(lastActivity({})).toEqual({ at: null, unreadable: 0 });
+    expect(lastActivity({ attempts: [], sessions: [], gymResults: [] })).toEqual({ at: null, unreadable: 0 });
+  });
+
+  it("toma el máximo de las tres tablas", () => {
+    expect(lastActivity({ attempts: [{ at: 10 }, { at: 30 }], sessions: [{ startedAt: 50 }], gymResults: [{ at: 20 }] })).toEqual({ at: 50, unreadable: 0 });
+    expect(lastActivity({ attempts: [{ at: 10 }], gymResults: [{ at: 99 }] }).at).toBe(99);
+  });
+
+  it("una fecha mayor que el máximo de Date (1e300) es ilegible", () => {
+    expect(lastActivity({ attempts: [{ at: 1e300 }, { at: 8.64e15 }, { at: 8.64e15 + 1 }] })).toEqual({ at: 8.64e15, unreadable: 2 });
+  });
+
+  it("fechas raras cuentan como ilegibles y no entran al máximo", () => {
+    const r = lastActivity({
+      attempts: [{ at: Number.NaN }, { at: "5" }, { at: -3 }, { at: 0 }, { at: Infinity }, { id: 1 }, null, 7, { at: 8 }],
+      sessions: [{ startedAt: null }],
+    });
+    expect(r).toEqual({ at: 8, unreadable: 9 });
+  });
+});
+
+describe("resumen con actividad", () => {
+  it("un respaldo v1 viejo (migrateBackup) se resume con su actividad", () => {
+    const v1 = {
+      app: "cortex",
+      format: 1,
+      schemaVersion: 1,
+      exportedAt: NOW.toISOString(),
+      appVersion: "0.0.0",
+      tables: {
+        profile: [{ id: 1, xpTotal: 50, level: 1, currentStreak: 1, maxStreak: 1, streakFreezes: 0, preferences: { sound: false }, schemaVersion: 1 }],
+        unitProgress: [],
+        attempts: [{ id: 1, exerciseId: "calc-01-001", at: 1000, correct: true, timeMs: 9, confidence: 2, answer: "3", sessionId: null, schemaVersion: 1 }],
+        cards: [],
+        sessions: [{ id: 1, startedAt: 2000, endedAt: 3000, xpEarned: 1, kind: "daily", schemaVersion: 1 }],
+        missions: [],
+        records: [],
+        ghosts: [],
+        achievements: [],
+        gymResults: [],
+        mistakes: [],
+        reports: [],
+      },
+    };
+    const parsed = parseBackup(JSON.stringify(v1));
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+    expect(summarizeBackup(parsed.backup)).toMatchObject({ lastActivityAt: 2000, unreadableDates: 0, xpTotal: 50 });
+  });
+
+  it("summarizeDevice lee el último valor de cada índice y coincide con el respaldo", async () => {
+    const db = await filledDb();
+    const device = await summarizeDevice(db);
+    expect(device.lastActivityAt).toBe(summarizeBackup(await exportBackup(db, "0.0.0", NOW)).lastActivityAt);
+    // El fixture trae una sesión con startedAt 0 (no es una fecha > 0): cuenta como ilegible.
+    expect(device.unreadableDates).toBe(1);
+    expect(importRisk(device, summarizeBackup(await exportBackup(db, "0.0.0", NOW)), NOW).level).toBe("alto");
+    expect(device.counts).toEqual(await summarizeDb(db));
+    db.close();
+  });
+
+  it("summarizeDevice cuenta las filas sin índice (at: null) como ilegibles", async () => {
+    const db = await openCortexDb(freshIdb());
+    await db.table("attempts").bulkAdd([{ exerciseId: "x", at: null }, { exerciseId: "y", at: 5 }]);
+    const d = await summarizeDevice(db);
+    expect(d).toMatchObject({ lastActivityAt: 5, unreadableDates: 1 });
+    db.close();
+  });
+
+  it("summarizeDevice en una base vacía: null", async () => {
+    const db = await openCortexDb(freshIdb());
+    expect((await summarizeDevice(db)).lastActivityAt).toBeNull();
+    db.close();
+  });
+});
+
+describe("importRisk", () => {
+  const NOW_R = new Date("2026-11-16T12:00:00.000Z");
+  const counts = Object.fromEntries(DATA_TABLES.map((t) => [t, 0])) as Record<(typeof DATA_TABLES)[number], number>;
+  const local: DeviceSummary = { counts, lastActivityAt: null, unreadableDates: 0 };
+  const incoming = (o: Partial<BackupSummary> = {}): BackupSummary => ({
+    exportedAt: "2026-11-15T12:00:00.000Z",
+    appVersion: "0.0.0",
+    counts,
+    xpTotal: 0,
+    level: 1,
+    lastActivityAt: Date.parse("2026-11-15T11:00:00.000Z"),
+    unreadableDates: 0,
+    ...o,
+  });
+
+  it("fechas ilegibles en el respaldo: alto", () => {
+    const r = importRisk(local, incoming({ unreadableDates: 2 }), NOW_R);
+    expect(r.level).toBe("alto");
+    expect(r.reasons.length).toBe(1);
+  });
+
+  it("exportedAt ilegible: alto", () => {
+    expect(importRisk(local, incoming({ exportedAt: "ayer" }), NOW_R).level).toBe("alto");
+    expect(importRisk(local, incoming({ exportedAt: "" }), NOW_R).level).toBe("alto");
+  });
+
+  it("exportedAt en el futuro: alto, con tolerancia de 5 minutos", () => {
+    expect(importRisk(local, incoming({ exportedAt: "2026-11-16T12:04:00.000Z", lastActivityAt: null }), NOW_R).level).toBe("aviso");
+    expect(importRisk(local, incoming({ exportedAt: "2026-11-16T12:06:00.000Z", lastActivityAt: null }), NOW_R).level).toBe("alto");
+  });
+
+  it("actividad posterior a su propio exportedAt: alto, con tolerancia", () => {
+    const exp = Date.parse("2026-11-15T12:00:00.000Z");
+    expect(importRisk(local, incoming({ lastActivityAt: exp + 4 * 60_000 }), NOW_R).level).toBe("aviso");
+    expect(importRisk(local, incoming({ lastActivityAt: exp + 6 * 60_000 }), NOW_R).level).toBe("alto");
+  });
+
+  it("el dispositivo también falla cerrado: fechas ilegibles o actividad sin fecha", () => {
+    expect(importRisk({ ...local, unreadableDates: 1 }, incoming(), NOW_R).level).toBe("alto");
+    expect(importRisk({ ...local, counts: { ...counts, attempts: 3 }, lastActivityAt: null }, incoming(), NOW_R).level).toBe("alto");
+    expect(importRisk({ ...local, counts: { ...counts, gymResults: 1 }, lastActivityAt: null }, incoming(), NOW_R).level).toBe("alto");
+    expect(importRisk({ ...local, counts: { ...counts, attempts: 3 }, lastActivityAt: 5 }, incoming(), NOW_R).level).toBe("aviso");
+  });
+
+  it("la capa a gana sobre la regla: no se consulta decideImportRisk", () => {
+    // La razón devuelta no es la del marcador de posición: la regla ni se consultó.
+    expect(importRisk(local, incoming({ unreadableDates: 1 }), NOW_R).reasons.join(" ")).not.toContain("aún no está escrita");
+  });
+
+  it("acumula todas las razones de la capa a", () => {
+    const r = importRisk(local, incoming({ unreadableDates: 1, exportedAt: "2026-12-31T00:00:00.000Z", lastActivityAt: Date.parse("2027-01-02T00:00:00.000Z") }), NOW_R);
+    expect(r.level).toBe("alto");
+    expect(r.reasons.length).toBe(3);
+  });
+
+  it("marcador de posición: sin regla de Carlo devuelve aviso, nunca ok", () => {
+    const r = importRisk(local, incoming(), NOW_R);
+    expect(r.level).toBe("aviso");
+    expect(r.reasons).toEqual(["Compara las fechas antes de reemplazar: la regla del aviso aún no está escrita."]);
+  });
+
+  it.todo("regla de Carlo: dispositivo con actividad posterior al exportedAt del respaldo");
+  it.todo("regla de Carlo: respaldo con menos intentos que el dispositivo");
+  it.todo("regla de Carlo: respaldo con más de N días");
+  it.todo("regla de Carlo: cuándo alto, cuándo aviso y cuándo ok (dispositivo vacío)");
+});
+
+describe("parseBackup acota los errores", () => {
+  it("10 000 claves repetidas devuelven como mucho 20 errores cortos", () => {
+    const rows = Array.from({ length: 10_000 }, () => ({ key: "x".repeat(500), at: 1 }));
+    const text = JSON.stringify({ app: "cortex", format: 1, schemaVersion: 2, exportedAt: NOW.toISOString(), appVersion: "0", tables: { records: rows } });
+    const r = parseBackup(text);
+    expect(r.ok).toBe(false);
+    if (r.ok) return;
+    expect(r.errors.length).toBeLessThanOrEqual(20);
+    expect(r.errors.every((e) => e.length <= 201)).toBe(true);
   });
 });

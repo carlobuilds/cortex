@@ -1,0 +1,20 @@
+# SOLO PARA LA MAC (nunca se copia al VPS): prueba el MISMO contenedor de docker-compose.yml.
+#   rm -rf out && pnpm build:pwa
+#   docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.local.yml up -d
+#   → http://localhost:3300      (bajar: ... down)
+# Sobrescribe solo tres cosas:
+#   1. publica 127.0.0.1:3300 → 8080 (en el VPS no hay `ports:`);
+#   2. el sitio sale de ../out (mismo destino /srv, solo lectura) en vez de ./sitio;
+#   3. la red traefik-public se crea aquí (no externa), así no hace falta `docker network create`.
+# Las labels de Traefik se quedan: sin Traefik no hacen nada.
+services:
+  cortex-pwa:
+    ports:
+      - "127.0.0.1:3300:8080"
+    volumes:
+      - ../out:/srv:ro
+
+networks:
+  traefik-public:
+    external: !reset null
+    name: cortex-local-traefik-public

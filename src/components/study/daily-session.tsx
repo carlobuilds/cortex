@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { findUnit, type StudyCatalog } from "@/content/core/study-catalog";
 import { factsFor } from "@/content/facts";
 import type { CortexDb } from "@/db/db";
+import { pushStudySummary } from "@/sync/study-push";
 import { type ChestResult, ensureToday, finishDailySession, openDailyChest } from "@/db/progress";
 import type { ProfileRecord } from "@/db/types";
 import { CONFIG } from "@/engine/config";
@@ -126,7 +127,7 @@ export function DailySession({ db, catalog, profile }: { db: CortexDb; catalog: 
             ¿Hoy no?{" "}
             <button
               type="button"
-              className="underline underline-offset-2 hover:text-ink"
+              className="underline underline-offset-2 hover:text-ink touch:inline-flex touch:min-h-11 touch:items-center"
               onClick={() => {
                 markMissionDone(status.day);
                 void refresh();
@@ -143,7 +144,7 @@ export function DailySession({ db, catalog, profile }: { db: CortexDb; catalog: 
       {step === "close" ? <CloseScreen db={db} catalog={catalog} profile={profile} status={status} /> : null}
 
       <p className="text-sm text-muted-foreground">
-        <Link href="/" className="inline-flex items-center gap-1.5 underline underline-offset-2 hover:text-ink">
+        <Link href="/" className="inline-flex items-center gap-1.5 underline underline-offset-2 hover:text-ink touch:min-h-11">
           <Home aria-hidden className="size-3.5" /> Terminar por hoy
         </Link>{" "}
         · Parar nunca tiene castigo.
@@ -183,7 +184,7 @@ function CloseScreen({ db, catalog, profile, status }: { db: CortexDb; catalog: 
   const [chest, setChest] = useState<ChestResult | null>(null);
   const [opened, setOpened] = useState(status.dayRecord.chestOpened);
   useEffect(() => {
-    void finishDailySession(db, Date.now());
+    void finishDailySession(db, Date.now()).finally(() => pushStudySummary(db));
   }, [db]);
   const d = status.dayRecord;
   const tomorrow = useMemo(() => {

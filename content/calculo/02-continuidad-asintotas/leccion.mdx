@@ -1,0 +1,141 @@
+---
+titulo: "Continuidad y asíntotas: dónde se rompe una función"
+materia: calculo
+unidad: 02-continuidad-asintotas
+duracion_min: 25
+prerrequisitos: [limite-lateral, limite-polinomio, indeterminacion-cero-cero, limite-infinito]
+conceptos: [continuidad-punto, limite-infinito-vertical, tipos-discontinuidad, continuidad-intervalo, teorema-valor-intermedio, asintota-horizontal, asintota-oblicua]
+programa_ref: "Cálculo, Unidad II, 2.3 (límites infinitos; los del infinito están en la 01), 2.3.1 (asíntotas) y 2.4 (continuidad en un punto y en un intervalo); el TVI se agrega"
+---
+
+## El problema
+
+En las unidades 03 y 07 usaste «continua» y «asíntota» como dato; aquí se definen con límites. Tres funciones dividen entre 0 en $x=2$: $\frac{x^2+x-6}{x-2}$, $\frac{\lvert x-2\rvert}{x-2}$ y $\frac1{(x-2)^2}$.
+
+<Predice pregunta="¿A cuál la arreglas definiendo un solo valor en 2, y qué les pasa a las otras?" revela="Solo a la primera: para $x\neq2$ vale $x+3$, así que con el valor 5 en 2 queda sin hueco. La segunda vale $-1$ a la izquierda y $1$ a la derecha: salta. La tercera crece sin tope por los dos lados. Son los tres tipos de discontinuidad: removible, de salto e infinita." />
+
+## Continuidad en un punto
+
+<Concepto titulo="Continuidad en un punto">
+$f$ es **continua** en $a$ si se cumplen las tres condiciones:
+
+1. $f(a)$ está definida;
+2. $\displaystyle\lim_{x\to a}f(x)$ existe y es un número ($\pm\infty$ no cuenta);
+3. $\displaystyle\lim_{x\to a}f(x)=f(a)$.
+
+En un corte (donde cambia la fórmula), cada lateral se calcula con la pieza de su lado.
+</Concepto>
+
+Si $f$ está definida a los dos lados de $a$, salvo quizá en $a$, y no es continua en $a$, tiene una **discontinuidad** en $a$, aunque $a$ no esté en su dominio: las tres funciones del inicio son discontinuas en 2. Donde $f$ no está definida de ningún lado (como $\sqrt x$ en $-1$) no se habla de continuidad.
+
+## Límites infinitos y asíntotas verticales
+
+Si al sustituir sale $\frac c0$ con $c\neq0$, el cociente crece sin tope en valor absoluto, y el signo de cada lado sale de los signos de arriba y de abajo. En $\frac{x+1}{x-2}$, arriba tiende a 3; abajo, $x-2<0$ a la izquierda de 2 y $x-2>0$ a la derecha:
+$$\lim_{x\to2^-}\frac{x+1}{x-2}=-\infty,\qquad\lim_{x\to2^+}\frac{x+1}{x-2}=\infty.$$
+
+<Visual id="limite" f="(x+1)/(x-2)" a="2" dominio="-3, 7" />
+
+<Concepto titulo="Asíntota vertical">
+Escribir $\lim f(x)=\infty$ no da un valor: dice **cómo** no existe el límite. La recta $x=a$ es **asíntota vertical** si **al menos uno** de los laterales en $a$ es $\infty$ o $-\infty$. En una racional se decide **después de simplificar**: si al cancelar ya no queda abajo ningún factor que se anule en $a$, hay un hueco; si todavía queda, hay asíntota vertical.
+</Concepto>
+
+Por ejemplo, $\frac{x^2+x-6}{(x-2)^2}=\frac{x+3}{x-2}$: se cancela un $x-2$, pero queda otro abajo, y la asíntota sigue. Con algunas trascendentes, el límite infinito sale de un solo lado, y eso basta: $\ln x\to-\infty$ cuando $x\to0^+$ (a la izquierda no está definida), y $e^{1/x}\to\infty$ cuando $x\to0^+$ (por la izquierda tiende a 0).
+
+## Tipos de discontinuidad
+
+<Concepto titulo="Los tres tipos que usa el curso">
+| Tipo | Laterales en $a$ | ¿Se arregla redefiniendo $f(a)$? |
+|---|---|---|
+| Removible (o evitable) | finitos e iguales: el límite existe, pero $f(a)$ no existe o es distinto | Sí, con $f(a)=\lim_{x\to a}f(x)$ |
+| De salto | finitos y distintos | No |
+| Infinita | al menos uno es $\pm\infty$: asíntota vertical | No |
+</Concepto>
+
+Las oscilantes, como $\operatorname{sen}\frac1x$ en 0, no son de ninguno y quedan fuera del curso.
+
+## Continuidad en un intervalo
+
+$f$ es continua en $(a,b)$ si lo es en cada punto. En $[a,b]$, además, en cada borde cuenta solo el lateral de adentro: $\lim_{x\to a^+}f(x)=f(a)$ y $\lim_{x\to b^-}f(x)=f(b)$. Así, $\sqrt x$ es continua en $[0,\infty)$.
+
+Para no revisar punto por punto: polinomios, racionales, raíces, $e^x$, $\ln x$ y las trigonométricas son continuas **en su dominio**, y también sus sumas, restas, productos, cocientes (donde el de abajo no vale 0) y **composiciones**: si $g$ es continua en $a$ y $f$ en $g(a)$, $f(g(x))$ es continua en $a$. Ojo: «continua en su dominio» no es «continua en $\mathbb R$»; $\frac1x$ lo es en su dominio y tiene una discontinuidad infinita en 0.
+
+<Ejemplo titulo="Analiza la continuidad">
+Sea $f(x)=3-x^2$ si $x<1$, $f(x)=x+1$ si $1\le x\le3$ y $f(x)=x^2-6$ si $x>3$.
+
+1. **Candidatos.** Cada pieza es un polinomio, continuo en su tramo: solo pueden fallar los cortes, $x=1$ y $x=3$.
+2. **En 1.** $f(1)=2$ (manda $x+1$); $\lim_{x\to1^-}(3-x^2)=2$ y $\lim_{x\to1^+}(x+1)=2$. Se cumplen las tres condiciones: es continua.
+3. **En 3.** $f(3)=4$ y $\lim_{x\to3^-}(x+1)=4$, pero $\lim_{x\to3^+}(x^2-6)=3$. Los laterales son finitos y distintos: falla la condición 2, y es un **salto**.
+4. **Concluye.** $f$ es continua en $(-\infty,3)\cup(3,\infty)$ y tiene un salto en 3; como el lateral izquierdo vale $f(3)$, también es continua en $(-\infty,3]$.
+5. **Revisa.** $f(2.99)=3.99$ y $f(3.01)=3.0601$: de cada lado se acercan a 4 y a 3. Revisar con un valor cercano detecta errores, pero no demuestra.
+</Ejemplo>
+
+<Desvanecido titulo="Ahora tú: ¿qué k la hace continua?" pasos={[
+  "Sea $g(x)=kx-1$ si $x<3$ y $g(x)=x^2-2k$ si $x\\ge3$. Busca $k$ para que $g$ sea continua en 3.",
+  "Por la izquierda manda $kx-1$; en el punto y por la derecha, $x^2-2k$. Iguala el lateral izquierdo con $g(3)$ y junta las $k$ de un lado: $5k=$ ___ .",
+  "Despeja: $k=$ ___ .",
+  "Con ese $k$, $g(3)=$ ___ . Revisa: compara $g(2.99)$ con $g(3)$."
+]} respuestas={["10", "2", "5"]} />
+
+## Teorema del valor intermedio (fuera del programa oficial)
+
+<Concepto titulo="Teorema del valor intermedio (TVI)">
+Si $f$ es continua en $[a,b]$ y $N$ está **estrictamente** entre $f(a)$ y $f(b)$, existe al menos un $c\in(a,b)$ con $f(c)=N$. Con $N=0$ (Bolzano): si $f(a)$ y $f(b)$ tienen signos opuestos, $f$ tiene una raíz en $(a,b)$.
+</Concepto>
+
+$p(x)=x^3-x-4$ es continua en $[1,2]$ y $p(1)=-4<0<2=p(2)$: tiene una raíz entre 1 y 2. El TVI solo dice que existe, no dónde ni cuántas hay. Sin continuidad falla: $\frac1x$ va de $-1$ a $1$ en $[-1,1]$ y nunca vale 0. Al revés tampoco: $(x-1)^2$ vale 1 en los bordes de $[0,2]$ y tiene una raíz en 1.
+
+## Asíntotas horizontales y oblicuas
+
+<Concepto titulo="Asíntotas horizontales y oblicuas">
+$y=L$ es **asíntota horizontal** si $f(x)\to L$ cuando $x\to\infty$ **o** cuando $x\to-\infty$. Cada lado se calcula aparte, así que hay a lo más dos, y la curva puede cruzarlas. $y=mx+b$, con $m\neq0$, es **asíntota oblicua** si $f(x)-(mx+b)\to0$ cuando $x\to\infty$ o cuando $x\to-\infty$. En un mismo lado no puede haber las dos.
+</Concepto>
+
+En una racional, compara los grados de arriba y de abajo: si el de arriba es menor, la horizontal es $y=0$; si son iguales, $y$ es el cociente de los coeficientes principales; si el de arriba es mayor en uno, la oblicua es el cociente de la división, en los dos lados; si es mayor en dos o más, no hay horizontal ni oblicua. El límite al infinito también puede ser infinito: con grado mayor arriba, o con $e^x$ y $\ln x$ cuando $x\to\infty$. Con raíces, $\sqrt{x^2}=\lvert x\rvert$, que vale $-x$ cuando $x<0$. Fuera de las racionales, $m=\lim\frac{f(x)}{x}$ y $b=\lim(f(x)-mx)$, cada lado aparte.
+
+<Ejemplo titulo="Asíntotas de una racional">
+Sea $r(x)=\frac{x^3-x^2+3x-3}{x^2+x-2}$.
+
+1. **Factoriza.** Arriba, agrupando: $x^2(x-1)+3(x-1)=(x-1)(x^2+3)$; abajo, $(x-1)(x+2)$. Para $x\neq1$, $r(x)=\frac{x^2+3}{x+2}$.
+2. **Tipo en 1.** El factor $x-1$ se cancela: hay un hueco en $\left(1,\frac43\right)$, porque $\frac{1+3}{1+2}=\frac43$. No es asíntota.
+3. **Tipo en $-2$.** Arriba tiende a $7>0$ y abajo $x+2\to0$, negativo a la izquierda y positivo a la derecha: $\lim_{x\to-2^-}r(x)=-\infty$ y $\lim_{x\to-2^+}r(x)=\infty$. $x=-2$ es asíntota vertical.
+4. **Al infinito.** Grado 2 arriba y 1 abajo: no hay horizontal. Divide: $\frac{x^2+3}{x+2}=x-2+\frac7{x+2}$ (comprueba: $(x+2)(x-2)+7=x^2+3$), y $\frac7{x+2}\to0$ en los dos lados: la oblicua es $y=x-2$.
+5. **Revisa.** $r(10)-8=\frac{103}{12}-8=\frac7{12}$: pequeño y positivo, como dice $\frac7{x+2}$.
+</Ejemplo>
+
+<Visual id="grafica" f="(x^3-x^2+3*x-3)/(x^2+x-2)" dominio="-8, 6" titulo="La r del ejemplo" />
+
+<Desvanecido titulo="Ahora tú: hueco, vertical y horizontal" pasos={[
+  "Sea $h(x)=\\frac{2x^2-2x-4}{x^2-4}$. Factoriza arriba y abajo, y cancela el factor común.",
+  "El hueco está en $x=2$, a la altura ___ .",
+  "El factor que queda abajo da la asíntota vertical $x=$ ___ (con `-`).",
+  "Los grados son iguales: la asíntota horizontal es $y=$ ___ . Revisa: calcula $h(100)$."
+]} respuestas={["3/2", "-2", "2"]} />
+
+<Concepto titulo="Rutina de examen: ¿es continua?">
+1. **Candidatos.** Factoriza. Revisa los ceros del denominador, los cortes entre tramos y los bordes del dominio (raíz par, ln). En los demás puntos, las funciones elementales y sus combinaciones son continuas.
+2. **Tres condiciones** en cada candidato: $f(a)$ existe; $\lim_{x\to a}f(x)$ existe (en un corte, cada lateral con la pieza de su lado); y vale $f(a)$.
+3. **Si falla, clasifica:** límite finito → removible; laterales finitos y distintos → salto; algún lateral $\pm\infty$ → infinita, con asíntota vertical.
+4. **Al infinito, cada lado aparte:** $\lim f=L$ → $y=L$; si $m=\lim\frac{f(x)}{x}\neq0$ y $b=\lim(f(x)-mx)$ son finitos → $y=mx+b$.
+5. **Concluye** con intervalos y revisa con un valor cercano (detecta errores; no demuestra).
+</Concepto>
+
+## Errores comunes
+
+<Ojo>
+- **«Si el denominador se anula, hay asíntota vertical»:** falso si, al simplificar, ese factor desaparece de abajo; entonces hay un hueco.
+- **«Si es continua en $[a,b]$, es continua en $a$ y en $b$»:** falso; la $f$ del ejemplo es continua en $[1,3]$ y en 3 tiene un salto: en ese borde solo cuenta el lateral izquierdo.
+- **«La curva nunca cruza su asíntota horizontal»:** falso; la asíntota describe lo que pasa lejos.
+- **El TVI no da la raíz:** solo dice que existe; y sin cambio de signo puede haber raíz.
+</Ojo>
+
+<Conexion materia="Inteligencia artificial">
+**Del escalón a la sigmoide.** El perceptrón de Rosenblatt (1958) decide con un escalón: salta en 0, y fuera de ahí su salida no cambia si mueves un poco un peso, así que el descenso de gradiente no tiene de dónde aprender (el perceptrón aprendía con otra regla, de corrección de errores). La sigmoide, $\sigma(z)=\frac{1}{1+e^{-z}}$, es continua, con asíntotas horizontales $y=0$ y $y=1$: cambia sin saltos.
+</Conexion>
+<Resumen>
+- Continua en $a$: $f(a)$ existe, el límite existe y valen lo mismo; en el borde de $[a,b]$ cuenta solo el lateral de adentro.
+- Si falla: removible, de salto o infinita (asíntota vertical). Al infinito, cada lado aparte: $y=L$ o $y=mx+b$.
+- Es la base de la 03 (derivable implica continua) y de la 07 (valor extremo y trazado).
+</Resumen>
+<Feynman>
+Explícale a un amigo por qué $\frac{x^2+x-6}{x-2}$ y $\frac1{(x-2)^2}$ dividen entre 0 en 2, pero una tiene un hueco y la otra una asíntota, y por qué el TVI no sirve si la función salta.
+</Feynman>

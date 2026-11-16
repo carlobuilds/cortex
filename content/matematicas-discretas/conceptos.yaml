@@ -1,0 +1,448 @@
+materia: matematicas-discretas
+notacion: "Lógica: ¬, ∧, ∨, ⊕, → y ↔ (la app también acepta ~, &, |, -> y <->); ≡ entre proposiciones es equivalencia lógica (entre enteros, con (mod n), es congruencia) y ∴ marca la conclusión. Jerarquía, de más fuerte a más débil: ¬, ∧, ∨ y ⊕, →, ↔ (→ asocia a la derecha); ante la duda, paréntesis. Las tablas de verdad usan V y F con el orden de filas de la app. Reglas de inferencia con nombre en español y abreviatura: modus ponens (MP), modus tollens (MT), silogismo hipotético (SH), silogismo disyuntivo (SD, el modus tollendo ponens de otros libros), adición (Ad), simplificación (Simp), conjunción (Conj), resolución (Res) y dilema constructivo (DC); con cuantificadores, IU, GU, IE y GE. ℕ = {0, 1, 2, …} y ℤ⁺ = {1, 2, 3, …}; los enunciados dicen n ≥ 0 o n ≥ 1. Conjuntos: ⊆ es subconjunto y ⊊ subconjunto propio (no usamos ⊂); A − B, Aᶜ, A △ B, |A| y 𝒫(A). Enteros: a | b, mcd(a, b), mcm(a, b), a mod n ∈ {0, …, n − 1}, a ≡ b (mod n) y [a]ₙ; ℤₙ = {[0]ₙ, [1]ₙ, …, [n − 1]ₙ}, y en la unidad 18 cada clase se nombra por su representante en {0, …, n − 1}; el residuo de la división cumple 0 ≤ r < |b|, cosa que el % de Python y el de C no siempre dan. Bases con subíndice: 1011₂ y 2F₁₆ (dígitos hexadecimales en mayúscula). Álgebra booleana: x + y, x·y (o xy) y x̄, con precedencia barra, producto y suma; sus tablas usan 0 y 1 y van de 00…0 a 11…1 con la primera variable como bit más significativo (en (x, y, z), la fila 101 es la 5); mᵢ lleva barra donde el bit de i es 0 y Mᵢ donde es 1; las formas canónicas se escriben Σm(…) y ΠM(…), y las condiciones de «no importa», + d(…). Compuertas: AND, OR, NOT, NAND, NOR y XOR (x ⊕ y); un circuito se describe como lista, g₁ = NAND(x, y). Mapas de Karnaugh en orden de Gray: 00, 01, 11, 10. Relaciones: S∘R es «primero R, luego S», como g∘f, y su matriz es M_R ⊙ M_S. En una relación de equivalencia R, [a] = {x : x R a} es la clase de a, y A/R, el conjunto cociente (el de todas las clases). Grafos: camino (puede repetir), recorrido (sin aristas repetidas), trayectoria (sin vértices repetidos), circuito (recorrido cerrado) y ciclo (circuito sin vértices repetidos salvo los extremos); Euler va con recorridos y circuitos, Hamilton con trayectorias y ciclos. En un grafo, deg(v) es el grado (un lazo suma 2); en un dirigido, deg⁻(v) es el grado de entrada (flechas que llegan a v) y deg⁺(v) el de salida. Búsquedas: BFS (búsqueda en amplitud) y DFS (búsqueda en profundidad) visitan a los vecinos en orden alfabético (en un dirigido, los vecinos de u son los v con flecha u → v); el programa les dice «recorrido», pero aquí «recorrido» a secas es el de Euler. BFS marca al encolar; el orden BFS es el de entrada a la cola y el orden DFS, el de descubrimiento (DFS entra al primer vecino sin visitar y, si no hay, regresa); el nivel del origen es 0 y dist(s, v) es la distancia en aristas. En el árbol BFS o DFS se dice «padre»; en Dijkstra, «predecesor». Grafos ponderados: w(u, v) es el peso, con pesos ≥ 0; el peso mínimo de s a v es la distancia ponderada; d(v) es la distancia tentativa de Dijkstra; se fija el no fijado de menor d, con empate alfabético; relajar uv es bajar d(v) a d(u) + w(u, v) solo si es estrictamente menor, anotando a u como predecesor; «fijar» se dice de vértices, y los inalcanzables no se fijan. Árboles: un árbol es un grafo conexo y sin ciclos; nodo es sinónimo de vértice, y entre dos nodos hay una única trayectoria. En un árbol con raíz, el nivel de un nodo es el número de aristas de su trayectoria a la raíz (la raíz está en el nivel 0), la altura es el mayor nivel y cuenta aristas (un solo nodo tiene altura 0), una hoja es un nodo sin hijos, un nodo con hijos es interno, e «y es ancestro de x» es estricto (y ≠ x). Árbol binario: hijo izquierdo y derecho (un hijo único es izquierdo o derecho, y el enunciado lo dice); lleno: cada nodo tiene 0 o 2 hijos (no usamos «completo»). Preorden: raíz, subárbol izquierdo, subárbol derecho; inorden: izquierdo, raíz, derecho; posorden: izquierdo, derecho, raíz; cada subárbol con la misma regla. Se escriben sin guion y con «pos-» (el programa dice «pre-orden», «in-orden» y «post-orden»); la lista que dan es «el preorden de T», no un recorrido de Euler. Árboles de expresión: notación prefija (el preorden), infija y posfija (el posorden; otros libros, «postfija»); en las listas de hijos, «ninguno» marca al hijo que falta. Logaritmos siempre con base."
+# Temario aprobado por Carlo el 2026-11-13 contra curriculum/programas/matematicas-discretas.pdf (IIA, plan 2020).
+# Cada bloque es una unidad de Cortex; entre paréntesis, la sección del programa oficial.
+# Los números de unidad son permanentes (van en los ids de ejercicio disc-NN-NNN).
+# 22 y 23 son extra: el programa no trae conteo ni recurrencias.
+conceptos:
+  # 01 · Proposiciones (Unidad I, 1.1.1)
+  - id: proposicion
+    nombre: "Proposición y valor de verdad"
+    prerequisitos: []
+  - id: conectivos-basicos
+    nombre: "Negación, conjunción y disyunción (inclusiva y exclusiva)"
+    prerequisitos: [proposicion]
+  - id: condicional-bicondicional
+    nombre: "Condicional y bicondicional"
+    prerequisitos: [proposicion]
+  - id: jerarquia-operadores
+    nombre: "Proposiciones compuestas y jerarquía de operadores"
+    prerequisitos: [conectivos-basicos, condicional-bicondicional]
+  - id: tabla-verdad
+    nombre: "Tablas de verdad"
+    prerequisitos: [jerarquia-operadores]
+  - id: tautologia-contradiccion
+    nombre: "Tautología, contradicción y contingencia"
+    prerequisitos: [tabla-verdad]
+  - id: traduccion-logica
+    nombre: "Del español a la lógica («solo si», «a menos que», necesario y suficiente)"
+    prerequisitos: [condicional-bicondicional]
+
+  # 02 · Equivalencias (Unidad I, 1.1.2 a 1.1.4)
+  - id: equivalencia-logica
+    nombre: "Equivalencia lógica (≡ como tautología del ↔)"
+    prerequisitos: [tautologia-contradiccion]
+  - id: leyes-proposiciones
+    nombre: "Leyes del álgebra de proposiciones (De Morgan, distributivas, absorción, condicional como disyunción…)"
+    prerequisitos: [equivalencia-logica]
+  - id: demostrar-equivalencias
+    nombre: "Demostrar equivalencias con una cadena de leyes"
+    prerequisitos: [leyes-proposiciones]
+  - id: simplificar-proposiciones
+    nombre: "Simplificar proposiciones con el álgebra"
+    prerequisitos: [leyes-proposiciones]
+  - id: variantes-condicional
+    nombre: "Recíproca, inversa y contrapositiva de una condicional"
+    prerequisitos: [equivalencia-logica, traduccion-logica]
+
+  # 03 · Inferencias (Unidad I, 1.2.1, y la demostración directa de 1.2.2)
+  - id: argumento-validez
+    nombre: "Argumento, premisas, conclusión y validez"
+    prerequisitos: [tautologia-contradiccion]
+  - id: validez-por-tabla
+    nombre: "Validez por tabla de verdad y contraejemplo"
+    prerequisitos: [argumento-validez, tabla-verdad]
+  - id: reglas-inferencia
+    nombre: "Reglas de inferencia (MP, MT, SH, SD, Ad, Simp, Conj, Res y DC)"
+    prerequisitos: [argumento-validez]
+  - id: falacias-formales
+    nombre: "Falacias: afirmar el consecuente y negar el antecedente"
+    prerequisitos: [reglas-inferencia]
+  - id: formalizar-argumentos
+    nombre: "Formalizar argumentos escritos en español"
+    prerequisitos: [traduccion-logica, argumento-validez]
+  - id: demostracion-directa
+    nombre: "Demostración directa con líneas numeradas y justificadas"
+    prerequisitos: [reglas-inferencia, leyes-proposiciones]
+
+  # 04 · Demostraciones (Unidad I, 1.2.2)
+  - id: demostracion-condicional
+    nombre: "Demostración condicional (supuesto y descarga)"
+    prerequisitos: [demostracion-directa]
+  - id: demostracion-contrapositiva
+    nombre: "Demostrar una condicional por su contrapositiva"
+    prerequisitos: [demostracion-condicional, variantes-condicional]
+  - id: demostracion-indirecta
+    nombre: "Demostración indirecta (reducción al absurdo)"
+    prerequisitos: [demostracion-directa, tautologia-contradiccion]
+  - id: elegir-metodo-demostracion
+    nombre: "Elegir el método: directo, condicional o indirecto"
+    prerequisitos: [demostracion-condicional, demostracion-indirecta, formalizar-argumentos]
+
+  # 05 · Cuantificadores (Unidad I, 1.3.1 y 1.3.2)
+  - id: predicado
+    nombre: "Proposición abierta, predicado y universo del discurso"
+    prerequisitos: [proposicion]
+  - id: conjunto-verdad
+    nombre: "Conjunto de verdad de un predicado"
+    prerequisitos: [predicado]
+  - id: cuantificadores
+    nombre: "Cuantificadores universal y existencial y su valor de verdad"
+    prerequisitos: [predicado]
+  - id: traduccion-cuantificadores
+    nombre: "Lenguaje natural y cuantificadores"
+    prerequisitos: [cuantificadores, traduccion-logica]
+  - id: negacion-cuantificadores
+    nombre: "Negación de cuantificadores y contraejemplos"
+    prerequisitos: [cuantificadores, leyes-proposiciones]
+  - id: cuantificadores-anidados
+    nombre: "Cuantificadores anidados (el orden importa)"
+    prerequisitos: [cuantificadores]
+
+  # 06 · Inferencias con cuantificadores (Unidad I, 1.3.3)
+  - id: equivalencias-cuantificadores
+    nombre: "Equivalencias con cuantificadores (∀ con ∧, ∃ con ∨)"
+    prerequisitos: [negacion-cuantificadores, equivalencia-logica]
+  - id: instanciacion-universal
+    nombre: "Instanciación universal (IU)"
+    prerequisitos: [cuantificadores, reglas-inferencia]
+  - id: generalizacion-universal
+    nombre: "Generalización universal (GU) y sus restricciones"
+    prerequisitos: [instanciacion-universal]
+  - id: instanciacion-existencial
+    nombre: "Instanciación existencial (IE) y sus restricciones"
+    prerequisitos: [instanciacion-universal]
+  - id: generalizacion-existencial
+    nombre: "Generalización existencial (GE)"
+    prerequisitos: [instanciacion-universal]
+  - id: argumentos-cuantificados
+    nombre: "Demostrar argumentos con cuantificadores"
+    prerequisitos: [generalizacion-universal, instanciacion-existencial, generalizacion-existencial, demostracion-directa, traduccion-cuantificadores]
+
+  # 07 · Conjuntos (Unidad II, 2.1)
+  - id: conjunto-notacion
+    nombre: "Conjunto, pertenencia, extensión y comprensión"
+    prerequisitos: [predicado]
+  - id: contencion-igualdad
+    nombre: "Contención (⊆ y ⊊) e igualdad de conjuntos"
+    prerequisitos: [conjunto-notacion]
+  - id: operaciones-conjuntos
+    nombre: "Unión, intersección, diferencia, complemento y diferencia simétrica"
+    prerequisitos: [conjunto-notacion, conectivos-basicos]
+  - id: diagramas-venn
+    nombre: "Diagramas de Venn"
+    prerequisitos: [operaciones-conjuntos]
+  - id: algebra-conjuntos
+    nombre: "Álgebra de conjuntos (en paralelo con la de proposiciones)"
+    prerequisitos: [operaciones-conjuntos, leyes-proposiciones]
+  - id: propiedades-contencion
+    nombre: "Propiedades de la contención"
+    prerequisitos: [contencion-igualdad, operaciones-conjuntos]
+  - id: demostrar-contencion
+    nombre: "Demostrar contenciones e igualdades por elementos"
+    prerequisitos: [propiedades-contencion, algebra-conjuntos, demostracion-directa]
+
+  # 08 · Cardinalidad (Unidad II, 2.2 y 2.3)
+  - id: cardinalidad
+    nombre: "Cardinalidad y fórmulas básicas"
+    prerequisitos: [operaciones-conjuntos]
+  - id: inclusion-exclusion
+    nombre: "Principio de inclusión y exclusión (2 y 3 conjuntos)"
+    prerequisitos: [cardinalidad, diagramas-venn]
+  - id: conjunto-potencia
+    nombre: "Conjunto potencia y |𝒫(A)| = 2ⁿ"
+    prerequisitos: [contencion-igualdad, cardinalidad]
+  - id: producto-cartesiano
+    nombre: "Pares ordenados y producto cartesiano"
+    prerequisitos: [conjunto-notacion]
+  - id: cardinalidad-producto
+    nombre: "Cardinalidad del producto cartesiano"
+    prerequisitos: [producto-cartesiano, cardinalidad]
+
+  # 09 · Divisibilidad (Unidad III, 3.1, 3.2.1 y 3.2.2)
+  - id: propiedades-enteros
+    nombre: "Propiedades de los enteros (cerradura, orden y buen orden)"
+    prerequisitos: []
+  - id: divisibilidad
+    nombre: "Divisibilidad (a | b) y sus propiedades"
+    prerequisitos: [propiedades-enteros]
+  - id: algoritmo-division
+    nombre: "Algoritmo de la división (cociente y residuo con 0 ≤ r < |b|)"
+    prerequisitos: [divisibilidad]
+  - id: division-negativos
+    nombre: "División con negativos y el operador % de Python y de C"
+    prerequisitos: [algoritmo-division]
+  - id: numeros-primos
+    nombre: "Números primos y compuestos"
+    prerequisitos: [divisibilidad]
+  - id: demostrar-divisibilidad
+    nombre: "Demostrar propiedades de divisibilidad (directa y por contrapositiva)"
+    prerequisitos: [divisibilidad, demostracion-directa, variantes-condicional]
+
+  # 10 · MCD y Euclides (Unidad III, 3.2.3 a 3.2.5)
+  - id: mcd-mcm
+    nombre: "Máximo común divisor y mínimo común múltiplo"
+    prerequisitos: [divisibilidad]
+  - id: algoritmo-euclides
+    nombre: "Algoritmo de Euclides"
+    prerequisitos: [mcd-mcm, algoritmo-division]
+  - id: bezout
+    nombre: "Euclides extendido e identidad de Bézout (fuera del programa; la usa la Unidad IV)"
+    prerequisitos: [algoritmo-euclides]
+  - id: lema-euclides
+    nombre: "Lema de Euclides (si p | ab, entonces p | a o p | b)"
+    prerequisitos: [bezout, numeros-primos]
+  - id: teorema-fundamental-aritmetica
+    nombre: "Teorema Fundamental de la Aritmética"
+    prerequisitos: [lema-euclides]
+  - id: mcd-por-factores
+    nombre: "MCD y MCM por factorización; mcd · mcm = |ab|"
+    prerequisitos: [teorema-fundamental-aritmetica, mcd-mcm]
+
+  # 11 · Inducción (Unidad III, 3.3)
+  - id: principio-induccion
+    nombre: "Principio de inducción (base, hipótesis y paso)"
+    prerequisitos: [propiedades-enteros, demostracion-directa]
+  - id: induccion-sumas
+    nombre: "Inducción con sumas y productos"
+    prerequisitos: [principio-induccion]
+  - id: induccion-divisibilidad
+    nombre: "Inducción con divisibilidad"
+    prerequisitos: [principio-induccion, divisibilidad]
+  - id: induccion-desigualdades
+    nombre: "Inducción con desigualdades (problemas de orden)"
+    prerequisitos: [principio-induccion]
+  - id: induccion-generalizacion
+    nombre: "Conjeturar una fórmula y demostrarla (generalización)"
+    prerequisitos: [induccion-sumas]
+  - id: induccion-fuerte
+    nombre: "Inducción fuerte"
+    prerequisitos: [principio-induccion]
+
+  # 12 · Sistemas de numeración (Unidad III, 3.4)
+  - id: notacion-posicional
+    nombre: "Notación posicional en base b"
+    prerequisitos: [propiedades-enteros]
+  - id: base-a-decimal
+    nombre: "De base b a decimal"
+    prerequisitos: [notacion-posicional]
+  - id: decimal-a-base
+    nombre: "De decimal a base b (divisiones sucesivas)"
+    prerequisitos: [notacion-posicional, algoritmo-division]
+  - id: binario-hexadecimal
+    nombre: "Binario, octal y hexadecimal por grupos de bits"
+    prerequisitos: [base-a-decimal, decimal-a-base]
+  - id: aritmetica-base-b
+    nombre: "Suma, resta y multiplicación en base b"
+    prerequisitos: [notacion-posicional]
+
+  # 13 · Álgebra booleana (Unidad IV, 4.1.1 a 4.1.3)
+  - id: algebra-booleana
+    nombre: "Álgebra booleana: operaciones y propiedades"
+    prerequisitos: [leyes-proposiciones]
+  - id: dualidad-booleana
+    nombre: "Principio de dualidad"
+    prerequisitos: [algebra-booleana]
+  - id: simplificar-booleana
+    nombre: "Simplificar expresiones booleanas con las propiedades"
+    prerequisitos: [algebra-booleana]
+  - id: funcion-booleana
+    nombre: "Funciones booleanas: tabla y expresión"
+    prerequisitos: [algebra-booleana, tabla-verdad]
+  - id: minterminos
+    nombre: "Minitérminos y suma de minitérminos (Σm)"
+    prerequisitos: [funcion-booleana]
+  - id: maxterminos
+    nombre: "Maxitérminos y producto de maxitérminos (ΠM)"
+    prerequisitos: [minterminos]
+
+  # 14 · Circuitos y Karnaugh (Unidad IV, 4.1.4 y 4.1.5)
+  - id: compuertas-logicas
+    nombre: "Compuertas lógicas (AND, OR, NOT, NAND, NOR y XOR)"
+    prerequisitos: [funcion-booleana]
+  - id: circuitos-combinatorios
+    nombre: "Circuitos combinatorios: de la expresión al circuito y de vuelta"
+    prerequisitos: [compuertas-logicas]
+  - id: mapas-karnaugh
+    nombre: "Mapas de Karnaugh de 2 a 4 variables"
+    prerequisitos: [minterminos]
+  - id: agrupar-karnaugh
+    nombre: "Agrupar en un mapa de Karnaugh (implicantes primos)"
+    prerequisitos: [mapas-karnaugh]
+  - id: sop-minima
+    nombre: "Suma de productos mínima"
+    prerequisitos: [agrupar-karnaugh, simplificar-booleana]
+  - id: sintesis-circuitos
+    nombre: "Síntesis: del enunciado al circuito mínimo"
+    prerequisitos: [sop-minima, circuitos-combinatorios, traduccion-logica]
+
+  # 15 · Relaciones (Unidad IV, 4.2.1 a 4.2.3)
+  - id: relacion-binaria
+    nombre: "Relación binaria como subconjunto de A × B"
+    prerequisitos: [producto-cartesiano]
+  - id: representaciones-relacion
+    nombre: "Representaciones de una relación: pares, matriz y digrafo"
+    prerequisitos: [relacion-binaria]
+  - id: relacion-inversa
+    nombre: "Relación inversa"
+    prerequisitos: [relacion-binaria]
+  - id: composicion-relaciones
+    nombre: "Composición de relaciones (S∘R: primero R) y su matriz"
+    prerequisitos: [representaciones-relacion]
+  - id: funcion-como-relacion
+    nombre: "Funciones como relaciones: dominio, codominio e imagen"
+    prerequisitos: [relacion-binaria]
+  - id: funcion-inyectiva-suprayectiva
+    nombre: "Funciones inyectivas, suprayectivas y biyectivas"
+    prerequisitos: [funcion-como-relacion, cuantificadores-anidados]
+  - id: composicion-inversa-funciones
+    nombre: "Composición e inversa de funciones"
+    prerequisitos: [funcion-inyectiva-suprayectiva, composicion-relaciones, "calculo:composicion-funciones", "calculo:funcion-inversa"]
+
+  # 16 · Propiedades y orden (Unidad IV, 4.2.4, 4.3.1 y 4.3.2)
+  - id: propiedades-relaciones
+    nombre: "Relaciones reflexivas, irreflexivas, simétricas, antisimétricas y transitivas"
+    prerequisitos: [representaciones-relacion]
+  - id: verificar-propiedades
+    nombre: "Verificar una propiedad o refutarla con un contraejemplo"
+    prerequisitos: [propiedades-relaciones, negacion-cuantificadores]
+  - id: orden-parcial
+    nombre: "Relación de orden parcial (conjunto parcialmente ordenado)"
+    prerequisitos: [propiedades-relaciones, contencion-igualdad, divisibilidad]
+  - id: diagrama-hasse
+    nombre: "Diagrama de Hasse"
+    prerequisitos: [orden-parcial]
+  - id: orden-total
+    nombre: "Orden total y elementos comparables"
+    prerequisitos: [orden-parcial]
+  - id: extremos-orden
+    nombre: "Mínimo, máximo, minimales y maximales"
+    prerequisitos: [diagrama-hasse]
+
+  # 17 · Equivalencia (Unidad IV, 4.3.3 y 4.3.4)
+  - id: relacion-equivalencia
+    nombre: "Relación de equivalencia"
+    prerequisitos: [propiedades-relaciones]
+  - id: clases-equivalencia
+    nombre: "Clases de equivalencia"
+    prerequisitos: [relacion-equivalencia]
+  - id: conjunto-cociente
+    nombre: "Conjunto cociente"
+    prerequisitos: [clases-equivalencia]
+  - id: particiones
+    nombre: "Particiones y su relación con las equivalencias"
+    prerequisitos: [conjunto-cociente]
+
+  # 18 · Enteros módulo n (Unidad IV, 4.4)
+  - id: congruencia-modulo
+    nombre: "Congruencia módulo n como relación de equivalencia"
+    prerequisitos: [relacion-equivalencia, algoritmo-division]
+  - id: clases-residuo
+    nombre: "Clases residuales y ℤₙ"
+    prerequisitos: [congruencia-modulo, clases-equivalencia]
+  - id: aritmetica-modular
+    nombre: "Suma, producto y potencias módulo n"
+    prerequisitos: [clases-residuo]
+  - id: inverso-modular
+    nombre: "Inverso módulo n"
+    prerequisitos: [aritmetica-modular, bezout]
+  - id: congruencias-lineales
+    nombre: "Congruencias lineales ax ≡ b (mod n)"
+    prerequisitos: [inverso-modular]
+  - id: teorema-chino-residuo
+    nombre: "Teorema chino del residuo"
+    prerequisitos: [congruencias-lineales]
+
+  # 19 · Grafos (Unidad IV, 4.5.1 y 4.5.2)
+  - id: grafo-tipos
+    nombre: "Grafos dirigidos y no dirigidos, lazos y aristas múltiples"
+    prerequisitos: [relacion-binaria]
+  - id: grado-vertice
+    nombre: "Grado de un vértice y lema del apretón de manos"
+    prerequisitos: [grafo-tipos]
+  - id: representacion-grafos
+    nombre: "Lista y matriz de adyacencia"
+    prerequisitos: [grafo-tipos, representaciones-relacion]
+  - id: caminos-conexidad
+    nombre: "Caminos, recorridos, trayectorias y conexidad (fuerte y débil)"
+    prerequisitos: [grafo-tipos]
+  - id: euleriano
+    nombre: "Recorridos y circuitos eulerianos (criterio de grados)"
+    prerequisitos: [caminos-conexidad, grado-vertice]
+  - id: hamiltoniano
+    nombre: "Trayectorias y ciclos hamiltonianos"
+    prerequisitos: [caminos-conexidad]
+
+  # 20 · Recorridos y camino más corto (Unidad IV, 4.5.3 y 4.5.4)
+  - id: busqueda-amplitud
+    nombre: "Búsqueda en amplitud (BFS)"
+    prerequisitos: [representacion-grafos, caminos-conexidad]
+  - id: busqueda-profundidad
+    nombre: "Búsqueda en profundidad (DFS)"
+    prerequisitos: [representacion-grafos, caminos-conexidad]
+  - id: distancia-bfs
+    nombre: "Distancia en número de aristas con BFS"
+    prerequisitos: [busqueda-amplitud]
+  - id: grafo-ponderado
+    nombre: "Grafos ponderados"
+    prerequisitos: [grafo-tipos]
+  - id: dijkstra
+    nombre: "Algoritmo de Dijkstra (camino más corto)"
+    prerequisitos: [grafo-ponderado, distancia-bfs]
+
+  # 21 · Árboles binarios (Unidad IV, 4.5.5; jefe final del programa)
+  - id: arbol
+    nombre: "Árboles: raíz, hijos, hojas y altura"
+    prerequisitos: [caminos-conexidad]
+  - id: arbol-binario
+    nombre: "Árboles binarios (hijo izquierdo y derecho)"
+    prerequisitos: [arbol]
+  - id: recorrido-preorden
+    nombre: "Recorrido en preorden"
+    prerequisitos: [arbol-binario]
+  - id: recorrido-inorden
+    nombre: "Recorrido en inorden"
+    prerequisitos: [arbol-binario]
+  - id: recorrido-postorden
+    nombre: "Recorrido en posorden"
+    prerequisitos: [arbol-binario]
+  - id: arbol-expresion
+    nombre: "Árboles de expresión: notación prefija, infija y posfija"
+    prerequisitos: [recorrido-preorden, recorrido-inorden, recorrido-postorden]
+
+  # 22 · Conteo y combinatoria (extra, fuera del programa)
+  - id: principios-suma-producto
+    nombre: "Principios de la suma y del producto"
+    prerequisitos: [cardinalidad]
+  - id: permutaciones
+    nombre: "Permutaciones (con y sin repetición)"
+    prerequisitos: [principios-suma-producto]
+  - id: combinaciones
+    nombre: "Combinaciones"
+    prerequisitos: [permutaciones, conjunto-potencia]
+  - id: combinaciones-repeticion
+    nombre: "Combinaciones con repetición"
+    prerequisitos: [combinaciones]
+  - id: binomio-newton
+    nombre: "Coeficientes binomiales y binomio de Newton"
+    prerequisitos: [combinaciones]
+  - id: principio-palomar
+    nombre: "Principio del palomar"
+    prerequisitos: [principios-suma-producto]
+
+  # 23 · Relaciones de recurrencia (extra, fuera del programa)
+  - id: definicion-recursiva
+    nombre: "Sucesiones definidas por recurrencia"
+    prerequisitos: [principio-induccion]
+  - id: resolver-iteracion
+    nombre: "Resolver por iteración y comprobar por inducción"
+    prerequisitos: [definicion-recursiva, induccion-sumas]
+  - id: recurrencia-lineal-homogenea
+    nombre: "Recurrencias lineales homogéneas con coeficientes constantes"
+    prerequisitos: [definicion-recursiva]
+  - id: recurrencia-no-homogenea
+    nombre: "Recurrencias lineales no homogéneas"
+    prerequisitos: [recurrencia-lineal-homogenea]
+  - id: recurrencias-conteo
+    nombre: "Plantear recurrencias para contar"
+    prerequisitos: [definicion-recursiva, principios-suma-producto]

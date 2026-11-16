@@ -11,6 +11,7 @@
   "scripts": {
     "dev": "tsx scripts/vendor-assets.ts && NEXT_TELEMETRY_DISABLED=1 CORTEX_LOCAL=1 next dev -H localhost -p 3000",
     "build": "tsx scripts/vendor-assets.ts && NEXT_TELEMETRY_DISABLED=1 next build",
+    "build:pwa": "tsx scripts/vendor-assets.ts && NEXT_TELEMETRY_DISABLED=1 CORTEX_PWA=1 next build && tsx scripts/build-sw.ts && tsx scripts/check-out-cli.ts",
     "start": "NEXT_TELEMETRY_DISABLED=1 CORTEX_LOCAL=1 next start -H localhost -p 3000",
     "typecheck": "NEXT_TELEMETRY_DISABLED=1 next typegen && tsc --noEmit",
     "telemetry:check": "NEXT_TELEMETRY_DISABLED=1 next telemetry status",
@@ -19,9 +20,12 @@
     "test": "vitest run --project unit",
     "test:watch": "vitest --project unit",
     "test:e2e": "playwright test",
+    "test:e2e:pwa": "CORTEX_E2E_PWA=1 playwright test --project=pwa-chromium --project=pwa-webkit",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:content",
     "content:check": "tsx scripts/content-check.ts",
-    "test:content": "vitest run --project content"
+    "test:content": "vitest run --project content",
+    "icons": "tsx scripts/icons.ts",
+    "mcp:cortex": "tsx mcp/cortex/main.ts"
   },
   "dependencies": {
     "@codemirror/commands": "6.11.1",
@@ -32,6 +36,7 @@
     "@codemirror/view": "6.43.13",
     "@lezer/highlight": "1.2.5",
     "@mdx-js/mdx": "3.1.1",
+    "@modelcontextprotocol/sdk": "1.32.2",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "dexie": "4.4.6",

@@ -1,6 +1,6 @@
 "use client";
 
-import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
+import { defaultKeymap, history, historyKeymap, indentLess, indentMore, indentWithTab, undo } from "@codemirror/commands";
 import { cpp } from "@codemirror/lang-cpp";
 import { python } from "@codemirror/lang-python";
 import { bracketMatching, HighlightStyle, indentOnInput, indentUnit, syntaxHighlighting } from "@codemirror/language";
@@ -8,10 +8,12 @@ import { Compartment, EditorState } from "@codemirror/state";
 import { drawSelection, EditorView, highlightActiveLine, keymap, lineNumbers } from "@codemirror/view";
 import { tags as t } from "@lezer/highlight";
 import { useEffect, useRef } from "react";
+import { useTouchMode } from "@/lib/use-touch-mode";
 
 /**
  * Editor de código (CodeMirror 6, docs/02). Colores del sistema visual (tokens CSS, ambos temas).
  * `Tab` indenta; para salir del editor con teclado: `Esc` y luego `Tab`. `Ctrl/Cmd + Enter` envía.
+ * Al tocar no hay Tab ni símbolos a la mano: una barra de 44 pt trae sangría, signos y deshacer.
  */
 
 const highlight = HighlightStyle.define([
@@ -36,6 +38,14 @@ const theme = EditorView.theme({
   ".cm-scroller": { overflow: "auto", maxHeight: "28rem" },
 });
 
+/** Signos que el teclado en pantalla esconde y cada lenguaje pide seguido. */
+const SYMBOLS = {
+  python: [":", "(", ")", "[", "]", '"', "#", "_"],
+  c: ["{", "}", "(", ")", ";", "*", "&", "<", ">", '"', "#"],
+} as const;
+
+const TOOL = "tactile inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border border-border-strong bg-surface-2 px-3 font-mono text-sm text-ink";
+
 export function CodeEditor({
   value,
   onChange,
@@ -53,6 +63,7 @@ export function CodeEditor({
   label: string;
   minLines?: number;
 }) {
+  const touch = useTouchMode();
   const host = useRef<HTMLDivElement>(null);
   const view = useRef<EditorView | null>(null);
   const handlers = useRef({ onChange, onSubmit });
@@ -91,7 +102,7 @@ export function CodeEditor({
           EditorView.updateListener.of((u) => {
             if (u.docChanged) handlers.current.onChange?.(u.state.doc.toString());
           }),
-          EditorView.contentAttributes.of({ "aria-label": label, spellcheck: "false", autocapitalize: "off" }),
+          EditorView.contentAttributes.of({ "aria-label": label, spellcheck: "false", autocapitalize: "off", autocorrect: "off" }),
           EditorView.theme({ ".cm-content": { minHeight: `${minLines * 1.45}em` } }),
         ],
       }),
@@ -115,5 +126,37 @@ export function CodeEditor({
     view.current?.dispatch({ effects: editable.current.reconfigure([EditorView.editable.of(!readOnly), EditorState.readOnly.of(readOnly)]) });
   }, [readOnly]);
 
-  return <div ref={host} className="min-w-0" />;
+  // Los botones no le quitan el foco al editor (el teclado en pantalla se queda abierto).
+  const keepFocus = (e: React.PointerEvent | React.MouseEvent) => e.preventDefault();
+  const run = (command: (v: EditorView) => boolean) => {
+    const v = view.current;
+    if (!v) return;
+    command(v);
+    v.focus();
+  };
+  const insert = (text: string) => run((v) => (v.dispatch(v.state.replaceSelection(text), { scrollIntoView: true, userEvent: "input.type" }), true));
+
+  return (
+    <div className="min-w-0">
+      {touch && !readOnly ? (
+        <div role="toolbar" aria-label="Herramientas de código" className="sticky top-[var(--header-h)] z-20 mb-1.5 flex flex-wrap gap-1.5 bg-[var(--bg)] py-1">
+          <button type="button" className={TOOL} onPointerDown={keepFocus} onMouseDown={keepFocus} onClick={() => run(indentMore)}>
+            Sangría +
+          </button>
+          <button type="button" className={TOOL} onPointerDown={keepFocus} onMouseDown={keepFocus} onClick={() => run(indentLess)}>
+            Sangría −
+          </button>
+          {SYMBOLS[language].map((c) => (
+            <button key={c} type="button" aria-label={`Insertar ${c}`} className={TOOL} onPointerDown={keepFocus} onMouseDown={keepFocus} onClick={() => insert(c)}>
+              {c}
+            </button>
+          ))}
+          <button type="button" className={TOOL} onPointerDown={keepFocus} onMouseDown={keepFocus} onClick={() => run(undo)}>
+            Deshacer
+          </button>
+        </div>
+      ) : null}
+      <div ref={host} className="min-w-0" />
+    </div>
+  );
 }

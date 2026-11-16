@@ -1,0 +1,104 @@
+unidad: matematicas-discretas/19-grafos
+nombre: "El Inspector de Esquinas"
+vidas: 3
+# tiempo_segundos: suma de los tiempo_estimado_s de las 14 preguntas más 10 %.
+# Propias: 014 (120) + 015 (120) + 016 (120) + 017 (120) + 018 (90) + 021 (150) + 022 (150) + 023 (180) + 024 (210) +
+# 025 (180) = 1440. Repaso: 15-008 (45) + 16-001 (45) + 17-005 (60) + 18-013 (90) = 240. Total 1680; con el 10 %,
+# 1848, redondeado hacia arriba a 1850 s (30 min 50 s). Antes del cambio del 013 por el 016 (arreglos del 2026-11-15)
+# eran 1820: el 013 tiene 90 y el 016, 120, comprobado contra ejercicios.yaml.
+tiempo_segundos: 1850
+aprobado_minimo: 0.8
+preguntas:
+  # Propias, 10. Base: esquema v1 (experto-matematicas), con el 022 en lugar del 016 para dar lugar al repaso de la 18.
+  # En los arreglos del 2026-11-15 (pedagogo) el 016 volvió en lugar del 013, porque el jefe no evaluaba GT ni GV y el
+  # apretón de manos es clásico de examen; los dos son d3, así que las oleadas no cambian. El 013 se queda en práctica
+  # (y en el repaso del jefe de la 20). d3: 014, 015, 016, 017, 018 · d4: 021, 022 · d5: 023, 024, 025.
+  # Por etiqueta cubren los seis conceptos: GT (016), GV (016), RG (018, 021), CC (017, 018, 022, 024), EU (014, 015,
+  # 023, 024) y HA (021, 022, 023, 024, 025).
+  # Sin manuales ni autoevaluación: el 019 se queda fuera. Sin el 020, que se cruza con el 014 (los dos agregan aristas
+  # y cuentan impares).
+  propias: [disc-19-014, disc-19-015, disc-19-016, disc-19-017, disc-19-018, disc-19-021, disc-19-022, disc-19-023, disc-19-024, disc-19-025]
+  # Repaso: 4 de 14 (28.6 %), elegidos a mano entre pares que se confunden (esquema v1, pedagogo). Comprobado el
+  # 2026-11-14 contra los archivos, y otra vez el 2026-11-15: los cuatro existen, no están retirados y no van en ningún
+  # otro jefe (sobre content/*/*/jefe.yaml). Cada uno tiene su pareja en este jefe:
+  # - 15-008 (d2, filas, columnas y diagonal de la M_R de un digrafo) con el 018 (aristas de una matriz simétrica): un
+  #   1 por flecha contra dos unos por arista.
+  # - 16-001 (d1, propiedades de una relación por su matriz) con el 018: simetría de la matriz y grafo no dirigido.
+  # - 17-005 (d2, la equivalencia más chica que contiene a R) con el 017 y el 018: componentes contra clases.
+  # - 18-013 (d3, tabla de multiplicar de ℤ₁₂) con el 022 (saltos de s en {0, …, 9}): ℤₙ.
+  # Ninguna explicación resuelve otra pregunta de este jefe (el jefe muestra la explicación tras cada respuesta,
+  # boss-runner.tsx). Lo que se cruza, revisado par por par:
+  # - 021, 024 y la (1) del 023: los grafos del 021 (ciclos hamiltonianos, con el 4 y el 5 de grado 3) y del 024 (ciclo
+  #   1, 5, 7, 4, 2, 8, 3, 6, 1, con el 1 y el 2 impares) tienen ciclo hamiltoniano sin circuito euleriano, un
+  #   contraejemplo de «ciclo hamiltoniano ⇒ circuito euleriano». La lección ya da uno: el barrio B tiene el ciclo
+  #   a, b, d, f, e, c, a y los impares b y e, y desde los arreglos la del 023 lo nombra («ya los tenías»). No agrega
+  #   nada. Ninguna de las dos explicaciones habla de Euler y Hamilton a la vez como afirmación general.
+  # - 022 y la (4) del 023: G₃ es un ciclo de 10 vértices de grado 2 < 10/2, otro contraejemplo del recíproco de Dirac;
+  #   la lección ya da C₅ para eso. La del 022 no dice el grado en G₃ ni habla de Dirac.
+  # - 014 y la (3) del 023: la del 014 agrega una arista entre componentes (quedan dos impares y un recorrido); la (3)
+  #   quita una arista de un grafo con circuito, y su punto es que el resto se puede recorrer en orden, que la del 014
+  #   no dice. El 014 (d3) sale siempre antes que el 023 (d5). La del 023 no habla de componentes ni de agregar aristas.
+  # - 016 y el 023 (entró en los arreglos del 2026-11-15, con esta condición de P): la del 016 no menciona Euler ni
+  #   Hamilton, ni circuitos, recorridos o trayectorias. Para 4, 2, 2, 2, 2 da el único grafo simple con esos grados (un
+  #   vértice unido a los otros cuatro, y esos cuatro en dos parejas: el moño) solo para decir que existe, no como
+  #   contraejemplo de nada, así que no da la (0); la del 023 tumba la (0) con dos cuadrados con un vértice común y con
+  #   el grafo de «Aristas obligadas» de la lección, no con el moño. Para 3, 3, 3, 3, 2, 2 da un hexágono con las
+  #   diagonales 14 y 25: tiene ciclo hamiltoniano, cuatro impares y dos vértices de grado 2 < 6/2, así que serviría
+  #   contra la (1) y la (4), pero la explicación no lo dice, y la lección ya da el barrio B y C₅ para eso (como el 021,
+  #   el 024 y el 022, arriba). El 016 (d3) sale siempre antes que el 023 (d5). La del 023 no da listas de grados por
+  #   realizar: sus grados (4 y 2; 3; 4, 4, 2, 2, 2; 2) no son ninguna opción del 016.
+  # - 015 y 023: el grafo del 015 tiene ciclo hamiltoniano y circuito euleriano, así que no tumba ni la (0) ni la (1).
+  #   La del 015 cuenta las aristas del ciclo de Rocío (6) con sus números, sin enunciar «un ciclo hamiltoniano usa n
+  #   aristas» como regla, que es la (2).
+  # - 015 y 024: el «Revisa:» del 024 dice que la sucesión de un recorrido tiene un vértice más que tramos, la idea del
+  #   hueco 2 del 015; el 015 (d3) sale siempre antes que el 024 (d5). La del 015 no da grados, extremos ni tramos
+  #   repetidos del 024.
+  # - 014, 015 y 016 (los tres d3, en orden al azar en las oleadas 1 y 2): la del 015 dice «todos pares y conexo: sí»,
+  #   que es el teorema de la lección; no habla de grafos desconexos ni de aristas entre componentes. La del 014 no
+  #   cuenta vértices de ninguna sucesión ni habla de ciclos hamiltonianos. Las sucesiones de grados que dan las del 014
+  #   (4 y ocho 2) y el 015 (4, 2, 4, 2, 4, 2) no son opciones del 016, y la del 016 no habla de conexidad, componentes
+  #   ni grafos dibujados.
+  # - 016 y 017, 018, 021, 022, 024, 025: la del 016 usa la paridad de la suma de grados y el grado mayor; no da grados,
+  #   aristas ni componentes de otro grafo del jefe. Las sucesiones que dan las demás (018: 3, 3, 2, 2, 1, 1; 021: 4, 4,
+  #   3, 3, 2, 2; 024: 4, 4, 3, 3 y cuatro 2; 022: todos 2 o todos 1) no son opciones del 016.
+  # - 014 y 024: la del 024 dice que volar otra vez un tramo cambia la paridad de sus dos extremos; la del 014 dice lo
+  #   mismo de una arista nueva, y el 014 sale antes. Ninguna da números de la otra.
+  # - 021 y 025: la del 021 usa aristas obligadas por vértices de grado 2, la técnica de la lección (§8 y su
+  #   desvanecido), con su propio grafo. La del 025 usa colores, que no sirven en el 021 ni en el 024, porque tienen
+  #   triángulos (1, 3, 6 en los dos). La del 025 no evalúa ninguna afirmación del 023.
+  # - 022 y 025: las dos usan paridad, con otra cosa: en el 022, sumar 4 no cambia la paridad de x; en el 025, una
+  #   arista cambia la de i + j. Ninguna da números de la otra.
+  # - 017 y 018: la del 017 habla de flechas y de quién llega a quién; la del 018, de unos en una matriz y de
+  #   componentes de un no dirigido. Ninguna da números de la otra.
+  # - 018 y 021: las dos leen aristas de una matriz simétrica de 6 × 6, cada una la suya; la del 021 no cuenta unos ni
+  #   componentes, y la del 018 no habla de ciclos.
+  # - 021, 024 y 025 (Hamilton): cada explicación da ciclos o trayectorias de su propio grafo; ninguna sucesión sirve en
+  #   otro.
+  # - 023 y 024, 025 (los tres en la 3.ª oleada, en orden al azar): la del 023 da K₄, C₅, dos cuadrados con un vértice
+  #   común, el grafo de «Aristas obligadas» y el barrio B; no habla de postes, de tramos repetidos, de cuadrículas ni de
+  #   colores. Las del 024 y el 025 no evalúan afirmaciones del 023, salvo lo dicho del 024 y la (1).
+  # - Repaso contra propias:
+  #   - 15-008 y 018: la del 15-008 dice que cada flecha es un 1 y lee filas y columnas de su digrafo; no habla de
+  #     grafos no dirigidos. La del 018 dice que cada arista pone dos unos y no habla de flechas, de filas como salidas
+  #     ni de diagonales de un digrafo.
+  #   - 16-001 y 018, 021: la del 16-001 lee propiedades de una relación en su matriz («simétrica: igual a su
+  #     transpuesta»); no cuenta aristas, grados ni componentes. Las del 018 y el 021 no hablan de relaciones ni de sus
+  #     propiedades.
+  #   - 17-005 y 014, 017, 018, 022: la del 17-005 cierra una relación por simetría y transitividad y da la partición
+  #     {1, 3, 4}, {2}; no habla de grafos. Las del 014, 017, 018 y 022 dan componentes de sus grafos sin hablar de
+  #     pares de una relación ni de cerraduras.
+  #   - 18-013 y 022: la del 18-013 dice que la fila del 8 de ℤ₁₂ son los múltiplos de mcd(8, 12) = 4, «las mismas
+  #     marcas que visita la ficha del reloj con saltos de 4». Es la idea del hueco 2 del 022 en otro módulo, y la
+  #     lección de la 18 ya la da (su `<Predice>` y su Feynman); no da ningún número del 022. La del 022 argumenta con
+  #     paridad y con la sucesión de saltos, sin la regla del mcd, así que no contesta el último hueco del 18-013.
+  #   - Los cuatro y el 016: ninguna de las cuatro habla de grados ni de sumas de grados, y la del 016 no habla de
+  #     matrices, relaciones, clases ni ℤₙ.
+  repaso_de: [disc-15-008, disc-16-001, disc-17-005, disc-18-013]
+  # Oleadas 4/6/4 (waveSizes(14) del motor, ejecutado con tsx: apportion(14, [0.3, 0.4, 0.3]) da 4.2/5.6/4.2 → 4/5/4,
+  # y el residuo va a la 2.ª, que tiene la fracción mayor), por dificultad y con desempate al azar. Hay 1 de d1
+  # (16-001), 2 de d2 (15-008 y 17-005), 6 de d3 (014, 015, 016, 017, 018 y 18-013), 2 de d4 (021 y 022) y 3 de d5
+  # (023, 024 y 025): 1.ª = 16-001, 15-008, 17-005 y uno de los seis d3; 2.ª = los cinco d3 que quedan y uno de los dos
+  # d4; 3.ª = el otro d4, 023, 024 y 025. Así, el 014, el 015 y el 016 salen siempre antes que el 023 y el 024; el 018
+  # sale con sus repasos o después de ellos; el 18-013 y el 022 pueden caer juntos en la 2.ª, en cualquier orden; y el
+  # 021 o el 022 caen con los d5. Dentro de cada oleada el orden es al azar (boss.ts).
+recompensa: { xp: 300, insignia: "cada-arista-una-vez" }

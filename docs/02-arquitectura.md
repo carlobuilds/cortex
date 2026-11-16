@@ -15,6 +15,7 @@
 | Código | CodeMirror 6, Pyodide en Web Worker, `gcc` local para C | |
 | Pruebas | Vitest (motores), Playwright (flujos clave) | |
 | Verificación de contenido | `scripts/verify_content.py` (sympy + ejecución) | |
+| Coach | MCP propio por stdio (`@modelcontextprotocol/sdk`) | Solo agregados; ADR-026 |
 
 Si alguna librería ya no se mantiene o hay una mejor al momento de implementar, Claude Code lo propone y registra un ADR nuevo antes de cambiar.
 
@@ -43,10 +44,17 @@ cortex/
     db/              (además) migrations.ts (v1→v2) · progress.ts (reglas del motor en una transacción)
     runners/         python-worker.mjs + python-client.ts (Pyodide local), c-runner.ts (servidor) + c-client.ts
     app/api/run-c/   ruta local del runner de C (ADR-005)
+    sync/            resumen de estudio a Cuartel: proyección y esquema, cliente, proxy del servidor (ADR-030)
+    app/api/cuartel/ ruta local del proxy a Cuartel (ADR-030)
     lib/  styles/
   tests/             pruebas con Python (paridad, content:check) y stubs
   e2e/               Playwright (smoke)
-  .claude/commands/
+  .claude/agents/     equipo de 19 subagentes (docs/08)
+  .claude/commands/   /fase, /consejo, /equipo, /nueva-unidad, /revisar-contenido, /verificar, /cerrar-fase, /coach
+  .claude/hooks/      cercas de los agentes (resolutor, coach, infra)
+  mcp/cortex/         MCP del coach: métricas agregadas y resultados institucionales (ADR-026)
+  .mcp.json           registra el MCP `cortex` para Claude Code
+  respaldos/ diario/  datos personales de Carlo para el coach (fuera de git)
 ```
 
 **Regla de oro:** `src/engine/` no importa React ni el DOM. Es lógica pura, probada con Vitest. Así las mecánicas se pueden afinar sin romper la UI.
@@ -76,7 +84,7 @@ Fechas en milisegundos desde epoch; días como `AAAA-MM-DD` en hora local. Cada 
 
 ## Decisiones (ADR resumidos)
 
-**ADR-001 · Local-first sin backend.** Un solo usuario. Elimina cuentas, hosting y costos. Riesgo: perder datos si se borra el almacenamiento del navegador → respaldo JSON manual en F0 y automático (File System Access API) como transversal. Alternativa descartada: Supabase (útil si hay multiusuario; se puede añadir después porque `engine/` y `db/` están aislados).
+**ADR-001 · Local-first sin backend** (*revisado por ADR-025: desde la v1.1 se agrega un relay de sync propio en el VPS de Carlo; los datos siguen viviendo primero en cada dispositivo*). Un solo usuario. Elimina cuentas, hosting y costos. Riesgo: perder datos si se borra el almacenamiento del navegador → respaldo JSON manual en F0 y automático (File System Access API) como transversal. Alternativa descartada: Supabase (útil si hay multiusuario; se puede añadir después porque `engine/` y `db/` están aislados).
 
 **ADR-002 · Contenido en archivos del repo.** Versionable con git, revisable por diff, verificable por script. Alternativa descartada: base de datos de contenido (opacidad, sin revisión).
 
@@ -99,6 +107,11 @@ Fechas en milisegundos desde epoch; días como `AAAA-MM-DD` en hora local. Cada 
 - Accesibilidad: contraste AA, foco visible, `prefers-reduced-motion` respetado, sonido opcional y apagado por defecto.
 
 ## Seguridad
-- El runner de C es la única superficie sensible (ADR-005).
+Guardián: `experto-ciberseguridad` revisa todo cambio a estas superficies; su bloqueo detiene el paso (`docs/08`).
+- **Runner de C** (ADR-005): solo local; la build del iPad lo excluye y jamás se despliega.
+- **MCP de Cortex** (ADR-026): local por stdio; solo devuelve agregados (prueba de privacidad con marcadores); solo lee `respaldos/` y escribe `diario/resultados.yaml` con validación.
+- **Cercas de los agentes** (`.claude/hooks/`): fallan cerradas y tienen pruebas; son barreras contra accidentes, no un sandbox.
+- **Desde la v1.1:** relay en el VPS (TLS y HSTS, tokens con hash y revocables por dispositivo, límites de tamaño y tasa; sin E2EE, el VPS ve el progreso en claro: riesgo aceptado en ADR-025) y PWA (CSP, el service worker nunca cachea `/api` ni la sync).
+- **Proxy a Cuartel** (ADR-030): `POST /api/cuartel` (`route.local.ts`) solo con `CORTEX_LOCAL=1` y `Host` y `Origin` exactos de `localhost:3000` (en el navegador, además, el interruptor del perfil, que evita accidentes pero no es un candado de la ruta); reenvía 7 cifras por día a un destino fijo con un token propio solo con `ingest` (`~/.cuartel/cortex-token`, 0600, sin plan B), que nunca llega al navegador ni a los logs. La build del iPad la excluye.
 - El contenido MDX es de confianza (lo escribimos nosotros), pero no se habilita HTML arbitrario de fuentes externas.
-- Sin telemetría. Ningún dato sale de la máquina.
+- Sin telemetría. Hoy ningún dato sale de la máquina, salvo los agregados que el coach lee en Claude Code, el resumen de estudio por día a Cuartel (opcional, desde la Mac; ADR-030) y, desde la v1.1, la sync con el relay propio.

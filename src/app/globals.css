@@ -11,6 +11,33 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * Señal táctil única (B3). `touch:` aplica con puntero grueso (dedo o Pencil) salvo que
+ * <html data-input="fine">, o siempre que <html data-input="touch"> (interruptor de Ajustes,
+ * clave `cortex-input`; lo pone THEME_BOOT antes de pintar). `notouch:` es su inversa.
+ * La misma regla en JS: `useTouchMode()` (src/lib/use-touch-mode.ts).
+ */
+@custom-variant touch {
+  @media (pointer: coarse) {
+    &:where(:root:not([data-input="fine"]) *) {
+      @slot;
+    }
+  }
+  &:where(:root[data-input="touch"] *) {
+    @slot;
+  }
+}
+@custom-variant notouch {
+  @media not (pointer: coarse) {
+    &:where(:root:not([data-input="touch"]) *) {
+      @slot;
+    }
+  }
+  &:where(:root[data-input="fine"] *) {
+    @slot;
+  }
+}
+
 /* Tema claro (sin glows: --glow-a en 0 %) */
 :root,
 .theme-light {
@@ -198,6 +225,53 @@
   ::selection {
     background: color-mix(in srgb, var(--brand) 35%, transparent);
   }
+
+  /* Uso táctil: sin zoom de iOS al enfocar un campo (nunca `maximum-scale`), sin doble toque que
+     haga zoom en controles y sin el destello gris de WebKit (el feedback es `.tactile:active`). */
+  @variant touch {
+    input,
+    textarea,
+    select {
+      font-size: max(16px, 1em);
+    }
+    a,
+    button,
+    [role="radio"],
+    [role="checkbox"],
+    summary,
+    label {
+      touch-action: manipulation;
+    }
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Espacio para poder desplazar el contenido por encima del teclado en pantalla (`--kb`). */
+    body {
+      padding-bottom: var(--kb, 0px);
+    }
+  }
+}
+
+/*
+ * MathLive en modo táctil: el teclado de fórmulas tiene botón propio (44 pt), así que el ⌨ interno
+ * sobra, y el menú (☰) se agranda. `::part()` debe ir al final del selector, por eso las dos
+ * reglas de `touch:` se escriben a mano aquí (misma condición que el variant).
+ */
+@media (pointer: coarse) {
+  :root:not([data-input="fine"]) math-field::part(virtual-keyboard-toggle) {
+    display: none;
+  }
+  :root:not([data-input="fine"]) math-field::part(menu-toggle) {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+:root[data-input="touch"] math-field::part(virtual-keyboard-toggle) {
+  display: none;
+}
+:root[data-input="touch"] math-field::part(menu-toggle) {
+  min-width: 44px;
+  min-height: 44px;
 }
 
 @layer components {
@@ -646,6 +720,12 @@
     font-family: var(--font-mono);
     font-size: 0.75em;
     color: var(--ink-2);
+  }
+  /* Los nombres de teclas no se muestran al tocar; `.kbd-label` es una etiqueta (A, B, C) y se queda. */
+  .kbd:not(.kbd-label) {
+    @variant touch {
+      display: none;
+    }
   }
   /* Microfeedback (< 200 ms). Con movimiento reducido no se mueve nada. */
   @keyframes cortex-shake {

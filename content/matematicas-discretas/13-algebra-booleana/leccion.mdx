@@ -1,0 +1,163 @@
+---
+titulo: "Álgebra booleana: sumar sin contar"
+materia: matematicas-discretas
+unidad: 13-algebra-booleana
+duracion_min: 25
+prerrequisitos: [leyes-proposiciones, tabla-verdad]
+conceptos: [algebra-booleana, dualidad-booleana, simplificar-booleana, funcion-booleana, minterminos, maxterminos]
+programa_ref: "Matemáticas discretas, Unidad IV, 4.1.1 (propiedades de las álgebras booleanas), 4.1.2 (funciones booleanas) y 4.1.3 (sumas de minitérminos y productos de maxitérminos)"
+---
+
+## El problema
+
+Supón que un invernadero tiene una válvula de riego automática: se abre si el suelo está seco y no llueve, o si es de noche y el suelo está seco. Con tres sensores, $s$ (suelo seco), $r$ (llueve) y $n$ (es de noche), cada uno con 1 = sí y 0 = no, la regla es
+
+$$F=s\bar r+sn,$$
+
+donde la barra es «no», el producto es «y» y la suma es «o».
+
+<Predice pregunta="Con suelo seco, sin lluvia y de noche, las dos condiciones valen 1. ¿Cuánto vale $F=1+1$? ¿Y $x+x$?" revela="1: la válvula no se abre «dos veces». La suma booleana no cuenta; se satura. Por lo mismo, $x+x=x$." />
+
+## Las operaciones
+
+<Concepto titulo="Suma, producto y complemento">
+En $B=\{0,1\}$ hay tres operaciones: la suma $x+y$ («o»), el producto $x\cdot y$ o $xy$ («y») y el complemento $\bar x$ («no»), con $\bar0=1$ y $\bar1=0$.
+
+| $x$ | $y$ | $x+y$ | $xy$ |
+|---|---|---|---|
+| 0 | 0 | 0 | 0 |
+| 0 | 1 | 1 | 0 |
+| 1 | 0 | 1 | 0 |
+| 1 | 1 | 1 | 1 |
+
+**Precedencia:** primero la barra, luego el producto y al final la suma: $x+yz$ es $x+(yz)$. Una barra larga, como en $\overline{x+y}$, agrupa todo lo que cubre.
+
+| Lógica | Conjuntos | Booleana |
+|---|---|---|
+| $p\lor q$ | $A\cup B$ | $x+y$ |
+| $p\land q$ | $A\cap B$ | $xy$ |
+| $\lnot p$ | $A^c$ | $\bar x$ |
+| F y V | $\varnothing$ y $U$ | 0 y 1 |
+
+Son las operaciones de lógica y de conjuntos con otra notación; abajo verás que cumplen las mismas leyes.
+</Concepto>
+
+## Axiomas y propiedades
+
+<Concepto titulo="Álgebra booleana">
+Un **álgebra booleana** es un conjunto $B$ con $+$, $\cdot$, un complemento y dos elementos $0\neq1$ que cumple, para todos $x,y,z$:
+
+- **conmutativas:** $x+y=y+x$ y $xy=yx$;
+- **distributivas:** de $\cdot$ sobre $+$, $x(y+z)=xy+xz$, y de $+$ sobre $\cdot$, $x+yz=(x+y)(x+z)$;
+- **identidad:** $x+0=x$ y $x\cdot1=x$;
+- **complemento:** $x+\bar x=1$ y $x\bar x=0$.
+
+La asociativa se deduce de ellos. Ejemplos: $\{0,1\}$, y $\mathcal P(S)$ para cualquier $S\neq\varnothing$, donde $\cup$, $\cap$ y ${}^c$ hacen de $+$, $\cdot$ y complemento, $\varnothing$ de 0 y $S$ de 1.
+</Concepto>
+
+**Una propiedad desde los axiomas:** $x+1=(x+1)\cdot1$ (identidad) $=(x+1)(x+\bar x)$ (complemento) $=x+1\cdot\bar x$ (distributiva de $+$ sobre $\cdot$, de derecha a izquierda) $=x+\bar x\cdot1$ (conmutativa) $=x+\bar x$ (identidad) $=1$ (complemento).
+
+**Las demás se dan:** idempotencia ($x+x=x$, $xx=x$), acotación ($x+1=1$, $x\cdot0=0$), absorción ($x+xy=x$, $x(x+y)=x$), involución ($\bar{\bar x}=x$), De Morgan ($\overline{x+y}=\bar x\,\bar y$, $\overline{xy}=\bar x+\bar y$) y $x+\bar xy=x+y$.
+
+**Un dato:** si dos expresiones dan la misma columna en las $2^n$ filas de $\{0,1\}$, son iguales en toda álgebra booleana (lo justificamos en «Minitérminos»). Vale para **igualdades**: «todo $x$ es 0 o 1» se cumple en $\{0,1\}$, pero no en $\mathcal P(\{a,b\})$, donde $\{a\}$ no es ni $\varnothing$ ni $\{a,b\}$.
+
+**Sustitución:** una ley sigue valiendo si cambias una variable por cualquier expresión, en todos sus lugares y en los dos lados.
+
+## Dualidad
+
+<Concepto titulo="Principio de dualidad">
+El **dual** de una igualdad se obtiene cambiando $+\leftrightarrow\cdot$ y $0\leftrightarrow1$; las barras y las variables se quedan. Si una ley vale, su dual también, porque el dual de cada axioma es otro axioma: la demostración dual sale paso por paso. Así, de $x+1=1$ sale $x\cdot0=0$.
+
+Cuida los paréntesis implícitos: $x+yz$ es $x+(yz)$, así que su dual es $x(y+z)$, no $xy+z$.
+</Concepto>
+
+## Simplificar
+
+<Ejemplo titulo="Simplificar citando leyes">
+Simplifica $F=(x+\bar y)(x+z)+\bar xy$.
+
+1. **El producto.** $(x+\bar y)(x+z)=x+\bar yz$: es la distributiva de $+$ sobre $\cdot$, leída de derecha a izquierda.
+2. **Reagrupa.** Con la conmutativa y la asociativa, $F=(x+\bar xy)+\bar yz$.
+3. **El paréntesis.** $x+\bar xy=(x+\bar x)(x+y)$ (distributiva de $+$ sobre $\cdot$) $=1\cdot(x+y)$ (complemento) $=x+y$ (conmutativa e identidad).
+4. **Lo que queda.** Por la asociativa, $F=x+(y+\bar yz)$, y con el mismo truco, $y+\bar yz=(y+\bar y)(y+z)=y+z$.
+5. **Resultado.** $F=x+y+z$.
+
+**Revisa** con filas $(x,y,z)$: en 000, $F=(0+1)(0+0)+0=0$; en 010, $F=(0+0)(0+0)+1\cdot1=1$; en 001, $F=(0+1)(0+1)+0=1$. Coinciden con $x+y+z$. Tres filas no demuestran la igualdad, pero una distinta la habría tumbado.
+
+Al simplificar se vale juntar pasos triviales; al demostrar desde los axiomas (como cuando se te pida demostrar la absorción), va una ley por renglón.
+</Ejemplo>
+
+## Funciones booleanas
+
+<Concepto titulo="Función booleana">
+Una **función booleana** de $n$ variables es una $F:\{0,1\}^n\to\{0,1\}$. Su tabla tiene $2^n$ filas, de 000…0 a 111…1, numeradas de 0 a $2^n-1$ con la **primera variable como bit más significativo**: en $(x,y,z)$, la fila 101 es la 5. Con cuatro variables, el orden es $(w,x,y,z)$.
+
+Dos expresiones son **la misma función** si tienen la misma tabla. Hay $2^{2^n}$ funciones de $n$ variables, porque cada una de las $2^n$ filas puede valer 0 o 1.
+</Concepto>
+
+<Concepto titulo="Minitérminos y suma de minitérminos">
+Un **minitérmino** es un producto con cada variable exactamente una vez, con barra o sin ella. $m_i$ lleva barra donde el bit de $i$ es 0: en $(x,y,z)$, $m_5=x\bar yz$, porque $5=101$. Vale 1 **solo** en la fila $i$: ahí cada factor vale 1, y en otra fila alguno vale 0.
+
+Por eso toda función es la suma de los minitérminos de sus filas en 1, $F=\Sigma m(\text{filas en 1})$: la **forma normal disyuntiva canónica**, única salvo el orden. Caso borde: la función 0 es $\Sigma m()$, la suma vacía.
+
+Para completar las variables que faltan, multiplica por $(v+\bar v)=1$: $x\bar y=x\bar y(z+\bar z)=x\bar yz+x\bar y\bar z$.
+
+Con ese truco y los axiomas, cualquier expresión se reescribe como la suma de los minitérminos de sus filas en 1, y esa suma solo depende de la tabla. Por eso vale el dato de «Axiomas y propiedades»: dos expresiones con la misma tabla son iguales en toda álgebra booleana.
+</Concepto>
+
+<Ejemplo titulo="El invernadero en tres formas">
+Vuelve a $F=s\bar r+sn$, con las variables en el orden $(s,r,n)$.
+
+1. **Factoriza** (distributiva de $\cdot$ sobre $+$): $F=s(\bar r+n)$. Con $s=0$, $F=0$: las filas 0 a 3 valen 0.
+2. **Con $s=1$** queda $\bar r+n$: en 100, $\bar0+0=1$; en 101, $\bar0+1=1$; en 110, $\bar1+0=0$; en 111, $\bar1+1=1$.
+3. **Las filas en 1** son 100, 101 y 111, la 4, la 5 y la 7:
+$$F=\Sigma m(4,5,7)=s\bar r\bar n+s\bar rn+srn.$$
+4. **Revisa** la fila 110 (suelo seco, lluvia y de día): $s\bar r=0$ y $sn=0$, así que $F=0$, y el 6 no está en la lista.
+
+$s\bar r+sn$, $s(\bar r+n)$ y $\Sigma m(4,5,7)$ son tres formas de la misma regla, porque tienen la misma tabla.
+</Ejemplo>
+
+<Desvanecido titulo="Ahora tú: suma de minitérminos" pasos={[
+  "Escribe $F(x,y,z)=\\bar xy+xz$ como suma de minitérminos.",
+  "$\\bar xy$: le falta $z$, así que cubre 010 y 011, las filas 2 y 3.",
+  "$xz$: le falta $y$, así que cubre, de menor a mayor, las filas ___ y ___ .",
+  "Junta las filas de los dos términos sin repetir: la $\\Sigma m$ tiene ___ minitérminos."
+]} respuestas={["5", "7", "4"]} />
+
+<Concepto titulo="Maxitérminos y producto de maxitérminos">
+Un **maxitérmino** es una suma con cada variable exactamente una vez, con barra o sin ella. $M_i$ lleva barra donde el bit de $i$ es **1**, al revés que $m_i$, y vale 0 **solo** en la fila $i$: $M_5=\bar x+y+\bar z$ vale 0 solo con $x=1$, $y=0$ y $z=1$. Por De Morgan, $M_i=\overline{m_i}$.
+
+Toda función es el producto de los maxitérminos de sus filas en 0, $F=\Pi M(\text{filas en 0})$: la **forma normal conjuntiva canónica**. Si $F=\Sigma m(S)$, entonces $F=\Pi M(\text{el resto})$ y $\bar F=\Sigma m(\text{el resto})$, donde el resto son los índices que no están en $S$. Caso borde: la función 1 es $\Pi M()$, el producto vacío.
+
+El invernadero vale 0 en las filas 0, 1, 2, 3 y 6: $F=\Pi M(0,1,2,3,6)$. Por ejemplo, $M_6=\bar s+\bar r+n$ vale 0 solo con suelo seco, lluvia y de día.
+</Concepto>
+
+<Desvanecido titulo="Ahora tú: producto de maxitérminos" pasos={[
+  "Escribe $F=\\Sigma m(1,2,5,7)$, de $(x,y,z)$, como producto de maxitérminos.",
+  "$F$ vale 0 en las filas que no están en la lista; de menor a mayor, son las filas ___ , ___ , ___ y ___ .",
+  "La 011 es la 3: $M_3$ lleva barra en ___ de sus tres variables, y $M_4$, en ___ ."
+]} respuestas={["0", "3", "4", "6", "2", "1"]} />
+
+## Errores comunes
+
+<Ojo>
+- $1+1=1$ y $x+x=x$: la suma booleana no cuenta.
+- $+$ sí distribuye sobre $\cdot$: $x+yz=(x+y)(x+z)$, aunque en los enteros sea falso.
+- Al dualizar, pon los paréntesis implícitos: el dual de $x+yz$ es $x(y+z)$.
+- En $M_i$ la barra va donde el bit es 1, porque $M_i$ debe valer 0 en su fila y cada sumando tiene que valer 0; en $m_i$, donde es 0, porque cada factor tiene que valer 1.
+- Los índices de $\Sigma m$ son filas en 1 y los de $\Pi M$, filas en 0: con los mismos índices no son la misma función.
+</Ojo>
+
+<Conexion materia="Inteligencia artificial">
+Un clasificador de sí o no con 10 atributos binarios es una función booleana de 10 variables: 1024 filas y $2^{1024}$ reglas posibles, un número de 309 cifras. Tras ver 600 filas distintas con su respuesta, siguen siendo consistentes $2^{424}$ reglas, y en cada fila no vista la mitad dice 1. Sin preferir unas reglas sobre otras (eso es un **sesgo inductivo**, como preferir las expresiones cortas), no hay base para predecir ninguna fila no vista.
+</Conexion>
+
+<Resumen>
+- En $\{0,1\}$, $+$ es «o», $\cdot$ es «y» y la barra es «no»: $1+1=1$, y cada ley tiene su dual.
+- Una función booleana es su tabla; muchas expresiones dan la misma, y se simplifican con una ley por paso.
+- $F=\Sigma m(\text{filas en 1})=\Pi M(\text{filas en 0})$; $m_i$ lleva barra donde el bit es 0, y $M_i$, donde es 1.
+</Resumen>
+
+<Feynman>
+Explícale a un amigo por qué $1+1=1$ aquí, y por qué una función tiene una sola $\Sigma m$ pero muchas expresiones. Si te trabas, vuelve a «Suma, producto y complemento» o a «Minitérminos y suma de minitérminos».
+</Feynman>

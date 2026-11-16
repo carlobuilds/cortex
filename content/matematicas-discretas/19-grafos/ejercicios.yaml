@@ -1,0 +1,743 @@
+# Unidad 19 · Grafos (Unidad IV, 4.5.1 y 4.5.2). Para el 3.er parcial (semana del 23 al 27 de noviembre de 2026).
+# BFS, DFS y Dijkstra son de la 20; los árboles, de la 21; Euler para dirigidos no entra.
+# Esquema v1 aprobado por Carlo el 2026-11-14 (esquema-19), revisado por experto-matematicas, pedagogo y
+# arquitecto-razonamiento. Datos de experto-matematicas, comprobados por la sesión principal con código propio; el autor
+# volvió a comprobar con enumeración los números, recorridos y ciclos de las explicaciones.
+# Ids en el orden de la tabla del v1, escalera 6/6/6/4/3: d1 001–006, d2 007–012, d3 013–018, d4 019–022, d5 023–025.
+# Anclas (primer ejercicio de cada concepto, workedExampleFor): 001 GT, 002 GV, 003 RG, 004 CC, 005 EU y 006 HA, todas
+# de d1, con lo que se pide escrito en el enunciado y con la explicación completa. WorkedExample muestra solo enunciado y
+# explicación, así que la explicación de cada ancla con visual lista el grafo. Los ejercicios con dos o tres conceptos
+# muestran el ancla d1 de cualquiera de ellos.
+# Abreviaturas: GT grafo-tipos · GV grado-vertice · RG representacion-grafos · CC caminos-conexidad · EU euleriano ·
+# HA hamiltoniano. El 022 también lleva `aritmetica-modular` (unidad 18), como dice el esquema.
+# Terminología con un solo sentido (la de la `notacion`): camino (puede repetir), recorrido (sin aristas repetidas),
+# trayectoria (sin vértices repetidos), circuito (recorrido cerrado) y ciclo (circuito sin vértices repetidos salvo los
+# extremos). Euler va con recorrido y circuito; Hamilton, con trayectoria y ciclo. «Recorrer» no se usa como verbo, para
+# no chocar con «recorrido». «Componente» es siempre la componente conexa; «vecinos», los extremos de una arista. En
+# dirigidos, deg⁻ (entrada) y deg⁺ (salida); la sesión principal los agrega a la `notacion`.
+# Hipótesis (experto-matematicas): un lazo suma 2 al grado; Euler en multigrafos conexos (circuito ⇔ todos pares;
+# recorrido ⇔ 0 o 2 impares; recorrido que no es circuito ⇔ exactamente 2, y va de uno al otro); Dirac en simples con
+# n ≥ 3; fuerte = camino dirigido de cada vértice a cada otro, débil = conexo sin flechas. Ningún ejercicio tiene
+# vértices aislados; el grafo desconexo del 014 tiene aristas en sus dos componentes.
+# Visual `grafo` (plataforma, experto-matematicas): en un ejercicio el dibujo es fijo y su pie lista las aristas, no los
+# grados (visuals.ts), así que nunca se pide «cuántas aristas» de un grafo dibujado. Las aristas van ordenadas, para que
+# el orden no delate un recorrido. Como máximo 9 vértices y sin flechas antiparalelas. En los de Hamilton (006, 013,
+# 024 y 025), el perímetro del círculo, el orden de `vertices`, no es ciclo ni trayectoria, tampoco empezado en otro
+# vértice: el autor lo revisó con todas las rotaciones, y por eso el 013 cambió (ver su comentario). El 024 mostraba 5
+# aristas de su ciclo en el perímetro; desde los arreglos del 2026-11-15 es el mismo grafo renombrado y no tiene ninguna.
+# Las aristas se parten con ', ', así que en `aristas` llevan espacio; cada `verificar` las lee del MISMO texto que su
+# visual.
+# `verificar`: los de experto-matematicas (herramientas/m19/verificar-19.py), en Python puro y sin cambios, salvo el 008
+# (abductivo de arquitecto-razonamiento, escrito por el autor), las aristas del 013 y, desde los arreglos del
+# 2026-11-15, las aristas del 024 y las dos condicionales del 014. Vía independiente: Euler por búsqueda exhaustiva de
+# recorridos (no por el criterio de grados), Hamilton por permutaciones, conexidad por cerradura y sucesiones de grados
+# por fuerza bruta sobre todos los grafos. Probados con el check_exercise real (24/24) y con respuestas alteradas
+# (neg.py de M, más las del 008 y el 013; tras los arreglos, también las del 014 y el 024).
+# `completar`: huecos fuera de KaTeX; cada hueco dice si pide un número o un vértice; el sí o no va con 1 (sí) o 0 (no).
+# `conjunto`: el ejemplo de formato (`x, y`) no usa vértices del grafo.
+# Pistas como preguntas, sin valores intermedios: 1 en d1–2, 2 en d3 y 3 en d4–5 (las del 019, 023 y 025 son de
+# arquitecto-razonamiento). Desde d3, la explicación cierra con «Revisa:», con una comprobación que no repite el
+# cálculo. Las explicaciones de selección y opción múltiple dicen cuáles son las correctas.
+# Manuales: solo el 019 (autoevaluación, tarjeta: false).
+# Personajes: Marta (014, error plantado; Ana ya salió en la 16 y la 17) y Rocío (015, metacognitivo).
+# Textos con LaTeX en bloques `>-`: así no hay que escapar comillas ni barras.
+unidad: matematicas-discretas/19-grafos
+ejercicios:
+  # razonamiento: deductivo (aplicar la definición: ¿hay lazos? ¿hay aristas repetidas?) · R0
+  # Ancla de GT. Opciones de experto-matematicas: la de {1, 2} y {3, 4} atrapa a quien confunde simple con conexo, y la
+  # sin aristas, a quien cree que hace falta al menos una.
+  # verificar: sin lazos (a ≠ b) y sin aristas repetidas (como conjuntos), sobre las seis listas.
+  - id: disc-19-001
+    tipo: seleccion_multiple
+    dificultad: 1
+    conceptos: [grafo-tipos]
+    enunciado: >-
+      Un grafo es **simple** si no tiene lazos (aristas de un vértice a sí mismo) ni aristas múltiples (dos o más aristas con los mismos dos extremos). Cada opción describe un grafo no dirigido con vértices $\{1,2,3,4\}$. ¿Cuáles son simples? Puede haber varias.
+    opciones:
+      - >-
+        Aristas $\{1,2\}$ y $\{2,3\}$.
+      - >-
+        Dos aristas $\{1,2\}$ y una arista $\{2,3\}$.
+      - >-
+        Una arista $\{1,2\}$ y un lazo en el 2.
+      - >-
+        Aristas $\{1,2\}$ y $\{3,4\}$.
+      - >-
+        Ninguna arista.
+      - >-
+        Aristas $\{1,2\}$ y $\{2,3\}$, y un lazo en el 3.
+    correctas: [0, 3, 4]
+    verificar: { python: "[all(a != b for (a, b) in E) and len({frozenset(e) for e in E}) == len(E) for E in [[(1, 2), (2, 3)], [(1, 2), (1, 2), (2, 3)], [(1, 2), (2, 2)], [(1, 2), (3, 4)], [], [(1, 2), (2, 3), (3, 3)]]]" }
+    pistas:
+      - >-
+        En cada opción, ¿hay una arista que empiece y termine en el mismo vértice? ¿Hay dos aristas con los mismos extremos?
+    explicacion: >-
+      Son simples «aristas $\{1,2\}$ y $\{2,3\}$», «aristas $\{1,2\}$ y $\{3,4\}$» y «ninguna arista»; las otras tres no. **No son simples:** «dos aristas $\{1,2\}$» tiene aristas múltiples, y «un lazo en el 2» y «un lazo en el 3» tienen lazos. **Las que sí:** «$\{1,2\}$ y $\{3,4\}$» no es conexo, pero eso no importa, porque ser simple solo habla de lazos y aristas múltiples. «Ninguna arista» también es simple: no tiene nada que lo impida.
+    tiempo_estimado_s: 45
+
+  # razonamiento: espacial (leer en el dibujo las aristas que tocan a cada vértice) · R0
+  # Ancla de GV; la explicación lista el grafo.
+  # verificar: cuenta las aristas del texto del visual que contienen a p y a r, y los vértices de grado impar.
+  - id: disc-19-002
+    tipo: completar
+    dificultad: 1
+    conceptos: [grado-vertice]
+    enunciado: >-
+      El **grado** de un vértice $v$, $\deg(v)$, es el número de aristas que lo tocan (un lazo contaría 2, pero aquí no hay). Contesta sobre este grafo.
+    visual: { id: grafo, vertices: "p, q, r, s, t, u", aristas: "p-q, p-r, p-s, q-r, r-s, r-t, s-u, t-u" }
+    texto: >-
+      $\deg(p)=$ ___ · $\deg(r)=$ ___ · número de vértices de grado impar: ___
+    respuestas: ["3", "4", "2"]
+    verificar: { python: "(lambda V, E: [sum(1 for e in E if 'p' in e), sum(1 for e in E if 'r' in e), sum(1 for v in V if sum(1 for e in E if v in e) % 2 == 1)])('p, q, r, s, t, u'.split(', '), [tuple(e.split('-')) for e in 'p-q, p-r, p-s, q-r, r-s, r-t, s-u, t-u'.split(', ')])" }
+    pistas:
+      - >-
+        ¿Cuántas aristas tienen a $p$ como uno de sus extremos? ¿Y a $r$?
+    explicacion: >-
+      El grafo tiene vértices $p$, $q$, $r$, $s$, $t$ y $u$, y aristas $pq$, $pr$, $ps$, $qr$, $rs$, $rt$, $su$ y $tu$. A $p$ lo tocan $pq$, $pr$ y $ps$: $\deg(p)=3$. A $r$ lo tocan $pr$, $qr$, $rs$ y $rt$: $\deg(r)=4$. Los demás tienen $\deg(q)=2$, $\deg(s)=3$, $\deg(t)=2$ y $\deg(u)=2$, así que los de grado impar son $p$ y $s$: 2. Comprueba: $3+2+4+3+2+2=16=2\cdot8$, el doble del número de aristas.
+    tiempo_estimado_s: 45
+
+  # razonamiento: algorítmico (recorrer las columnas 1 a 5 y preguntar si {2, j} es arista) · R0
+  # Ancla de RG; la explicación lista el grafo. El error típico, poner 1 en la diagonal, lo rechaza el verificar (neg.py).
+  # verificar: 1 si el par {2, j} está entre las aristas del texto del visual.
+  - id: disc-19-003
+    tipo: completar
+    dificultad: 1
+    conceptos: [representacion-grafos]
+    enunciado: >-
+      La **matriz de adyacencia** de un grafo simple con vértices $1,\dots,n$ tiene en la fila $i$ y la columna $j$ un 1 si $\{i,j\}$ es arista, y un 0 si no. Escribe la fila del vértice 2 en la matriz de este grafo; cada entrada es el número 0 o el 1.
+    visual: { id: grafo, vertices: "1, 2, 3, 4, 5", aristas: "1-2, 1-4, 2-3, 2-5, 3-4, 4-5" }
+    texto: >-
+      Fila del 2, columna 1: ___ · columna 2: ___ · columna 3: ___ · columna 4: ___ · columna 5: ___
+    respuestas: ["1", "0", "1", "0", "1"]
+    verificar: { python: "(lambda V, E: (lambda S: [int(frozenset(('2', w)) in S) for w in V])({frozenset(e) for e in E}))('1, 2, 3, 4, 5'.split(', '), [tuple(e.split('-')) for e in '1-2, 1-4, 2-3, 2-5, 3-4, 4-5'.split(', ')])" }
+    pistas:
+      - >-
+        ¿Quiénes son los vecinos del 2? ¿Puede el 2 ser vecino de sí mismo en un grafo simple?
+    explicacion: >-
+      El grafo tiene vértices 1 a 5 y aristas $\{1,2\}$, $\{1,4\}$, $\{2,3\}$, $\{2,5\}$, $\{3,4\}$ y $\{4,5\}$. Los vecinos del 2 son el 1, el 3 y el 5, así que la fila del 2 es 1, 0, 1, 0, 1. La columna 2 vale 0: un grafo simple no tiene lazos, y por eso su diagonal va en 0. Comprueba: la fila suma 3, que es $\deg(2)$.
+    tiempo_estimado_s: 45
+
+  # razonamiento: espacial (seguir aristas desde un vértice hasta agotar a los que alcanza) · R1
+  # Ancla de CC; la explicación lista el grafo. valores 1–4 (M): el número de componentes.
+  # verificar: número de cerraduras distintas (los vértices alcanzables desde cada vértice).
+  - id: disc-19-004
+    tipo: opcion_multiple
+    dificultad: 1
+    conceptos: [caminos-conexidad]
+    enunciado: >-
+      Un grafo es **conexo** si hay un camino entre cada par de vértices. Sus **componentes conexas** son los grupos de vértices unidos entre sí por caminos, y un grafo conexo tiene una sola. ¿Cuántas componentes conexas tiene este grafo?
+    visual: { id: grafo, vertices: "a, b, c, d, e, f, g", aristas: "a-d, a-f, b-c, b-g, c-e, d-f, e-g" }
+    opciones:
+      - "Una: es conexo"
+      - "Dos"
+      - "Tres"
+      - "Cuatro"
+    valores: ["1", "2", "3", "4"]
+    correcta: 1
+    verificar: { python: "(lambda V, E: (lambda A: len({(lambda A, s: list(itertools.accumulate(range(len(A)), lambda S, _: S | frozenset(w for v in S for w in A[v]), initial=frozenset({s})))[-1])(A, v) for v in V}))((lambda V, E: {v: {w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v} for v in V})(V, E)))('a, b, c, d, e, f, g'.split(', '), [tuple(e.split('-')) for e in 'a-d, a-f, b-c, b-g, c-e, d-f, e-g'.split(', ')])" }
+    pistas:
+      - >-
+        Si empiezas en $a$ y sigues aristas, ¿a qué vértices llegas? ¿Quedan vértices sin alcanzar?
+    explicacion: >-
+      Tiene dos. El grafo tiene vértices $a$ a $g$ y aristas $ad$, $af$, $bc$, $bg$, $ce$, $df$ y $eg$. **Desde $a$** se llega a $d$ y a $f$, y de ahí a nadie más: $\{a,d,f\}$. **Desde $b$** se llega a $c$ y a $g$, y por ellos a $e$: $\{b,c,e,g\}$. Ninguna arista une un grupo con el otro, así que son 2 componentes y el grafo no es conexo. Comprueba: las dos juntas tienen los 7 vértices.
+    tiempo_estimado_s: 45
+
+  # razonamiento: deductivo (conexo y todos los grados pares ⇒ circuito, por el teorema) · R1
+  # Ancla de EU; la explicación lista el grafo. valores 0–2 (M): 0 = circuito, 1 = recorrido que no es circuito,
+  # 2 = ninguno. Las tres opciones se excluyen: con todos los grados pares, todo recorrido euleriano es cerrado.
+  # verificar: busca todos los recorridos que usan cada arista una vez (sin criterio de grados) y mira si alguno cierra.
+  - id: disc-19-005
+    tipo: opcion_multiple
+    dificultad: 1
+    conceptos: [euleriano]
+    enunciado: >-
+      Un **recorrido euleriano** usa cada arista exactamente una vez; si además termina en el vértice donde empezó, es un **circuito euleriano**. ¿Qué tiene este grafo?
+    visual: { id: grafo, vertices: "a, b, c, d, e, f", aristas: "a-b, a-d, b-c, b-d, b-e, c-e, d-e, d-f, e-f" }
+    opciones:
+      - "Un circuito euleriano."
+      - "Un recorrido euleriano, pero ningún circuito euleriano."
+      - "Ningún recorrido euleriano."
+    valores: ["0", "1", "2"]
+    correcta: 0
+    verificar: { python: "(lambda V, E: (lambda T: 0 if any(s == t for (s, t) in T) else (1 if T else 2))((lambda V, E: (lambda go: {(s, t) for s in V for t in go(go, s, frozenset())})(lambda go, v, used: {v} if len(used) == len(E) else {t for i in range(len(E)) if i not in used and v in E[i] for t in go(go, E[i][1] if E[i][0] == v else E[i][0], used | {i})}))(V, E)))('a, b, c, d, e, f'.split(', '), [tuple(e.split('-')) for e in 'a-b, a-d, b-c, b-d, b-e, c-e, d-e, d-f, e-f'.split(', ')])" }
+    pistas:
+      - >-
+        ¿Es conexo? ¿Cuántos vértices tienen grado impar?
+    explicacion: >-
+      Tiene un circuito euleriano. El grafo tiene vértices $a$ a $f$ y aristas $ab$, $ad$, $bc$, $bd$, $be$, $ce$, $de$, $df$ y $ef$, y es conexo. Sus grados son $a$ 2, $b$ 4, $c$ 2, $d$ 4, $e$ 4 y $f$ 2: todos pares. Por el teorema de Euler, un multigrafo conexo con todos sus grados pares tiene circuito euleriano. Uno es $a,b,c,e,b,d,e,f,d,a$. Comprueba: usa 9 aristas distintas, todas las del grafo, y vuelve a $a$.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (revisar cada sucesión: cerrada, cada vértice una vez, aristas que existen) · R1
+  # Ancla de HA; la explicación lista el grafo. Ninguna arista del grafo une vecinos del perímetro.
+  # verificar: cada sucesión cerrada, con los 6 vértices una vez y cada paso por una arista del texto del visual.
+  - id: disc-19-006
+    tipo: seleccion_multiple
+    dificultad: 1
+    conceptos: [hamiltoniano]
+    enunciado: >-
+      Un **ciclo hamiltoniano** pasa por cada vértice exactamente una vez, siempre por aristas del grafo, y vuelve al vértice de salida. ¿Cuáles de estas sucesiones son ciclos hamiltonianos de este grafo? Puede haber varias.
+    visual: { id: grafo, vertices: "a, b, c, d, e, f", aristas: "a-c, a-d, a-e, b-d, b-e, b-f, c-e, c-f, d-f" }
+    opciones:
+      - >-
+        $a,c,f,d,b,e,a$
+      - >-
+        $b,f,c,e,a,d,b$
+      - >-
+        $a,c,e,b,d,f,a$
+      - >-
+        $a,d,f,c,e,a$
+      - >-
+        $a,e,b,d,f,c,e,a$
+      - >-
+        $e,c,a,d,f,b,e$
+    correctas: [0, 1, 5]
+    verificar: { python: "(lambda V, E: (lambda A: [p[0] == p[-1] and len(p) == len(V) + 1 and set(p[:-1]) == set(V) and all(p[i + 1] in A[p[i]] for i in range(len(p) - 1)) for p in [x.split(', ') for x in ['a, c, f, d, b, e, a', 'b, f, c, e, a, d, b', 'a, c, e, b, d, f, a', 'a, d, f, c, e, a', 'a, e, b, d, f, c, e, a', 'e, c, a, d, f, b, e']]])((lambda V, E: {v: {w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v} for v in V})(V, E)))('a, b, c, d, e, f'.split(', '), [tuple(e.split('-')) for e in 'a-c, a-d, a-e, b-d, b-e, b-f, c-e, c-f, d-f'.split(', ')])" }
+    pistas:
+      - >-
+        En cada sucesión, ¿cada paso va por una arista? ¿Aparece cada vértice exactamente una vez antes de volver?
+    explicacion: >-
+      Son ciclos hamiltonianos $a,c,f,d,b,e,a$, $b,f,c,e,a,d,b$ y $e,c,a,d,f,b,e$; las otras tres no. El grafo tiene vértices $a$ a $f$ y aristas $ac$, $ad$, $ae$, $bd$, $be$, $bf$, $ce$, $cf$ y $df$. En las tres, cada paso va por una arista y los seis vértices salen una vez antes de volver; un ciclo puede empezar en cualquier vértice, como el de $b$ y el de $e$. **Las que no:** $a,c,e,b,d,f,a$ cierra con $fa$, que no es arista; $a,d,f,c,e,a$ no pasa por $b$; y $a,e,b,d,f,c,e,a$ pasa dos veces por $e$.
+    tiempo_estimado_s: 60
+
+  # razonamiento: inductivo (de K₃, K₄ y K₅ al patrón: cada vértice tiene n − 1 vecinos y cada arista se cuenta dos veces) · R1
+  # El error n(n − 1) sin dividir entre 2 (42 y 132) lo rechaza el verificar (neg.py).
+  # verificar: cuenta los pares de vértices con itertools.combinations, sin fórmula.
+  - id: disc-19-007
+    tipo: completar
+    dificultad: 2
+    conceptos: [grafo-tipos]
+    enunciado: >-
+      $K_n$ es el grafo simple con $n$ vértices y una arista entre cada dos vértices distintos.
+    texto: >-
+      Número de aristas de $K_7$: ___ · número de aristas de $K_{12}$: ___ · número de aristas que hay que agregarle a un grafo simple con 9 vértices y 20 aristas para convertirlo en $K_9$: ___
+    respuestas: ["21", "66", "16"]
+    verificar: { python: "[len(list(itertools.combinations(range(7), 2))), len(list(itertools.combinations(range(12), 2))), len(list(itertools.combinations(range(9), 2))) - 20]" }
+    pistas:
+      - >-
+        ¿Cuántas aristas tienen $K_3$, $K_4$ y $K_5$? ¿Qué patrón ves al pasar de uno al siguiente?
+    explicacion: >-
+      $K_3$, $K_4$ y $K_5$ tienen 3, 6 y 10 aristas: al agregar un vértice nuevo, se une con todos los que ya estaban. En general, cada uno de los $n$ vértices tiene $n-1$ vecinos; al sumar, $n(n-1)$ cuenta cada arista dos veces, una por extremo, así que $K_n$ tiene $\frac{n(n-1)}{2}$. **Las cuentas:** $K_7$ tiene $\frac{7\cdot6}{2}=21$ y $K_{12}$, $\frac{12\cdot11}{2}=66$. $K_9$ tiene $\frac{9\cdot8}{2}=36$, así que a un simple con 9 vértices y 20 aristas le faltan $36-20=16$. Un error común es no dividir entre 2: 42 y 132 cuentan cada arista dos veces.
+    tiempo_estimado_s: 60
+
+  # razonamiento: abductivo (de una suma impar a la mejor explicación: falta una anotación, y ¿cuál?) · R2
+  # De arquitecto-razonamiento (esquema v1, en lugar del 008 de M, que despejaba n con el apretón de manos). El hueco 2
+  # no lo contesta la gramática del 3 y el 4: «si hay una arista…; si no hay ninguna, escribe 0 en cada uno» (antes
+# «0 y 0»; el cambio es del resolutor a ciegas, arreglos del 2026-11-15).
+  # verificar (del autor): suma de las longitudes de las listas; 1 si la lista es simétrica y sin lazos; y la única
+  # anotación sin espejo, (quién la anota, en cuya lista falta). Lee la lista del mismo texto del enunciado.
+  # Comprobado contra respuestas alteradas: 16, 1, e/f al revés y 0, 0 fallan.
+  - id: disc-19-008
+    tipo: completar
+    dificultad: 2
+    conceptos: [grado-vertice, representacion-grafos]
+    enunciado: |-
+      Alguien copió la lista de adyacencia de un grafo simple no dirigido, con cada vértice y la lista de sus vecinos:
+
+      - $a$: $b$, $c$
+      - $b$: $a$, $c$, $d$
+      - $c$: $a$, $b$, $e$
+      - $d$: $b$, $e$, $f$
+      - $e$: $c$, $d$, $f$
+      - $f$: $d$
+    texto: >-
+      Número de vecinos anotados, sumando las seis listas: ___ · ¿puede ser la lista completa y sin errores? (1 sí, 0 no): ___ · si hay una arista anotada en la lista de uno de sus extremos y no en la del otro, vértice que la anota: ___ · vértice en cuya lista falta: ___ (si no hay ninguna, escribe 0 en cada uno)
+    respuestas: ["15", "0", "e", "f"]
+    verificar: { python: "(lambda L: (lambda A: [sum(len(L[v]) for v in L), int(len(A) == 0 and all(v not in L[v] for v in L)), A[0][0] if len(A) == 1 else (0 if len(A) == 0 else -1), A[0][1] if len(A) == 1 else (0 if len(A) == 0 else -1)])([(u, v) for u in sorted(L) for v in L[u] if v not in L or u not in L[v]]))({x.split(': ')[0]: x.split(': ')[1].split(', ') for x in 'a: b, c · b: a, c, d · c: a, b, e · d: b, e, f · e: c, d, f · f: d'.split(' · ')})" }
+    pistas:
+      - >-
+        En la lista completa de un grafo no dirigido, ¿cuántas veces aparece cada arista? ¿Qué dice eso de la suma?
+    explicacion: >-
+      **La suma:** $2+3+3+3+3+1=15$. **¿Puede estar completa?** En la lista completa de un grafo no dirigido, cada arista $uv$ sale dos veces, $v$ en la lista de $u$ y $u$ en la de $v$, así que la suma es $\sum\deg(v)=2\lvert E\rvert$, un número par. Como 15 es impar, falta o sobra al menos una anotación. **¿Dónde?** Se revisa cada anotación contra su espejo: $e$ anota a $f$, pero $f$ no anota a $e$. Es la única que no tiene pareja; las otras 14 salen en parejas, como $ab$ y $ba$. La explicación más simple es que a la lista de $f$ le falta $e$: con ella, la suma da $16=2\cdot8$. Si en cambio $e$ anotó a $f$ por error, la sospechosa sigue siendo la arista $ef$.
+    tiempo_estimado_s: 90
+
+  # razonamiento: algorítmico (contar las flechas que llegan y las que salen de cada vértice) · R1
+  # Sin flechas antiparalelas (M). La notación deg⁻ y deg⁺ va definida en el enunciado.
+  # verificar: cuenta pares (a, b) del texto del visual con b = s o a = q; el único vértice sin entradas; los de entrada
+  # igual a salida.
+  - id: disc-19-009
+    tipo: completar
+    dificultad: 2
+    conceptos: [grado-vertice]
+    enunciado: >-
+      En un grafo dirigido, el **grado de entrada** $\deg^-(v)$ cuenta las flechas que llegan a $v$, y el **grado de salida** $\deg^+(v)$, las que salen de $v$. Contesta sobre este grafo dirigido.
+    visual: { id: grafo, vertices: "p, q, r, s, t", aristas: "p-q, p-s, q-r, r-p, r-s, s-q, t-p, t-r", dirigido: "si" }
+    texto: >-
+      $\deg^-(s)=$ ___ · $\deg^+(q)=$ ___ · vértice al que no llega ninguna flecha: ___ · número de vértices con $\deg^-(v)=\deg^+(v)$: ___
+    respuestas: ["2", "1", "t", "2"]
+    verificar: { python: "(lambda V, E: [sum(1 for (a, b) in E if b == 's'), sum(1 for (a, b) in E if a == 'q'), (lambda L: L[0] if len(L) == 1 else -1)([v for v in V if not any(b == v for (a, b) in E)]), sum(1 for v in V if sum(1 for (a, b) in E if b == v) == sum(1 for (a, b) in E if a == v))])('p, q, r, s, t'.split(', '), [tuple(e.split('-')) for e in 'p-q, p-s, q-r, r-p, r-s, s-q, t-p, t-r'.split(', ')])" }
+    pistas:
+      - >-
+        Para cada vértice, ¿cuántas flechas terminan en él y cuántas empiezan en él?
+    explicacion: >-
+      Las flechas son $(p,q)$, $(p,s)$, $(q,r)$, $(r,p)$, $(r,s)$, $(s,q)$, $(t,p)$ y $(t,r)$. A $s$ llegan $(p,s)$ y $(r,s)$: $\deg^-(s)=2$. De $q$ sale solo $(q,r)$: $\deg^+(q)=1$. **Entrada y salida de cada uno:** $p$ 2 y 2, $q$ 2 y 1, $r$ 2 y 2, $s$ 2 y 1, $t$ 0 y 2. A $t$ no llega ninguna flecha, y las tienen iguales $p$ y $r$: 2 vértices. Comprueba: las entradas suman 8 y las salidas también, una por flecha.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (sumar la fila para el grado; la mitad de la suma total para las aristas) · R1
+  # Multigrafo como matriz (el visual no dibuja aristas múltiples). El error 16 (suma de grados por aristas) lo rechaza
+  # el verificar (neg.py).
+  # verificar: arma la lista de aristas repitiendo cada par M[i][j] veces y cuenta.
+  - id: disc-19-010
+    tipo: completar
+    dificultad: 2
+    conceptos: [representacion-grafos]
+    enunciado: |-
+      Un multigrafo sin lazos, con vértices 1, 2, 3 y 4, tiene esta matriz de adyacencia; la entrada de la fila $i$ y la columna $j$ es el número de aristas entre $i$ y $j$.
+
+      $$A=\begin{array}{c|cccc} & 1 & 2 & 3 & 4\\\hline 1 & 0 & 2 & 1 & 0\\ 2 & 2 & 0 & 1 & 1\\ 3 & 1 & 1 & 0 & 3\\ 4 & 0 & 1 & 3 & 0\end{array}$$
+    texto: >-
+      $\deg(3)=$ ___ · número de aristas: ___ · número de vértices de grado impar: ___
+    respuestas: ["5", "8", "2"]
+    verificar: { python: "(lambda M: (lambda E: [sum(1 for e in E if 3 in e), len(E), sum(1 for v in range(1, 5) if sum(1 for e in E if v in e) % 2 == 1)] if all(M[i][j] == M[j][i] for i in range(4) for j in range(4)) else None)([(i + 1, j + 1) for i in range(4) for j in range(i + 1, 4) for _ in range(M[i][j])]))([[0, 2, 1, 0], [2, 0, 1, 1], [1, 1, 0, 3], [0, 1, 3, 0]])" }
+    pistas:
+      - >-
+        ¿Qué cuenta la fila de un vértice? Si sumas toda la matriz, ¿cuántas veces cuentas cada arista?
+    explicacion: >-
+      **Grado:** la fila del 3 es 1, 1, 0, 3: una arista al 1, una al 2 y tres al 4, así que $\deg(3)=5$. **Aristas:** las filas suman 3, 4, 5 y 4, en total 16; cada arista entre $i$ y $j$ cuenta en la entrada $(i,j)$ y en la $(j,i)$, así que hay $16/2=8$. **Impares:** el 1 (grado 3) y el 3 (grado 5): 2. Un error común es dar 16 como número de aristas: es la suma de los grados, $2\lvert E\rvert$.
+    tiempo_estimado_s: 60
+
+  # razonamiento: deductivo (definición: cada paso por una arista y ninguna arista repetida) · R1
+  # La 2.ª opción repite un vértice sin repetir aristas (recorrido que no es trayectoria) y la 6.ª es cerrada (circuito,
+  # que también es recorrido). Lo usa el repaso de la 20 (esquema-20: «recorrido» en dos sentidos).
+  # verificar: cada paso es arista del texto del visual y no se repite ninguna.
+  - id: disc-19-011
+    tipo: seleccion_multiple
+    dificultad: 2
+    conceptos: [caminos-conexidad]
+    enunciado: >-
+      Un **recorrido** es un camino que no repite aristas; puede repetir vértices. ¿Cuáles de estas sucesiones de vértices son recorridos en este grafo? Puede haber varias.
+    visual: { id: grafo, vertices: "a, b, c, d, e, f", aristas: "a-b, a-d, b-c, b-e, c-d, c-f, e-f" }
+    opciones:
+      - >-
+        $a,b,c,d$
+      - >-
+        $a,b,e,f,c,b$
+      - >-
+        $d,c,b,c,f$
+      - >-
+        $d,a,b,e,f,c$
+      - >-
+        $a,c,f,e$
+      - >-
+        $a,b,c,d,a$
+    correctas: [0, 1, 3, 5]
+    verificar: { python: "(lambda V, E: (lambda S: [all(frozenset(p[i:i + 2]) in S for i in range(len(p) - 1)) and len({frozenset(p[i:i + 2]) for i in range(len(p) - 1)}) == len(p) - 1 for p in ['abcd', 'abefcb', 'dcbcf', 'dabefc', 'acfe', 'abcda']])({frozenset(e) for e in E}))('a, b, c, d, e, f'.split(', '), [tuple(e.split('-')) for e in 'a-b, a-d, b-c, b-e, c-d, c-f, e-f'.split(', ')])" }
+    pistas:
+      - >-
+        En cada sucesión, ¿cada paso va por una arista del grafo? ¿Hay una arista que se use dos veces?
+    explicacion: >-
+      Son recorridos $a,b,c,d$, $a,b,e,f,c,b$, $d,a,b,e,f,c$ y $a,b,c,d,a$; las otras dos no. Las aristas son $ab$, $ad$, $bc$, $be$, $cd$, $cf$ y $ef$. **Los que sí:** $a,b,e,f,c,b$ repite el vértice $b$, pero no aristas, así que es recorrido aunque no sea trayectoria. $a,b,c,d,a$ es cerrado: es un circuito, que también es recorrido. **Los que no:** $d,c,b,c,f$ usa dos veces la arista $bc$, y $a,c,f,e$ ni siquiera es camino, porque $ac$ no es arista.
+    tiempo_estimado_s: 60
+
+  # razonamiento: deductivo (conexo con exactamente 2 impares ⇒ todo recorrido euleriano va de uno al otro) · R1
+  # El error típico, dar los de grado par, lo rechaza el verificar (neg.py).
+  # verificar: los inicios de todos los recorridos que usan cada arista una vez (búsqueda exhaustiva).
+  - id: disc-19-012
+    tipo: conjunto
+    dificultad: 2
+    conceptos: [euleriano]
+    enunciado: >-
+      Un recorrido euleriano usa cada arista exactamente una vez. ¿En qué vértices puede empezar un recorrido euleriano de este grafo? Escribe todos, separados por comas, como `x, y`.
+    visual: { id: grafo, vertices: "a, b, c, d, e, f, g", aristas: "a-c, a-g, b-c, b-e, b-g, c-f, c-g, d-f, d-g, e-f" }
+    respuesta: ["b", "f"]
+    verificar: { python: "(lambda V, E: {s for (s, t) in (lambda V, E: (lambda go: {(s, t) for s in V for t in go(go, s, frozenset())})(lambda go, v, used: {v} if len(used) == len(E) else {t for i in range(len(E)) if i not in used and v in E[i] for t in go(go, E[i][1] if E[i][0] == v else E[i][0], used | {i})}))(V, E)})('a, b, c, d, e, f, g'.split(', '), [tuple(e.split('-')) for e in 'a-c, a-g, b-c, b-e, b-g, c-f, c-g, d-f, d-g, e-f'.split(', ')])" }
+    pistas:
+      - >-
+        ¿Cuántos vértices tienen grado impar? ¿Qué dice el teorema de Euler de dónde empieza y termina el recorrido?
+    explicacion: >-
+      Las aristas son $ac$, $ag$, $bc$, $be$, $bg$, $cf$, $cg$, $df$, $dg$ y $ef$, y el grafo es conexo. Grados: $a$ 2, $b$ 3, $c$ 4, $d$ 2, $e$ 2, $f$ 3 y $g$ 4. Hay exactamente 2 de grado impar, $b$ y $f$, así que hay recorrido euleriano, pero no circuito, y todo recorrido euleriano va de $b$ a $f$ o de $f$ a $b$. Puede empezar en $b$ o en $f$; uno es $b,c,a,g,b,e,f,c,g,d,f$. Uno que empezara en un vértice de grado par tendría que terminar ahí mismo, y sería un circuito, que aquí no hay.
+    tiempo_estimado_s: 60
+
+  # razonamiento: espacial (ver el puente c–d y qué lado se cubre antes de cruzarlo) · R2
+  # Cambio contra el esquema (del autor, por la regla del perímetro): se intercambiaron las etiquetas b y e.
+  # Con las del v1 (a-b, a-g, b-c, b-g, c-d, c-g, d-e, d-f, e-f), el perímetro empezado en g, g, a, b, c, d, e, f, ya
+  # era una trayectoria hamiltoniana, y el dibujo regalaba dos de las respuestas. Es el mismo grafo con otros nombres:
+  # el puente sigue siendo c–d y la respuesta sigue siendo {a, b, e, f, g}. Ahora el perímetro solo tiene c–d y g–a.
+  # Lo usa el repaso de la 20 (esquema-20: una trayectoria hamiltoniana contra un orden DFS).
+  # verificar: los inicios de todas las permutaciones que son trayectorias (con las aristas nuevas, desde el visual).
+  - id: disc-19-013
+    tipo: conjunto
+    dificultad: 3
+    conceptos: [hamiltoniano]
+    enunciado: >-
+      Una **trayectoria hamiltoniana** pasa por cada vértice exactamente una vez, sin volver al de salida. ¿En qué vértices puede empezar una trayectoria hamiltoniana de este grafo? Escribe todos, separados por comas, como `x, y`.
+    visual: { id: grafo, vertices: "a, b, c, d, e, f, g", aristas: "a-e, a-g, b-d, b-f, c-d, c-e, c-g, d-f, e-g" }
+    respuesta: ["a", "b", "e", "f", "g"]
+    verificar: { python: "(lambda V, E: {p[0] for p in (lambda V, A: [p for p in itertools.permutations(V) if all(p[i + 1] in A[p[i]] for i in range(len(p) - 1))])(V, (lambda V, E: {v: {w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v} for v in V})(V, E))})('a, b, c, d, e, f, g'.split(', '), [tuple(e.split('-')) for e in 'a-e, a-g, b-d, b-f, c-d, c-e, c-g, d-f, e-g'.split(', ')])" }
+    pistas:
+      - >-
+        ¿Hay una arista que, si la quitas, parte el grafo en dos? ¿Cuántas veces puede cruzarla una trayectoria?
+      - >-
+        ¿Qué pasa si la trayectoria empieza en uno de los extremos de esa arista?
+    explicacion: >-
+      Las aristas son $ae$, $ag$, $bd$, $bf$, $cd$, $ce$, $cg$, $df$ y $eg$. **Un puente:** al quitar $cd$, el grafo se parte en $\{a,c,e,g\}$ y $\{b,d,f\}$, así que toda trayectoria hamiltoniana cruza $cd$ una sola vez: pasa por todo un lado, cruza y pasa por todo el otro. **Los extremos del puente no sirven:** si empezara en $c$ y cruzara primero a $d$, ya no podría volver a $a$, $e$ y $g$; si pasara primero por ellos, tendría que volver a $c$ para cruzar. Con $d$ pasa lo mismo. **Los demás sí:** $a,g,e,c,d,b,f$; $e,a,g,c,d,b,f$; $g,a,e,c,d,f,b$; y al revés, $f,b,d,c,e,a,g$ y $b,f,d,c,g,a,e$. Son $\{a,b,e,f,g\}$. Revisa: una trayectoria se puede leer al revés, así que los vértices donde puede terminar son los mismos donde puede empezar, y ni $c$ ni $d$ están.
+    tiempo_estimado_s: 90
+
+  # razonamiento: deductivo (separar «todos los grados son pares» de «hay circuito»: falta la conexidad) · R2
+  # Error plantado (M) con Marta, porque Ana ya salió en la 16 y la 17. Las dos componentes tienen aristas.
+  # La explicación no habla de quitar aristas, para no tocar la (3) del R4 (023), y no cuenta aristas por agregar, para no
+  # resolver el 020 (que no va en el jefe).
+  # Las dos últimas van como condicionales («si el grafo tiene más de una componente conexa…», arreglos del 2026-11-15,
+  # L): antes decían «entre las dos componentes» y le avisaban al alumno que el grafo no es conexo. Siguen siendo falsa
+  # y cierta, porque el grafo sí tiene dos componentes. La pista 2 también va en general («en un grafo con dos
+  # componentes»), para no decir que este tiene varias.
+  # verificar: grados, búsqueda de recorridos en el grafo, en cada componente y con cada arista nueva entre dos
+  # componentes distintas; las dos condicionales valen solas si hubiera una sola componente (len(C) < 2).
+  - id: disc-19-014
+    tipo: seleccion_multiple
+    dificultad: 3
+    conceptos: [euleriano]
+    enunciado: >-
+      Marta mira este grafo y dice: «Todos los grados son pares, así que tiene circuito euleriano». ¿Cuáles de estas afirmaciones son ciertas? Puede haber varias.
+    visual: { id: grafo, vertices: "a, b, c, d, e, f, g, h, i", aristas: "a-c, a-f, b-e, b-h, c-d, c-f, c-g, d-i, e-h, g-i" }
+    opciones:
+      - >-
+        Todos los grados del grafo son pares.
+      - >-
+        El grafo tiene circuito euleriano.
+      - >-
+        Cada componente conexa, por separado, tiene circuito euleriano.
+      - >-
+        Si el grafo tiene más de una componente conexa, al agregarle una arista cualquiera entre dos de ellas queda con circuito euleriano.
+      - >-
+        Si el grafo tiene más de una componente conexa, al agregarle una arista cualquiera entre dos de ellas queda con un recorrido euleriano que no es circuito.
+    correctas: [0, 2, 4]
+    verificar: { python: "(lambda V, E, T, R, A: (lambda C: (lambda X: [all(sum(1 for e in E if v in e) % 2 == 0 for v in V), any(s == t for (s, t) in T(V, E)), all(any(s == t for (s, t) in T(sorted(c), [e for e in E if e[0] in c])) for c in C), len(C) < 2 or all(any(s == t for (s, t) in T(V, E + [x])) for x in X), len(C) < 2 or all(T(V, E + [x]) and not any(s == t for (s, t) in T(V, E + [x])) for x in X)])([(u, w) for i in range(len(C)) for j in range(i + 1, len(C)) for u in C[i] for w in C[j]]))(sorted({R(A, v) for v in V}, key=len, reverse=True)))('a, b, c, d, e, f, g, h, i'.split(', '), [tuple(e.split('-')) for e in 'a-c, a-f, b-e, b-h, c-d, c-f, c-g, d-i, e-h, g-i'.split(', ')], (lambda V, E: (lambda go: {(s, t) for s in V for t in go(go, s, frozenset())})(lambda go, v, used: {v} if len(used) == len(E) else {t for i in range(len(E)) if i not in used and v in E[i] for t in go(go, E[i][1] if E[i][0] == v else E[i][0], used | {i})})), (lambda A, s: list(itertools.accumulate(range(len(A)), lambda S, _: S | frozenset(w for v in S for w in A[v]), initial=frozenset({s})))[-1]), (lambda V, E: {v: {w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v} for v in V})('a, b, c, d, e, f, g, h, i'.split(', '), [tuple(e.split('-')) for e in 'a-c, a-f, b-e, b-h, c-d, c-f, c-g, d-i, e-h, g-i'.split(', ')]))" }
+    pistas:
+      - >-
+        ¿Qué pide el teorema de Euler, además de los grados?
+      - >-
+        En un grafo con dos componentes, ¿qué les hace una arista nueva entre ellas a los grados de sus dos extremos y a la conexidad?
+    explicacion: >-
+      Son ciertas «todos los grados son pares», «cada componente tiene circuito euleriano» y «si tiene más de una componente, con una arista entre dos de ellas queda un recorrido euleriano que no es circuito»; las otras dos no. Las aristas son $ac$, $af$, $be$, $bh$, $cd$, $cf$, $cg$, $di$, $eh$ y $gi$. **Grados:** $c$ tiene 4 y los demás, 2; todos pares. **El error de Marta:** el grafo no es conexo; tiene dos componentes, $\{a,c,d,f,g,i\}$ y $\{b,e,h\}$, y las dos tienen aristas. Un recorrido no salta de una componente a otra, así que ninguno usa todas las aristas. **Por separado:** cada componente es conexa y con grados pares, y tiene su circuito: $a,c,d,i,g,c,f,a$ y $b,e,h,b$. **Con una arista nueva $uv$**, con $u$ en una componente y $v$ en la otra (las dos últimas hablan de este caso, porque el grafo sí tiene más de una), el grafo queda conexo y los grados de $u$ y $v$ suben a impares: quedan exactamente 2 impares, así que hay recorrido euleriano de $u$ a $v$, pero no circuito. Revisa: los dos circuitos juntos usan las 10 aristas, pero no comparten ningún vértice donde pegarlos.
+    tiempo_estimado_s: 120
+
+  # razonamiento: metacognitivo (contar antes de entregar: un circuito euleriano usa todas las aristas) · R1
+  # Metacognitivo de M con Rocío: confunde Euler con Hamilton, el error número uno del `<Ojo>`. Huecos 2 y 3 con el texto
+  # de L (arreglos del 2026-11-15): el 2 cuenta «términos… escrita como la de Rocío», así que el cierre cuenta y da 10,
+  # no 9, y va con «si existe», neutral (el «si lo hubiera» de antes empujaba el 4 a 0); el 3 pide «vértices distintos
+  # que son extremo de al menos una arista que Rocío no usó», con una sola lectura.
+  # verificar: longitud de la sucesión (comprobando que es cerrada y usa aristas distintas del grafo), |E| + 1, vértices
+  # de las aristas que no usó y búsqueda de un circuito euleriano.
+  - id: disc-19-015
+    tipo: completar
+    dificultad: 3
+    conceptos: [euleriano]
+    enunciado: >-
+      Rocío entrega $1,2,3,6,5,4,1$ como circuito euleriano de este grafo, sin contar cuántas aristas usó.
+    visual: { id: grafo, vertices: "1, 2, 3, 4, 5, 6", aristas: "1-2, 1-3, 1-4, 1-5, 2-3, 3-5, 3-6, 4-5, 5-6" }
+    texto: >-
+      Número de vértices en la sucesión de Rocío, contando el 1 las dos veces: ___ · número de términos que tendría la sucesión de un circuito euleriano de este grafo, si existe, escrita como la de Rocío: ___ · número de vértices distintos que son extremo de al menos una arista que Rocío no usó: ___ · ¿el grafo tiene circuito euleriano? (1 sí, 0 no): ___
+    respuestas: ["7", "10", "3", "1"]
+    verificar: { python: "(lambda V, E, p: (lambda S, W: [len(p) if W <= S and len(W) == len(p) - 1 and p[0] == p[-1] else -1, len(E) + 1, len({v for e in S - W for v in e}), int(any(s == t for (s, t) in (lambda V, E: (lambda go: {(s, t) for s in V for t in go(go, s, frozenset())})(lambda go, v, used: {v} if len(used) == len(E) else {t for i in range(len(E)) if i not in used and v in E[i] for t in go(go, E[i][1] if E[i][0] == v else E[i][0], used | {i})}))(V, E)))])({frozenset(e) for e in E}, {frozenset(p[i:i + 2]) for i in range(len(p) - 1)}))('1, 2, 3, 4, 5, 6'.split(', '), [tuple(e.split('-')) for e in '1-2, 1-3, 1-4, 1-5, 2-3, 3-5, 3-6, 4-5, 5-6'.split(', ')], '1, 2, 3, 6, 5, 4, 1'.split(', '))" }
+    pistas:
+      - >-
+        ¿Cuántas aristas usa la sucesión de Rocío? ¿Cuántas tiene que usar un circuito euleriano?
+      - >-
+        ¿Qué es, en realidad, lo que entregó Rocío: pasa una vez por cada arista o una vez por cada vértice?
+    explicacion: >-
+      Las aristas son $12$, $13$, $14$, $15$, $23$, $35$, $36$, $45$ y $56$: nueve. **Lo de Rocío:** 7 términos en la sucesión, así que usa 6 aristas, $12$, $23$, $36$, $65$, $54$ y $41$. Pasa una vez por cada vértice y vuelve: es un ciclo hamiltoniano, no un circuito euleriano. **Lo que falta:** un circuito euleriano usa las 9 aristas, y su sucesión, escrita como la de Rocío, con el primer vértice repetido al final, tiene $9+1=10$ términos. Le faltaron $13$, $15$ y $35$, cuyos extremos son el 1, el 3 y el 5: 3 vértices distintos. **¿Hay?** Los grados son 4, 2, 4, 2, 4 y 2, todos pares, y el grafo es conexo: sí. Uno es su sucesión más el triángulo que le faltó: $1,2,3,6,5,4,1,3,5,1$. ¿Qué contarás antes de entregar un circuito euleriano? Revisa: esa sucesión tiene 10 términos y 9 aristas distintas.
+    tiempo_estimado_s: 120
+
+  # razonamiento: deductivo (paridad de la suma, y el grado mayor contra los vecinos posibles) · R2
+  # La 3311 tumba el recíproco «suma par ⇒ existe» (arquitecto-razonamiento). La 42222 solo se realiza con un vértice
+  # unido a los otros cuatro y esos cuatro en dos parejas; la explicación no lo nombra con ninguna figura. Lo usa el
+  # repaso de la 21 (esquema-21: el apretón de manos).
+  # Va en el jefe desde los arreglos del 2026-11-15 (P), en lugar del 013. Por eso su explicación no menciona Euler ni
+  # Hamilton, y da el grafo de la 42222 (el moño) solo para decir que existe, no como contraejemplo de nada: así no da
+  # la (0) del 023. Si la 21 lo pone en su repaso, queda en dos jefes, como el 013 con la 20.
+  # verificar: las listas de grados de TODOS los grafos simples con 4, 5 y 6 vértices, por fuerza bruta.
+  - id: disc-19-016
+    tipo: seleccion_multiple
+    dificultad: 3
+    conceptos: [grado-vertice, grafo-tipos]
+    enunciado: >-
+      Cada lista da los grados de los vértices, un número por vértice. ¿Para cuáles de estas listas existe un grafo simple con esos grados? Puede haber varias.
+    opciones:
+      - >-
+        $3,3,2,1$
+      - >-
+        $3,3,1,1$
+      - >-
+        $4,2,2,2,2$
+      - >-
+        $4,4,1,1,1,1$
+      - >-
+        $3,3,3,3,2,2$
+      - >-
+        $3,3,3,1$
+    correctas: [2, 4]
+    verificar: { python: "(lambda D: [tuple(sorted(s, reverse=True)) in D[len(s)] for s in [(3, 3, 2, 1), (3, 3, 1, 1), (4, 2, 2, 2, 2), (4, 4, 1, 1, 1, 1), (3, 3, 3, 3, 2, 2), (3, 3, 3, 1)]])({n: {tuple(sorted((sum(1 for i in range(len(P)) if m >> i & 1 and v in P[i]) for v in range(n)), reverse=True)) for m in range(1 << len(P))} for n in (4, 5, 6) for P in [list(itertools.combinations(range(n), 2))]})" }
+    pistas:
+      - >-
+        ¿Qué dice el apretón de manos de la suma de cada lista?
+      - >-
+        En un grafo simple con $n$ vértices, ¿con cuántos otros puede estar unido un vértice, como mucho? Si uno lo está con todos, ¿qué les pasa a los demás?
+    explicacion: >-
+      Son listas de grafos simples $4,2,2,2,2$ y $3,3,3,3,2,2$; las otras cuatro no. **Paridad:** $3,3,2,1$ suma 9, y por el apretón de manos la suma de los grados es par. **Más vecinos de los que hay:** en $3,3,1,1$, cada vértice de grado 3 está unido a los otros tres, así que los de grado 1 tendrían al menos dos vecinos. En $3,3,3,1$, igual: el de grado 1 estaría unido a los tres de grado 3. En $4,4,1,1,1,1$, si los dos de grado 4 son vecinos, cada uno necesita otros 3 vecinos de grado 1, distintos de los del otro, y solo hay 4; si no lo son, cada uno está unido a los cuatro de grado 1, que tendrían grado 2. **Las que sí:** $4,2,2,2,2$ es un vértice unido a los otros cuatro, con esos cuatro unidos en dos parejas; $3,3,3,3,2,2$ es un hexágono $1,2,3,4,5,6$ con las diagonales $14$ y $25$. Revisa: $3,3,1,1$ suma 8, par, y aun así no hay grafo: que la suma sea par es necesario, pero no basta.
+    tiempo_estimado_s: 120
+
+  # razonamiento: espacial (seguir las flechas desde cada lado y ver qué grupo no tiene regreso) · R1
+  # Sin flechas antiparalelas (M). El hueco 3 dice «distintos de e», por el camino sin aristas.
+  # verificar: débil por cerradura sin dirección, fuerte por cerradura dirigida desde cada vértice, alcance de e, y
+  # cuenta de las flechas nuevas (u, w) que, solas, lo vuelven fuerte.
+  - id: disc-19-017
+    tipo: completar
+    dificultad: 3
+    conceptos: [caminos-conexidad]
+    enunciado: >-
+      Un grafo dirigido es **fuertemente conexo** si hay un camino dirigido, que sigue las flechas, de cada vértice a cada otro, y **débilmente conexo** si es conexo al ignorar la dirección de las flechas. Contesta sobre este grafo dirigido.
+    visual: { id: grafo, vertices: "a, b, c, d, e, f", aristas: "a-b, b-c, b-e, c-a, c-d, d-e, e-f, f-d", dirigido: "si" }
+    texto: >-
+      ¿Es débilmente conexo? (1 sí, 0 no): ___ · ¿es fuertemente conexo? (1 sí, 0 no): ___ · número de vértices distintos de $e$ a los que llega un camino dirigido desde $e$: ___ · número de flechas nuevas $(u,v)$, con $u\neq v$ y que no estén ya en el grafo, tales que agregar solo esa flecha lo vuelve fuertemente conexo: ___
+    respuestas: ["1", "0", "2", "9"]
+    verificar: { python: "(lambda V, E, R, O, A: (lambda F: [int(R(A(V, E), 'a') == set(V)), int(F(E)), len(R(O(V, E), 'e')) - 1, sum(1 for u in V for w in V if u != w and (u, w) not in E and F(E + [(u, w)]))])(lambda X: all(R(O(V, X), v) == set(V) for v in V)))('a, b, c, d, e, f'.split(', '), [tuple(e.split('-')) for e in 'a-b, b-c, b-e, c-a, c-d, d-e, e-f, f-d'.split(', ')], (lambda A, s: list(itertools.accumulate(range(len(A)), lambda S, _: S | frozenset(w for v in S for w in A[v]), initial=frozenset({s})))[-1]), (lambda V, E: {v: {b for (a, b) in E if a == v} for v in V}), (lambda V, E: {v: {w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v} for v in V}))" }
+    pistas:
+      - >-
+        ¿Hay grupos de vértices que se alcanzan todos entre sí? ¿Hay flechas de un grupo a otro, y al menos una de regreso?
+      - >-
+        ¿De qué grupo a cuál tendría que ir una flecha nueva para que todos lleguen a todos?
+    explicacion: >-
+      Las flechas son $(a,b)$, $(b,c)$, $(b,e)$, $(c,a)$, $(c,d)$, $(d,e)$, $(e,f)$ y $(f,d)$. **Débil:** sin la dirección, todo queda unido, así que sí. **Fuerte:** $a\to b\to c\to a$ deja que $a$, $b$ y $c$ se alcancen entre sí, y $d\to e\to f\to d$ hace lo mismo con $d$, $e$ y $f$. Hay flechas de $\{a,b,c\}$ a $\{d,e,f\}$, $(b,e)$ y $(c,d)$, pero ninguna de regreso: desde $e$ solo se llega a $f$ y a $d$, 2 vértices, y nunca a $a$, $b$ o $c$. No es fuerte. **Flechas nuevas:** una que vaya de $\{d,e,f\}$ a $\{a,b,c\}$ da el regreso, y entonces cada vértice llega a cada otro; son $3\cdot3=9$, y ninguna estaba. Una flecha nueva dentro de un grupo, o de $\{a,b,c\}$ a $\{d,e,f\}$, no da salida a $d$, $e$ y $f$. Revisa: con la nueva $(f,a)$, desde $e$ se llega a $f$, luego a $a$ y de ahí a $b$, $c$ y $d$.
+    tiempo_estimado_s: 120
+
+  # razonamiento: algorítmico (leer las aristas de la matriz simétrica y armar las componentes) · R1
+  # Hace par en el jefe con disc-15-008 (un 1 por flecha contra dos por arista), con disc-16-001 (matriz simétrica) y
+  # con disc-17-005 (componentes y clases). La explicación no habla de flechas, de relaciones ni de clases.
+  # verificar: comprueba la simetría, arma las aristas con i < j, cuenta, y cuenta las cerraduras distintas.
+  - id: disc-19-018
+    tipo: completar
+    dificultad: 3
+    conceptos: [representacion-grafos, caminos-conexidad]
+    enunciado: |-
+      Un grafo simple con vértices 1 a 6 tiene esta matriz de adyacencia:
+
+      $$A=\begin{array}{c|cccccc} & 1 & 2 & 3 & 4 & 5 & 6\\\hline 1 & 0 & 0 & 0 & 1 & 0 & 1\\ 2 & 0 & 0 & 0 & 0 & 1 & 0\\ 3 & 0 & 0 & 0 & 1 & 0 & 1\\ 4 & 1 & 0 & 1 & 0 & 0 & 1\\ 5 & 0 & 1 & 0 & 0 & 0 & 0\\ 6 & 1 & 0 & 1 & 1 & 0 & 0\end{array}$$
+    texto: >-
+      Número de aristas: ___ · $\deg(6)=$ ___ · número de componentes conexas: ___
+    respuestas: ["6", "3", "2"]
+    verificar: { python: "(lambda M: (lambda V, E: [len(E), sum(1 for e in E if 6 in e), len({(lambda A, s: list(itertools.accumulate(range(len(A)), lambda S, _: S | frozenset(w for v in S for w in A[v]), initial=frozenset({s})))[-1])((lambda V, E: {v: {w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v} for v in V})(V, E), v) for v in V})] if all(M[i][j] == M[j][i] for i in range(6) for j in range(6)) else None)(list(range(1, 7)), [(i + 1, j + 1) for i in range(6) for j in range(i + 1, 6) if M[i][j]]))([[0, 0, 0, 1, 0, 1], [0, 0, 0, 0, 1, 0], [0, 0, 0, 1, 0, 1], [1, 0, 1, 0, 0, 1], [0, 1, 0, 0, 0, 0], [1, 0, 1, 1, 0, 0]])" }
+    pistas:
+      - >-
+        ¿Cuántas veces aparece cada arista en la matriz?
+      - >-
+        Si empiezas en el 1 y sigues los unos de las filas, ¿a qué vértices llegas?
+    explicacion: >-
+      **Aristas:** la matriz tiene 12 unos, y cada arista $\{i,j\}$ pone dos, en la entrada $(i,j)$ y en la $(j,i)$; son $12/2=6$: $14$, $16$, $25$, $34$, $36$ y $46$. **Grado:** la fila del 6 tiene unos en las columnas 1, 3 y 4, así que $\deg(6)=3$. **Componentes:** desde el 1 se llega al 4 y al 6, y por ellos al 3: $\{1,3,4,6\}$. El 2 y el 5 solo son vecinos entre sí: $\{2,5\}$. Son 2. Revisa: los grados, 2, 1, 2, 3, 1 y 3, suman $12=2\cdot6$.
+    tiempo_estimado_s: 90
+
+  # razonamiento: deductivo (contar los extremos de las aristas de dos maneras; paridad de una suma) · R3
+  # Rúbrica de arquitecto-razonamiento (esquema v1), con «…» en lugar de comillas rectas. Revisión manual. La respuesta
+  # modelo cumple cada criterio: parte de un G finito cualquiera y cuenta extremos, con el lazo (1); cuenta X por aristas
+  # y por vértices y nombra las dos sumas (2); separa V_p y V_i y justifica que la resta es par (3); y concluye con la
+  # paridad de una suma de k impares (4). El «Revisa:» con un ejemplo va al final, no como prueba.
+  - id: disc-19-019
+    tipo: autoevaluacion
+    dificultad: 4
+    conceptos: [grado-vertice]
+    enunciado: >-
+      En papel. Sea $G=(V,E)$ un grafo finito cualquiera, con lazos y aristas múltiples permitidos. **(1)** Demuestra el lema del apretón de manos: $\sum_{v\in V}\deg(v)=2\lvert E\rvert$. **(2)** Demuestra el corolario: el número de vértices de grado impar es par.
+    rubrica:
+      - >-
+        Parte de un grafo finito cualquiera y cuenta los extremos de todas las aristas: cada arista tiene dos, y los dos de un lazo caen en el mismo vértice. No vale un ejemplo: «en $K_4$, $12=2\cdot6$» no demuestra nada.
+      - >-
+        Cuenta los extremos de dos maneras, por vértices ($\sum\deg(v)$) y por aristas (2 cada una), y concluye que $\sum\deg(v)=2\lvert E\rvert$. No basta «cada arista se cuenta dos veces» sin decir en qué suma.
+      - >-
+        Separa los vértices de grado par ($V_p$) de los de grado impar ($V_i$) y muestra que $\sum_{v\in V_i}\deg(v)=2\lvert E\rvert-\sum_{v\in V_p}\deg(v)$ es par.
+      - >-
+        Concluye que $\lvert V_i\rvert$ es par, porque una suma de $k$ números impares tiene la paridad de $k$. No cuenta «la suma de impares es impar»: $3+3=6$.
+    respuesta_modelo: >-
+      Sea $G=(V,E)$ un grafo finito cualquiera. Cada arista tiene dos extremos; en un lazo, los dos caen en el mismo vértice. Sea $X$ el número total de extremos, contados con repetición. **Por aristas:** cada arista aporta 2, así que $X=2\lvert E\rvert$. **Por vértices:** $\deg(v)$ es exactamente el número de extremos que caen en $v$ (un lazo aporta 2), así que $X=\sum_{v\in V}\deg(v)$. Las dos cuentas son del mismo $X$: $\sum_{v\in V}\deg(v)=2\lvert E\rvert$. **Corolario:** sean $V_p$ los vértices de grado par y $V_i$ los de grado impar. Entonces $\sum_{v\in V_i}\deg(v)=2\lvert E\rvert-\sum_{v\in V_p}\deg(v)$; $2\lvert E\rvert$ es par y la segunda suma también, porque es una suma de pares, así que su resta es par. Ahora, cada impar es de la forma $2m+1$, así que una suma de $k$ impares es un par más $k$: tiene la paridad de $k$. Como $\sum_{v\in V_i}\deg(v)$ es par, $k=\lvert V_i\rvert$ es par. Revisa con un triángulo con un lazo en un vértice: los grados son 4, 2 y 2, suman 8, y hay 4 aristas; ningún vértice tiene grado impar, y 0 es par.
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        En un grafo chico que dibujes, ¿cuánto suman los grados y cuántas aristas hay? ¿Por qué salen así?
+      - >-
+        Si haces una tabla con una fila por vértice y una columna por arista, y anotas cuántos extremos de cada arista caen en cada vértice, ¿qué da sumar por filas? ¿Y por columnas?
+      - >-
+        Si separas los vértices de grado par de los de grado impar, ¿qué paridad tiene cada parte de la suma?
+    explicacion: >-
+      **La idea es contar dos veces lo mismo:** los extremos de las aristas. En la tabla vértice por arista, cada columna suma 2, porque cada arista tiene dos extremos (un lazo pone un 2 en su fila), y la fila de $v$ suma $\deg(v)$. Las dos sumas de toda la tabla son iguales: $\sum\deg(v)=2\lvert E\rvert$. **El corolario:** quita de la suma los grados pares; lo que queda, la suma de los impares, sigue siendo par. Y una suma de $k$ impares es par solo si $k$ es par. Probarlo con ejemplos no basta, porque un ejemplo no cubre todos los grafos, y «la suma de impares es impar» es falso: $3+3=6$. Revisa: en el grafo con aristas $ab$ y $bc$ los grados son 1, 2 y 1; hay dos impares, y $1+2+1=4=2\cdot2$.
+    tarjeta: false
+    tiempo_estimado_s: 300
+
+  # razonamiento: deductivo (cada arista nueva cambia la paridad de sus dos extremos; ¿se pueden emparejar los impares?) · R2
+  # «Sin aristas múltiples» lo dice el enunciado (M). Se cruza con el 014, pero no va en el jefe.
+  # verificar: el menor k tal que algún conjunto de k aristas nuevas (sin repetir ni lazos) deja grados pares y un
+  # circuito euleriano encontrado por búsqueda. El error 2 (= impares / 2) lo rechaza (neg.py).
+  - id: disc-19-020
+    tipo: numerico
+    dificultad: 4
+    conceptos: [euleriano]
+    enunciado: >-
+      ¿Cuál es el menor número de aristas que hay que agregarle a este grafo para que tenga circuito euleriano? Las aristas nuevas no pueden ser lazos ni repetir una arista que ya esté.
+    visual: { id: grafo, vertices: "a, b, c, d, e, f, g", aristas: "a-b, a-c, a-d, b-e, b-f, c-f, c-g, d-e, d-g" }
+    respuesta: 3
+    tolerancia: 0
+    verificar: { python: "(lambda V, E, T: (lambda N: min(k for k in range(6) if any(all(sum(1 for e in E + list(F) if v in e) % 2 == 0 for v in V) and any(s == t for (s, t) in T(V, E + list(F))) for F in itertools.combinations(N, k))))([p for p in itertools.combinations(V, 2) if p not in E and p[::-1] not in E]))('a, b, c, d, e, f, g'.split(', '), [tuple(e.split('-')) for e in 'a-b, a-c, a-d, b-e, b-f, c-f, c-g, d-e, d-g'.split(', ')], (lambda V, E: (lambda go: {(s, t) for s in V for t in go(go, s, frozenset())})(lambda go, v, used: {v} if len(used) == len(E) else {t for i in range(len(E)) if i not in used and v in E[i] for t in go(go, E[i][1] if E[i][0] == v else E[i][0], used | {i})})))" }
+    pistas:
+      - >-
+        ¿Qué vértices tienen grado impar? ¿Qué le hace una arista nueva a la paridad de sus dos extremos?
+      - >-
+        Con el menor número imaginable de aristas, ¿qué vértices tendrían que unir? ¿Ya están unidos?
+      - >-
+        Si dos impares no se pueden unir directamente, ¿por qué vértice se les puede dar una arista nueva a cada uno sin dejar otro impar?
+    explicacion: >-
+      Las aristas son $ab$, $ac$, $ad$, $be$, $bf$, $cf$, $cg$, $de$ y $dg$; el grafo es conexo, y agregar aristas no lo desconecta. **Grados:** $a$, $b$, $c$ y $d$ tienen 3; $e$, $f$ y $g$, 2. Hace falta que todos queden pares, y cada arista nueva cambia la paridad de sus dos extremos. **Con 1** cambian dos vértices y hay cuatro impares: no alcanza. **Con 2**, los cuatro extremos tendrían que ser exactamente $a$, $b$, $c$ y $d$, uno cada uno, así que una de las aristas uniría a $a$ con $b$, $c$ o $d$; pero $a$ ya es vecino de los tres, y no se vale repetir. **Con 3** sí: $bc$, $af$ y $df$ dejan a $a$, $b$, $c$, $d$ y $f$ con grado 4, y a $e$ y $g$ con 2. Revisa: el grafo nuevo tiene 12 aristas y sus grados suman $5\cdot4+2\cdot2=24=2\cdot12$.
+    tiempo_estimado_s: 150
+
+  # razonamiento: algorítmico (aristas obligadas por los vértices de grado 2, una prohibida, y los casos que quedan) · R2
+  # Errores que rechaza el verificar (neg.py): 4 (cuenta los dos sentidos) y 24 (cuenta sucesiones). Desde los arreglos
+  # del 2026-11-15 (L), el enunciado dice «exactamente el mismo conjunto de aristas».
+  # verificar: comprueba la simetría y cuenta los conjuntos de aristas de los ciclos hamiltonianos por permutaciones.
+  - id: disc-19-021
+    tipo: numerico
+    dificultad: 4
+    conceptos: [hamiltoniano, representacion-grafos]
+    enunciado: |-
+      Un grafo simple con vértices 1 a 6 tiene esta matriz de adyacencia:
+
+      $$A=\begin{array}{c|cccccc} & 1 & 2 & 3 & 4 & 5 & 6\\\hline 1 & 0 & 0 & 1 & 0 & 0 & 1\\ 2 & 0 & 0 & 0 & 1 & 1 & 0\\ 3 & 1 & 0 & 0 & 1 & 1 & 1\\ 4 & 0 & 1 & 1 & 0 & 0 & 1\\ 5 & 0 & 1 & 1 & 0 & 0 & 1\\ 6 & 1 & 0 & 1 & 1 & 1 & 0\end{array}$$
+
+      ¿Cuántos ciclos hamiltonianos tiene? Dos ciclos cuentan como uno solo si tienen exactamente el mismo conjunto de aristas, aunque empiecen en otro vértice o vayan en el otro sentido.
+    respuesta: 2
+    tolerancia: 0
+    verificar: { python: "(lambda M: len((lambda V, A: {frozenset(frozenset((p[i], p[(i + 1) % len(p)])) for i in range(len(p))) for p in ((V[0],) + q for q in itertools.permutations(V[1:])) if all(p[(i + 1) % len(p)] in A[p[i]] for i in range(len(p)))})(tuple(range(1, 7)), {i + 1: {j + 1 for j in range(6) if M[i][j]} for i in range(6)})) if all(M[i][j] == M[j][i] for i in range(6) for j in range(6)) else None)([[0, 0, 1, 0, 0, 1], [0, 0, 0, 1, 1, 0], [1, 0, 0, 1, 1, 1], [0, 1, 1, 0, 0, 1], [0, 1, 1, 0, 0, 1], [1, 0, 1, 1, 1, 0]])" }
+    pistas:
+      - >-
+        ¿Qué vértices tienen grado 2, y qué aristas obligan?
+      - >-
+        Con las aristas obligadas, ¿hay una arista que ya no pueda ir porque cerraría un ciclo antes de tiempo?
+      - >-
+        ¿De cuántas maneras se pueden unir los tramos que quedan?
+    explicacion: >-
+      Las aristas son $13$, $16$, $24$, $25$, $34$, $35$, $36$, $46$ y $56$, con grados 2, 2, 4, 3, 3 y 4. **Obligadas:** el 1 y el 2 tienen grado 2, así que van $13$, $16$, $24$ y $25$: quedan dos tramos, $3,1,6$ y $4,2,5$. **Prohibida:** $36$ cerraría el triángulo $1,3,6,1$ sin pasar por los demás. **Unir los tramos:** cada extremo de $3,1,6$ se une con uno de $4,2,5$, con $34$ y $56$ o con $35$ y $46$, y las cuatro son aristas. Son 2 ciclos: $1,3,4,2,5,6,1$ y $1,3,5,2,4,6,1$. Revisa: cada ciclo se puede escribir de 12 maneras, con 6 inicios y 2 sentidos, así que contar sucesiones daría 24.
+    tiempo_estimado_s: 150
+
+  # razonamiento: analógico (llevar los saltos del reloj de la 18 a un grafo: componentes y ciclos) · R2
+  # Hace par en el jefe con disc-18-013 (tabla de multiplicar de ℤ₁₂). La explicación argumenta con paridad y con la
+  # sucesión de saltos; no da la regla «se visitan los múltiplos de mcd(s, n)», que contestaría el último hueco del
+  # 18-013. «Si dos valores de x dan la misma arista, cuenta una sola vez»: el grafo es simple (s = 5). La pista 3 dice
+  # «(x+5) mod 10» (L, arreglos del 2026-11-15).
+  # verificar: arma G_s con los pares (x, (x + s) mod 10) y usa cerraduras y permutaciones.
+  - id: disc-19-022
+    tipo: completar
+    dificultad: 4
+    conceptos: [caminos-conexidad, hamiltoniano, aritmetica-modular]
+    enunciado: >-
+      Para un salto $s$, sea $G_s$ el grafo simple con vértices $\{0,1,\dots,9\}$ y una arista entre $x$ y $(x+s)\bmod10$ para cada $x$; si dos valores de $x$ dan la misma arista, cuenta una sola vez.
+    texto: >-
+      Con $s=4$, número de componentes conexas: ___ · con $s=4$, número de vértices de la componente del 0: ___ · con $s=3$, ¿tiene ciclo hamiltoniano? (1 sí, 0 no): ___ · con $s=5$, grado de cada vértice: ___
+    respuestas: ["2", "5", "1", "1"]
+    verificar: { python: "(lambda G, R, A: [len({R(A(range(10), G(4)), v) for v in range(10)}), len(R(A(range(10), G(4)), 0)), int(any(all((p[(i + 1) % 10] - p[i]) % 10 in (3, 7) for i in range(10)) for p in ((0,) + q for q in itertools.permutations(range(1, 10))))), len(A(range(10), G(5))[0])])(lambda s: [(x, (x + s) % 10) for x in range(10)], (lambda A, s: list(itertools.accumulate(range(len(A)), lambda S, _: S | frozenset(w for v in S for w in A[v]), initial=frozenset({s})))[-1]), (lambda V, E: {v: {w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v} for v in V}))" }
+    pistas:
+      - >-
+        Con $s=4$, ¿por qué vértices pasas si sales del 0 y das saltos de 4? ¿Y si sales del 1?
+      - >-
+        Con $s=3$, ¿vuelves al 0 antes de pasar por todos?
+      - >-
+        Con $s=5$, ¿qué arista da $x$ y cuál da $(x+5)\bmod10$?
+    explicacion: >-
+      **Con $s=4$:** cada $x$ es vecino de $(x+4)\bmod10$ y de $(x-4)\bmod10$. Desde el 0 se pasa por 0, 4, 8, 2 y 6, y de ahí se vuelve al 0; sumar o restar 4 y reducir módulo 10 no cambia la paridad, así que nunca se llega a un impar. Los impares, 1, 5, 9, 3 y 7, forman la otra componente: son 2, y la del 0 tiene 5 vértices. **Con $s=3$:** 0, 3, 6, 9, 2, 5, 8, 1, 4, 7, y de 7 se vuelve al 0, porque $7+3=10$; pasa una vez por cada vértice y regresa, así que es un ciclo hamiltoniano. **Con $s=5$:** $x$ da la arista hacia $y=(x+5)\bmod10$, y $y$ da la arista hacia $(y+5)\bmod10=x$, que es la misma; cada vértice tiene un solo vecino, y $G_5$ son 5 aristas sueltas. Revisa: con $s=4$ cada vértice tiene grado 2 y hay 10 aristas, 5 en cada componente.
+    tiempo_estimado_s: 150
+
+  # razonamiento: deductivo (tumbar un «para todo» con un grafo concreto o demostrarlo) · R4
+  # De experto-matematicas, con n ≥ 3 en el enunciado para todas (el verificar enumera n = 3, 4 y 5). Pistas de
+  # arquitecto-razonamiento, como preguntas. Sin el moño (dos triángulos con un vértice común) y sin «K_n es
+  # hamiltoniano». Contraejemplos de M: dos cuadrados con un vértice común (0), K₄ (1) y C₅ (4). En los arreglos del
+  # 2026-11-15 la explicación nombra además los que ya daba la lección, «ya los tenías» (P): el grafo del ejemplo
+  # «Aristas obligadas» para la (0) y el barrio B para la (1). La pista 2 dice «el grafo C_n, que es un solo ciclo» (L).
+  # La (3) se demuestra girando el circuito para que termine en la arista quitada; no habla de agregar aristas entre
+  # componentes (014).
+  # verificar: las seis afirmaciones sobre TODOS los grafos simples con 3, 4 y 5 vértices (Euler por búsqueda,
+  # Hamilton por permutaciones).
+  - id: disc-19-023
+    tipo: seleccion_multiple
+    dificultad: 5
+    conceptos: [euleriano, hamiltoniano]
+    enunciado: >-
+      Sea $G$ un grafo simple con $n\ge3$ vértices. ¿Cuáles de estas afirmaciones valen para todo $G$ así? Puede haber varias.
+    opciones:
+      - >-
+        Si $G$ es conexo y tiene circuito euleriano, tiene ciclo hamiltoniano.
+      - >-
+        Si $G$ tiene ciclo hamiltoniano, tiene circuito euleriano.
+      - >-
+        Si $G$ tiene ciclo hamiltoniano, tiene al menos $n$ aristas.
+      - >-
+        Si $G$ es conexo y tiene circuito euleriano, al quitarle cualquier arista queda un grafo con recorrido euleriano.
+      - >-
+        Si $G$ tiene ciclo hamiltoniano, todos sus vértices tienen grado mayor o igual que $n/2$.
+      - >-
+        Si $G$ tiene ciclo hamiltoniano, al quitarle cualquier arista queda un grafo con trayectoria hamiltoniana.
+    correctas: [2, 3, 5]
+    verificar: { python: "(lambda GS, T: (lambda A, deg: (lambda con, ham, hamp, eul: [all(ham(n, E) for (n, E) in GS if con(n, E) and eul(n, E)), all(eul(n, E) for (n, E) in GS if ham(n, E)), all(len(E) >= n for (n, E) in GS if ham(n, E)), all(len(T(range(n), [f for f in E if f != e])) > 0 for (n, E) in GS if con(n, E) and eul(n, E) for e in E), all(all(2 * deg(E, v) >= n for v in range(n)) for (n, E) in GS if ham(n, E)), all(hamp(n, [f for f in E if f != e]) for (n, E) in GS if ham(n, E) for e in E)])(lambda n, E: (lambda A, s: list(itertools.accumulate(range(len(A)), lambda S, _: S | frozenset(w for v in S for w in A[v]), initial=frozenset({s})))[-1])(A(n, E), 0) == set(range(n)), lambda n, E: any(all(p[(i + 1) % n] in A(n, E)[p[i]] for i in range(n)) for p in ((0,) + q for q in itertools.permutations(range(1, n)))), lambda n, E: any(all(p[i + 1] in A(n, E)[p[i]] for i in range(n - 1)) for p in itertools.permutations(range(n))), lambda n, E: len(E) > 0 and all(deg(E, v) % 2 == 0 for v in range(n)) and any(s == t for (s, t) in T(range(n), E))))(lambda n, E: {v: {w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v} for v in range(n)}, lambda E, v: sum(1 for e in E if v in e)))([(n, [P[i] for i in range(len(P)) if m >> i & 1]) for n in (3, 4, 5) for P in [list(itertools.combinations(range(n), 2))] for m in range(1 << len(P))], (lambda V, E: (lambda go: {(s, t) for s in V for t in go(go, s, frozenset())})(lambda go, v, used: {v} if len(used) == len(E) else {t for i in range(len(E)) if i not in used and v in E[i] for t in go(go, E[i][1] if E[i][0] == v else E[i][0], used | {i})})))" }
+    pistas:
+      - >-
+        ¿Dicen «para todo $G$»? ¿Qué basta para tumbar una, y qué hace falta para aceptarla?
+      - >-
+        ¿Qué pasa con casos chicos, como $K_4$, el grafo $C_n$, que es un solo ciclo, o dos ciclos que comparten un vértice?
+      - >-
+        Euler habla de aristas y Hamilton de vértices: si al quitar un vértice el grafo se parte, ¿puede tener ciclo hamiltoniano?
+    explicacion: >-
+      Valen «ciclo hamiltoniano implica al menos $n$ aristas», «con circuito euleriano, al quitar una arista queda un recorrido euleriano» y «con ciclo hamiltoniano, al quitar una arista queda una trayectoria hamiltoniana»; las otras tres fallan. **Contraejemplos:** dos cuadrados que comparten un vértice, con 7 vértices, son conexos y con grados 4 y 2, así que tienen circuito euleriano; pero un ciclo hamiltoniano pasaría dos veces por el vértice común, el único paso de un cuadrado al otro. $K_4$ tiene ciclo hamiltoniano, y sus cuatro grados son 3, impares. Y ya los tenías en la lección: el grafo del ejemplo «Aristas obligadas» es conexo, con grados 4, 4, 2, 2 y 2, todos pares, y no tiene ciclo hamiltoniano; el barrio $B$ tiene el ciclo hamiltoniano $a,b,d,f,e,c,a$, y sus esquinas $b$ y $e$ tienen grado 3. $C_5$ es su propio ciclo hamiltoniano, con grados $2<5/2$: Dirac es suficiente, no necesario. **Las que valen:** un ciclo hamiltoniano ya usa $n$ aristas distintas, una por cada paso entre sus $n$ vértices. Si se quita la arista $uv$, el circuito euleriano se puede escribir empezando en $v$ y terminando con $uv$, porque un circuito se puede empezar en cualquier punto; sin esa última arista, queda un recorrido de $v$ a $u$ que usa todas las demás. Y si se quita una arista, el ciclo hamiltoniano sin ella, o sin una de las suyas si la quitada no estaba en él, es una trayectoria hamiltoniana. Revisa con $C_5$: tiene justo $n=5$ aristas, y al quitarle una queda una trayectoria hamiltoniana que también es su recorrido euleriano.
+    tiempo_estimado_s: 180
+
+  # razonamiento: analógico (llevar postes y tramos a un grafo: Euler para los tramos, Hamilton para los postes) · R2
+  # Transferencia, hipotético (M). Texto de L (arreglos del 2026-11-15): «terminar en un poste distinto del de salida»
+  # (antes «sin volver al poste de salida», que al pie de la letra prohibía pasar otra vez por él), «el de número menor
+  # primero» (así el 1 y el 2 no se leen como sí y no), las repeticiones se cuentan en total, una por cada vez que vuela
+  # un tramo ya volado, y el hueco 5 dice que puede dejar tramos sin volar. El hueco 2 sigue con «si no puede, 0 y 0»,
+  # para que su gramática no conteste el hueco 1. Repetir un tramo es agregar una copia de una arista que ya está.
+  # Visual renombrado en los mismos arreglos (M): 3→4, 4→5, 5→7, 6→8, 7→3 y 8→6 sobre el de antes (1-4, 1-7, 1-8, 2-3,
+  # 2-4, 2-6, 3-5, 4-5, 4-7, 6-7, 7-8), cuyo perímetro mostraba 5 aristas del ciclo hamiltoniano. Es el mismo grafo, con
+  # las mismas respuestas, y ya no tiene ninguna arista en el perímetro.
+  # verificar: grados, los extremos de todos los recorridos (búsqueda), el menor número de copias de tramos existentes
+  # que deja un circuito euleriano, y ciclos hamiltonianos por permutaciones (tarda unos 5.5 s).
+  - id: disc-19-024
+    tipo: completar
+    dificultad: 5
+    conceptos: [euleriano, caminos-conexidad, hamiltoniano]
+    enunciado: >-
+      Supón que un dron revisa los cables entre 8 postes. Cada arista del dibujo es un tramo de cable entre dos postes, y el dron solo vuela sobre los tramos, de poste a poste. En los huecos de sí o no, escribe 1 (sí) o 0 (no).
+    visual: { id: grafo, vertices: "1, 2, 3, 4, 5, 6, 7, 8", aristas: "1-3, 1-5, 1-6, 2-4, 2-5, 2-8, 3-5, 3-6, 3-8, 4-7, 5-7" }
+    texto: >-
+      Número de postes a los que llega un número impar de tramos: ___ · si puede volar cada tramo exactamente una vez y terminar en un poste distinto del de salida, los dos postes donde empieza y termina, el de número menor primero: ___ y ___ (si no puede, escribe 0 y 0) · si tiene que volar todos los tramos y terminar en el poste de salida, menor número total de repeticiones (cada vez que vuela un tramo que ya había volado cuenta 1): ___ · ¿puede visitar cada poste exactamente una vez y volver al de salida? (puede dejar tramos sin volar): ___
+    respuestas: ["2", "1", "2", "2", "1"]
+    verificar: { python: "(lambda V, E, T: (lambda P: [sum(1 for v in V if sum(1 for e in E if v in e) % 2 == 1), P[0], P[-1], min(k for k in range(6) if any(any(s == t for (s, t) in T(V, E + list(F))) for F in itertools.combinations_with_replacement(E, k) if all(sum(1 for e in E + list(F) if v in e) % 2 == 0 for v in V))), int(len((lambda V, A: {frozenset(frozenset((p[i], p[(i + 1) % len(p)])) for i in range(len(p))) for p in ((V[0],) + q for q in itertools.permutations(V[1:])) if all(p[(i + 1) % len(p)] in A[p[i]] for i in range(len(p)))})(tuple(V), (lambda V, E: {v: {w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v} for v in V})(V, E))) > 0)])(sorted({s for (s, t) in T(V, E)}, key=int)))('1, 2, 3, 4, 5, 6, 7, 8'.split(', '), [tuple(e.split('-')) for e in '1-3, 1-5, 1-6, 2-4, 2-5, 2-8, 3-5, 3-6, 3-8, 4-7, 5-7'.split(', ')], (lambda V, E: (lambda go: {(s, t) for s in V for t in go(go, s, frozenset())})(lambda go, v, used: {v} if len(used) == len(E) else {t for i in range(len(E)) if i not in used and v in E[i] for t in go(go, E[i][1] if E[i][0] == v else E[i][0], used | {i})})))" }
+    pistas:
+      - >-
+        ¿Qué dice el teorema de Euler de los vértices de grado impar?
+      - >-
+        Si termina en un poste impar y tiene que volver al otro, ¿por dónde regresa con menos tramos? ¿Hay un tramo directo?
+      - >-
+        Visitar cada poste una vez y volver, ¿es de Euler o de Hamilton? ¿Puedes dar el orden de los postes?
+    explicacion: >-
+      Los tramos son $13$, $15$, $16$, $24$, $25$, $28$, $35$, $36$, $38$, $47$ y $57$, y el grafo es conexo. **Grados:** el 1 y el 2 tienen 3; el 3 y el 5, 4; los demás, 2. Hay 2 postes impares, así que hay recorrido euleriano, del 1 al 2 o del 2 al 1: por ejemplo, $1,5,2,4,7,5,3,1,6,3,8,2$. **Volver:** volar otra vez un tramo es como agregar una copia de esa arista, y cambia la paridad de sus dos extremos. Con una sola copia habría que unir el 1 con el 2, y no hay tramo $12$; con dos, $25$ y $51$, todos los grados quedan pares, y el dron vuelve del 2 al 1 por el 5. **Postes:** $1,5,7,4,2,8,3,6,1$ visita cada poste una vez y vuelve: es un ciclo hamiltoniano. Revisa: el recorrido tiene 12 postes en su sucesión, uno más que los 11 tramos.
+    tiempo_estimado_s: 210
+
+  # razonamiento: deductivo (un ciclo alterna colores; contar los de cada color) · R3
+  # Pistas de arquitecto-razonamiento, como preguntas. M: no hay fuga con el 013, el 021 ni el 024, que tienen triángulos
+  # (a, e, g; 1, 3, 6; y 1, 3, 6 desde el renombre del 024) y no se pueden colorear así. Perímetro sin trayectoria (las rotaciones tienen a lo más 2 aristas seguidas).
+  # verificar: colores por la paridad de la distancia desde 11 (cerraduras alternas), ciclo y trayectorias por
+  # permutaciones, y las que empiezan en 12.
+  - id: disc-19-025
+    tipo: completar
+    dificultad: 5
+    conceptos: [hamiltoniano]
+    enunciado: >-
+      Una cuadrícula de 3 por 3 tiene un vértice por casilla: $ij$ es la casilla de la fila $i$ y la columna $j$; por ejemplo, $23$ está en la fila 2 y la columna 3. Dos vértices son vecinos si sus casillas comparten un lado. El vértice $ij$ es blanco si $i+j$ es par y gris si es impar. En los huecos de sí o no, escribe 1 (sí) o 0 (no).
+    visual: { id: grafo, vertices: "11, 12, 13, 21, 22, 23, 31, 32, 33", aristas: "11-12, 11-21, 12-13, 12-22, 13-23, 21-22, 21-31, 22-23, 22-32, 23-33, 31-32, 32-33" }
+    texto: >-
+      Número de vértices blancos: ___ · número de vértices grises: ___ · ¿hay ciclo hamiltoniano? ___ · ¿hay trayectoria hamiltoniana? ___ · ¿hay al menos una trayectoria hamiltoniana que empiece en $12$? ___
+    respuestas: ["5", "4", "0", "1", "0"]
+    verificar: { python: "(lambda V: (lambda A: (lambda W: [len(frozenset().union(*W[0::2])), len(frozenset().union(*W[1::2])) if not (frozenset().union(*W[0::2]) & frozenset().union(*W[1::2])) else -1, int(len((lambda V, A: {frozenset(frozenset((p[i], p[(i + 1) % len(p)])) for i in range(len(p))) for p in ((V[0],) + q for q in itertools.permutations(V[1:])) if all(p[(i + 1) % len(p)] in A[p[i]] for i in range(len(p)))})(tuple(V), A)) > 0), int(any(all(p[i + 1] in A[p[i]] for i in range(8)) for p in itertools.permutations(V))), int(any(all(p[i + 1] in A[p[i]] for i in range(8)) for p in (('12',) + q for q in itertools.permutations([v for v in V if v != '12']))))])(list(itertools.accumulate(range(9), lambda S, _: frozenset(w for v in S for w in A[v]), initial=frozenset({'11'})))))((lambda V, E: {v: {w for (a, b) in E for (x, w) in ((a, b), (b, a)) if x == v} for v in V})(V, [tuple(e.split('-')) for e in '11-12, 11-21, 12-13, 12-22, 13-23, 21-22, 21-31, 22-23, 22-32, 23-33, 31-32, 32-33'.split(', ')])))('11, 12, 13, 21, 22, 23, 31, 32, 33'.split(', '))" }
+    pistas:
+      - >-
+        ¿Cuántas aristas del ciclo tocan a cada vértice?
+      - >-
+        ¿Qué aristas obligan los vértices de grado 2?
+      - >-
+        Si un ciclo alterna colores, ¿cuántos vértices de cada color necesita? ¿Tu argumento descarta todos los ciclos o solo los que probaste?
+    explicacion: >-
+      **Colores:** son blancos $11$, $13$, $22$, $31$ y $33$, cinco, y grises $12$, $21$, $23$ y $32$, cuatro. Pasar a una casilla vecina cambia $i$ o $j$ en 1, así que cada arista une un blanco con un gris. **Ciclo:** un ciclo alterna colores, así que tiene tantos blancos como grises; uno hamiltoniano tendría que pasar por 5 blancos y 4 grises: no hay. **Trayectoria:** la serpiente $11,12,13,23,22,21,31,32,33$ sí lo es. **Desde $12$:** una trayectoria hamiltoniana alterna colores en sus 9 vértices; para que salgan 5 de un color y 4 del otro, empieza y termina en el color que tiene 5, el blanco. El $12$ es gris: no hay ninguna. Revisa: la serpiente empieza en $11$ y termina en $33$, los dos blancos.
+    tiempo_estimado_s: 180

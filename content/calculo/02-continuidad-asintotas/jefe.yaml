@@ -1,0 +1,22 @@
+unidad: calculo/02-continuidad-asintotas
+nombre: "El Vigía de las Asíntotas"
+vidas: 3
+# tiempo_segundos: suma de los tiempo_estimado_s de las 11 preguntas más 10 %. Propias: 012 (90) + 014 (120) +
+# 016 (90) + 020 (120) + 021 (90) + 023 (150) + 024 (150) + 025 (120) = 930. Repaso, sin tiempo_estimado_s propio, con
+# el de su dificultad (config.ts, flow.estimatedSecondsByDifficulty): calc-01-005 (d3, 75) + calc-01-023 (d3, 75) +
+# calc-01-025 (d2, 45) = 195. Total 1125; con el 10 %, 1237.5, redondeado a 1238 s (20.6 min).
+tiempo_segundos: 1238
+aprobado_minimo: 0.8
+preguntas:
+  # Los siete conceptos: AH (012, 020), CP (014), CI (016), AV (021), AO (023), TD (024) y TV (025); cinco de d4–5
+  # (020, 021, 023, 024 y 025). El 021 tiene verificar (solveset de los k reales), así que no se cambia por el 011.
+  # Sin anclas (001–007), sin la autoevaluación (022) y sin los de revisión manual (004 y 019).
+  propias: [calc-02-012, calc-02-014, calc-02-016, calc-02-020, calc-02-021, calc-02-023, calc-02-024, calc-02-025]
+  # 3 de 11 (27 %), de la 01 (la única con número menor), ninguno usado antes como repaso y que esta unidad no cita:
+  # (1 - cos x)/x² en 0 (005, d3), los laterales de ⌊x⌋ en 2 (023, d3; la base del salto) y (4x + 7)/(x² - 3) en -∞
+  # (025, d2; la base de la asíntota horizontal).
+  # Oleadas 3/5/3 (waveSizes(11) del motor: 3.3/4.4/3.3, el sobrante a la de mayor residuo), por dificultad:
+  # 1.ª = el d2 (calc-01-025) y dos de los cinco d3 (012, 014, 016, calc-01-005 y calc-01-023, al azar); 2.ª = los otros
+  # tres d3 y los dos d4 (020 y 021); 3.ª = los tres d5 (023, 024 y 025).
+  repaso_de: [calc-01-005, calc-01-023, calc-01-025]
+recompensa: { xp: 300, insignia: "vigia-de-asintotas" }

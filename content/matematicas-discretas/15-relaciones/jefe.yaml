@@ -1,0 +1,49 @@
+unidad: matematicas-discretas/15-relaciones
+nombre: "El Barquero del Intermedio"
+vidas: 3
+# tiempo_segundos: suma de los tiempo_estimado_s de las 14 preguntas más 10 %.
+# Propias: 013 (120) + 014 (150) + 016 (75) + 017 (60) + 019 (75) + 021 (240) + 022 (120) + 023 (150) + 024 (150) +
+# 025 (150) = 1290. Repaso: 13-020 (90) + 13-025 (180) + 14-012 (75) + 14-024 (240) = 585. Total 1875; con el 10 %,
+# 2062.5, redondeado hacia arriba a 2070 s (34.5 min).
+tiempo_segundos: 2070
+aprobado_minimo: 0.8
+preguntas:
+  # Propias, 10 (esquema v1, con la renumeración): d3: 013, 014, 016, 017, 019 · d4: 021, 022 · d5: 023, 024, 025.
+  # Cubren los siete conceptos: RB (016), RR (019), RI (022), CR (013, 014, 025), FR (017), IS (023) y CF (021, 024).
+  # Sin manuales ni autoevaluación: el 017 y el 019 son opción múltiple verificable (valores con índices); el 020
+  # (autoevaluación) se queda fuera.
+  propias: [disc-15-013, disc-15-014, disc-15-016, disc-15-017, disc-15-019, disc-15-021, disc-15-022, disc-15-023, disc-15-024, disc-15-025]
+  # Repaso: 4 de 14 (28.6 %), elegidos a mano entre pares que se confunden (esquema v1, pedagogo). Comprobado el
+  # 2026-11-14 contra los commits 406dbdc y 9760eaa: los cuatro existen y siguen siendo lo que dice el esquema.
+  # - 13-020 (d4, cuántas funciones booleanas de 3 variables con dos valores fijos: 64) con el 016: 2^(2^n) contra
+  #   2^(|A||B|).
+  # - 13-025 (d5, la Σm de F·Ḡ: el producto booleano de funciones es intersección) con el 014: ⊙ no es el «y» casilla
+  #   por casilla. La tabla del v1 dice «con el 021», pero ese id es de la v0, donde el 021 era el `completar` de
+  #   M_R ⊙ M_S; en la v1 el ⊙ del jefe es el 014.
+  # - 14-012 (d3, un circuito evaluado de adentro hacia afuera) con el 024 (componer funciones en ese orden).
+  # - 14-024 (d5, tumbar un «siempre» sobre SOP mínimas) con el 013. Ya no va en el jefe de la 14 porque su explicación
+  #   resuelve el 14-023; aquí el 14-023 no está, así que sirve.
+  # Ninguna explicación resuelve otra pregunta de este jefe (el jefe muestra la explicación tras cada respuesta). Lo que
+  # se cruza, revisado par por par:
+  # - 013 y 022: la explicación del 013 demuestra (S∘R)⁻¹ = R⁻¹∘S⁻¹, que da otra vía para el 022, pero no sus pares; la
+  #   del 022 no usa esa identidad.
+  # - 013 y 014: la del 014 dice que Rosa calculó R∘S ≠ S∘R, que es una de las seis opciones del 013 y ya está en la
+  #   lección («No conmuta»); la del 013 usa otro contraejemplo, en {0, 1}, y ningún número del 014.
+  # - 016 y 13-020: mismo principio (2 opciones por elemento libre; fijar uno deja la mitad), pero ninguna nombra el
+  #   objeto de la otra: la del 016 no habla de funciones booleanas ni la del 13-020 de relaciones. Desde la revisión
+  #   del 2026-11-14, el 016 usa |B| = 5 (10, 1024 y 512) y ya no comparte el 64 del 13-020.
+  # - 021 y 024: la del 021 dice que g∘f solo ve lo que hace g en la imagen de f, la idea del 024. Su contraejemplo de
+  #   la (2) es f(1) = 2, f(2) = 3; g(1) = g(2) = 1, g(3) = 2: deja fuera de Im f el 1 y g junta el 1 y el 2, que no son
+  #   las respuestas del 024 (fuera de Im f, el 3; g junta el 2 y el 3). Hasta la revisión del 2026-11-14 era
+  #   f(1) = 1, f(2) = 2; g(1) = 1, g(2) = g(3) = 2, que daba esas tres respuestas del 024, y el 021 sale antes en 9 de
+  #   cada 10 jefes. El 024 es, por construcción, un caso con g∘f biyectiva, g no inyectiva y f no suprayectiva
+  #   (|A| = 4, |B| = 5), y su explicación no dice qué afirmación general tumba. Solo cae antes que el 021 si es el d5
+  #   que entra en la 2.ª oleada (1/5) y sale antes dentro de ella (1/2): 1 de cada 10 jefes. Aun así, no da los |B|
+  #   mínimos (3 y 2).
+  # - 13-025 y 014: la del 13-025 dice que el producto de funciones es intersección; no resuelve el 014, que pide ⊙.
+  repaso_de: [disc-13-020, disc-13-025, disc-14-012, disc-14-024]
+  # Oleadas 4/6/4 (waveSizes(14) del motor: apportion(14, [0.3, 0.4, 0.3]) da 4.2/5.6/4.2 → 4/5/4, y el residuo va a la
+  # 2.ª, que tiene la fracción mayor), por dificultad y con desempate al azar. Hay 6 de d3 (013, 014, 016, 017, 019 y
+  # 14-012), 3 de d4 (021, 022 y 13-020) y 5 de d5 (023, 024, 025, 13-025 y 14-024): 1.ª = cuatro de los seis d3;
+  # 2.ª = los dos d3 que quedan, los tres d4 y uno de los cinco d5; 3.ª = los cuatro d5 que quedan.
+recompensa: { xp: 300, insignia: "primero-r-luego-s" }

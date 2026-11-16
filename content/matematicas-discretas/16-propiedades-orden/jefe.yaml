@@ -1,0 +1,69 @@
+unidad: matematicas-discretas/16-propiedades-orden
+nombre: "El Vigía de Hasse"
+vidas: 3
+# tiempo_segundos: suma de los tiempo_estimado_s de las 14 preguntas más 10 %.
+# Propias: 012 (75) + 013 (120) + 014 (120) + 015 (90) + 017 (90) + 019 (150) + 021 (120) + 022 (120) + 024 (180) +
+# 025 (180) = 1245. Repaso: 15-009 (60) + 15-022 (120) + 15-013 (120) + 14-019 (120) = 420. Total 1665; con el 10 %,
+# 1831.5, redondeado hacia arriba a 1840 s (30 min 40 s).
+tiempo_segundos: 1840
+aprobado_minimo: 0.8
+preguntas:
+  # Propias, 10 (esquema v1, experto-matematicas; el 014 entró en lugar del 018 en los arreglos de /revisar-contenido
+  # del 2026-11-14, para que el par con 15-009 se cruce en el jefe; los dos son d3): d3: 012, 013, 014, 015, 017 ·
+  # d4: 019, 021, 022 · d5: 024, 025.
+  # Cubren los seis conceptos: PR (014, 019), VP (012, 022), OP (017), DH (013, 025), OT (015, 024) y EX (021, 024, 025).
+  # Sin manuales ni autoevaluación: el 020 se queda fuera. Sin el 023, porque su conteo de órdenes tocaría las
+  # reflexivas del 019.
+  propias: [disc-16-012, disc-16-013, disc-16-014, disc-16-015, disc-16-017, disc-16-019, disc-16-021, disc-16-022, disc-16-024, disc-16-025]
+  # Repaso: 4 de 14 (28.6 %), elegidos a mano entre pares que se confunden (esquema v1, pedagogo). Comprobado el
+  # 2026-11-14 contra el commit ad076b5: los cuatro existen y siguen siendo lo que dice el esquema.
+  # - 15-009 (d2, entradas de M_R ⊙ M_S) con el 014 (la transitividad en la matriz, M_R ⊙ M_R contra M_R). Los dos van
+  #   en este jefe.
+  # - 15-022 (d4, (S∘R)⁻¹ por pares) con el 012: la inversa de la unidad 15 contra la simetría, R = R⁻¹.
+  # - 15-013 (d3, igualdades de la composición que valen siempre) con el 024: tumbar un «siempre» con un contraejemplo
+  #   concreto y demostrar las que valen. Comparten la primera pista, a propósito.
+  # - 14-019 (d4, implicantes primos) con el 021: un implicante primo es un maximal entre los implicantes.
+  # Ninguna explicación resuelve otra pregunta de este jefe (el jefe muestra la explicación tras cada respuesta,
+  # boss-runner.tsx). Lo que se cruza, revisado par por par:
+  # - 012 y 022: la del 012 da como ejemplo de «simétrica y antisimétrica» la igualdad, no ∅, que es la respuesta del
+  #   segundo hueco del 022. La del 022 dice que ∅ es simétrica y transitiva por vacuidad; no dice que sea
+  #   antisimétrica, y la opción del 012 que eso tumbaría («ninguna relación es simétrica y antisimétrica») ya la tumba
+  #   la lección («la igualdad es las dos a la vez»).
+  # - 019 y 022: los dos cuentan relaciones. El «Revisa:» del 019 no enumera sobre {1, 2} (lo hace con 216/8 = 27);
+  #   la del 022 enumera las simétricas y transitivas sobre {1, 2}, que no son ninguno de los tres conteos del 019.
+  # - 014 y las demás propias: la del 014 trabaja una sola matriz de 4 × 4 (su entrada (4, 1), el intermedio 3 y los
+  #   9 unos) y solo dice que, con ese 1, la relación es un orden parcial. No cuenta relaciones (019 y 022), no habla de
+  #   simetría (012 y 022), ni de Hasse (013 y 025), ni de extremos (021 y 024), ni de órdenes totales (015), ni revisa
+  #   las opciones del 017, y su matriz no es la de ninguna otra pregunta. Las de 012, 013, 015, 017, 019, 021, 022,
+  #   024 y 025 no calculan productos booleanos ni dan entradas de su matriz.
+  # - 014 y 15-009: las dos explicaciones enseñan a leer una entrada del producto booleano (fila contra columna), que es
+  #   el par buscado; cada una usa sus propias matrices (4 × 4 contra 3 × 3) y ninguna da las entradas de la otra. Las
+  #   dos tienen un 3 de intermedio, pero en entradas distintas ((4, 1) contra (1, 1)) de matrices distintas.
+  # - 014 y 15-022: el 2026-11-14 se reetiquetó la matriz del 014 (1→3, 2→4, 3→2, 4→1), porque las dos explicaciones
+  #   daban los mismos pares encadenados, (2, 1) y (1, 4) → (2, 4). Ahora la del 014 da (4, 3) y (3, 1) → (4, 1). En el
+  #   15-022, (4, 3) ∈ S y (3, 1) ∈ R, y con ellos sale (4, 1) en R∘S, la composición al revés contra la que avisa su
+  #   explicación, que lista (4, 1) sin su intermedio ni sus pares. Ninguna resuelve a la otra: el 014 no compone dos
+  #   relaciones, y su paso lleva a R∘S, no a (S∘R)⁻¹, que no tiene a (4, 1) ni a (1, 4). El (4, 3), par del R del
+  #   014, también está en la respuesta del 15-022, como inverso de (3, 4).
+  # - 014 y 15-013, 14-019: la del 014 no compone relaciones ni agrupa celdas; las de 15-013 y 14-019 no hablan de
+  #   transitividad ni de matrices de relaciones.
+  # - 024 y 025: la del 025 no dice que un único maximal sea el máximo, que es la dual de la opción «un solo minimal es
+  #   el mínimo» del 024; su orden tiene 2 minimales y 1 maximal, que no toca la opción de «un solo minimal y un solo
+  #   maximal». La del 024 no da números de tareas, días ni coberturas.
+  # - 024 y 021: la del 021 muestra cuatro maximales que no se comparan, un caso dual de «todo minimal es mínimo»; la
+  #   lección ya lo tumba con los minimales {2, 3} de la divisibilidad, así que no agrega nada. Los contraejemplos del
+  #   024, {6, 7} y {3, 6, 15, 30} con ∣, no son datos de otra pregunta del jefe.
+  # - 015 y 021: la del 015 define el orden producto y muestra que (0, 1) y (1, 0) no se comparan; no dice cuáles son
+  #   los maximales de ningún conjunto. El 021 define el orden producto en su propio enunciado.
+  # - 015 y 017: la del 015 tumba x² ≤ y² por la antisimetría (1 y −1); ninguna opción del 017 es esa relación.
+  # - 013 y 025: la del 013 enseña a revisar un Hasse en las dos direcciones; no cuenta las dependencias del 025.
+  # - Repaso: las explicaciones de 15-009, 15-022, 15-013 y 14-019 no hablan de propiedades, órdenes ni extremos, y las
+  #   de esta unidad, salvo la del 014 (ver arriba), no componen relaciones ni agrupan celdas de Karnaugh.
+  repaso_de: [disc-15-009, disc-15-022, disc-15-013, disc-14-019]
+  # Oleadas 4/6/4 (waveSizes(14) del motor, ejecutado: apportion(14, [0.3, 0.4, 0.3]) da 4.2/5.6/4.2 → 4/5/4, y el
+  # residuo va a la 2.ª, que tiene la fracción mayor), por dificultad y con desempate al azar. Hay 1 de d2 (15-009),
+  # 6 de d3 (012, 013, 014, 015, 017 y 15-013), 5 de d4 (019, 021, 022, 15-022 y 14-019) y 2 de d5 (024 y 025):
+  # 1.ª = 15-009 y tres de los seis d3; 2.ª = los tres d3 que quedan y tres de los cinco d4; 3.ª = los dos d4 que quedan,
+  # 024 y 025. Dentro de cada oleada el orden es al azar (boss.ts), así que el 014 y el 15-022 pueden salir en
+  # cualquier orden si caen juntos en la 2.ª.
+recompensa: { xp: 300, insignia: "nadie-queda-debajo" }

@@ -1,0 +1,21 @@
+unidad: calculo/06-razones-diferencial
+nombre: "El Engranaje de las Razones"
+vidas: 3
+# tiempo_segundos: suma de los tiempo_estimado_s de las 11 preguntas más 10 %. Propias: 008 (50) + 010 (45) +
+# 012 (120) + 013 (120) + 014 (120) + 018 (240) + 023 (300) + 024 (210) = 1205. Repaso, sin tiempo propio (el del
+# motor por dificultad): calc-03-006 (d2: 45) + calc-05-014 (d3: 75) + calc-04-017 (d4: 120) = 240.
+# Total 1445; con el 10 %, 1589.5, redondeado a 1590 s (26.5 min).
+tiempo_segundos: 1590
+aprobado_minimo: 0.8
+preguntas:
+  # d2: 008, 010 · d3: 012, 013, 014 · d4: 018 · d5: 023, 024. Sin autoevaluación.
+  # 2026-11-12 (tras /revisar-contenido, a propuesta de pedagogo): el 013 entra en lugar del 011 y el 024 en lugar
+  # del 019. Siguen los cuatro conceptos: RR (012, 013, 018, 023), DF (008), AL (014) y EE (010, 024).
+  propias: [calc-06-008, calc-06-010, calc-06-012, calc-06-013, calc-06-014, calc-06-018, calc-06-023, calc-06-024]
+  # 3 de 11 (27 %), de unidades anteriores y que la lección no cita: secante y tangente de x² + x (03, d2), la
+  # pendiente implícita de y³ + y·e^(x − 3) = 2 (05, d3) y el primer paso con error al derivar sec x (04, d4).
+  # Oleadas 3/5/3 (waveSizes(11) del motor: 3.3/4.4/3.3, el sobrante a la de mayor residuo), por dificultad:
+  # 1.ª = los tres d2 (008, 010 y calc-03-006); 2.ª = los cuatro d3 (012, 013, 014 y calc-05-014) y uno de los dos
+  # d4 (al azar); 3.ª = el otro d4 (de 018 y calc-04-017), 023 y 024.
+  repaso_de: [calc-03-006, calc-05-014, calc-04-017]
+recompensa: { xp: 300, insignia: "relojero-del-cambio" }

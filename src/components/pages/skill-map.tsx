@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type CatalogUnit, findSubject, type StudyCatalog } from "@/content/core/study-catalog";
 import type { AttemptRecord, CardRecord, UnitProgressRecord } from "@/db/types";
 import { conceptMastery, type Mastery, MASTERY_LABELS, MASTERY_ORDER, masteryRank, missingPrerequisites } from "@/engine/mastery";
+import { conceptEvidence } from "@/engine/skill-profile";
 import { layeredLayout } from "@/lib/graph-layout";
 import { unitHref } from "@/lib/study";
 import { cn } from "@/lib/utils";
@@ -43,35 +44,7 @@ export function conceptStates(
 ): ConceptNode[] {
   const subject = findSubject(catalog, subjectId);
   if (!subject) return [];
-  const done = new Set(progress.filter((p) => p.lessonDone).map((p) => p.unitKey));
-  const passed = new Set(progress.filter((p) => p.bossPassed).map((p) => p.unitKey));
-  const longOk = new Set(cards.filter((c) => c.longOk).map((c) => c.exerciseId));
-  const ev = new Map<string, { lessonDone: boolean; attempts: number; correct: number; bossPassed: boolean; longReviewOk: boolean }>();
-  const get = (id: string) => {
-    let e = ev.get(id);
-    if (!e) ev.set(id, (e = { lessonDone: false, attempts: 0, correct: 0, bossPassed: false, longReviewOk: false }));
-    return e;
-  };
-  for (const u of subject.units) {
-    for (const c of u.concepts) if (done.has(u.key)) get(c).lessonDone = true;
-    for (const id of u.exerciseIds) {
-      const ex = catalog.exercises[id];
-      if (!ex) continue;
-      for (const c of ex.conceptos) {
-        if (passed.has(u.key)) get(c).bossPassed = true;
-        if (longOk.has(id)) get(c).longReviewOk = true;
-      }
-    }
-  }
-  for (const a of attempts) {
-    const ex = catalog.exercises[a.exerciseId];
-    if (!ex || ex.subjectId !== subjectId) continue;
-    for (const c of ex.conceptos) {
-      const e = get(c);
-      e.attempts++;
-      if (a.correct) e.correct++;
-    }
-  }
+  const ev = conceptEvidence(subject, catalog.exercises, attempts, progress, cards);
   const states: Record<string, Mastery> = {};
   for (const c of subject.concepts) states[c.id] = conceptMastery(ev.get(c.id) ?? { lessonDone: false, attempts: 0, correct: 0, bossPassed: false, longReviewOk: false });
   return subject.concepts.map((c) => ({ id: c.id, name: c.name, prerequisites: c.prerequisites, state: states[c.id] ?? "new", missing: missingPrerequisites(c.prerequisites, states) }));

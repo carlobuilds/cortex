@@ -1,0 +1,147 @@
+---
+titulo: "Árboles binarios: preorden, inorden y posorden"
+materia: matematicas-discretas
+unidad: 21-arboles-binarios
+duracion_min: 25
+prerrequisitos: [caminos-conexidad, grado-vertice, busqueda-amplitud, busqueda-profundidad, funcion-como-relacion, extremos-orden]
+conceptos: [arbol, arbol-binario, recorrido-preorden, recorrido-inorden, recorrido-postorden, arbol-expresion]
+programa_ref: "Matemáticas discretas, Unidad IV, 4.5.5 (recorridos en preorden, inorden y posorden de árboles binarios; el programa lo numera 4.4.5) y práctica 8, «Recorridos»"
+---
+
+## El problema
+
+Una calculadora puede guardar una expresión como un árbol: cada operador se aplica a lo que cuelga de él, el lado izquierdo primero. Mira estos dos:
+
+$$T_1:\quad\begin{array}{ccccccccc}&&{+}&&&&&&\\&\diagup&&&\diagdown&&&&\\3&&&&&&{\times}&&\\&&&&&\diagup&&\diagdown&\\&&&&4&&&&2\end{array}$$
+
+$$T_2:\quad\begin{array}{ccccccccc}&&&&&&{\times}&&\\&&&&\diagup&&&\diagdown&\\&&{+}&&&&&&2\\&\diagup&&\diagdown&&&&&\\3&&&&4&&&&\end{array}$$
+
+<Predice pregunta="¿Cuánto vale cada árbol? Si los escribes de izquierda a derecha y sin paréntesis, ¿qué sale?" revela="$T_1$ vale 11 y $T_2$, 14, pero los dos se escriben 3 + 4 × 2. Una calculadora que respeta la jerarquía arma $T_1$, porque el producto va antes." />
+
+## Árboles
+
+<Concepto titulo="Árbol y árbol con raíz">
+Un **árbol** es un grafo conexo y sin ciclos. Entre dos de sus vértices hay una única **trayectoria**, y un árbol con $n$ vértices tiene $n-1$ aristas; demostrarlo es la autoevaluación. A los vértices también se les dice **nodos**.
+
+Un **árbol con raíz** elige un nodo, la **raíz**, y se dibuja con ella arriba. El **padre** de un nodo distinto de la raíz es el que le sigue en la trayectoria hacia la raíz, y el nodo es su **hijo**. Una **hoja** no tiene hijos. El **nivel** de un nodo es el número de aristas de su trayectoria a la raíz; la raíz está en el nivel 0, como el origen en BFS. La **altura** del árbol es el mayor nivel: cuenta aristas, así que un árbol de un solo nodo tiene altura 0. Un nodo con hijos es **interno**.
+</Concepto>
+
+<Concepto titulo="Árbol binario">
+En un **árbol binario**, cada nodo tiene a lo más dos hijos, y cada hijo es **izquierdo** o **derecho**; un hijo único también es uno de los dos, y no da lo mismo. El **subárbol izquierdo** de un nodo es el árbol que cuelga de su hijo izquierdo (vacío si no lo tiene), y el **derecho**, el que cuelga del derecho. Un binario es **lleno** si cada nodo tiene 0 o 2 hijos.
+
+Con altura $h$ hay a lo más $2^{h+1}-1$ nodos: el nivel $k$ tiene a lo más $2^k$, porque cada nodo aporta a lo más dos al siguiente, y $1+2+\dots+2^h=2^{h+1}-1$.
+</Concepto>
+
+## Preorden, inorden y posorden
+
+<Concepto titulo="Preorden, inorden y posorden">
+Cada uno lista todos los nodos de un árbol binario, una vez, con una regla recursiva. Si la raíz es $r$ y sus subárboles son $I$ y $D$ (un subárbol vacío no aporta nada):
+
+- **Preorden:** $r$, luego el preorden de $I$ y luego el de $D$.
+- **Inorden:** el inorden de $I$, luego $r$ y luego el de $D$.
+- **Posorden:** el posorden de $I$, luego el de $D$ y luego $r$.
+
+El nombre dice dónde va la raíz: antes, en medio o después. Para un árbol $T$, cada regla da una lista: el preorden (inorden, posorden) de $T$. No es un recorrido de la unidad 19: no avanza por aristas, y dos nodos seguidos de la lista pueden no ser vecinos. El programa escribe «pre-orden», «in-orden» y «post-orden», y otros libros, «postorden».
+</Concepto>
+
+<Ejemplo titulo="El preorden, el inorden y el posorden de un árbol">
+El árbol, por niveles:
+
+$$\begin{array}{ccccccccccccccc}&&&&&&c&&&&&&&&\\&&&&\diagup&&&\diagdown&&&&&&&\\&&f&&&&&&a&&&&&&\\&\diagup&&\diagdown&&&&&&&\diagdown&&&&\\h&&&&b&&&&&&&&e&&\\&&&&&&&&&&&\diagup&&\diagdown&\\&&&&&&&&&&g&&&&d\end{array}$$
+
+La raíz es $c$; su subárbol izquierdo tiene a $f$, $h$ y $b$, y el derecho, a $a$, $e$, $g$ y $d$. El único hijo de $a$, que es $e$, es **derecho**.
+
+1. **Preorden:** $c$; luego el subárbol de $f$ en preorden, $f,h,b$; luego el de $a$: $a$ y, como no tiene hijo izquierdo, el subárbol de $e$, $e,g,d$. Queda $c,f,h,b,a,e,g,d$.
+2. **Inorden:** el subárbol de $f$ da $h,f,b$; luego $c$; luego el de $a$: como no tiene izquierdo, primero $a$ y después $g,e,d$. Queda $h,f,b,c,a,g,e,d$.
+3. **Posorden:** el subárbol de $f$ da $h,b,f$; luego el de $a$: primero el de $e$, $g,d,e$, y después $a$, aunque no tenga izquierdo; al final, $c$. Queda $h,b,f,g,d,e,a,c$.
+4. **Revisa:** las tres listas tienen los 8 nodos. La raíz va primero, en medio y al final; en el inorden deja 3 nodos a su izquierda y 4 a su derecha, los de sus dos subárboles.
+</Ejemplo>
+
+<Desvanecido titulo="Ahora tú: el inorden" pasos={[
+  "El árbol: $a$: izq. $d$, der. $b$ · $d$: izq. $g$, der. $e$ · $b$: izq. ninguno, der. $c$ · $c$: izq. $f$, der. ninguno; $g$, $e$ y $f$ son hojas. Su inorden: subárbol izquierdo, raíz y subárbol derecho, cada uno en inorden.",
+  "El subárbol izquierdo de $a$ da $g,d,e$.",
+  "Contando desde 1, $a$ va en la posición ___ (número).",
+  "El subárbol derecho de $a$ da ___ , ___ , ___ (cada hueco, un nodo)."
+]} respuestas={["4", "b", "f", "c"]} />
+
+## Reconstruir el árbol
+
+<Concepto titulo="Preorden e inorden bastan">
+Con etiquetas distintas, el preorden y el inorden determinan el árbol: el primer nodo del preorden es la raíz, y en el inorden la raíz separa los dos subárboles. Se repite en cada lado. Con el posorden y el inorden pasa lo mismo: la raíz es el último del posorden.
+</Concepto>
+
+<Ejemplo titulo="Reconstruir un árbol">
+Preorden $a,d,g,e,b,c,f$; inorden $g,d,e,a,b,f,c$.
+
+1. **La raíz,** la primera del preorden, es $a$; en el inorden deja a su izquierda $g,d,e$ y a su derecha $b,f,c$.
+2. **El lado izquierdo:** tras $a$, el preorden trae esos 3 como $d,g,e$: su raíz es $d$, con $g$ a la izquierda y $e$ a la derecha, como dice el inorden.
+3. **El lado derecho:** queda $b,c,f$, con raíz $b$. En el inorden $b,f,c$ nada va antes de $b$: su hijo $c$ es **derecho**.
+4. **Lo último:** el preorden $c,f$ y el inorden $f,c$ hacen a $f$ hijo izquierdo de $c$.
+5. **Revisa:** es el árbol del desvanecido, con el preorden y el inorden dados:
+
+$$\begin{array}{ccccccccccccc}&&&&&&a&&&&&&\\&&&&\diagup&&&\diagdown&&&&&\\&&d&&&&&&b&&&&\\&\diagup&&\diagdown&&&&&&&\diagdown&&\\g&&&&e&&&&&&&&c\\&&&&&&&&&&&\diagup&\\&&&&&&&&&&f&&\end{array}$$
+</Ejemplo>
+
+Preorden y posorden no siempre bastan: $a$ con hijo izquierdo $b$ y $a$ con hijo derecho $b$ tienen preorden $a,b$ y posorden $b,a$.
+
+## Árboles de expresión
+
+<Concepto titulo="Árbol de expresión">
+En un **árbol de expresión**, las hojas son números y cada nodo interno es un operador binario que opera sus dos subárboles, el izquierdo primero; en $-$ y $\div$ el orden importa. Se evalúa de las hojas a la raíz: la raíz es la **última** operación.
+
+Su preorden, su inorden y su posorden son tres notaciones:
+- **prefija** (preorden): el operador antes de sus operandos; $T_1$ es `+ 3 × 4 2`;
+- **infija** (inorden): la usual, con paréntesis; $T_2$ es $(3+4)\times2$;
+- **posfija** (posorden; otros libros dicen «postfija»): $T_1$ es `3 4 2 × +`.
+
+La posfija no necesita paréntesis ni jerarquía. Se evalúa con una **pila**, de izquierda a derecha: cada número se apila, y cada operador saca los dos de arriba, opera el de abajo con el de arriba y apila el resultado.
+</Concepto>
+
+<Ejemplo titulo="La pila con 5 2 − 1 3 + ×">
+| Se lee | Pila, de abajo arriba |
+|---|---|
+| 5 | 5 |
+| 2 | 5, 2 |
+| − | 3 ($5-2$) |
+| 1 | 3, 1 |
+| 3 | 3, 1, 3 |
+| + | 3, 4 ($1+3$) |
+| × | 12 ($3\times4$) |
+
+Es $(5-2)\times(1+3)=12$; la raíz de su árbol es el $\times$, la última operación:
+
+$$\begin{array}{ccccccccccccc}&&&&&&{\times}&&&&&&\\&&&&\diagup&&&&\diagdown&&&&\\&&{-}&&&&&&&&{+}&&\\&\diagup&&\diagdown&&&&&&\diagup&&\diagdown&\\5&&&&2&&&&1&&&&3\end{array}$$
+
+**Revisa:** su posorden, $5,2,-,1,3,+,\times$, es la posfija del principio.
+</Ejemplo>
+
+<Desvanecido titulo="Ahora tú: la pila" pasos={[
+  "Evalúa con la pila la posfija `9 4 2 × − 6 3 ÷ +`.",
+  "Después del ×, arriba de la pila queda ___ (número).",
+  "Después del −, la pila tiene un solo número: ___ (número).",
+  "Después del ÷, arriba de la pila queda ___ (número).",
+  "El valor de la posfija es ___ (número)."
+]} respuestas={["8", "1", "2", "3"]} />
+
+## Errores comunes
+
+<Ojo>
+- **Sin paréntesis, el inorden no basta:** $T_1$ y $T_2$ se escriben igual, 3 + 4 × 2. La infija lleva paréntesis; la prefija y la posfija, no.
+- **Izquierdo y derecho no se intercambian:** un hijo único es uno de los dos, y en $-$ y $\div$ el lado cambia el valor: $8\div2=4$, pero $2\div8=1/4$.
+- **La altura cuenta aristas, no niveles:** un árbol con niveles 0, 1, 2 y 3 tiene altura 3.
+- **Preorden e inorden sí determinan el árbol** (con etiquetas distintas); **preorden y posorden, no siempre.**
+</Ojo>
+
+<Conexion materia="Inteligencia artificial">
+Una red neuronal guarda sus cuentas en un **grafo de cómputo**: cada nodo interno es una operación, y las hojas, las entradas y los pesos. Se evalúa como una posfija, cada operación después de sus entradas, y la retropropagación calcula los gradientes en el orden inverso, de la salida hacia las entradas.
+</Conexion>
+
+<Resumen>
+- Un árbol es conexo y sin ciclos; con raíz, cada nodo salvo la raíz tiene un padre, y la altura cuenta aristas.
+- Preorden: raíz, izquierdo, derecho. Inorden: izquierdo, raíz, derecho. Posorden: izquierdo, derecho, raíz.
+- En un árbol de expresión la raíz es la última operación; la posfija se evalúa con una pila, sin paréntesis.
+</Resumen>
+
+<Feynman>
+¿Por qué con el preorden y el inorden basta para reconstruir el árbol? Si te trabas: ¿qué es el primer nodo del preorden, y qué hace en el inorden?
+</Feynman>

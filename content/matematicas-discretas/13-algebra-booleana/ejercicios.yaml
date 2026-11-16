@@ -1,0 +1,646 @@
+# Unidad 13 · Álgebra booleana (Unidad IV, 4.1.1 a 4.1.3). Primera unidad escrita de Discretas, para el 3.er parcial
+# (semana del 23 al 27 de noviembre de 2026). Circuitos y Karnaugh (4.1.4 y 4.1.5) son de la 14.
+# Esquema v1 aprobado por Carlo el 2026-11-13 (esquema-13), revisado por experto-matematicas, pedagogo y
+# arquitecto-razonamiento.
+# Anclas (primer ejercicio de cada concepto, workedExampleFor): 001 AB, 002 DU, 003 FB, 004 MI y 005 MA, con explicación
+# completa; también el 008, que es el más fácil de SI y el que workedExampleFor mostrará (flow.ts).
+# Un solo concepto por ejercicio, porque workedExampleFor muestra el más fácil de CUALQUIER concepto compartido.
+# Abreviaturas: AB algebra-booleana · DU dualidad-booleana · SI simplificar-booleana · FB funcion-booleana ·
+# MI minterminos · MA maxterminos.
+# Convenciones (también en la `notacion`, y repetidas en cada enunciado que las usa): filas de 0 a 2ⁿ − 1 con la
+# primera variable como bit más significativo (en (x, y, z), la fila 101 es la 5; con cuatro variables, (w, x, y, z));
+# mᵢ lleva barra donde el bit de i es 0 y Mᵢ donde es 1; precedencia: barra, producto y suma.
+# Sin `tabla_verdad`: su convención es V/F, y aquí las tablas van en 0/1 desde 000. Una columna se pide con `completar`
+# (0 o 1 por hueco) o como `conjunto` de índices. Ninguna respuesta es una expresión booleana: la gramática de la app no
+# lee +, · ni x̄.
+# `verificar` por enumeración con itertools.product((0, 1), repeat=n), que recorre 000…111 en el mismo orden que los
+# índices. Solo |, & y 1 - x: nunca + ni ~ (en Python, ~1 es -2). Las Σm y los ΠM se arman con los bits de cada índice
+# (i >> 2, i >> 1 e i & 1), no copiando la lista. Una igualdad que vale en las 2ⁿ filas de {0, 1} vale en toda álgebra
+# booleana (la lección lo da como dato), así que enumerar en {0, 1} basta para igualdades; el 024, que pregunta por
+# implicaciones, se enumera en 𝒫({a, b, c}), con los subconjuntos como máscaras 0–7 (∪ = |, ∩ = & y complemento 7 ^ x).
+# `completar`: huecos fuera de KaTeX y solo enteros. `conjunto`: «escribe los índices separados por comas», con un
+# ejemplo de formato que no está contenido en la respuesta.
+# Pistas como preguntas, sin valores intermedios: 1 en d1–2, 2 en d3 y 3 en d4–5. Desde d3, la explicación cierra con
+# «Revisa:».
+# Manuales: 002, 005, 007, 011, 017 y 021.
+# Textos con LaTeX en bloques `>-` (o `|-` si llevan lista): así no hay que escapar ni comillas ni barras.
+unidad: matematicas-discretas/13-algebra-booleana
+ejercicios:
+  # razonamiento: algorítmico (evaluar con las tablas y la precedencia) · R0
+  # verificar: los operadores de bits de Python sobre 0 y 1.
+  - id: disc-13-001
+    tipo: completar
+    dificultad: 1
+    conceptos: [algebra-booleana]
+    enunciado: >-
+      En el álgebra booleana $\{0,1\}$, calcula cada expresión. La precedencia es: primero la barra, luego el producto y al final la suma.
+    texto: >-
+      $1+1=$ ___ · $1\cdot0=$ ___ · $\bar0+0=$ ___ · $1+1\cdot0=$ ___
+    respuestas: ["1", "0", "1", "1"]
+    verificar: { python: "[1 | 1, 1 & 0, (1 - 0) | 0, 1 | (1 & 0)]" }
+    pistas:
+      - >-
+        En $\{0,1\}$, ¿la suma cuenta como en los enteros, o solo dice si alguno de los dos vale 1? En $1+1\cdot0$, ¿qué operación va primero?
+    explicacion: >-
+      La suma booleana es «o»: vale 1 si al menos uno de los dos vale 1. Por eso $1+1=1$, no 2: no cuenta, se satura. El producto es «y»: $1\cdot0=0$, porque hace falta que los dos valgan 1. La barra cambia el valor: $\bar0=1$, y $1+0=1$. En $1+1\cdot0$ va primero el producto, $1\cdot0=0$, y luego la suma, $1+0=1$. Si sumaras primero, $(1+1)\cdot0=0$: la precedencia cambia el resultado.
+    tiempo_estimado_s: 30
+
+  # razonamiento: algorítmico (cambiar + ↔ · y 0 ↔ 1, sin tocar variables ni barras) · R0
+  # Revisión manual (opción múltiple conceptual). Comprobado por enumeración: x·1 = x, x·0 = 0 y x + 1 = 1 valen en
+  # las 2 filas; x̄ + 1 = x̄ falla en x = 1.
+  - id: disc-13-002
+    tipo: opcion_multiple
+    dificultad: 1
+    conceptos: [dualidad-booleana]
+    enunciado: >-
+      ¿Cuál es el dual de la ley $x+0=x$?
+    opciones:
+      - >-
+        $x\cdot0=0$
+      - >-
+        $x\cdot1=x$
+      - >-
+        $\bar x+1=\bar x$
+      - >-
+        $x+1=1$
+    correcta: 1
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        Para escribir el dual, ¿qué símbolos se cambian por cuáles, y qué se queda igual?
+    explicacion: >-
+      El dual se obtiene cambiando $+$ por $\cdot$ y $0$ por $1$ (y al revés); las variables y las barras se quedan. En $x+0=x$, la suma pasa a producto y el 0 a 1, y el lado derecho, que es solo $x$, no cambia: el dual es $x\cdot1=x$, la otra mitad del axioma de identidad. Las demás no son el dual: $x\cdot0=0$ cambió la operación, pero dejó el 0 y cambió el lado derecho; $x+1=1$ cambió la constante, pero no la operación; y $\bar x+1=\bar x$ puso barras, cosa que la dualidad no hace (además es falsa: con $x=1$ da $1=0$). Ojo: $x\cdot0=0$ y $x+1=1$ son leyes verdaderas, pero eso no las hace el dual. El dual sale de cambiar símbolos, no de buscar otra ley que valga.
+    tiempo_estimado_s: 30
+
+  # razonamiento: algorítmico (2ⁿ filas y leer una fila en binario) · R0
+  # verificar: contar las tuplas de itertools.product y buscar la posición de (1, 1, 0) en ese orden.
+  - id: disc-13-003
+    tipo: completar
+    dificultad: 1
+    conceptos: [funcion-booleana]
+    enunciado: >-
+      Las filas de la tabla de una función booleana se numeran desde 0, con la primera variable como bit más significativo. ¿Cuántas filas tiene la tabla de una función de 3 variables? ¿Y la de una de 4? En $(x,y,z)$, ¿qué número tiene la fila con $x=1$, $y=1$ y $z=0$?
+    texto: >-
+      Con 3 variables: ___ filas · con 4 variables: ___ filas · la fila 110 es la número ___
+    respuestas: ["8", "16", "6"]
+    verificar: { python: "[len(list(itertools.product((0, 1), repeat=3))), len(list(itertools.product((0, 1), repeat=4))), list(itertools.product((0, 1), repeat=3)).index((1, 1, 0))]" }
+    pistas:
+      - >-
+        ¿Cuántos valores puede tomar cada variable, y cuántas combinaciones salen con 3? ¿Cuánto vale 110 leído en binario?
+    explicacion: >-
+      Cada variable vale 0 o 1, así que con 3 variables hay $2\cdot2\cdot2=2^3=8$ combinaciones, una por fila; con 4, $2^4=16$. La fila 110 se lee en binario con $x$ como bit más significativo: $1\cdot4+1\cdot2+0\cdot1=6$. Las filas van de 000 (la 0) a 111 (la 7), así que la 110 es la penúltima. Si tomaras $z$ como bit más significativo, leerías 011, que es 3: por eso la convención se dice siempre.
+    tiempo_estimado_s: 30
+
+  # razonamiento: algorítmico (cada minitérmino es su fila: sin barra 1, con barra 0) · R0
+  # verificar: las filas donde la expresión vale 1, por enumeración.
+  - id: disc-13-004
+    tipo: conjunto
+    dificultad: 1
+    conceptos: [minterminos]
+    enunciado: >-
+      Escribe $F(x,y,z)=x\bar yz+\bar xy\bar z+xyz$ como $\Sigma m(\dots)$: ¿qué índices lleva? $m_i$ lleva barra donde el bit de $i$ es 0, y las filas se numeran con $x$ como bit más significativo (la fila 011 es la 3). Escribe los índices separados por comas, como `1, 4`.
+    respuesta: ["2", "5", "7"]
+    verificar: { python: "{i for i, (x, y, z) in enumerate(itertools.product((0, 1), repeat=3)) if (x & (1 - y) & z) | ((1 - x) & y & (1 - z)) | (x & y & z)}" }
+    pistas:
+      - >-
+        Cada término trae las tres variables: ¿en qué fila vale 1? Si lees esa fila en binario, ¿qué número da?
+    explicacion: >-
+      Cada término es un minitérmino: trae las tres variables, con o sin barra, y vale 1 en una sola fila. Sin barra la variable vale 1 en esa fila, y con barra, 0. $x\bar yz$ vale 1 en 101, que es $4+0+1=5$. $\bar xy\bar z$ vale 1 en 010, que es 2. $xyz$ vale 1 en 111, que es 7. Entonces $F=\Sigma m(2,5,7)$: vale 1 exactamente en las filas 2, 5 y 7. El orden no importa: $\Sigma m(5,2,7)$ es la misma. El error típico es leer la barra como 1: daría 010 para $x\bar yz$, la fila 2.
+    tiempo_estimado_s: 40
+
+  # razonamiento: algorítmico (bit 1 → barra en el maxitérmino, y el maxitérmino es una suma) · R0
+  # Revisión manual (opción múltiple conceptual). Comprobado por enumeración: x + ȳ + z̄ vale 0 solo en la fila 3;
+  # x̄ + y + z, solo en la 4; x̄yz vale 1 solo en la 3 y xȳz̄, solo en la 4.
+  - id: disc-13-005
+    tipo: opcion_multiple
+    dificultad: 1
+    conceptos: [maxterminos]
+    enunciado: >-
+      En $(x,y,z)$, el maxitérmino $M_i$ lleva barra donde el bit de $i$ es 1, y las filas se numeran con $x$ como bit más significativo. ¿Cuál es $M_3$?
+    opciones:
+      - >-
+        $\bar x+y+z$
+      - >-
+        $\bar xyz$
+      - >-
+        $x+\bar y+\bar z$
+      - >-
+        $x\bar y\bar z$
+    correcta: 2
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        ¿Cómo se escribe 3 en binario con tres bits? Un maxitérmino, ¿es una suma o un producto, y dónde lleva las barras?
+    explicacion: >-
+      Con tres bits, $3=011$: $x=0$, $y=1$ y $z=1$. Un maxitérmino es una **suma** con las tres variables, y lleva barra donde el bit es 1: $M_3=x+\bar y+\bar z$. En la fila 011 vale $0+\bar1+\bar1=0+0+0=0$, y en cualquier otra fila algún sumando vale 1; por eso $M_3$ vale 0 solo en la fila 3. Las otras opciones: $\bar x+y+z$ es $M_4$ (100); $\bar xyz$ es el producto $m_3$, que vale 1 en la fila 3, no 0; y $x\bar y\bar z$ es $m_4$. La convención de $M_i$ es al revés que la de $m_i$.
+    tiempo_estimado_s: 35
+
+  # razonamiento: deductivo (reconocer leyes y tumbar las falsas con una fila) · R1
+  # verificar: cada igualdad en las 8 filas de (x, y, z) (True = vale siempre).
+  - id: disc-13-006
+    tipo: seleccion_multiple
+    dificultad: 2
+    conceptos: [algebra-booleana]
+    enunciado: >-
+      ¿Cuáles de estas igualdades valen para todos los valores de las variables en toda álgebra booleana? Puede haber varias.
+    opciones:
+      - >-
+        $x+x=x$
+      - >-
+        $x\bar x=1$
+      - >-
+        $x+1=1$
+      - >-
+        $\overline{x+y}=\bar x+\bar y$
+      - >-
+        $x+xy=x$
+      - >-
+        $x+yz=(x+y)(x+z)$
+    correctas: [0, 2, 4, 5]
+    verificar: { python: "[all(f(x, y, z) for x, y, z in itertools.product((0, 1), repeat=3)) for f in [lambda x, y, z: (x | x) == x, lambda x, y, z: (x & (1 - x)) == 1, lambda x, y, z: (x | 1) == 1, lambda x, y, z: (1 - (x | y)) == ((1 - x) | (1 - y)), lambda x, y, z: (x | (x & y)) == x, lambda x, y, z: (x | (y & z)) == ((x | y) & (x | z))]]" }
+    pistas:
+      - >-
+        ¿Reconoces cada una como una ley de la lección? Para las que no, ¿hay una fila de 0 y 1 donde los dos lados den distinto?
+    explicacion: >-
+      Valen: $x+x=x$ (idempotencia), $x+1=1$ (acotación, demostrada en la lección), $x+xy=x$ (absorción) y $x+yz=(x+y)(x+z)$, la distributiva de $+$ sobre $\cdot$, que es un axioma aunque en los enteros sea falsa. No valen: $x\bar x=1$, porque el axioma de complemento dice $x\bar x=0$ (con $x=0$, el lado izquierdo es 0); y $\overline{x+y}=\bar x+\bar y$, porque De Morgan cambia la suma por producto: $\overline{x+y}=\bar x\,\bar y$. Con $x=1$ y $y=0$: $\overline{1+0}=0$, pero $\bar1+\bar0=1$. Para tumbar una igualdad basta una fila; para aceptarla hace falta una ley o revisar las $2^n$ filas.
+    tiempo_estimado_s: 50
+
+  # razonamiento: algorítmico (dualizar con los paréntesis implícitos de la precedencia) · R1
+  # Revisión manual (opción múltiple conceptual). Comprobado por enumeración: la ley y la opción correcta valen en las
+  # 4 filas de (x, y); las otras tres fallan en (1, 1), (1, 0) y (1, 0).
+  - id: disc-13-007
+    tipo: opcion_multiple
+    dificultad: 2
+    conceptos: [dualidad-booleana]
+    enunciado: >-
+      La igualdad $xy+\bar y+0=x+\bar y$ es una ley. ¿Cuál es su dual?
+    opciones:
+      - >-
+        $x+y\bar y\cdot1=x\bar y$
+      - >-
+        $(x+y)\bar y\cdot0=x\bar y$
+      - >-
+        $(x+y)\,\bar y\cdot1=x\bar y$
+      - >-
+        $\bar x\bar y+y+1=\bar x+y$
+    correcta: 2
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        ¿Qué paréntesis lleva implícitos $xy+\bar y+0$ por la precedencia? Al cambiar $+$ por $\cdot$, ¿cómo los conservas?
+    explicacion: >-
+      Por la precedencia, el lado izquierdo es $(xy)+\bar y+0$. Al dualizar, cada $+$ pasa a $\cdot$, cada $\cdot$ a $+$ y el 0 a 1, y las barras se quedan: el producto $xy$ se vuelve la suma $(x+y)$, **con paréntesis**, y queda $(x+y)\,\bar y\cdot1$. El lado derecho, $x+\bar y$, pasa a $x\bar y$. El dual es $(x+y)\,\bar y\cdot1=x\bar y$, y es ley, como debe ser: $(x+y)\bar y=x\bar y+y\bar y=x\bar y$. Las otras: $x+y\bar y\cdot1$ perdió el paréntesis, $(x+y)\bar y\cdot0$ conservó el 0 y $\bar x\bar y+y+1=\bar x+y$ puso barras, cosa que el dual no hace. Las tres son falsas: con $x=1$ y $y=1$, la primera da $1=0$; con $x=1$ y $y=0$, la segunda da $0=1$ y la tercera, $1=0$.
+    tiempo_estimado_s: 60
+
+  # razonamiento: deductivo (factorizar, complemento e identidad; tumbar las demás con una fila) · R1
+  # Explicación completa: es el ejemplo resuelto de SI que mostrará workedExampleFor.
+  # verificar: cada opción contra x ȳ + x y en las 4 filas de (x, y).
+  - id: disc-13-008
+    tipo: seleccion_multiple
+    dificultad: 2
+    conceptos: [simplificar-booleana]
+    enunciado: >-
+      ¿Cuáles de estas expresiones son iguales a $x\bar y+xy$? Puede haber varias.
+    opciones:
+      - >-
+        $y$
+      - >-
+        $x$
+      - >-
+        $x+y$
+      - >-
+        $x(\bar y+y)$
+      - >-
+        $x\bar y$
+    correctas: [1, 3]
+    verificar: { python: "[all(f(x, y) == ((x & (1 - y)) | (x & y)) for x, y in itertools.product((0, 1), repeat=2)) for f in [lambda x, y: y, lambda x, y: x, lambda x, y: x | y, lambda x, y: x & ((1 - y) | y), lambda x, y: x & (1 - y)]]" }
+    pistas:
+      - >-
+        ¿Qué factor tienen en común los dos términos? Si lo sacas, ¿qué queda en el paréntesis y cuánto vale?
+    explicacion: >-
+      Son iguales $x$ y $x(\bar y+y)$; $y$, $x+y$ y $x\bar y$ no. Se simplifica citando una ley por paso. **1. Factoriza.** Los dos términos tienen $x$: $x\bar y+xy=x(\bar y+y)$, por la distributiva de $\cdot$ sobre $+$ leída de derecha a izquierda. Esa forma ya es igual a la original. **2. El paréntesis.** $\bar y+y=y+\bar y$ (conmutativa) $=1$ (complemento). **3. Cierra.** $x\cdot1=x$ (identidad). Entonces $x\bar y+xy=x$: la $y$ no importa, porque con $x=1$ uno de los dos términos vale 1, sea cual sea $y$. **Las que no**, cada una con una fila $(x,y)$ donde difiere: $y$ y $x+y$ valen 1 en $(0,1)$, donde la original vale 0; $x\bar y$ vale 0 en $(1,1)$, donde la original vale 1. Revisa con la tabla: en las filas 00, 01, 10 y 11, $x\bar y+xy$ vale 0, 0, 1 y 1, igual que $x$.
+    tiempo_estimado_s: 50
+
+  # razonamiento: algorítmico (de la lista de índices a la tabla) · R1
+  # verificar: F armada como suma de los minitérminos 1, 4 y 6, cada uno construido con los bits de su índice.
+  - id: disc-13-009
+    tipo: completar
+    dificultad: 2
+    conceptos: [minterminos]
+    enunciado: >-
+      Sea $F(x,y,z)=\Sigma m(1,4,6)$, con las filas numeradas de 0 a 7 y $x$ como bit más significativo. Sin escribir la expresión de $F$, contesta.
+    texto: >-
+      $F(1,1,0)=$ ___ · $F(0,1,1)=$ ___ · $F$ vale 0 en ___ filas
+    respuestas: ["1", "0", "5"]
+    verificar: { python: "(lambda lit: (lambda F: [F(1, 1, 0), F(0, 1, 1), sum(1 for v in itertools.product((0, 1), repeat=3) if F(*v) == 0)])(lambda x, y, z: max(lit(x, (i >> 2) & 1) & lit(y, (i >> 1) & 1) & lit(z, i & 1) for i in [1, 4, 6])))(lambda v, b: v if b else 1 - v)" }
+    pistas:
+      - >-
+        ¿Qué número de fila es $(1,1,0)$? ¿Y $(0,1,1)$? ¿Están en la lista?
+    explicacion: >-
+      $\Sigma m(1,4,6)$ dice que $F$ vale 1 exactamente en las filas 1, 4 y 6, y 0 en las demás. $(1,1,0)$ es la fila $4+2+0=6$: está en la lista, así que $F(1,1,0)=1$. $(0,1,1)$ es la fila $0+2+1=3$: no está, así que $F(0,1,1)=0$. De las 8 filas, 3 valen 1 y las otras $8-3=5$ valen 0. Si leíste $(0,1,1)$ como 6, tomaste $z$ como bit más significativo: la primera variable es la de más peso.
+    tiempo_estimado_s: 40
+
+  # razonamiento: algorítmico (cada maxitérmino apaga una sola fila) · R1
+  # verificar: las filas donde el producto vale 0, por enumeración.
+  - id: disc-13-010
+    tipo: conjunto
+    dificultad: 2
+    conceptos: [maxterminos]
+    enunciado: >-
+      Escribe $F(x,y,z)=(x+y+\bar z)(\bar x+y+z)$ como $\Pi M(\dots)$: ¿qué índices lleva? $M_i$ lleva barra donde el bit de $i$ es 1, y las filas se numeran con $x$ como bit más significativo (la fila 101 es la 5). Escribe los índices separados por comas, como `0, 2, 6`.
+    respuesta: ["1", "4"]
+    verificar: { python: "{i for i, (x, y, z) in enumerate(itertools.product((0, 1), repeat=3)) if ((x | y | (1 - z)) & ((1 - x) | y | z)) == 0}" }
+    pistas:
+      - >-
+        ¿En qué fila vale 0 cada factor? En un maxitérmino, ¿la barra se lee como 1 o como 0, y qué número da cada fila?
+    explicacion: >-
+      Cada factor es un maxitérmino y vale 0 en una sola fila: la que hace 0 cada sumando. $x+y+\bar z$ vale 0 con $x=0$, $y=0$ y $z=1$: la fila 001, la 1. $\bar x+y+z$ vale 0 con $x=1$, $y=0$ y $z=0$: la fila 100, la 4. Un producto vale 0 donde algún factor vale 0, así que $F$ vale 0 en las filas 1 y 4 y $F=\Pi M(1,4)$. En los maxitérminos, la barra se lee como 1, al revés que en los minitérminos; si los leíste como minitérminos, te salieron 6 y 3.
+    tiempo_estimado_s: 45
+
+  # razonamiento: deductivo (justificar cada paso con una sola ley) · R1
+  # Revisión manual: experto-matematicas revisó que cada paso admite una sola ley de la lista. Comprobado por
+  # enumeración: x + ¬(z + x) y x + z̄ coinciden en las 4 filas de (x, z).
+  - id: disc-13-011
+    tipo: completar
+    dificultad: 3
+    conceptos: [simplificar-booleana]
+    enunciado: |-
+      Justifica cada paso de esta simplificación con el código de la ley que usa. En cada hueco escribe solo el número (1 a 8) de la ley que justifica ese paso. Cada paso usa exactamente una ley; ninguno necesita la conmutativa. Cada ley se usa en cualquier dirección (de izquierda a derecha o al revés), y sus letras pueden ser cualquier expresión.
+
+      1. Identidad: $x+0=x$ y $x\cdot1=x$.
+      2. Complemento: $x+\bar x=1$ y $x\bar x=0$.
+      3. Idempotencia: $x+x=x$ y $xx=x$.
+      4. Absorción: $x+xy=x$ y $x(x+y)=x$.
+      5. Distributiva de $\cdot$ sobre $+$: $x(y+z)=xy+xz$.
+      6. Distributiva de $+$ sobre $\cdot$: $x+yz=(x+y)(x+z)$.
+      7. De Morgan: $\overline{x+y}=\bar x\,\bar y$ y $\overline{xy}=\bar x+\bar y$.
+      8. Conmutativa: $x+y=y+x$ y $xy=yx$.
+
+      $$x+\overline{z+x}\overset{(a)}{=}x+\bar z\bar x\overset{(b)}{=}(x+\bar z)(x+\bar x)\overset{(c)}{=}(x+\bar z)\cdot1\overset{(d)}{=}x+\bar z$$
+    texto: >-
+      (a) ___ · (b) ___ · (c) ___ · (d) ___
+    respuestas: ["7", "6", "2", "1"]
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        En cada paso, ¿qué parte cambió y qué parte quedó igual? ¿Qué ley de la lista convierte justo esa parte?
+      - >-
+        ¿En qué paso desaparece la barra larga? ¿En cuál una suma se vuelve un producto de dos paréntesis, y cuál de las dos distributivas hace eso?
+    explicacion: >-
+      **(a)** La barra larga sobre $z+x$ se rompe en un producto de barras, $\overline{z+x}=\bar z\,\bar x$: De Morgan (7). **(b)** $x+\bar z\bar x$ tiene la forma $a+bc$, con $a=x$, $b=\bar z$ y $c=\bar x$, y pasa a $(a+b)(a+c)=(x+\bar z)(x+\bar x)$: distributiva de $+$ sobre $\cdot$ (6). Es la que no existe en los enteros, y por eso cuesta verla. **(c)** $x+\bar x=1$: complemento (2). **(d)** $(x+\bar z)\cdot1=x+\bar z$: identidad (1). Ningún paso cambia el orden de los factores, así que la conmutativa no hace falta. Revisa: en $(x,z)=(0,0)$, el inicio vale $0+\overline{0+0}=1$ y el final, $0+\bar0=1$; en $(0,1)$, el inicio vale $0+\overline{1+0}=0$ y el final, $0+\bar1=0$.
+    tiempo_estimado_s: 90
+
+  # razonamiento: metacognitivo (revisar con filas una simplificación ajena, sin rehacerla) · R2
+  # verificar: cuenta las filas donde F y x + y difieren, y evalúa las dos en la primera de ellas.
+  - id: disc-13-012
+    tipo: completar
+    dificultad: 3
+    conceptos: [simplificar-booleana]
+    enunciado: >-
+      Ana simplificó $F=x\bar y+xy+\bar xyz$ y obtuvo $x+y$. Su resultado no es igual a $F$. Sin simplificar tú, compara las dos expresiones fila por fila, con las filas de $(x,y,z)$ numeradas de 0 a 7 y $x$ como bit más significativo.
+    texto: >-
+      Difieren en ___ fila(s) · la primera es la número ___ · ahí $F$ vale ___ y $x+y$ vale ___
+    respuestas: ["1", "2", "0", "1"]
+    verificar: { python: "(lambda P, F, G: (lambda d: [len(d), d[0], F(*P[d[0]]), G(*P[d[0]])])([i for i, v in enumerate(P) if F(*v) != G(*v)]))(list(itertools.product((0, 1), repeat=3)), lambda x, y, z: (x & (1 - y)) | (x & y) | ((1 - x) & y & z), lambda x, y, z: x | y)" }
+    pistas:
+      - >-
+        ¿Cómo encuentras una fila donde dos expresiones difieren sin simplificar ninguna? ¿En qué filas vale 1 lo de Ana?
+      - >-
+        En las filas con $x=1$, ¿alguno de los dos primeros términos de $F$ vale 1? Con $x=0$, ¿qué tiene que pasar para que $F$ valga 1?
+    explicacion: >-
+      Lo de Ana vale 1 en toda fila con $x=1$ o $y=1$. **Con $x=1$** (filas 4 a 7), $x\bar y+xy=x(\bar y+y)=x$ vale 1, así que $F=1$ y coinciden. **Con $x=0$**, $F=\bar xyz=yz$: vale 1 solo si $y=1$ y $z=1$, en la fila 011 (la 3). Ana tiene 1 en 010 y 011. En la 011 coinciden; en la **010**, la fila 2, $F=0\cdot\bar1+0\cdot1+\bar0\cdot1\cdot0=0$ y $x+y=0+1=1$. Difieren solo ahí: en 1 fila, la 2. La simplificación correcta es $F=x+yz$: de $x+\bar xyz$ sale $x+yz$, pero Ana tiró también la $z$. Revisa: $x+yz$ y $F$ coinciden en las 8 filas, y en la fila 2, $0+1\cdot0=0$.
+    tiempo_estimado_s: 120
+
+  # razonamiento: algorítmico (dualizar con paréntesis y evaluar; el par de valores delata el error) · R1
+  # verificar: por otra vía, sin escribir el dual: F^d(v) = complemento de F(v̄) (De Morgan generalizado).
+  - id: disc-13-013
+    tipo: completar
+    dificultad: 3
+    conceptos: [dualidad-booleana]
+    enunciado: >-
+      Sea $F(x,y,z)=x\bar y+z\cdot1$. Escribe su dual $F^d$ (cambia $+\leftrightarrow\cdot$ y $0\leftrightarrow1$, y conserva los paréntesis que da la precedencia) y evalúalo en dos puntos.
+    texto: >-
+      $F^d(1,0,0)=$ ___ · $F^d(0,0,1)=$ ___
+    respuestas: ["0", "1"]
+    verificar: { python: "(lambda F: (lambda Fd: [Fd(1, 0, 0), Fd(0, 0, 1)])(lambda x, y, z: 1 - F(1 - x, 1 - y, 1 - z)))(lambda x, y, z: (x & (1 - y)) | (z & 1))" }
+    pistas:
+      - >-
+        Por la precedencia, ¿qué paréntesis lleva implícitos $x\bar y+z\cdot1$? Al cambiar cada operación y cada constante, ¿dónde quedan?
+      - >-
+        Ya con $F^d$ escrito, ¿cuánto vale cada factor en $(1,0,0)$? ¿Y en $(0,0,1)$?
+    explicacion: >-
+      **El dual.** Por la precedencia, $F=(x\bar y)+(z\cdot1)$. Cada producto pasa a suma con su paréntesis, la suma del medio pasa a producto y el 1 a 0; la barra de $\bar y$ se queda: $F^d=(x+\bar y)(z+0)=(x+\bar y)z$. **Evalúa.** En $(1,0,0)$: $(1+\bar0)\cdot0=0$. En $(0,0,1)$: $(0+\bar0)\cdot1=1$. **Qué delata cada par.** (1, 1) sale si olvidas los paréntesis ($x+\bar yz+0$), si conservas el 1 ($(x+\bar y)(z+1)$) o si no dualizas (evaluar $F$ misma): en los tres casos, $(1,0,0)$ da 1. (0, 0) sale si complementas en vez de dualizar: $\bar F=(\bar x+y)\bar z$. Solo el dual correcto da (0, 1). Revisa: por otra vía, el dual cumple $F^d(x,y,z)=\overline{F(\bar x,\bar y,\bar z)}$; en $(1,0,0)$, $F(0,1,1)=0\cdot\bar1+1\cdot1=1$, y su complemento es 0.
+    tiempo_estimado_s: 90
+
+  # razonamiento: algorítmico (evaluar en las 8 filas, partiendo por x) · R1
+  # verificar: la expresión evaluada en las 8 filas, en el orden de itertools.product.
+  - id: disc-13-014
+    tipo: completar
+    dificultad: 3
+    conceptos: [funcion-booleana]
+    enunciado: >-
+      Llena la columna de $F(x,y,z)=\bar x\bar z+xy$, con las filas en orden de 000 a 111 y $x$ como bit más significativo. Escribe 0 o 1 en cada hueco.
+    texto: >-
+      000: ___ · 001: ___ · 010: ___ · 011: ___ · 100: ___ · 101: ___ · 110: ___ · 111: ___
+    respuestas: ["1", "0", "1", "0", "0", "0", "1", "1"]
+    verificar: { python: "[((1 - x) & (1 - z)) | (x & y) for x, y, z in itertools.product((0, 1), repeat=3)]" }
+    pistas:
+      - >-
+        ¿Qué término puede valer 1 cuando $x=0$, y cuál cuando $x=1$?
+      - >-
+        Con $x=0$, ¿de qué variable depende $F$? ¿Y con $x=1$?
+    explicacion: >-
+      Conviene partir por $x$. **Con $x=0$** (filas 000 a 011), $xy=0$ y $\bar x\bar z=\bar z$: la columna es la de $\bar z$, que en esas filas vale 1, 0, 1 y 0. **Con $x=1$** (filas 100 a 111), $\bar x\bar z=0$ y $xy=y$: la columna copia a $y$, que vale 0, 0, 1 y 1. Queda 1, 0, 1, 0, 0, 0, 1, 1, es decir, $F=\Sigma m(0,2,6,7)$. Revisa: en la fila 010, $\bar0\cdot\bar0+0\cdot1=1+0=1$, y en la 101, $\bar1\cdot\bar1+1\cdot0=0+0=0$.
+    tiempo_estimado_s: 90
+
+  # razonamiento: algorítmico (pasar cada término a sus filas y unirlas sin repetir) · R1
+  # verificar: las filas donde ȳ + xz vale 1, por enumeración.
+  - id: disc-13-015
+    tipo: conjunto
+    dificultad: 3
+    conceptos: [minterminos]
+    enunciado: >-
+      Escribe $F(x,y,z)=\bar y+xz$ como $\Sigma m(\dots)$: ¿qué índices lleva? $m_i$ lleva barra donde el bit de $i$ es 0, y las filas se numeran de 0 a 7 con $x$ como bit más significativo (la fila 011 es la 3). Escribe los índices separados por comas, como `2, 6`.
+    respuesta: ["0", "1", "4", "5", "7"]
+    verificar: { python: "{i for i, (x, y, z) in enumerate(itertools.product((0, 1), repeat=3)) if (1 - y) | (x & z)}" }
+    pistas:
+      - >-
+        ¿Cuántas filas cubre el término $\bar y$ solo, y cuáles son? ¿Y $xz$, al que le falta $y$?
+      - >-
+        ¿Alguna fila sale en los dos términos? ¿Cuántas veces aparece en la $\Sigma m$?
+    explicacion: >-
+      Cada término cubre las filas donde vale 1. **$\bar y$** vale 1 en las cuatro filas con $y=0$: 000, 001, 100 y 101, es decir, 0, 1, 4 y 5. Con el truco de $(v+\bar v)$, $\bar y=(x+\bar x)\bar y(z+\bar z)$, que da cuatro minitérminos. **$xz$** vale 1 con $x=1$ y $z=1$, sea cual sea $y$: en 101 y 111, es decir, 5 y 7. La fila 5 sale dos veces, pero en una suma booleana $m_5+m_5=m_5$: se escribe una vez. $F=\Sigma m(0,1,4,5,7)$. Revisa: en 110, que no está en la lista, $\bar1+1\cdot0=0+0=0$.
+    tiempo_estimado_s: 90
+
+  # razonamiento: deductivo (el ΠM lleva las filas en 0, que son las que faltan en la Σm) · R1
+  # verificar: F armada como suma de los minitérminos 0, 3, 5 y 6 desde sus bits; las filas donde vale 0.
+  - id: disc-13-016
+    tipo: conjunto
+    dificultad: 3
+    conceptos: [maxterminos]
+    enunciado: >-
+      Sea $F(x,y,z)=\Sigma m(0,3,5,6)$. Escríbela como $\Pi M(\dots)$: ¿qué índices lleva? Las filas se numeran de 0 a 7 con $x$ como bit más significativo, y $M_i$ lleva barra donde el bit de $i$ es 1. Escribe los índices separados por comas, como `2, 6`.
+    respuesta: ["1", "2", "4", "7"]
+    verificar: { python: "(lambda lit: {i for i, v in enumerate(itertools.product((0, 1), repeat=3)) if max(lit(v[0], (j >> 2) & 1) & lit(v[1], (j >> 1) & 1) & lit(v[2], j & 1) for j in [0, 3, 5, 6]) == 0})(lambda v, b: v if b else 1 - v)" }
+    pistas:
+      - >-
+        Los índices de una $\Sigma m$, ¿son filas donde la función vale 1 o 0? ¿Y los de un $\Pi M$?
+      - >-
+        ¿Qué filas de 0 a 7 no aparecen en la lista? ¿Cuánto vale $F$ en ellas?
+    explicacion: >-
+      $\Sigma m(0,3,5,6)$ dice que $F$ vale 1 en las filas 0, 3, 5 y 6, y 0 en las demás: 1, 2, 4 y 7. Un $\Pi M$ lleva un maxitérmino por cada fila en 0, porque cada $M_i$ vale 0 solo en su fila: $F=\Pi M(1,2,4,7)$. Entre las dos listas están las 8 filas, sin repetir. Si escribiste 0, 3, 5, 6, ese producto vale 0 justo donde $F$ vale 1: es $\bar F$, no $F$. Revisa: en la fila 2 (010), $M_2=x+\bar y+z=0+\bar1+0=0$, y $F$ vale 0 ahí porque el 2 no está en la $\Sigma m$.
+    tiempo_estimado_s: 75
+
+  # razonamiento: abductivo (localizar el error plantado probando cada igualdad por separado) · R1
+  # Revisión manual (opción múltiple conceptual). Comprobado por enumeración: ¬(xy) + x = 1 en las 4 filas de (x, y);
+  # x̄ȳ + x = x + ȳ en las 4; ¬(xy) ≠ x̄ȳ en (0, 1) y (1, 0).
+  - id: disc-13-017
+    tipo: opcion_multiple
+    dificultad: 3
+    conceptos: [algebra-booleana]
+    enunciado: >-
+      Luis escribió $\overline{xy}+x=\bar x\bar y+x=x+\bar y$. ¿Qué diagnóstico es correcto?
+    opciones:
+      - >-
+        Todo está bien: el segundo paso es la ley $x+\bar xy=x+y$, con $\bar y$ en lugar de $y$.
+      - >-
+        El primer paso está bien, pero el segundo no: por absorción, $\bar x\bar y+x=x$.
+      - >-
+        El primer paso está mal: por De Morgan, $\overline{xy}=\bar x+\bar y$, y la expresión vale $\bar x+\bar y+x=1$.
+      - >-
+        El primer paso está mal: por De Morgan, $\overline{xy}=\bar x+\bar y$, pero aun así la expresión es igual a $x+\bar y$.
+    correcta: 2
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        ¿Cada igualdad de la cadena vale por sí sola? ¿Qué pasa si la pruebas con una fila de 0 y 1?
+      - >-
+        ¿Qué dice De Morgan de una barra larga sobre un producto? Con eso, ¿qué queda al sumarle $x$?
+    explicacion: >-
+      El diagnóstico correcto: el primer paso está mal, porque por De Morgan $\overline{xy}=\bar x+\bar y$, y la expresión vale $\bar x+\bar y+x=1$. Se revisa cada igualdad por separado. **La primera falla:** De Morgan dice $\overline{xy}=\bar x+\bar y$ (la barra sobre un producto da una suma), no $\bar x\bar y$. Con $x=1$ y $y=0$: $\overline{1\cdot0}=1$, pero $\bar1\cdot\bar0=0$. **La segunda sí vale:** $\bar x\bar y+x=x+\bar x\bar y=x+\bar y$, por la ley $x+\bar xw=x+w$ con $w=\bar y$; por eso parece que todo está bien. Tampoco falla por absorción, que pide $x+xw$, sin barra. **Lo correcto:** $\overline{xy}+x=\bar x+\bar y+x=(x+\bar x)+\bar y=1+\bar y=1$, por complemento y acotación: la expresión siempre vale 1, así que no es igual a $x+\bar y$, ni siquiera corrigiendo De Morgan. Revisa: con $x=0$ y $y=1$, $\overline{0\cdot1}+0=1$, mientras que $x+\bar y=0+0=0$.
+    tiempo_estimado_s: 75
+
+  # razonamiento: deductivo (comparar funciones por sus filas) · R2
+  # Pistas modelo de arquitecto-razonamiento (esquema-13).
+  # verificar: la función objetivo armada con los minitérminos 1, 3, 5, 6 y 7 desde sus bits, contra cada opción en
+  # las 8 filas.
+  - id: disc-13-018
+    tipo: seleccion_multiple
+    dificultad: 4
+    conceptos: [simplificar-booleana]
+    enunciado: >-
+      ¿Cuáles de estas expresiones son iguales a $F(x,y,z)=\Sigma m(1,3,5,6,7)$? Las filas se numeran de 0 a 7 con $x$ como bit más significativo. Puede haber varias.
+    opciones:
+      - >-
+        $z+x$
+      - >-
+        $z+xy$
+      - >-
+        $\bar xz+xy$
+      - >-
+        $(z+x)(z+y)$
+      - >-
+        $xyz+z$
+      - >-
+        $\bar yz+xy+yz$
+    correctas: [1, 3, 5]
+    verificar: { python: "(lambda P, lit: (lambda T: [all(f(*v) == T(*v) for v in P) for f in [lambda x, y, z: z | x, lambda x, y, z: z | (x & y), lambda x, y, z: ((1 - x) & z) | (x & y), lambda x, y, z: (z | x) & (z | y), lambda x, y, z: (x & y & z) | z, lambda x, y, z: ((1 - y) & z) | (x & y) | (y & z)]])(lambda x, y, z: max(lit(x, (i >> 2) & 1) & lit(y, (i >> 1) & 1) & lit(z, i & 1) for i in [1, 3, 5, 6, 7])))(list(itertools.product((0, 1), repeat=3)), lambda v, b: v if b else 1 - v)" }
+    pistas:
+      - >-
+        ¿Qué filas son esas, escritas en binario? ¿Hay una variable que valga lo mismo en varias de ellas? ¿Qué falta para cubrir las demás?
+      - >-
+        ¿Te conviene simplificar la $\Sigma m$, o sacar las filas de cada opción término por término?
+      - >-
+        ¿Cada opción que descartas tiene una fila concreta donde difiere? En las que aceptas, ¿coinciden las filas sin que sobre ni falte una?
+    explicacion: >-
+      **Las filas.** 1, 3, 5, 6 y 7 son 001, 011, 101, 110 y 111. Las cuatro impares son justo todas las filas con $z=1$: eso es $z$. Falta la 110, que es $xy\bar z$, y como $z+\bar zxy=z+xy$ (la ley $x+\bar xy=x+y$, con $z$ en lugar de $x$ y $xy$ en lugar de $y$), $F=z+xy$. **Las que sí:** $z+xy$; $(z+x)(z+y)$, que es $z+xy$ por la distributiva de $+$ sobre $\cdot$; y $\bar yz+xy+yz=z(\bar y+y)+xy=z+xy$. **Las que no**, cada una con su fila: $z+x$ vale 1 en 100, la fila 4, que no está en la lista; $\bar xz+xy$ vale 0 en 101, la fila 5, que sí está; y $xyz+z=z$ (absorción) vale 0 en 110, la fila 6, que sí está. Revisa: las tres aceptadas valen 1 en las filas 1, 3, 5, 6 y 7 y 0 en la 0, la 2 y la 4, sin que sobre ni falte una.
+    tiempo_estimado_s: 150
+
+  # razonamiento: deductivo (encadenar el complemento y el ΠM) · R2
+  # verificar: F armada con los minitérminos 1, 2, 4 y 7 desde sus bits; las filas donde 1 - F vale 0.
+  - id: disc-13-019
+    tipo: conjunto
+    dificultad: 4
+    conceptos: [maxterminos]
+    enunciado: >-
+      Sea $F(x,y,z)=\Sigma m(1,2,4,7)$. ¿Qué índices lleva el producto de maxitérminos de $\bar F$, el complemento de $F$? Las filas se numeran de 0 a 7 con $x$ como bit más significativo. Escribe los índices separados por comas, como `3, 4`.
+    respuesta: ["1", "2", "4", "7"]
+    verificar: { python: "(lambda lit: {i for i, v in enumerate(itertools.product((0, 1), repeat=3)) if (1 - max(lit(v[0], (j >> 2) & 1) & lit(v[1], (j >> 1) & 1) & lit(v[2], j & 1) for j in [1, 2, 4, 7])) == 0})(lambda v, b: v if b else 1 - v)" }
+    pistas:
+      - >-
+        ¿En qué filas vale 1 $F$? ¿Y en cuáles vale 1 $\bar F$?
+      - >-
+        Los índices de un $\Pi M$, ¿son las filas donde la función vale 1 o donde vale 0?
+      - >-
+        ¿Tu lista son filas donde $\bar F$ vale 0? Escoge una y comprueba: ¿cuánto vale $F$ en ella?
+    explicacion: >-
+      Son dos pasos encadenados. **1. $\bar F$.** $F$ vale 1 en 1, 2, 4 y 7, así que $\bar F$ vale 1 en las otras: $\bar F=\Sigma m(0,3,5,6)$. **2. Su $\Pi M$.** Un $\Pi M$ lleva las filas donde la función vale 0, y $\bar F$ vale 0 justo donde $F$ vale 1: $\bar F=\Pi M(1,2,4,7)$, con los mismos índices que la $\Sigma m$ de $F$. La trampa, 0, 3, 5, 6, son los índices de la $\Sigma m$ de $\bar F$ (y también del $\Pi M$ de $F$). Revisa: en la fila 1 (001), $M_1=x+y+\bar z=0+0+\bar1=0$, y $\bar F$ vale 0 ahí porque $F$ vale 1.
+    tiempo_estimado_s: 120
+
+  # razonamiento: deductivo (una función es su columna: fijar dos filas y contar las libres) · R2
+  # verificar: enumera las 2⁸ columnas posibles y cuenta las que cumplen las dos condiciones.
+  - id: disc-13-020
+    tipo: numerico
+    dificultad: 4
+    conceptos: [funcion-booleana]
+    enunciado: >-
+      ¿Cuántas funciones booleanas de 3 variables $(x,y,z)$ cumplen $F(0,0,0)=0$ y $F(1,1,1)=1$?
+    respuesta: 64
+    tolerancia: 0
+    verificar: { python: "sum(1 for col in itertools.product((0, 1), repeat=8) if col[0] == 0 and col[7] == 1)" }
+    pistas:
+      - >-
+        ¿Qué es, en el fondo, una función booleana de 3 variables? ¿Cuántas filas tiene su columna?
+      - >-
+        ¿Cuántas de esas filas ya tienen valor fijo, y cuántas quedan libres? ¿Cuántas opciones tiene cada fila libre?
+      - >-
+        ¿Tu razonamiento funciona en un caso chico? Con 1 variable y la condición $F(0)=0$, ¿cuántas funciones quedan, y coincide con lo que predice tu cuenta?
+    explicacion: >-
+      Una función de 3 variables es su columna: 8 filas, cada una con 0 o 1, así que en total hay $2^8=256$. Las condiciones fijan dos filas: la 0 (000) vale 0 y la 7 (111) vale 1. Las otras 6 filas quedan libres, cada una con 2 opciones, y por el principio del producto hay $2^6=64$ columnas. Otra forma de verlo: cada condición fija una fila distinta y deja la mitad de las funciones, $256/2/2=64$. Revisa: en un caso chico, con 1 variable hay $2^2=4$ funciones (0, 1, $x$ y $\bar x$), y con $F(0)=0$ quedan 2 (0 y $x$), que es $2^{2-1}$.
+    tiempo_estimado_s: 90
+
+  # razonamiento: deductivo (demostrar desde los axiomas sin usar lo que se demuestra, y dualizar) · R3
+  # Rúbrica, respuesta modelo y pistas de arquitecto-razonamiento (esquema-13); en la revisión del 2026-11-13 se
+  # ajustaron el criterio 2 y la respuesta modelo (ahora con la demostración dual justificada). Carlo confirmó que
+  # su examen pide las dos clases de demostración: esta va desde los axiomas; «citar leyes» la cubren el 011 y el
+  # ejemplo de la lección. Revisión manual. Comprobado por enumeración: x + xy = x y x(x + y) = x en las 4 filas.
+  - id: disc-13-021
+    tipo: autoevaluacion
+    dificultad: 4
+    conceptos: [algebra-booleana]
+    enunciado: >-
+      Demuestra $x+xy=x$ usando solo los axiomas (conmutativas, distributivas, identidad y complemento) y el dato $y+1=1$, que ya se demostró en la lección. Escribe una ley por renglón, con su nombre. Luego escribe el dual de $x+xy=x$ y explica por qué el dual también es ley.
+    rubrica:
+      - >-
+        Escribe $x=x\cdot1$ (identidad) y factoriza: $x\cdot1+xy=x(1+y)$, citando la distributiva de $\cdot$ sobre $+$ leída de derecha a izquierda.
+      - >-
+        Usa la conmutativa para que el paréntesis quede como $y+1$ (antes o después de factorizar) y cierra con $x\cdot1=x$ (identidad). Ningún renglón usa la absorción, porque sería suponer lo que se demuestra.
+      - >-
+        Escribe el dual, $x(x+y)=x$, cambiando $+\leftrightarrow\cdot$ y $0\leftrightarrow1$ y poniendo el paréntesis que $xy$ llevaba implícito (no $x\cdot x+y$).
+      - >-
+        Explica que el dual ya es ley: el dual de cada axioma es otro axioma, y como el dato se demostró con axiomas, su dual $y\cdot0=0$ también es ley; por eso la demostración dual sale renglón por renglón. No basta con decir «por dualidad».
+    respuesta_modelo: >-
+      $x+xy=x\cdot1+xy$ (identidad) $=x(1+y)$ (distributiva, de derecha a izquierda) $=x(y+1)$ (conmutativa) $=x\cdot1$ (dato) $=x$ (identidad). Ningún paso usa la absorción. El dual es $x(x+y)=x$. Ya es ley porque los axiomas son duales entre sí y el dual del dato, $y\cdot0=0$, también es ley (su demostración es la dual de la de $y+1=1$). La demostración dual, renglón por renglón: $x(x+y)=(x+0)(x+y)$ (identidad) $=x+0\cdot y$ (distributiva de $+$ sobre $\cdot$, de derecha a izquierda) $=x+y\cdot0$ (conmutativa) $=x+0$ (dual del dato) $=x$ (identidad).
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        ¿Qué se vale usar? ¿Cómo haces aparecer un factor común si el primer término no tiene $y$?
+      - >-
+        Ya factorizado, ¿el paréntesis está escrito exactamente como el dato, o falta un paso?
+      - >-
+        ¿Algún renglón usa lo que estás demostrando? Si dualizas cada renglón, ¿su justificación sigue siendo un axioma o algo ya demostrado?
+    explicacion: >-
+      $x+xy=x$ es la absorción, así que citarla sería circular: hay que llegar a ella con lo permitido. El truco es hacer aparecer un factor común escribiendo $x$ como $x\cdot1$; la distributiva, leída de derecha a izquierda, deja $x(1+y)$, y el dato cierra solo después de girar el paréntesis con la conmutativa, porque el dato dice $y+1$, no $1+y$. En el dual, el producto $xy$ se vuelve la suma $(x+y)$ con paréntesis; sin él saldría $x\cdot x+y$, que es $x+y$ y no es ley. Para justificarlo no basta decir «por dualidad»: cada renglón dual debe apoyarse en un axioma o en algo demostrado, y el dual del dato, $y\cdot0=0$, lo está, porque su demostración es la dual de la de $y+1=1$. Revisa: dualiza tu demostración renglón por renglón y comprueba que cada justificación siga siendo un axioma o el dato dual; y prueba las dos leyes en las cuatro filas de $\{0,1\}$.
+    tarjeta: false
+    tiempo_estimado_s: 240
+
+  # razonamiento: deductivo (la dualidad y la sustitución conservan una ley; las demás caen con una fila) · R2
+  # Pistas modelo de arquitecto-razonamiento (esquema-13). El dato es un consenso con literales negadas, no el de Mano.
+  # verificar: cada igualdad en las 8 filas (True = vale), solo si el dato también vale (si no, da None y falla).
+  - id: disc-13-022
+    tipo: seleccion_multiple
+    dificultad: 4
+    conceptos: [dualidad-booleana]
+    enunciado: >-
+      Dato: la igualdad $(\bar x+\bar y)(x+z)(\bar y+z)=(\bar x+\bar y)(x+z)$ vale en toda álgebra booleana. ¿Cuáles de estas igualdades valen también en toda álgebra booleana? Puede haber varias.
+    opciones:
+      - >-
+        $\bar x\bar y+xz+\bar yz=\bar x\bar y+\bar yz$
+      - >-
+        $\bar x\bar y+xz+\bar yz=\bar x\bar y+xz$
+      - >-
+        $\bar x\bar y+xz+\bar yz=(\bar x+\bar y)(x+z)$
+      - >-
+        $(\bar x+\bar y)(x+\bar z)(\bar y+\bar z)=(\bar x+\bar y)(x+\bar z)$
+      - >-
+        $(\bar x+\bar y)(x+z)=\bar yz$
+    correctas: [1, 3]
+    verificar: { python: "[all(a(*v) == b(*v) for v in itertools.product((0, 1), repeat=3)) for a, b in [(lambda x, y, z: ((1 - x) & (1 - y)) | (x & z) | ((1 - y) & z), lambda x, y, z: ((1 - x) & (1 - y)) | ((1 - y) & z)), (lambda x, y, z: ((1 - x) & (1 - y)) | (x & z) | ((1 - y) & z), lambda x, y, z: ((1 - x) & (1 - y)) | (x & z)), (lambda x, y, z: ((1 - x) & (1 - y)) | (x & z) | ((1 - y) & z), lambda x, y, z: ((1 - x) | (1 - y)) & (x | z)), (lambda x, y, z: ((1 - x) | (1 - y)) & (x | (1 - z)) & ((1 - y) | (1 - z)), lambda x, y, z: ((1 - x) | (1 - y)) & (x | (1 - z))), (lambda x, y, z: ((1 - x) | (1 - y)) & (x | z), lambda x, y, z: (1 - y) & z)]] if all((((1 - x) | (1 - y)) & (x | z) & ((1 - y) | z)) == (((1 - x) | (1 - y)) & (x | z)) for x, y, z in itertools.product((0, 1), repeat=3)) else None" }
+    pistas:
+      - >-
+        ¿Qué es dato y qué te piden? ¿Hace falta una tabla, o basta ver cómo sale cada opción a partir del dato?
+      - >-
+        ¿Cada opción es el dual del dato, el dato con una variable cambiada en todos lados, o ninguna de las dos? ¿Qué regla conserva la ley en cada caso?
+      - >-
+        En el dual, ¿hiciste el cambio en los dos lados? Para la opción que creas falsa, ¿qué fila lo demuestra?
+    explicacion: >-
+      **Lo que conserva una ley.** Dos reglas de la lección: el dual de una ley es ley, y si cambias una variable por cualquier expresión en todos sus lugares y en los dos lados, sigue siendo ley. **Sí:** $\bar x\bar y+xz+\bar yz=\bar x\bar y+xz$ es el dual del dato: cada producto de sumas pasa a suma de productos en los dos lados, y las barras se quedan. $(\bar x+\bar y)(x+\bar z)(\bar y+\bar z)=(\bar x+\bar y)(x+\bar z)$ es el dato con $z$ cambiada por $\bar z$ en sus tres lugares. **No**, cada una con una fila $(x,y,z)$: $\bar x\bar y+xz+\bar yz=\bar x\bar y+\bar yz$ se queda con el término equivocado, y falla en $(1,1,1)$, donde da $1=0$; $\bar x\bar y+xz+\bar yz=(\bar x+\bar y)(x+z)$ dualiza solo el lado izquierdo, y falla en $(0,0,0)$, donde da $1=0$; y $(\bar x+\bar y)(x+z)=\bar yz$ no sale de ninguna regla, y falla en $(1,0,0)$, donde da $1=0$. Revisa: en $(1,1,1)$, el dual da $0+1+0=0+1$, es decir, $1=1$, y el dato con $\bar z$ da $(0+0)(1+0)(0+0)=(0+0)(1+0)$, es decir, $0=0$.
+    tiempo_estimado_s: 150
+
+  # razonamiento: analógico (transferencia: del español a la función y de la función a sus filas) · R2
+  # Caso hipotético y original. verificar: la regla traducida, evaluada en las 16 filas de (w, x, y, z).
+  - id: disc-13-023
+    tipo: conjunto
+    dificultad: 5
+    conceptos: [minterminos]
+    enunciado: >-
+      Supón que el ventilador de un cuarto de servidores depende de cuatro sensores, en este orden: $w$ (temperatura alta), $x$ (puerta abierta), $y$ (modo nocturno) y $z$ (alarma de humo), cada uno con 1 = sí y 0 = no. La regla: «se enciende si la temperatura es alta y la puerta está cerrada, o si suena la alarma en modo nocturno (basta una de las dos); pero nunca si, a la vez, la puerta está abierta y suena la alarma». Escribe la función como $\Sigma m(\dots)$, con las filas numeradas de 0 a 15 y $w$ como bit más significativo (la fila 0101 es la 5). Escribe los índices separados por comas, como `12, 14`.
+    respuesta: ["3", "8", "9", "10", "11"]
+    verificar: { python: "{i for i, (w, x, y, z) in enumerate(itertools.product((0, 1), repeat=4)) if ((w & (1 - x)) | (y & z)) & (1 - (x & z))}" }
+    pistas:
+      - >-
+        ¿Qué variable le toca a cada condición, y qué operación a cada «y», «o» y «nunca»? ¿Cómo escribes «la puerta está cerrada»?
+      - >-
+        ¿Qué filas enciende cada parte de la regla antes del «pero»? ¿Cuáles apaga el «pero nunca»?
+      - >-
+        ¿Tu lista respeta el «nunca» en todas sus filas? Si pruebas una fila con la puerta abierta y la alarma sonando, ¿queda fuera de tu lista?
+    explicacion: >-
+      **Traduce.** «Temperatura alta y puerta cerrada» es $w\bar x$; «alarma en modo nocturno» es $yz$; «pero nunca si, a la vez, la puerta está abierta y suena la alarma» multiplica todo por $\overline{xz}$: $F=(w\bar x+yz)\,\overline{xz}$. **Las filas de cada parte.** $w\bar x$ pide $w=1$ y $x=0$, con $y$ y $z$ libres: de 1000 a 1011, las filas 8, 9, 10 y 11. $yz$ pide $y=1$ y $z=1$, con $w$ y $x$ libres: 0011, 0111, 1011 y 1111, las filas 3, 7, 11 y 15. Juntas, sin repetir la 11: 3, 7, 8, 9, 10, 11 y 15. **El «pero nunca».** Quita las filas con $x=1$ y $z=1$; de la lista, son la 7 (0111) y la 15 (1111). Queda $F=\Sigma m(3,8,9,10,11)$. Si olvidaste el «pero», te sobraron la 7 y la 15. Revisa: en la fila 11 (1011) la puerta está cerrada, así que el «nunca» no aplica y el ventilador se enciende; en la 7 (0111) suena la alarma en modo nocturno, pero la puerta está abierta, y no se enciende.
+    tiempo_estimado_s: 210
+
+  # razonamiento: deductivo (demostrar una implicación con leyes o refutarla en 𝒫({a, b, c})) · R4
+  # Pistas modelo de arquitecto-razonamiento (esquema-13); la 1 y la 2 se ajustaron en la revisión del 2026-11-13.
+  # verificar: cada implicación en las 8³ ternas de subconjuntos de {a, b, c} como máscaras 0–7 (0 = ∅,
+  # 7 = {a, b, c}, ∪ = |, ∩ = &, complemento = 7 ^ x); True = vale en todas. Las dos falsas que ya fallan en {0, 1} fallan también aquí; la de xy = 0 vale en {0, 1} y
+  # solo cae fuera. Las dos verdaderas se demuestran con leyes en la explicación.
+  - id: disc-13-024
+    tipo: seleccion_multiple
+    dificultad: 5
+    conceptos: [algebra-booleana]
+    enunciado: >-
+      ¿Cuáles de estas afirmaciones valen en **toda** álgebra booleana (no solo en $\{0,1\}$), para todos sus elementos $x$, $y$ y $z$? Puede haber varias.
+    opciones:
+      - >-
+        Si $x+y=x+z$, entonces $y=z$.
+      - >-
+        Si $xy=0$ y $x+y=1$, entonces $y=\bar x$.
+      - >-
+        Si $xy=0$, entonces $x=0$ o $y=0$.
+      - >-
+        Si $x+y=x+z$ y $\bar x+y=\bar x+z$, entonces $y=z$.
+      - >-
+        Si $x+y=1$, entonces $y=\bar x$.
+    correctas: [1, 3]
+    verificar: { python: "[all((not h(x, y, z)) or c(x, y, z) for x in range(8) for y in range(8) for z in range(8)) for h, c in [(lambda x, y, z: (x | y) == (x | z), lambda x, y, z: y == z), (lambda x, y, z: (x & y) == 0 and (x | y) == 7, lambda x, y, z: y == (7 ^ x)), (lambda x, y, z: (x & y) == 0, lambda x, y, z: x == 0 or y == 0), (lambda x, y, z: (x | y) == (x | z) and ((7 ^ x) | y) == ((7 ^ x) | z), lambda x, y, z: y == z), (lambda x, y, z: (x | y) == 7, lambda x, y, z: y == (7 ^ x))]]" }
+    pistas:
+      - >-
+        ¿Qué basta para tumbar una implicación? Si la conclusión no es una igualdad, ¿basta buscar el caso en $\{0,1\}$?
+      - >-
+        En la lección, $x+1=1$ empezó reescribiendo con un axioma: ¿y si haces lo mismo con $y$ para que aparezcan las hipótesis?
+      - >-
+        ¿Tu contraejemplo cumple la hipótesis y rompe la conclusión? ¿Usaste todas las hipótesis? Si una sobra, ¿la afirmación sigue valiendo sin ella?
+    explicacion: >-
+      **Para tumbar una implicación** basta un caso, en cualquier álgebra booleana, que cumpla la hipótesis y rompa la conclusión; para aceptarla hace falta una demostración con leyes. **Falsas.** «Si $x+y=x+z$, entonces $y=z$»: con $x=1$, $y=0$ y $z=1$, los dos lados valen 1, pero $y\neq z$. «Si $x+y=1$, entonces $y=\bar x$»: con $x=y=1$, $x+y=1$, pero $\bar x=0\neq y$. «Si $xy=0$, entonces $x=0$ o $y=0$» vale en $\{0,1\}$, pero no en $\mathcal P(\{a,b,c\})$: con $x=\{a\}$ y $y=\{b\}$, $x\cap y=\varnothing$ y ninguno es $\varnothing$. El dato de la lección solo cubre igualdades, y esta conclusión es un «o»: en $\{0,1\}$ todo elemento es 0 o 1, y por eso ahí parece valer. **Verdaderas.** «Si $xy=0$ y $x+y=1$, entonces $y=\bar x$»: $y=y\cdot1=y(x+\bar x)=yx+y\bar x=0+y\bar x=x\bar x+y\bar x=(x+y)\bar x=1\cdot\bar x=\bar x$; es decir, el complemento es único. «Si $x+y=x+z$ y $\bar x+y=\bar x+z$, entonces $y=z$»: $y=y+0=y+x\bar x=(y+x)(y+\bar x)=(x+y)(\bar x+y)=(x+z)(\bar x+z)=z+x\bar x=z+0=z$. Revisa: cada demostración usa sus dos hipótesis, y sin una de ellas la afirmación cae; justo eso muestran «si $x+y=1$…» y «si $x+y=x+z$…».
+    tiempo_estimado_s: 240
+
+  # razonamiento: algorítmico (pasar cada forma canónica a sus filas y operar fila por fila) · R2
+  # verificar: arma literalmente cada mᵢ (barra donde el bit es 0) y cada Mᵢ (barra donde el bit es 1) a partir de los
+  # bits de i, construye F como suma de mᵢ y G como producto de Mᵢ, y busca las filas donde F·Ḡ vale 1.
+  - id: disc-13-025
+    tipo: conjunto
+    dificultad: 5
+    conceptos: [maxterminos]
+    enunciado: >-
+      Sean $F(x,y,z)=\Sigma m(1,2,3,6)$ y $G(x,y,z)=\Pi M(1,3,4,7)$. ¿Qué índices lleva la $\Sigma m$ de $F\cdot\bar G$? Las filas se numeran de 0 a 7 con $x$ como bit más significativo; $m_i$ lleva barra donde el bit de $i$ es 0, y $M_i$, donde es 1. Escribe los índices separados por comas, como `0, 4, 5`.
+    respuesta: ["1", "3"]
+    verificar: { python: "(lambda b, P: (lambda m, M: (lambda F, G: {i for i, v in enumerate(P) if F(*v) & (1 - G(*v))})(lambda x, y, z: max(m(i)(x, y, z) for i in [1, 2, 3, 6]), lambda x, y, z: min(M(i)(x, y, z) for i in [1, 3, 4, 7])))(lambda i: lambda x, y, z: (x if b(i)[0] else 1 - x) & (y if b(i)[1] else 1 - y) & (z if b(i)[2] else 1 - z), lambda i: lambda x, y, z: ((1 - x) if b(i)[0] else x) | ((1 - y) if b(i)[1] else y) | ((1 - z) if b(i)[2] else z)))(lambda i: ((i >> 2) & 1, (i >> 1) & 1, i & 1), list(itertools.product((0, 1), repeat=3)))" }
+    pistas:
+      - >-
+        ¿En qué filas vale 1 $F$? ¿En cuáles vale 0 $G$, y entonces en cuáles vale 1 $\bar G$?
+      - >-
+        Un producto de dos funciones, ¿en qué filas vale 1?
+      - >-
+        ¿Usaste $\bar G$ o $G$? Para cada índice de tu lista, ¿$F$ vale 1 y $G$ vale 0 en esa fila?
+    explicacion: >-
+      **$F$** vale 1 en las filas 1, 2, 3 y 6. **$G=\Pi M(1,3,4,7)$** vale 0 justo en las filas 1, 3, 4 y 7, así que **$\bar G$** vale 1 en ellas. Un producto vale 1 donde los dos factores valen 1, es decir, en la intersección: $\{1,2,3,6\}\cap\{1,3,4,7\}=\{1,3\}$. Entonces $F\cdot\bar G=\Sigma m(1,3)$. Si te salió 2, 6, calculaste $F\cdot G$: $G$ vale 1 en 0, 2, 5 y 6, y su intersección con las filas de $F$ es $\{2,6\}$. Revisa: en la fila 3 (011), $m_3=\bar xyz$ vale 1, así que $F=1$; $M_3=x+\bar y+\bar z$ vale $0+0+0=0$, así que $G=0$ y $\bar G=1$.
+    tiempo_estimado_s: 180

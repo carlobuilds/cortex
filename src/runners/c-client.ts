@@ -10,6 +10,10 @@ let status: Promise<CStatus> | null = null;
 
 /** ¿Está disponible el runner? (se pregunta una vez por pestaña). */
 export function cRunnerStatus(): Promise<CStatus> {
+  // Build del iPad (export estático): el runner no existe, así que ni se intenta la petición (ADR-005).
+  if (process.env.NEXT_PUBLIC_CORTEX_PWA === "1") {
+    return Promise.resolve({ enabled: false, message: "C no corre en el iPad: practica estos ejercicios en la Mac." });
+  }
   status ??= fetch("/api/run-c", { cache: "no-store" })
     .then(async (r) => {
       const body = (await r.json()) as { enabled?: boolean; sandbox?: string; message?: string };

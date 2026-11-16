@@ -71,11 +71,11 @@ test("1 - el inicio: plan 2020, HUD del perfil, teclado y movimiento reducido", 
   expect(duration).toBeLessThanOrEqual(0.001);
   await page.emulateMedia({ reducedMotion: "no-preference" });
 
-  // El plan completo: 45 entradas, 2 con contenido.
+  // El plan completo: 45 entradas, 3 con contenido (cálculo, discretas y programación).
   await page.goto("/materias");
   await expect(page.getByRole("heading", { level: 2, name: /^Mapa del plan/ })).toBeVisible();
   await expect(page.locator("[data-has-content]")).toHaveCount(45);
-  await expect(page.locator('[data-has-content="true"]')).toHaveCount(2);
+  await expect(page.locator('[data-has-content="true"]')).toHaveCount(3);
   await expect(page.getByRole("navigation", { name: "Principal" }).getByRole("link", { name: "Materias" })).toHaveAttribute("aria-current", "page");
 
   // Recorrido solo con teclado: inicio → materia → lección.
@@ -241,7 +241,7 @@ test("4 - respaldo: exportar, borrar, importar con confirmación y rechazar uno 
     expect(b && box && b.x + b.width <= box.x + box.width + 0.5, await button.innerText()).toBe(true);
   }
   // Descargar desde el diálogo deja el resultado a la vista dentro del diálogo.
-  await Promise.all([page.waitForEvent("download"), dialog.getByRole("button", { name: "Descargar mis datos actuales primero" }).click()]);
+  await Promise.all([page.waitForEvent("download"), dialog.getByRole("button", { name: "Guardar primero una copia de este dispositivo" }).click()]);
   await expect(dialog.getByRole("status")).toContainText("Respaldo descargado");
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
@@ -250,7 +250,7 @@ test("4 - respaldo: exportar, borrar, importar con confirmación y rechazar uno 
   await page.keyboard.press("Enter");
   await expect(cancel).toBeFocused();
   await page.keyboard.press("Tab");
-  await expect(page.getByRole("button", { name: "Sí, reemplazar" })).toBeFocused();
+  await expect(page.getByRole("button", { name: "Reemplazar con el respaldo" })).toBeFocused();
   await page.keyboard.press("Enter");
   const restored = page.getByRole("status").filter({ hasText: "tus datos se restauraron" });
   await expect(restored).toBeVisible();
@@ -363,5 +363,54 @@ test("7 - si el navegador borra los datos del sitio, la pestaña lo dice en vez 
   await page.reload();
   await expect(page.getByRole("banner").getByRole("img", { name: "Nivel 1" })).toBeVisible();
   await expect(sound).toBeEnabled();
+  expect(errors).toEqual([]);
+});
+
+test("8 - en la Mac no hay service worker: sin registros y /sw.js da 404", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Tu sesión de hoy");
+  expect(await page.evaluate(async () => (await navigator.serviceWorker.getRegistrations()).length)).toBe(0);
+  const res = await page.request.get("/sw.js");
+  expect(res.status()).toBe(404);
+});
+
+test("9 - importar un respaldo muestra en el diálogo los hechos y el bloque de aviso, y Cancelar no cambia nada", async ({ page }) => {
+  const dir = mkdtempSync(join(tmpdir(), "cortex-e2e-"));
+  const errors = collectErrors(page);
+  await page.goto("/ajustes");
+  await expect(page.getByLabel("Importar respaldo")).toBeEnabled();
+  await expect(page.getByText("Un dispositivo a la vez: exporta al terminar, importa al empezar.")).toBeVisible();
+
+  const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "Descargar respaldo" }).click()]);
+  const file = join(dir, "mismo.json");
+  await download.saveAs(file);
+
+  await page.getByLabel("Importar respaldo").setInputFiles(file);
+  await page.getByRole("button", { name: "Reemplazar mis datos con este respaldo" }).click();
+  const dialog = page.getByRole("alertdialog");
+  await expect(dialog).toBeVisible();
+
+  // Hechos de las dos columnas.
+  const facts = dialog.getByTestId("import-facts");
+  await expect(facts.getByText("Este dispositivo")).toBeVisible();
+  await expect(facts.getByText("Respaldo", { exact: true })).toBeVisible();
+  await expect(facts).toContainText("Última actividad: sin actividad");
+  await expect(facts).toContainText("Exportado:");
+  await expect(facts).toContainText("0 intentos");
+
+  // Bloque de aviso (mientras la regla de Carlo no diga «ok»), sin depender del texto de las razones.
+  const aviso = dialog.getByTestId("import-aviso");
+  await expect(aviso).toBeVisible();
+  await expect(aviso).toContainText("Lo que hiciste en este dispositivo después del respaldo se perdería al importar.");
+  await expect(aviso.locator("li").first()).toBeVisible();
+
+  await expect(page.getByRole("button", { name: "Cancelar" })).toBeFocused();
+  await expect(dialog.getByRole("button", { name: "Guardar primero una copia de este dispositivo" })).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Reemplazar con el respaldo" })).toBeVisible();
+  await page.screenshot({ path: join(process.env.CORTEX_SHOTS ?? dir, "dialogo-aviso.png") });
+
+  await page.getByRole("button", { name: "Cancelar" }).click();
+  await expect(dialog).toBeHidden();
+  rmSync(dir, { recursive: true, force: true });
   expect(errors).toEqual([]);
 });

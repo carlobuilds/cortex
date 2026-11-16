@@ -1,0 +1,623 @@
+# Unidad 09 · Integrales trigonométricas, sustitución trigonométrica y fracciones parciales (Unidad IV, 4.4 y 4.5).
+# Sprint del 3.er parcial. Esquema revisado por experto-matematicas, pedagogo y arquitecto-razonamiento (esquema-09,
+# 2026-11-12); Carlo decidió el orden del triaje (partes al final) y el alcance de 4.4 (sen/cos en A, tan/sec en B con el
+# 011, y los productos sen mx cos nx en C, una línea de la lección sin ejercicios).
+# Anclas (primer ejercicio de cada concepto, workedExampleFor): 001 TR, 002 ST, 003 FP, 004 ET. Un concepto por ejercicio.
+# Abreviaturas: TR integrales-trigonometricas · ST sustitucion-trigonometrica · FP fracciones-parciales ·
+# ET eleccion-tecnica-integracion.
+# Escalera 5/5/7/5/3. Por concepto: TR 5, ST 6, FP 8 (4.5 es el tema con más horas del programa) y ET 6.
+# Arreglos de la revisión (arreglos-09, 2026-11-12): el 004 gana un ítem, el 014 pasa a simbolico con arcsen, el 015 se
+# reemplaza (repetía la estructura del 022) y entra al jefe en lugar del 016; tolerancia 0.0005 en 011, 016 y 019.
+# Códigos del triaje (004 y 017): el número de la PRIMERA pregunta que dice «sí» (versión 2 de la lección), no «la técnica
+# que funciona», porque casi siempre hay otro camino.
+# simbolico con salvo_constante: variables [x], C mayúscula; el enunciado siempre da el intervalo, así los argumentos de
+# ln son positivos y la `respuesta` va sin abs; con dominio restringido, `muestreo` dentro del intervalo. En la
+# `respuesta`: asin, atan, exp y ln. La app no tiene arcsec, asec, arccsc, arccot ni acoth; nunca acos(a/x).
+# Cierre de cada simbolico (igual en los siete: 006, 010, 013, 014, 018, 020 y 025; el 001 tiene el suyo, en u): sin +C
+# (o con C mayúscula); * en cada producto, también entre número y función; cada argumento entre paréntesis; inversas con
+# su nombre, nunca ^(-1) (la app lee sen^(-1) y tan^(-1) como 1/sen y 1/tan, y arcsen x/5 como arcsen(x)/5, sin avisar).
+# Coeficientes de fracciones parciales: A, B, D o P, Q; nunca C, que es la constante de integración.
+# `completar` y `<Desvanecido>`: solo huecos numéricos, siempre fuera de las fórmulas KaTeX.
+# Patrones de verificar (experto-matematicas): sin Piecewise, integrate(f, x); con Piecewise, la rama cuya condición
+# vale en un punto del intervalo (nunca .args[0][0]); sin evaluar, se traslada; en otra variable, (lambda u: …)(Symbol('u')).
+# Pistas: 1 en d1–2, 2 en d3 y 3 en d4–5. Desde d3 la primera es el triaje (versión 2), salvo en el 012, el 021 y el 023
+# (error plantado y monitoreo), que abren con la de entender, y en el 022 y el 024, que llevan las pistas modelo de
+# arquitecto-razonamiento. Desde d3, el enunciado no nombra la técnica y la explicación abre con «Tipo.» y cierra con
+# «Revisa:».
+# «Salvo un factor constante» (la derivada de adentro multiplicada por un número) no es «salvo una constante» (la +C).
+# Ningún texto de esta unidad cita los resultados de los ejercicios de repaso del jefe (calc-08-014, calc-08-017 y
+# calc-08-018) ni los de la 08 que lista el esquema; ninguno pide ∫dp/(p(1 - p)), que resuelve la Conexión.
+unidad: calculo/09-tecnicas-integracion
+ejercicios:
+  # razonamiento: algorítmico (guardar un factor y convertir con la pitagórica) · R0
+  # verificar: x = asin(u)/3, la inversa de u = sen 3x en el rango de la lección; g(u) = f(x(u))·dx/du con sympy (otra vía
+  # que sustituir en el integrando). No es salvo_constante: se pide el integrando en u, no la antiderivada.
+  - id: calc-09-001
+    tipo: simbolico
+    dificultad: 1
+    conceptos: [integrales-trigonometricas]
+    enunciado: >-
+      En $\int\cos^3(3x)\operatorname{sen}^2(3x)\,dx$, la potencia del coseno es impar: guarda un $\cos(3x)$, convierte el resto con $\operatorname{sen}^2+\cos^2=1$ y usa $u=\operatorname{sen}(3x)$. Así la integral queda $\int g(u)\,du$. ¿Cuánto vale $g(u)$? Escribe solo esa expresión, sin $du$ ni $+C$; no debe quedar ninguna $x$. Cada producto lleva `*` y las potencias van con `^`, como `u^3`.
+    respuesta: "(u^2 - u^4)/3"
+    variables: [u]
+    verificar: { sympy: "(lambda u: simplify((cos(3*x)**3*sin(3*x)**2).subs(x, asin(u)/3)*diff(asin(u)/3, u)))(Symbol('u'))" }
+    pistas:
+      - >-
+        Si $u=\operatorname{sen}(3x)$, ¿cuánto vale $du$? Después de guardar un $\cos(3x)$, ¿cómo escribes el $\cos^2(3x)$ que queda en términos de $u$?
+    explicacion: >-
+      **Guarda un factor.** $\cos^3(3x)\operatorname{sen}^2(3x)=\cos^2(3x)\operatorname{sen}^2(3x)\cdot\cos(3x)$. **Convierte el resto.** $\cos^2(3x)=1-\operatorname{sen}^2(3x)=1-u^2$. **El $du$.** $du=3\cos(3x)\,dx$, así que $\cos(3x)\,dx=\frac{du}{3}$. **En $u$.** $\int(1-u^2)u^2\cdot\frac{du}{3}=\int\frac{u^2-u^4}{3}\,du$: lo que se pedía es $g(u)=\frac{u^2-u^4}{3}$. **Termina.** $\frac13\left(\frac{u^3}{3}-\frac{u^5}{5}\right)=\frac{\operatorname{sen}^3(3x)}{9}-\frac{\operatorname{sen}^5(3x)}{15}+C$. Revisa: por la cadena, la derivada es $\operatorname{sen}^2(3x)\cos(3x)-\operatorname{sen}^4(3x)\cos(3x)=\operatorname{sen}^2(3x)\cos(3x)\left(1-\operatorname{sen}^2(3x)\right)=\cos^3(3x)\operatorname{sen}^2(3x)$, el integrando. Si te quedó $u^2-u^4$, olvidaste el $\frac13$ de $du$. Si las dos potencias fueran pares, no habría un factor que guardar: se baja el grado con $\operatorname{sen}^2\theta=\frac{1-\cos2\theta}{2}$ y $\cos^2\theta=\frac{1+\cos2\theta}{2}$.
+    tiempo_estimado_s: 50
+
+  # razonamiento: algorítmico (dx, la potencia y el regreso con el triángulo, con la sustitución dada) · R0
+  # verificar: dx/dθ entre cos θ; la potencia entre cos³θ y el coeficiente de sec²θ, exactos en θ = π/6; k sale de la rama
+  # de la integral de sympy que vale en x = 1 (patrón de Piecewise).
+  - id: calc-09-002
+    tipo: completar
+    dificultad: 1
+    conceptos: [sustitucion-trigonometrica]
+    enunciado: >-
+      Calcula $\int\frac{dx}{(25-x^2)^{3/2}}$ para $\lvert x\rvert<5$, con $x=5\operatorname{sen}\theta$ y $\theta\in\left(-\frac\pi2,\frac\pi2\right)$. Escribe decimales sin redondear o fracciones como `1/6`.
+    texto: >-
+      $dx=$ ___ $\cos\theta\,d\theta$ · $(25-x^2)^{3/2}=$ ___ $\cos^3\theta$ · la integral queda ___ $\int\sec^2\theta\,d\theta$ · el resultado es $\frac{x}{k\sqrt{25-x^2}}+C$, con $k=$ ___
+    respuestas: ["5", "125", "1/25", "25"]
+    verificar: { sympy: "(lambda T, F: [simplify(diff(5*sin(t), t)/cos(t)), (25 - (5*sin(T))**2)**Rational(3, 2)/cos(T)**3, (diff(5*sin(t), t)/(25 - (5*sin(t))**2)**Rational(3, 2)/sec(t)**2).subs(t, T), simplify(x/(sqrt(25 - x**2)*F))])(pi/6, [e for e, c in integrate(1/(25 - x**2)**Rational(3, 2), x).args if c.subs(x, 1) == True][0])" }
+    pistas:
+      - >-
+        Si $x=5\operatorname{sen}\theta$, ¿cuánto vale $dx$? ¿En qué se convierte $25-25\operatorname{sen}^2\theta$, y qué le pasa al elevarlo a la $\frac32$? Para regresar, ¿qué lados tiene el triángulo de $\operatorname{sen}\theta=\frac x5$?
+    explicacion: >-
+      **Sustituye.** $dx=5\cos\theta\,d\theta$. **La potencia.** $25-25\operatorname{sen}^2\theta=25\cos^2\theta$, y como $\cos\theta>0$ en el rango, $\left(25\cos^2\theta\right)^{3/2}=125\cos^3\theta$. **Integra.** $\int\frac{5\cos\theta\,d\theta}{125\cos^3\theta}=\frac{1}{25}\int\sec^2\theta\,d\theta=\frac{1}{25}\tan\theta+C$. **El triángulo.** $\operatorname{sen}\theta=\frac x5$: cateto opuesto $x$, hipotenusa 5 y, por Pitágoras, cateto adyacente $\sqrt{25-x^2}$; así, $\tan\theta=\frac{x}{\sqrt{25-x^2}}$. **Resultado.** $\frac{x}{25\sqrt{25-x^2}}+C$: $k=25$. Revisa: por el cociente, $\left[\frac{x}{\sqrt{25-x^2}}\right]'=\frac{\sqrt{25-x^2}+\frac{x^2}{\sqrt{25-x^2}}}{25-x^2}=\frac{25}{(25-x^2)^{3/2}}$, y entre 25 da el integrando. Si escribes $\frac1{25}\tan\frac x5$, no regresaste bien a $x$: $\theta$ no es $\frac x5$, sino el ángulo con $\operatorname{sen}\theta=\frac x5$.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (tapar y evaluar; revisar en un punto) · R0
+  # verificar: los residuos de sympy en 5 y en -1 (el coeficiente de cada polo simple) y el valor de la fracción en 0.
+  - id: calc-09-003
+    tipo: completar
+    dificultad: 1
+    conceptos: [fracciones-parciales]
+    enunciado: >-
+      Con $x^2-4x-5=(x-5)(x+1)$, descompón $\frac{5x-13}{x^2-4x-5}=\frac{A}{x-5}+\frac{B}{x+1}$ con el método de tapar. Revisa en $x=0$: la suma $\frac{A}{x-5}+\frac{B}{x+1}$ debe valer lo mismo que la fracción original. Escribe decimales sin redondear o fracciones como `1/6`.
+    texto: >-
+      $A=$ ___ · $B=$ ___ · en $x=0$, las dos valen ___
+    respuestas: ["2", "3", "13/5"]
+    verificar: { sympy: "(lambda f: [residue(f, x, 5), residue(f, x, -1), f.subs(x, 0)])((5*x - 13)/(x**2 - 4*x - 5))" }
+    pistas:
+      - >-
+        Para hallar $A$, ¿qué factor tapas y en qué valor de $x$ evalúas lo que queda? ¿Y para $B$?
+    explicacion: >-
+      **Tapa $x-5$** y evalúa lo demás en $x=5$: $A=\frac{25-13}{5+1}=\frac{12}{6}=2$. **Tapa $x+1$** y evalúa en $x=-1$: $B=\frac{-5-13}{-1-5}=\frac{-18}{-6}=3$. Funciona porque, al multiplicar la igualdad por $x-5$, queda $\frac{5x-13}{x+1}=A+\frac{B(x-5)}{x+1}$, y en $x=5$ el último término se anula. **Revisa en $x=0$.** La fracción vale $\frac{-13}{-5}=\frac{13}{5}$, y la suma, $\frac{2}{-5}+\frac{3}{1}=\frac{13}{5}$: coinciden. Un punto descubre errores, pero no los descarta; la revisión completa es sumar las fracciones: $\frac{2(x+1)+3(x-5)}{(x-5)(x+1)}=\frac{5x-13}{x^2-4x-5}$. Con eso, $\int\frac{5x-13}{x^2-4x-5}\,dx=2\ln\lvert x-5\rvert+3\ln\lvert x+1\rvert+C$.
+    tiempo_estimado_s: 50
+
+  # razonamiento: deductivo (aplicar el triaje en orden) · R1
+  # Revisión manual. Clasificación por el triaje de la lección (la primera pregunta que dice «sí»). Comprobado con sympy:
+  # ∫dx/√(25 - x²) = asin(x/5); ∫x cos(x²) dx = sen(x²)/2; 1/(x² - 4) = 1/(4(x - 2)) - 1/(4(x + 2)); ∫cos³x dx = sen x - sen³x/3; ∫x²e^(3x) sale
+  # por partes; ∫√(25 - x²) dx = 25 asin(x/5)/2 + x√(25 - x²)/2.
+  - id: calc-09-004
+    tipo: completar
+    dificultad: 1
+    conceptos: [eleccion-tecnica-integracion]
+    enunciado: >-
+      Sin resolverlas, pasa cada integral por el triaje (versión 2) y escribe el número de la primera pregunta que diga «sí»: 1 si ya está en la tabla o llega a ella al desarrollar, al simplificar o, si arriba el grado es mayor o igual, al dividir; 2 si hay una función de adentro cuya derivada, salvo un factor constante, multiplica al resto; 3 si es polinomio entre polinomio; 4 si son solo potencias de sen y cos, o de tan y sec; 5 si hay una raíz $\sqrt{a^2-x^2}$, $\sqrt{a^2+x^2}$ o $\sqrt{x^2-a^2}$ (o su potencia); 6 si es un producto de dos tipos de función distintos (de los de LIATE), o un ln o un arctan solos. Para clasificar, deja las identidades trigonométricas para la 4. Una $u$ que solo cambia la letra (como $u=x$, o $u=5x$ cuando afuera sobra una $x$) no cuenta como 2, y una forma que reconoces de memoria, como $\int\frac{g'}{g}\,dx=\ln\lvert g\rvert+C$, sí cuenta como 2.
+    texto: >-
+      $\int\frac{dx}{\sqrt{25-x^2}}$: ___ · $\int\sqrt{25-x^2}\,dx$: ___ · $\int x^2e^{3x}\,dx$: ___ · $\int\frac{dx}{x^2-4}$: ___ · $\int\cos^3x\,dx$: ___ · $\int x\cos(x^2)\,dx$: ___
+    respuestas: ["1", "5", "6", "3", "4", "2"]
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        Con cada una, recorre las preguntas desde la 1 y detente en la primera que diga «sí». ¿En cuál está la derivada de la función de adentro multiplicando?
+    explicacion: >-
+      Con cada integrando se recorre el triaje desde la 1. **$\frac{1}{\sqrt{25-x^2}}$:** ya es un renglón de la tabla de esta unidad, con $a=5$: **1**, y da $\operatorname{arcsen}\frac x5+C$, sin triángulo. **$\sqrt{25-x^2}$:** no es tabla; la 2 dice no, porque la derivada de $25-x^2$ es $-2x$ y afuera no hay $x$; no es polinomio entre polinomio ni potencias trigonométricas; la 5 dice sí, con $a=5$: **5**. **$x^2e^{3x}$:** la 1 no; la 2 no, porque con $u=3x$ solo cambia la letra: queda $\frac1{27}\int u^2e^u\,du$; la 3, la 4 y la 5 no; es un polinomio por una exponencial, dos tipos distintos: **6**, partes. **$\frac1{x^2-4}$:** no está en la tabla (lleva $x^2-4$, no $x^2+4$); la 2 no, porque la derivada de $x^2-4$ es $2x$ y arriba hay 1; es polinomio entre polinomio: **3**. **$\cos^3x$:** la 1 no; la 2 no, porque $\cos x$ está dentro del cubo, pero su derivada, $-\operatorname{sen}x$, no multiplica (con $\cos^2x=1-\operatorname{sen}^2x$ saldría una sustitución, pero las identidades son de la 4); la 3 no; son solo potencias del coseno: **4** (guarda un $\cos x$ y convierte $\cos^2x=1-\operatorname{sen}^2x$). **$x\cos(x^2)$:** la función de adentro es $x^2$, y su derivada, $2x$, multiplica salvo el factor 2: **2**, y da $\frac12\operatorname{sen}(x^2)+C$. Revisa: al derivar $\frac12\operatorname{sen}(x^2)$ sale $\frac12\cos(x^2)\cdot2x=x\cos(x^2)$.
+    tiempo_estimado_s: 90
+
+  # razonamiento: espacial (leer tan θ en el triángulo de sen θ = x/6) · R1
+  # verificar: tan(asin(x/6)) de sympy contra los valores de cada opción (para |x| < 6 es x/√(36 - x²)).
+  - id: calc-09-005
+    tipo: opcion_multiple
+    dificultad: 1
+    conceptos: [sustitucion-trigonometrica]
+    enunciado: >-
+      Con $x=6\operatorname{sen}\theta$, $\lvert x\rvert<6$ y $\theta\in\left(-\frac\pi2,\frac\pi2\right)$, ¿cuánto vale $\tan\theta$ en términos de $x$?
+    opciones:
+      - >-
+        $\dfrac{x}{6}$
+      - >-
+        $\dfrac{\sqrt{36-x^2}}{x}$
+      - >-
+        $\dfrac{x}{\sqrt{36-x^2}}$
+      - >-
+        $\dfrac{6}{\sqrt{36-x^2}}$
+    valores: ["x/6", "sqrt(36 - x**2)/x", "x/sqrt(36 - x**2)", "6/sqrt(36 - x**2)"]
+    correcta: 2
+    verificar: { sympy: "tan(asin(x/6))" }
+    pistas:
+      - >-
+        Si $\operatorname{sen}\theta=\frac x6$, ¿qué lados del triángulo valen $x$ y 6? ¿Cuánto mide el tercero, y qué cociente de lados es $\tan\theta$?
+    explicacion: >-
+      $\operatorname{sen}\theta=\frac x6$ es cateto opuesto entre hipotenusa: el opuesto mide $x$ y la hipotenusa, 6. Por Pitágoras, el adyacente mide $\sqrt{36-x^2}$. Entonces $\tan\theta=\frac{\text{opuesto}}{\text{adyacente}}=\frac{x}{\sqrt{36-x^2}}$. Las otras: $\frac x6$ es $\operatorname{sen}\theta$; $\frac{\sqrt{36-x^2}}{x}$ es $\cot\theta$, el cociente al revés; $\frac{6}{\sqrt{36-x^2}}$ es $\sec\theta$. Con $x$ negativa también vale: $\theta$ es negativo, y $\tan\theta$ también. Revisa en $x=3$: $\theta=\frac\pi6$ y $\tan\frac\pi6=\frac{1}{\sqrt3}$, y $\frac{3}{\sqrt{27}}=\frac{1}{\sqrt3}$.
+    tiempo_estimado_s: 40
+
+  # razonamiento: algorítmico (bajar el grado con el ángulo doble) · R1
+  # verificar: la integral de sympy.
+  - id: calc-09-006
+    tipo: simbolico
+    dificultad: 2
+    conceptos: [integrales-trigonometricas]
+    enunciado: >-
+      Calcula $\int\operatorname{sen}^2\frac{x}{2}\,dx$ bajando el grado. Escribe solo la expresión, sin $+C$ (si la pones, con $C$ mayúscula). Cada producto lleva `*`, también entre un número y una función (`12*sen(x)`), y cada argumento va entre paréntesis (`cos(4*x)`, `sqrt(w)`, `ln(abs(w))`). Las trigonométricas inversas se escriben con su nombre, como `arcsen(w)` o `arctan(w)`, nunca con `^(-1)`.
+    respuesta: "x/2 - sin(x)/2"
+    variables: [x]
+    salvo_constante: true
+    verificar: { sympy: "integrate(sin(x/2)**2, x)" }
+    pistas:
+      - >-
+        ¿Qué identidad baja el grado de $\operatorname{sen}^2\theta$? Con $\theta=\frac x2$, ¿cuánto vale $2\theta$?
+    explicacion: >-
+      Con $\operatorname{sen}^2\theta=\frac{1-\cos2\theta}{2}$ y $\theta=\frac x2$: $\operatorname{sen}^2\frac x2=\frac{1-\cos x}{2}$. Entonces $\int\frac{1-\cos x}{2}\,dx=\frac x2-\frac{\operatorname{sen}x}{2}+C$; en la app, `x/2 - sen(x)/2`, con o sin `+ C`. Revisa: la derivada es $\frac12-\frac{\cos x}{2}=\frac{1-\cos x}{2}=\operatorname{sen}^2\frac x2$. El error típico es tratarla como una potencia de la tabla: $\frac{\operatorname{sen}^3(x/2)}{3}$ deriva a $\frac12\operatorname{sen}^2\frac x2\cos\frac x2$, porque la cadena pide un $\cos\frac x2$ que no está.
+    tiempo_estimado_s: 50
+
+  # razonamiento: deductivo (la identidad pitagórica que corresponde a cada forma) · R1
+  # verificar: el radicando con la sustitución, entre sen², cos², tan² y sec² de t (t es θ): True si alguno da un número
+  # positivo, es decir, si la raíz es un número por una sola función trigonométrica.
+  - id: calc-09-007
+    tipo: seleccion_multiple
+    dificultad: 2
+    conceptos: [sustitucion-trigonometrica]
+    enunciado: >-
+      ¿Con qué pares de raíz y sustitución la raíz se vuelve un solo término, sin raíz: un número por $\operatorname{sen}\theta$, $\cos\theta$, $\tan\theta$ o $\sec\theta$? En cada par, $x$ está en el dominio de la raíz, con $x$ mayor que el número que multiplica a $\sec\theta$ si la sustitución usa la secante, y $\theta$ va en el rango de la lección. Puede haber varios.
+    opciones:
+      - >-
+        $\sqrt{x^2-100}$ con $x=10\sec\theta$
+      - >-
+        $\sqrt{100-x^2}$ con $x=10\tan\theta$
+      - >-
+        $\sqrt{x^2+100}$ con $x=10\sec\theta$
+      - >-
+        $\sqrt{100+x^2}$ con $x=10\tan\theta$
+      - >-
+        $\sqrt{4x^2-100}$ con $x=5\sec\theta$
+      - >-
+        $\sqrt{100-x^2}$ con $x=100\operatorname{sen}\theta$
+    correctas: [0, 3, 4]
+    verificar: { sympy: "[any(simplify(R.subs(x, S)/g**2).is_number and simplify(R.subs(x, S)/g**2) > 0 for g in [sin(t), cos(t), tan(t), sec(t)]) for R, S in [(x**2 - 100, 10*sec(t)), (100 - x**2, 10*tan(t)), (x**2 + 100, 10*sec(t)), (100 + x**2, 10*tan(t)), (4*x**2 - 100, 5*sec(t)), (100 - x**2, 100*sin(t))]]" }
+    pistas:
+      - >-
+        ¿Qué identidad pitagórica convierte $a^2-a^2\operatorname{sen}^2\theta$, $a^2+a^2\tan^2\theta$ o $a^2\sec^2\theta-a^2$ en un solo cuadrado? En cada par, ¿la sustitución lleva el mismo $a$ que la raíz?
+    explicacion: >-
+      La sustitución tiene que convertir lo de adentro en $a^2$ por un cuadrado, con la identidad de su forma. **Sí:** $\sqrt{x^2-100}$ con $x=10\sec\theta$ da $\sqrt{100\sec^2\theta-100}=\sqrt{100\tan^2\theta}=10\tan\theta$; $\sqrt{100+x^2}$ con $x=10\tan\theta$ da $\sqrt{100\sec^2\theta}=10\sec\theta$; $\sqrt{4x^2-100}$ con $x=5\sec\theta$ da $\sqrt{100\sec^2\theta-100}=10\tan\theta$, porque $4x^2=(2x)^2$ y $2x=10\sec\theta$. **No:** $\sqrt{100-x^2}$ con $x=10\tan\theta$ da $10\sqrt{1-\tan^2\theta}$, que sigue con raíz (la forma $a^2-x^2$ pide el seno); $\sqrt{100-x^2}$ con $x=100\operatorname{sen}\theta$ da $\sqrt{100-10000\operatorname{sen}^2\theta}$, con el $a$ equivocado; $\sqrt{x^2+100}$ con $x=10\sec\theta$ da $10\sqrt{\sec^2\theta+1}$, también con raíz (la forma $a^2+x^2$ pide la tangente). Revisa: en el rango de la lección, $\tan\theta\ge0$ y $\sec\theta>0$, así que en los tres pares buenos la raíz sale sin valor absoluto.
+    tiempo_estimado_s: 60
+
+  # razonamiento: algorítmico (dividir y descomponer la parte propia) · R1
+  # verificar: el cociente y el residuo de div de sympy, y los residuos (de los polos) de la parte propia en 1 y en -1.
+  - id: calc-09-008
+    tipo: completar
+    dificultad: 2
+    conceptos: [fracciones-parciales]
+    enunciado: >-
+      La fracción $\frac{x^3+2x^2-x+3}{x^2-1}$ es impropia: divide y descompón la parte propia. Escribe decimales sin redondear o fracciones como `1/6`.
+    texto: >-
+      cociente: $x+$ ___ · residuo: ___ · $\frac{\text{residuo}}{x^2-1}=\frac{A}{x-1}+\frac{B}{x+1}$, con $A=$ ___ y $B=$ ___
+    respuestas: ["2", "5", "5/2", "-5/2"]
+    verificar: { sympy: "(lambda q, r: [q - x, r, residue(r/(x**2 - 1), x, 1), residue(r/(x**2 - 1), x, -1)])(*div(x**3 + 2*x**2 - x + 3, x**2 - 1, x))" }
+    pistas:
+      - >-
+        Al dividir $x^3+2x^2-x+3$ entre $x^2-1$, ¿con qué término empieza el cociente? Cuando lo que sobra ya tiene grado menor que 2, ¿cómo factorizas $x^2-1$ para tapar?
+    explicacion: >-
+      **Divide.** $x^3\div x^2=x$; $x(x^2-1)=x^3-x$, y queda $2x^2+3$. Luego $2x^2\div x^2=2$; $2(x^2-1)=2x^2-2$, y queda 5. Así, $x^3+2x^2-x+3=(x+2)(x^2-1)+5$: cociente $x+2$ y residuo 5. **Descompón.** En $\frac{5}{(x-1)(x+1)}$, tapando $x-1$ en $x=1$, $A=\frac52$; tapando $x+1$ en $x=-1$, $B=\frac{5}{-2}=-\frac52$. **Integra.** $\int\frac{x^3+2x^2-x+3}{x^2-1}\,dx=\frac{x^2}{2}+2x+\frac52\ln\lvert x-1\rvert-\frac52\ln\lvert x+1\rvert+C$. Revisa: $(x+2)(x^2-1)+5=x^3+2x^2-x-2+5$, el numerador, y $\frac{5/2}{x-1}-\frac{5/2}{x+1}=\frac{5}{x^2-1}$.
+    tiempo_estimado_s: 75
+
+  # razonamiento: deductivo (cada factor dicta sus términos) · R1
+  # Revisión manual (la forma). Comprobado con sympy: apart da 22/(25(x - 1)) + 4/(5(x - 1)²) - 11(2x - 3)/(25(x² + 4)),
+  # con los cuatro términos de la forma correcta y P ≠ 0: sin el término en x o sin A/(x - 1) no hay constantes que sirvan.
+  - id: calc-09-009
+    tipo: opcion_multiple
+    dificultad: 2
+    conceptos: [fracciones-parciales]
+    enunciado: >-
+      ¿Cuál es la forma de la descomposición en fracciones parciales de $\frac{3x^2+1}{(x-1)^2(x^2+4)}$? Las letras son constantes por hallar.
+    opciones:
+      - >-
+        $\dfrac{A}{x-1}+\dfrac{B}{(x-1)^2}+\dfrac{Q}{x^2+4}$
+      - >-
+        $\dfrac{B}{(x-1)^2}+\dfrac{Px+Q}{x^2+4}$
+      - >-
+        $\dfrac{A}{x-1}+\dfrac{B}{(x-1)^2}+\dfrac{Px+Q}{x^2+4}$
+      - >-
+        $\dfrac{A}{x-1}+\dfrac{B}{(x-1)^2}+\dfrac{P}{x-2}+\dfrac{Q}{x+2}$
+    correcta: 2
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        ¿Cuántos términos le tocan a un factor lineal que aparece al cuadrado? ¿Se puede factorizar $x^2+4$ con números reales, y qué numerador le toca si no?
+    explicacion: >-
+      Cada factor del denominador dicta sus términos. $(x-1)^2$ es lineal y repetido: aporta $\frac{A}{x-1}+\frac{B}{(x-1)^2}$, uno por cada potencia. $x^2+4$ no tiene raíces reales (su discriminante es $0-16<0$): aporta $\frac{Px+Q}{x^2+4}$, con un numerador de grado 1. La forma es $\frac{A}{x-1}+\frac{B}{(x-1)^2}+\frac{Px+Q}{x^2+4}$. Las otras fallan: sin el $Px$ no hay constantes que funcionen, porque aquí $P\neq0$; sin $\frac{A}{x-1}$ falta una de las potencias del factor repetido; y $x^2+4$ no es $(x-2)(x+2)$, que es $x^2-4$. Revisa: la forma tiene 4 constantes, tantas como el grado del denominador.
+    tiempo_estimado_s: 50
+
+  # razonamiento: algorítmico (factorizar, tapar e integrar) · R1
+  # verificar: la integral de sympy (sin abs; con x > 4 los dos argumentos son positivos).
+  - id: calc-09-010
+    tipo: simbolico
+    dificultad: 2
+    conceptos: [fracciones-parciales]
+    enunciado: >-
+      Calcula $\int\frac{12}{x^2-2x-8}\,dx$ para $x>4$, por fracciones parciales. Escribe solo la expresión, sin $+C$ (si la pones, con $C$ mayúscula). Cada producto lleva `*`, también entre un número y una función (`12*sen(x)`), y cada argumento va entre paréntesis (`cos(4*x)`, `sqrt(w)`, `ln(abs(w))`). Las trigonométricas inversas se escriben con su nombre, como `arcsen(w)` o `arctan(w)`, nunca con `^(-1)`.
+    respuesta: "2*ln(x - 4) - 2*ln(x + 2)"
+    variables: [x]
+    salvo_constante: true
+    muestreo: { desde: 4.5, hasta: 10 }
+    verificar: { sympy: "integrate(12/(x**2 - 2*x - 8), x)" }
+    pistas:
+      - >-
+        ¿Cómo se factoriza $x^2-2x-8$? Con los dos factores, ¿en qué valor de $x$ evalúas al tapar cada uno?
+    explicacion: >-
+      **Factoriza.** $x^2-2x-8=(x-4)(x+2)$. **Tapa.** En $x=4$, $A=\frac{12}{4+2}=2$; en $x=-2$, $B=\frac{12}{-2-4}=-2$: $\frac{12}{x^2-2x-8}=\frac{2}{x-4}-\frac{2}{x+2}$. **Integra.** $2\ln\lvert x-4\rvert-2\ln\lvert x+2\rvert+C$, y con $x>4$ los dos argumentos son positivos: $2\ln(x-4)-2\ln(x+2)+C$, o $2\ln\frac{x-4}{x+2}+C$. Revisa: $\frac{2}{x-4}-\frac{2}{x+2}=\frac{2(x+2)-2(x-4)}{(x-4)(x+2)}=\frac{12}{x^2-2x-8}$. El error típico es $\ln(x^2-2x-8)$: su derivada es $\frac{2x-2}{x^2-2x-8}$, y arriba no hay $2x-2$.
+    tiempo_estimado_s: 75
+
+  # razonamiento: algorítmico (sec par: guardar sec² y u = tan) · R1
+  # Nivel B de tan/sec (decisión de Carlo). verificar: la integral definida de sympy de 0 a π/4 más F(0) (Teorema
+  # Fundamental: otra vía que la antiderivada).
+  - id: calc-09-011
+    tipo: numerico
+    dificultad: 3
+    conceptos: [integrales-trigonometricas]
+    enunciado: >-
+      Sea $F$ la antiderivada de $f(x)=\tan^2x\sec^4x$ en $\left(-\frac\pi2,\frac\pi2\right)$ con $F(0)=1$. Calcula $F\left(\frac\pi4\right)$. Escribe la respuesta exacta (como `7/3`) o redondeada a 3 decimales al final.
+    respuesta: "23/15"
+    tolerancia: 0.0005
+    verificar: { sympy: "integrate(tan(x)**2*sec(x)**4, (x, 0, pi/4)) + 1" }
+    pistas:
+      - >-
+        Recorre el triaje en orden y detente en la primera pregunta que diga «sí»: ¿ya está en la tabla, o llega a ella al reescribir? ¿Hay una función de adentro con su derivada multiplicando? ¿Es polinomio entre polinomio? ¿Solo potencias trigonométricas? ¿Una raíz de $a^2-x^2$, $a^2+x^2$ o $x^2-a^2$? ¿Un producto de dos tipos de función?
+      - >-
+        ¿Cuál potencia es par, la de $\sec$ o la de $\tan$? Si guardas $\sec^2x$ para $du$, ¿cómo escribes el otro $\sec^2x$ en términos de $u=\tan x$?
+    explicacion: >-
+      **Tipo.** Pregunta 4 del triaje: solo potencias de $\tan$ y $\sec$. La 2 no, porque aunque $\sec^2x$ es la derivada de $\tan x$, sobra otro $\sec^2x$ que solo se escribe en $u$ con la identidad. **Guarda $\sec^2x$.** $\tan^2x\sec^4x=\tan^2x\sec^2x\cdot\sec^2x=\tan^2x\left(1+\tan^2x\right)\sec^2x$. **Sustituye.** Con $u=\tan x$, $du=\sec^2x\,dx$: $\int u^2(1+u^2)\,du=\frac{u^3}{3}+\frac{u^5}{5}$. **La condición.** $F(x)=\frac{\tan^3x}{3}+\frac{\tan^5x}{5}+C$, y $F(0)=C=1$. **Evalúa.** Como $\tan\frac\pi4=1$, $F\left(\frac\pi4\right)=\frac13+\frac15+1=\frac{23}{15}\approx1.533$. Revisa: $\left[\frac{\tan^3x}{3}+\frac{\tan^5x}{5}\right]'=\tan^2x\sec^2x+\tan^4x\sec^2x=\tan^2x\sec^2x\left(1+\tan^2x\right)=\tan^2x\sec^4x$. Si olvidas la $C$, sale $\frac{8}{15}$.
+    tiempo_estimado_s: 90
+
+  # razonamiento: abductivo (localizar el error en un procedimiento ajeno) · R2
+  # Revisión manual. Desviación del esquema: Eva escribe (1 - u²)² = 1 + u⁴ (pierde el término cruzado). Con 1 - u⁴, su
+  # resultado también tendría al revés el signo del término en sen⁵, y «le falta el término» no sería toda la diferencia.
+  # Comprobado con sympy: ∫cos⁵(2x) dx = sen(2x)/2 - sen³(2x)/3 + sen⁵(2x)/10, ½∫(1 + u⁴) du = u/2 + u⁵/10, y la
+  # diferencia es exactamente -sen³(2x)/3.
+  - id: calc-09-012
+    tipo: opcion_multiple
+    dificultad: 3
+    conceptos: [integrales-trigonometricas]
+    enunciado: >-
+      Eva calcula $\int\cos^5(2x)\,dx$. Guarda un $\cos(2x)$, toma $u=\operatorname{sen}(2x)$ y llega a $\frac12\int(1-u^2)^2\,du$. Luego escribe $(1-u^2)^2=1+u^4$, integra y obtiene $\frac{\operatorname{sen}(2x)}{2}+\frac{\operatorname{sen}^5(2x)}{10}+C$. ¿Qué pasó?
+    opciones:
+      - >-
+        Con una potencia impar se baja el grado con el ángulo doble; guardar un factor no sirve aquí.
+      - >-
+        La $u$ debía ser $\cos(2x)$, la función que está elevada a la quinta.
+      - >-
+        Desarrolló mal el cuadrado: a su resultado le falta el término $-\frac{\operatorname{sen}^3(2x)}{3}$.
+      - >-
+        Le faltó dividir entre la derivada de adentro al final.
+    correcta: 2
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        ¿Qué te piden: integrar, o encontrar en qué paso se equivocó Eva? Si su resultado fuera correcto, ¿qué tendría que pasar al derivarlo?
+      - >-
+        Desarrolla tú $(1-u^2)^2$: ¿cuántos términos tiene? ¿Qué aporta, al integrar, el término que Eva no escribió?
+    explicacion: >-
+      **Tipo.** Pregunta 4 del triaje: una sola potencia, impar, del coseno; guardar un $\cos(2x)$ es el plan correcto. La 2 no, porque con $u=\operatorname{sen}(2x)$ sobran cuatro cosenos que solo se escriben en $u$ con la identidad. **El error.** $(1-u^2)^2=1-2u^2+u^4$: Eva perdió el término cruzado, $-2u^2$. Lo correcto es $\frac12\int(1-2u^2+u^4)\,du=\frac u2-\frac{u^3}{3}+\frac{u^5}{10}$, es decir, $\frac{\operatorname{sen}(2x)}{2}-\frac{\operatorname{sen}^3(2x)}{3}+\frac{\operatorname{sen}^5(2x)}{10}+C$: a su resultado le falta $-\frac{\operatorname{sen}^3(2x)}{3}$. Las otras fallan: el ángulo doble es el plan cuando las dos potencias son pares; aquí, guardar un factor sí sirve; con $u=\cos(2x)$ no hay un $\operatorname{sen}(2x)$ que forme $du$; y el $\frac12$ que divide entre la derivada de adentro ya está, porque $du=2\cos(2x)\,dx$. Revisa: la derivada del resultado de Eva es $\cos(2x)+\operatorname{sen}^4(2x)\cos(2x)=\cos(2x)\left(1+\operatorname{sen}^4(2x)\right)$, que no es $\cos^5(2x)=\cos(2x)\left(1-\operatorname{sen}^2(2x)\right)^2$.
+    tiempo_estimado_s: 90
+
+  # razonamiento: espacial (regresar con el triángulo de sec θ = x/4) · R1
+  # verificar: la rama de la integral de sympy cuya condición vale en x = 5 (patrón de Piecewise; nunca .args[0][0]).
+  - id: calc-09-013
+    tipo: simbolico
+    dificultad: 3
+    conceptos: [sustitucion-trigonometrica]
+    enunciado: >-
+      Calcula $\int\frac{dx}{x^2\sqrt{x^2-16}}$ para $x>4$. Escribe solo la expresión, sin $+C$ (si la pones, con $C$ mayúscula). Cada producto lleva `*`, también entre un número y una función (`12*sen(x)`), y cada argumento va entre paréntesis (`cos(4*x)`, `sqrt(w)`, `ln(abs(w))`). Las trigonométricas inversas se escriben con su nombre, como `arcsen(w)` o `arctan(w)`, nunca con `^(-1)`.
+    respuesta: "sqrt(x^2 - 16)/(16*x)"
+    variables: [x]
+    salvo_constante: true
+    muestreo: { desde: 4.5, hasta: 10 }
+    verificar: { sympy: "[e for e, c in integrate(1/(x**2*sqrt(x**2 - 16)), x).args if c.subs(x, 5) == True][0]" }
+    pistas:
+      - >-
+        Recorre el triaje en orden y detente en la primera pregunta que diga «sí»: ¿ya está en la tabla, o llega a ella al reescribir? ¿Hay una función de adentro con su derivada multiplicando? ¿Es polinomio entre polinomio? ¿Solo potencias trigonométricas? ¿Una raíz de $a^2-x^2$, $a^2+x^2$ o $x^2-a^2$? ¿Un producto de dos tipos de función?
+      - >-
+        Con $x=4\sec\theta$, ¿cuánto valen $dx$ y $\sqrt{x^2-16}$? Después de simplificar, ¿qué lados tiene el triángulo de $\sec\theta=\frac x4$, y cuánto vale $\operatorname{sen}\theta$?
+    explicacion: >-
+      **Tipo.** Pregunta 5 del triaje: $\sqrt{x^2-a^2}$ con $a=4$ y $x>4$. La 2 no, porque la derivada de $x^2-16$ es $2x$, y afuera hay $\frac{1}{x^2}$, no $x$. **Sustituye.** $x=4\sec\theta$, con $\theta\in\left(0,\frac\pi2\right)$: $dx=4\sec\theta\tan\theta\,d\theta$, $x^2=16\sec^2\theta$ y $\sqrt{16\sec^2\theta-16}=4\tan\theta$. **Simplifica.** $\int\frac{4\sec\theta\tan\theta\,d\theta}{16\sec^2\theta\cdot4\tan\theta}=\frac{1}{16}\int\cos\theta\,d\theta=\frac{1}{16}\operatorname{sen}\theta+C$. **El triángulo.** $\sec\theta=\frac x4$ es hipotenusa entre cateto adyacente: hipotenusa $x$, adyacente 4 y, por Pitágoras, opuesto $\sqrt{x^2-16}$. Entonces $\operatorname{sen}\theta=\frac{\sqrt{x^2-16}}{x}$. **Resultado.** $\frac{\sqrt{x^2-16}}{16x}+C$. Revisa: por el cociente, $\left[\frac{\sqrt{x^2-16}}{x}\right]'=\frac{\frac{x^2}{\sqrt{x^2-16}}-\sqrt{x^2-16}}{x^2}=\frac{16}{x^2\sqrt{x^2-16}}$, y entre 16 da el integrando. El error típico es leer el triángulo al revés y escribir $\frac{x}{16\sqrt{x^2-16}}$.
+    tiempo_estimado_s: 120
+
+  # razonamiento: algorítmico (completar el cuadrado para ver la forma) · R1
+  # Pasa a simbolico con arcsen (arreglos-09, experto-matematicas): practica ese renglón de la tabla. No entra al jefe.
+  # verificar: la integral de sympy trasladada (u = x - 3), porque 7 + 6x - x² = 16 - (x - 3)².
+  - id: calc-09-014
+    tipo: simbolico
+    dificultad: 3
+    conceptos: [sustitucion-trigonometrica]
+    enunciado: >-
+      Calcula $\int\frac{dx}{\sqrt{7+6x-x^2}}$ para $-1<x<7$. Escribe solo la expresión, sin $+C$ (si la pones, con $C$ mayúscula). Cada producto lleva `*`, también entre un número y una función (`12*sen(x)`), y cada argumento va entre paréntesis (`cos(4*x)`, `sqrt(w)`, `ln(abs(w))`). Las trigonométricas inversas se escriben con su nombre, como `arcsen(w)` o `arctan(w)`, nunca con `^(-1)`.
+    respuesta: "asin((x - 3)/4)"
+    variables: [x]
+    salvo_constante: true
+    muestreo: { desde: -0.5, hasta: 6.5 }
+    verificar: { sympy: "integrate((1/sqrt(7 + 6*x - x**2)).subs(x, x + 3), x).subs(x, x - 3)" }
+    pistas:
+      - >-
+        Recorre el triaje en orden y detente en la primera pregunta que diga «sí»: ¿ya está en la tabla, o llega a ella al reescribir? ¿Hay una función de adentro con su derivada multiplicando? ¿Es polinomio entre polinomio? ¿Solo potencias trigonométricas? ¿Una raíz de $a^2-x^2$, $a^2+x^2$ o $x^2-a^2$? ¿Un producto de dos tipos de función?
+      - >-
+        ¿Qué número le sumas y le restas a $-(x^2-6x)$ para completar el cuadrado? Con $u=x-3$, ¿qué forma aparece, y con qué $a$? ¿Qué renglón de la tabla la integra sin dibujar el triángulo?
+    explicacion: >-
+      **Tipo.** Pregunta 5 del triaje, al completar el cuadrado. La 2 no, porque la derivada de $7+6x-x^2$ es $6-2x$, y arriba no hay $x$. **Completa el cuadrado.** $7+6x-x^2=16-(x-3)^2$. **Sustituye.** Con $u=x-3$ queda $\int\frac{du}{\sqrt{16-u^2}}$, con $a=4$ y $\lvert u\rvert<4$. **La tabla.** $\operatorname{arcsen}\frac{x-3}{4}+C$; en la app, `arcsen((x - 3)/4)`. Con $u=4\operatorname{sen}\theta$ sale lo mismo. Revisa: $\left[\operatorname{arcsen}\frac{x-3}{4}\right]'=\frac{1}{\sqrt{16-(x-3)^2}}$. El error típico es escribir `arcsen (x - 3)/4` sin paréntesis: la app lo lee como $\frac{\operatorname{arcsen}(x-3)}{4}$.
+    tiempo_estimado_s: 120
+
+  # razonamiento: algorítmico (un término por cada potencia del factor repetido) · R1
+  # Reemplazo completo (arreglos-09, experto-matematicas): el anterior repetía la estructura del 022. Entra al jefe en
+  # lugar del 016, para que el factor lineal repetido quede evaluado.
+  # verificar: el residuo de sympy en 3 (A), el límite de f·(x - 2)² en 2 (D), el residuo en 2 (B, el coeficiente de
+  # 1/(x - 2)) y el término sin ln de la integral de sympy, multiplicado por (x - 2).
+  - id: calc-09-015
+    tipo: completar
+    dificultad: 3
+    conceptos: [fracciones-parciales]
+    enunciado: >-
+      Para $x>3$, $\frac{x^2-3x-3}{(x-3)(x-2)^2}=\frac{A}{x-3}+\frac{B}{x-2}+\frac{D}{(x-2)^2}$. Encuentra los coeficientes e integra. Escribe cada número con su signo.
+    texto: >-
+      $A=$ ___ · $D=$ ___ · $B=$ ___ · el resultado de $\int\frac{x^2-3x-3}{(x-3)(x-2)^2}\,dx$ tiene un término $\frac{k}{x-2}$, con $k=$ ___
+    respuestas: ["-3", "5", "4", "-5"]
+    verificar: { sympy: "(lambda f: [residue(f, x, 3), limit(f*(x - 2)**2, x, 2), residue(f, x, 2), simplify(sum(T for T in Add.make_args(integrate(f, x)) if not T.has(log))*(x - 2))])((x**2 - 3*x - 3)/((x - 3)*(x - 2)**2))" }
+    pistas:
+      - >-
+        Recorre el triaje en orden y detente en la primera pregunta que diga «sí»: ¿ya está en la tabla, o llega a ella al reescribir? ¿Hay una función de adentro con su derivada multiplicando? ¿Es polinomio entre polinomio? ¿Solo potencias trigonométricas? ¿Una raíz de $a^2-x^2$, $a^2+x^2$ o $x^2-a^2$? ¿Un producto de dos tipos de función?
+      - >-
+        ¿Qué coeficientes salen tapando, y cuál no? Para ese, ¿qué coeficientes comparas después de quitar denominadores? Al integrar $\frac{D}{(x-2)^2}$, ¿sale un ln o una potencia?
+    explicacion: >-
+      **Tipo.** Pregunta 3 del triaje: polinomio entre polinomio, propia. La 2 no, porque la derivada del denominador, $(x-3)(x-2)^2=x^3-7x^2+16x-12$, es $3x^2-14x+16$, y el numerador no es un múltiplo de ella. **Tapa $x-3$** en $x=3$: $A=\frac{9-9-3}{1^2}=-3$. **Tapa $(x-2)^2$** en $x=2$: $D=\frac{4-6-3}{2-3}=5$. **Compara coeficientes.** Sin denominadores, $x^2-3x-3=A(x-2)^2+B(x-3)(x-2)+D(x-3)$; con $x^2$, $1=A+B$, así que $B=4$. **Integra.** $\int\left(\frac{-3}{x-3}+\frac{4}{x-2}+\frac{5}{(x-2)^2}\right)dx=-3\ln(x-3)+4\ln(x-2)-\frac{5}{x-2}+C$, sin barras porque $x>3$. El último término sale de $5\int(x-2)^{-2}\,dx=5\cdot\frac{(x-2)^{-1}}{-1}$: $k=-5$. Revisa en $x=4$: la fracción vale $\frac{16-12-3}{1\cdot4}=\frac14$, y la descomposición, $-3+\frac42+\frac54=\frac14$; la derivada del resultado es esa descomposición. El error típico es $B=1$: olvidar que $A$ también aporta al coeficiente de $x^2$.
+    tiempo_estimado_s: 120
+
+  # razonamiento: algorítmico (fracciones parciales en x < -2: el valor absoluto hace falta) · R1
+  # verificar: la integral definida de sympy de -3 a -4 más el dato (Teorema Fundamental: otra vía).
+  - id: calc-09-016
+    tipo: numerico
+    dificultad: 3
+    conceptos: [fracciones-parciales]
+    enunciado: >-
+      Sea $F$ la función definida para $x<-2$ con $F'(x)=\frac{4}{x^2-4}$ y $F(-3)=1$. Calcula $F(-4)$. Escribe la respuesta exacta ($\ln u$ se escribe `ln(u)`) o redondeada a 3 decimales al final.
+    respuesta: "1 + ln(3/5)"
+    tolerancia: 0.0005
+    verificar: { sympy: "integrate(4/(x**2 - 4), (x, -3, -4)) + 1" }
+    pistas:
+      - >-
+        Recorre el triaje en orden y detente en la primera pregunta que diga «sí»: ¿ya está en la tabla, o llega a ella al reescribir? ¿Hay una función de adentro con su derivada multiplicando? ¿Es polinomio entre polinomio? ¿Solo potencias trigonométricas? ¿Una raíz de $a^2-x^2$, $a^2+x^2$ o $x^2-a^2$? ¿Un producto de dos tipos de función?
+      - >-
+        Para $x<-2$, ¿qué signo tienen $x-2$ y $x+2$? ¿Qué antiderivada de $\frac{1}{x-2}$ existe ahí?
+    explicacion: >-
+      **Tipo.** Pregunta 3 del triaje: polinomio entre polinomio. La 2 no, porque arriba hay un 4, no un múltiplo de $2x$. **Descompón.** $x^2-4=(x-2)(x+2)$, y tapando, $\frac{4}{x^2-4}=\frac{1}{x-2}-\frac{1}{x+2}$. **Integra con barras.** $F(x)=\ln\lvert x-2\rvert-\ln\lvert x+2\rvert+C=\ln\left\lvert\frac{x-2}{x+2}\right\rvert+C$: para $x<-2$, $x-2$ y $x+2$ son negativos, y sin barras el ln no existiría. **El dato.** $F(-3)=\ln\frac{5}{1}+C=1$, así que $C=1-\ln5$. **Evalúa.** $F(-4)=\ln\frac{6}{2}+1-\ln5=1+\ln\frac35\approx0.489$. Revisa: para $x<-2$, $\left[\ln(2-x)-\ln(-x-2)\right]'=\frac{-1}{2-x}-\frac{-1}{-x-2}=\frac{1}{x-2}-\frac{1}{x+2}$, que suman $\frac{4}{x^2-4}$.
+    tiempo_estimado_s: 90
+
+  # razonamiento: analógico (misma apariencia, distinta estructura) · R2
+  # Revisión manual. Clasificación por el triaje (la primera pregunta que dice «sí»). Comprobado con sympy:
+  # ∫(2x + 5)/(x² + 5x + 6) = ln(x² + 5x + 6); (x + 5)/(x² + 5x + 6) = 3/(x + 2) - 2/(x + 3); ∫x√(x² + 4) = (x² + 4)^(3/2)/3;
+  # ∫e^(tan x) sec²x = e^(tan x); ∫x sec²x = x tan x + ln|cos x| (por partes).
+  - id: calc-09-017
+    tipo: completar
+    dificultad: 3
+    conceptos: [eleccion-tecnica-integracion]
+    enunciado: >-
+      Sin resolverlas, pasa cada integral por el triaje (versión 2) y escribe el número de la primera pregunta que diga «sí»: 1 si ya está en la tabla o llega a ella al desarrollar, al simplificar o, si arriba el grado es mayor o igual, al dividir; 2 si hay una función de adentro cuya derivada, salvo un factor constante, multiplica al resto; 3 si es polinomio entre polinomio; 4 si son solo potencias de sen y cos, o de tan y sec; 5 si hay una raíz $\sqrt{a^2-x^2}$, $\sqrt{a^2+x^2}$ o $\sqrt{x^2-a^2}$ (o su potencia); 6 si es un producto de dos tipos de función distintos (de los de LIATE), o un ln o un arctan solos. Para clasificar, deja las identidades trigonométricas para la 4. Una $u$ que solo cambia la letra (como $u=x$, o $u=5x$ cuando afuera sobra una $x$) no cuenta como 2, y una forma que reconoces de memoria, como $\int\frac{g'}{g}\,dx=\ln\lvert g\rvert+C$, sí cuenta como 2.
+    texto: >-
+      $\int\frac{2x+5}{x^2+5x+6}\,dx$: ___ · $\int\frac{x+5}{x^2+5x+6}\,dx$: ___ · $\int x\sqrt{x^2+4}\,dx$: ___ · $\int\sqrt{x^2+4}\,dx$: ___ · $\int x\sec^2x\,dx$: ___ · $\int e^{\tan x}\sec^2x\,dx$: ___
+    respuestas: ["2", "3", "2", "5", "6", "2"]
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        Recorre el triaje en orden y detente en la primera pregunta que diga «sí»: ¿ya está en la tabla, o llega a ella al reescribir? ¿Hay una función de adentro con su derivada multiplicando? ¿Es polinomio entre polinomio? ¿Solo potencias trigonométricas? ¿Una raíz de $a^2-x^2$, $a^2+x^2$ o $x^2-a^2$? ¿Un producto de dos tipos de función?
+      - >-
+        Los pares se parecen. ¿En cuál de cada par la derivada de la función de adentro aparece multiplicando, y en cuál falta o sobra algo?
+    explicacion: >-
+      **Tipo.** Es el triaje mismo, con pares que se parecen. **$\frac{2x+5}{x^2+5x+6}$:** el numerador es justo la derivada del denominador: **2**, y da $\ln\lvert x^2+5x+6\rvert+C$. **$\frac{x+5}{x^2+5x+6}$:** la 2 no, porque $x+5$ no es un múltiplo de $2x+5$; es polinomio entre polinomio: **3**, con $(x+2)(x+3)$ abajo. **$x\sqrt{x^2+4}$:** la derivada de $x^2+4$, $2x$, multiplica salvo el factor 2: **2**, y da $\frac13(x^2+4)^{3/2}+C$; no hace falta el triángulo. **$\sqrt{x^2+4}$:** sin la $x$ de afuera, la 2 dice no; es la forma $a^2+x^2$: **5**. **$x\sec^2x$:** la función de adentro de $\sec^2$ es $x$, con derivada 1, que no absorbe la $x$ de afuera; tampoco son solo potencias de $\tan$ y $\sec$, por esa $x$; es un polinomio por una trigonométrica: **6**, partes con $u=x$. **$e^{\tan x}\sec^2x$:** la función de adentro es $\tan x$, y su derivada, $\sec^2x$, multiplica: **2**, y da $e^{\tan x}+C$. Revisa: al derivar $\frac13(x^2+4)^{3/2}$ sale $\frac13\cdot\frac32(x^2+4)^{1/2}\cdot2x=x\sqrt{x^2+4}$.
+    tiempo_estimado_s: 90
+
+  # razonamiento: algorítmico (el otro exponente puede ser negativo) · R1
+  # verificar: la integral de sympy (da sen³x/3 - 2 sen x - 1/sen x).
+  - id: calc-09-018
+    tipo: simbolico
+    dificultad: 4
+    conceptos: [integrales-trigonometricas]
+    enunciado: >-
+      Calcula $\int\frac{\cos^5x}{\operatorname{sen}^2x}\,dx$ para $0<x<\pi$. Escribe solo la expresión, sin $+C$ (si la pones, con $C$ mayúscula). Cada producto lleva `*`, también entre un número y una función (`12*sen(x)`), y cada argumento va entre paréntesis (`cos(4*x)`, `sqrt(w)`, `ln(abs(w))`). Las trigonométricas inversas se escriben con su nombre, como `arcsen(w)` o `arctan(w)`, nunca con `^(-1)`.
+    respuesta: "-csc(x) - 2*sin(x) + sin(x)^3/3"
+    variables: [x]
+    salvo_constante: true
+    muestreo: { desde: 0.2, hasta: 2.9 }
+    verificar: { sympy: "integrate(cos(x)**5/sin(x)**2, x)" }
+    pistas:
+      - >-
+        Recorre el triaje en orden y detente en la primera pregunta que diga «sí»: ¿ya está en la tabla, o llega a ella al reescribir? ¿Hay una función de adentro con su derivada multiplicando? ¿Es polinomio entre polinomio? ¿Solo potencias trigonométricas? ¿Una raíz de $a^2-x^2$, $a^2+x^2$ o $x^2-a^2$? ¿Un producto de dos tipos de función?
+      - >-
+        ¿Cuál de las dos potencias es impar? Si guardas un factor de esa, ¿qué $u$ te queda y cómo escribes el resto en $u$?
+      - >-
+        Con todo en $u$, ¿puedes dividir cada término del numerador entre $u^2$ antes de integrar? Revisa: ¿la derivada de tu resultado te devuelve $\frac{\cos^5x}{\operatorname{sen}^2x}$?
+    explicacion: >-
+      **Tipo.** Pregunta 4 del triaje: $\cos^5x\operatorname{sen}^{-2}x$ son solo potencias de seno y coseno, y la del coseno es impar (la del seno es negativa, y no importa). La 2 no, porque $\cos x$ es la derivada de $\operatorname{sen}x$, pero sobra $\cos^4x$, que solo se escribe en $u$ con la identidad. **Guarda un $\cos x$.** $\cos^4x=\left(1-\operatorname{sen}^2x\right)^2$, y con $u=\operatorname{sen}x$, $du=\cos x\,dx$: $\int\frac{(1-u^2)^2}{u^2}\,du$. **Divide.** $\frac{1-2u^2+u^4}{u^2}=u^{-2}-2+u^2$. **Integra.** $-u^{-1}-2u+\frac{u^3}{3}$. **Regresa.** $-\csc x-2\operatorname{sen}x+\frac{\operatorname{sen}^3x}{3}+C$; en $0<x<\pi$, $\operatorname{sen}x>0$ y no hay división entre 0. Revisa: la derivada es $\frac{\cos x}{\operatorname{sen}^2x}-2\cos x+\operatorname{sen}^2x\cos x=\frac{\cos x\left(1-2\operatorname{sen}^2x+\operatorname{sen}^4x\right)}{\operatorname{sen}^2x}=\frac{\cos x\left(1-\operatorname{sen}^2x\right)^2}{\operatorname{sen}^2x}=\frac{\cos^5x}{\operatorname{sen}^2x}$. El error típico es el signo de $\int u^{-2}\,du=-u^{-1}$.
+    tiempo_estimado_s: 150
+
+  # razonamiento: algorítmico (x = 2 tan θ, ∫sec θ y la constante que deja el triángulo) · R1
+  # verificar: la integral definida de sympy de 0 a 3/2 más el dato (sympy la da con asinh: otra vía que ∫sec θ).
+  - id: calc-09-019
+    tipo: numerico
+    dificultad: 4
+    conceptos: [sustitucion-trigonometrica]
+    enunciado: >-
+      Sea $F$ la antiderivada de $f(x)=\frac{1}{\sqrt{x^2+4}}$ en $\mathbb R$ con $F(0)=1$. Calcula $F\left(\frac32\right)$. Escribe la respuesta exacta ($\ln u$ se escribe `ln(u)`) o redondeada a 3 decimales al final.
+    respuesta: "1 + ln(2)"
+    tolerancia: 0.0005
+    verificar: { sympy: "integrate(1/sqrt(x**2 + 4), (x, 0, Rational(3, 2))) + 1" }
+    pistas:
+      - >-
+        Recorre el triaje en orden y detente en la primera pregunta que diga «sí»: ¿ya está en la tabla, o llega a ella al reescribir? ¿Hay una función de adentro con su derivada multiplicando? ¿Es polinomio entre polinomio? ¿Solo potencias trigonométricas? ¿Una raíz de $a^2-x^2$, $a^2+x^2$ o $x^2-a^2$? ¿Un producto de dos tipos de función?
+      - >-
+        Con $x=2\tan\theta$, ¿en qué se convierte $\frac{dx}{\sqrt{x^2+4}}$? ¿Qué dato de la lección integra lo que queda?
+      - >-
+        Al regresar con el triángulo, ¿qué número queda dentro del ln, y qué hace con él la condición $F(0)=1$? Revisa: ¿tu $F$ cumple $F(0)=1$?
+    explicacion: >-
+      **Tipo.** Pregunta 5 del triaje: $\sqrt{a^2+x^2}$ con $a=2$. La 2 no, porque la derivada de $x^2+4$ es $2x$, y arriba no hay $x$. **Sustituye.** $x=2\tan\theta$, $dx=2\sec^2\theta\,d\theta$ y $\sqrt{4\tan^2\theta+4}=2\sec\theta$: $\int\frac{2\sec^2\theta}{2\sec\theta}\,d\theta=\int\sec\theta\,d\theta=\ln\lvert\sec\theta+\tan\theta\rvert$. **El triángulo.** $\tan\theta=\frac x2$: catetos $x$ y 2 e hipotenusa $\sqrt{x^2+4}$, así que $\sec\theta=\frac{\sqrt{x^2+4}}{2}$ y $\ln\frac{x+\sqrt{x^2+4}}{2}=\ln\left(x+\sqrt{x^2+4}\right)-\ln2$; el $-\ln2$ se junta con la constante, y como $x+\sqrt{x^2+4}>0$, no hacen falta barras. **La condición.** $F(x)=\ln\left(x+\sqrt{x^2+4}\right)+C$, con $F(0)=\ln2+C=1$, así que $C=1-\ln2$. **Evalúa.** $F\left(\frac32\right)=\ln\left(\frac32+\frac52\right)+1-\ln2=\ln4-\ln2+1=1+\ln2\approx1.693$. Es el $\operatorname{arcsenh}$ de la unidad 05: $F(x)=\operatorname{arcsenh}\frac x2+1$, y $\operatorname{arcsenh}\frac34=\ln2$. Revisa: $\left[\ln\left(x+\sqrt{x^2+4}\right)\right]'=\frac{1+\frac{x}{\sqrt{x^2+4}}}{x+\sqrt{x^2+4}}=\frac{1}{\sqrt{x^2+4}}$. El error típico es tomar $C=1$, como si $\ln\left(0+\sqrt4\right)$ valiera 0: da $1+\ln4$.
+    tiempo_estimado_s: 150
+
+  # razonamiento: algorítmico (un cuadrático irreducible da ln y arctan) · R1
+  # verificar: la integral de sympy (sin abs; con x > 1, x - 1 > 0).
+  - id: calc-09-020
+    tipo: simbolico
+    dificultad: 4
+    conceptos: [fracciones-parciales]
+    enunciado: >-
+      Calcula $\int\frac{3x^2+7x+24}{x^3-x^2+16x-16}\,dx$ para $x>1$. Escribe solo la expresión, sin $+C$ (si la pones, con $C$ mayúscula). Cada producto lleva `*`, también entre un número y una función (`12*sen(x)`), y cada argumento va entre paréntesis (`cos(4*x)`, `sqrt(w)`, `ln(abs(w))`). Las trigonométricas inversas se escriben con su nombre, como `arcsen(w)` o `arctan(w)`, nunca con `^(-1)`.
+    respuesta: "2*ln(x - 1) + ln(x^2 + 16)/2 + 2*atan(x/4)"
+    variables: [x]
+    salvo_constante: true
+    muestreo: { desde: 1.5, hasta: 10 }
+    verificar: { sympy: "integrate((3*x**2 + 7*x + 24)/(x**3 - x**2 + 16*x - 16), x)" }
+    pistas:
+      - >-
+        Recorre el triaje en orden y detente en la primera pregunta que diga «sí»: ¿ya está en la tabla, o llega a ella al reescribir? ¿Hay una función de adentro con su derivada multiplicando? ¿Es polinomio entre polinomio? ¿Solo potencias trigonométricas? ¿Una raíz de $a^2-x^2$, $a^2+x^2$ o $x^2-a^2$? ¿Un producto de dos tipos de función?
+      - >-
+        ¿Puedes factorizar el denominador agrupando sus términos de dos en dos? ¿Qué numerador le toca al factor que no tiene raíces reales?
+      - >-
+        En $\frac{Px+Q}{x^2+16}$, ¿qué parte da un ln y cuál un arctan? Revisa: ¿tus fracciones suman lo mismo que el integrando en un punto como $x=2$?
+    explicacion: >-
+      **Tipo.** Pregunta 3 del triaje: polinomio entre polinomio, propia. La 2 no, porque la derivada del denominador es $3x^2-2x+16$, y el numerador no es un múltiplo de ella. **Factoriza.** $x^3-x^2+16x-16=x^2(x-1)+16(x-1)=(x-1)(x^2+16)$, y $x^2+16$ no tiene raíces reales. **Plantea.** $\frac{A}{x-1}+\frac{Px+Q}{x^2+16}$. **Tapa** en $x=1$: $A=\frac{3+7+24}{1+16}=2$. **Compara.** En $3x^2+7x+24=2(x^2+16)+(Px+Q)(x-1)$: con $x^2$, $3=2+P$, así que $P=1$; con la constante, $24=32-Q$, así que $Q=8$. **Integra.** $\int\frac{2}{x-1}\,dx=2\ln(x-1)$; $\int\frac{x}{x^2+16}\,dx=\frac12\ln(x^2+16)$, con $w=x^2+16$; e $\int\frac{8}{x^2+16}\,dx=8\cdot\frac14\arctan\frac x4=2\arctan\frac x4$. **Resultado.** $2\ln(x-1)+\frac12\ln(x^2+16)+2\arctan\frac x4+C$. Revisa: con $x$, $7=-P+Q=-1+8$; en $x=2$ el integrando vale $\frac{12+14+24}{8-4+32-16}=\frac{50}{20}=\frac52$, y la descomposición, $\frac21+\frac{2+8}{20}=\frac52$; la derivada del resultado es esa descomposición. El error típico es olvidar el $\frac14$ del arctan.
+    tiempo_estimado_s: 180
+
+  # razonamiento: abductivo (probar en un punto y en el infinito) · R2
+  # verificar: la fracción original y la descomposición de Marta en 0, y sus límites al infinito, con sympy.
+  - id: calc-09-021
+    tipo: completar
+    dificultad: 4
+    conceptos: [fracciones-parciales]
+    enunciado: >-
+      Marta quiere integrar $\frac{x^2+1}{(x-2)(x+1)}$. Sin dividir, plantea $\frac{x^2+1}{(x-2)(x+1)}=\frac{A}{x-2}+\frac{B}{x+1}$ y, por el método de tapar, obtiene $A=\frac53$ y $B=-\frac23$. Revisa su descomposición: evalúa las dos expresiones en $x=0$ y calcula sus límites cuando $x\to\infty$. Escribe decimales sin redondear o fracciones como `1/6`.
+    texto: >-
+      la fracción original en $x=0$: ___ · lo de Marta en $x=0$: ___ · el límite de la original cuando $x\to\infty$: ___ · el límite de lo de Marta: ___
+    respuestas: ["-0.5", "-1.5", "1", "0"]
+    verificar: { sympy: "(lambda f, m: [f.subs(x, 0), m.subs(x, 0), limit(f, x, oo), limit(m, x, oo)])((x**2 + 1)/((x - 2)*(x + 1)), Rational(5, 3)/(x - 2) - Rational(2, 3)/(x + 1))" }
+    pistas:
+      - >-
+        ¿Qué te piden: integrar, o revisar la descomposición de Marta? Si fuera correcta, ¿qué tendría que pasar al evaluar las dos expresiones en el mismo punto?
+      - >-
+        ¿Qué grado tiene el numerador y qué grado el denominador? Cuando $x$ crece mucho, ¿a qué se acerca cada fracción $\frac{A}{x-a}$, y a qué la original?
+      - >-
+        ¿Qué paso se saltó Marta antes de tapar? Si divides primero, ¿qué cociente te queda? Revisa: ¿por qué tapar le dio bien $A$ y $B$ de todos modos?
+    explicacion: >-
+      **Tipo.** Pregunta 3 del triaje, pero impropia: el grado de arriba (2) es igual al de abajo, así que primero se divide. La 2 no, porque la derivada de abajo es $2x-1$, y arriba hay $x^2+1$. **En $x=0$.** La original vale $\frac{1}{(-2)(1)}=-0.5$; lo de Marta, $\frac{5/3}{-2}+\frac{-2/3}{1}=-\frac56-\frac46=-1.5$. No coinciden: la descomposición está mal. **En el infinito.** La original tiende a 1 (mismo grado y coeficientes principales 1 y 1), y cada fracción de Marta tiende a 0: a su suma le falta un término que no se anule. **Qué pasó.** Al dividir, $x^2+1=(x-2)(x+1)+(x+3)$, así que $\frac{x^2+1}{(x-2)(x+1)}=1+\frac{x+3}{(x-2)(x+1)}$. Tapar le dio bien $A=\frac53$ y $B=-\frac23$, porque al multiplicar por $x-2$ y evaluar en 2 también se anula el cociente; lo que tapar no ve es ese cociente, que es 1. El resultado correcto es $x+\frac53\ln\lvert x-2\rvert-\frac23\ln\lvert x+1\rvert+C$. Revisa: en $x=0$, $1-\frac56-\frac46=-0.5$, que ahora sí coincide con la original.
+    tiempo_estimado_s: 150
+
+  # razonamiento: metacognitivo (recorrer el triaje, descartar la u que casi sirve, ejecutar y revisar derivando) · R3
+  # Textos de arquitecto-razonamiento, tal cual. Rúbrica de 4 criterios, todos obligatorios (ceil(0.8·4) = 4).
+  # Comprobado con sympy: apart da 2/(x - 1) + 1/(x + 1) - 3/(x + 1)²; en x = 2 el integrando vale 2 y la derivada de
+  # ln|x³ + x² - x - 1|, 5/3; el numerador menos la derivada del denominador es -x + 5.
+  - id: calc-09-022
+    tipo: autoevaluacion
+    dificultad: 4
+    conceptos: [eleccion-tecnica-integracion]
+    enunciado: >-
+      Calcula $\int\frac{3x^2+x+4}{x^3+x^2-x-1}\,dx$ para $x>1$. Resuélvela como en el examen: di qué técnica usas y por qué no te sirven las preguntas anteriores del triaje, escribe cada paso y revisa tu resultado derivándolo.
+    rubrica:
+      - >-
+        Elige fracciones parciales y lo justifica con el triaje: es un cociente de polinomios propio (grado 2 < 3, no hay que dividir), y la sustitución $u=x^3+x^2-x-1$ no basta porque su derivada, $3x^2+2x-1$, no es un múltiplo del numerador. Decir solo «es racional» no cumple: tiene que descartar la $u$ con esa comparación. Si separa el numerador como la derivada más un resto ($-x+5$), vale: el resto también lleva fracciones parciales.
+      - >-
+        Factoriza el denominador como $(x-1)(x+1)^2$ (agrupando o probando raíces) y plantea una descomposición con los tres términos: uno para $x-1$ y dos para el factor repetido, sobre $x+1$ y sobre $(x+1)^2$.
+      - >-
+        Encuentra con un método escrito (tapar, comparar coeficientes o evaluar en puntos) los coeficientes 2, 1 y −3 de $\frac1{x-1}$, $\frac1{x+1}$ y $\frac1{(x+1)^2}$, e integra cada término con su signo: $2\ln(x-1)+\ln(x+1)+\frac{3}{x+1}+C$, o una forma equivalente como $\ln\left((x-1)^2(x+1)\right)+\frac{3}{x+1}+C$. Con $x>1$, $\ln$ y $\ln\lvert\cdot\rvert$ coinciden.
+      - >-
+        Revisa derivando, con la cuenta escrita: junta en una sola fracción la derivada de su resultado y llega a $\frac{3x^2+x+4}{(x-1)(x+1)^2}$, que es el integrando. Comparar en un punto (en $x=2$ los dos valen 2) sirve para detectar errores, pero no basta sola.
+    respuesta_modelo: >-
+      Es un cociente de polinomios. Recorro el triaje. 1: no se simplifica, y es propia (grado 2 arriba y 3 abajo), así que no hay que dividir. 2: la derivada del denominador es $3x^2+2x-1$; el numerador, $3x^2+x+4$, empieza igual, pero no es un múltiplo de ella (la diferencia es $-x+5$), así que $u=x^3+x^2-x-1$ no basta. 3: es racional, así que uso fracciones parciales. Factorizo agrupando: $x^3+x^2-x-1=x^2(x+1)-(x+1)=(x+1)(x^2-1)=(x-1)(x+1)^2$. El factor repetido aporta dos términos (uso $D$ para no confundirla con la $C$ de la constante): $\frac{3x^2+x+4}{(x-1)(x+1)^2}=\frac{A}{x-1}+\frac{B}{x+1}+\frac{D}{(x+1)^2}$. Tapo $x-1$ y evalúo en $x=1$: $A=\frac{3+1+4}{2^2}=2$. Tapo $(x+1)^2$ y evalúo en $x=-1$: $D=\frac{3-1+4}{-2}=-3$. Para $B$ comparo los coeficientes de $x^2$ en $3x^2+x+4=A(x+1)^2+B(x-1)(x+1)+D(x-1)$: $A+B=3$, así que $B=1$. Integro cada término: $\int\frac{2}{x-1}dx=2\ln(x-1)$, $\int\frac{dx}{x+1}=\ln(x+1)$ e $\int\frac{-3}{(x+1)^2}dx=\frac{3}{x+1}$; con $x>1$ los argumentos son positivos y no hace falta valor absoluto. Entonces $\int\frac{3x^2+x+4}{x^3+x^2-x-1}dx=2\ln(x-1)+\ln(x+1)+\frac{3}{x+1}+C$. Reviso derivando: $\frac{2}{x-1}+\frac{1}{x+1}-\frac{3}{(x+1)^2}=\frac{2(x+1)^2+(x-1)(x+1)-3(x-1)}{(x-1)(x+1)^2}=\frac{2x^2+4x+2+x^2-1-3x+3}{(x-1)(x+1)^2}=\frac{3x^2+x+4}{x^3+x^2-x-1}$, que es el integrando.
+    pistas:
+      - >-
+        Antes de calcular, recorre el triaje: ¿cuánto vale la derivada del denominador? ¿El numerador es, salvo un factor constante, esa derivada? Compáralos término a término: según lo que salga, ¿en qué pregunta te detienes?
+      - >-
+        ¿Puedes factorizar el denominador agrupando sus cuatro términos de dos en dos? Si un factor aparece al cuadrado, ¿cuántas fracciones le tocan?
+      - >-
+        ¿En qué valores de $x$ se anulan todos los términos menos uno? ¿Qué coeficiente no sale así, y con qué comparación lo encuentras? Al final, ¿qué cuenta te demuestra, sin ver la respuesta, que tu resultado es correcto?
+    explicacion: >-
+      **Tipo.** Racional propia: la pregunta 2 dice no y la 3 dice sí. El error más común es contestar $\ln\lvert x^3+x^2-x-1\rvert$: el numerador se parece a la derivada del denominador, $3x^2+2x-1$, pero no es un múltiplo de ella. El segundo es darle un solo término al factor repetido: con solo $\frac{A}{x-1}+\frac{D}{(x+1)^2}$ no hay constantes que funcionen. El tercero es el signo de $\int\frac{-3}{(x+1)^2}dx$, que es $+\frac{3}{x+1}$. Revisa: en $x=2$ el integrando vale $\frac{18}{9}=2$, la derivada de $\ln\lvert x^3+x^2-x-1\rvert$ vale ahí $\frac{15}{9}$, y la de tu resultado debe dar 2. Si no da 2, hay un error; si da 2, todavía falta la cuenta completa del criterio 4.
+    tarjeta: false
+    tiempo_estimado_s: 300
+
+  # razonamiento: metacognitivo (detectar que un plan regresa al inicio) · R2
+  # Textos de arquitecto-razonamiento. Revisión manual. Comprobado con sympy: ∫x²/√(25 - x²) dx =
+  # 25 asin(x/5)/2 - x√(25 - x²)/2; en la primera ronda v = -√(25 - x²), y la segunda (u = √(25 - x²), dv = dx) da
+  # ∫√(25 - x²) dx = x√(25 - x²) + I.
+  - id: calc-09-023
+    tipo: opcion_multiple
+    dificultad: 5
+    conceptos: [eleccion-tecnica-integracion]
+    enunciado: >-
+      Ana intenta $I=\int\frac{x^2}{\sqrt{25-x^2}}\,dx$, para $\lvert x\rvert<5$, por partes, con $u=x$ y $dv=\frac{x}{\sqrt{25-x^2}}\,dx$, y llega a $I=-x\sqrt{25-x^2}+\int\sqrt{25-x^2}\,dx$. Hace partes otra vez en la integral nueva, con $u=\sqrt{25-x^2}$ y $dv=dx$, y le queda $I=I$. ¿Qué pasó y qué le conviene hacer?
+    opciones:
+      - >-
+        Se equivocó en un signo en la segunda ronda; con el signo correcto, la $I$ regresaría con otro coeficiente y podría despejarla.
+      - >-
+        La segunda ronda deshizo la primera y las cuentas están bien; le conviene cambiar de técnica en $\int\sqrt{25-x^2}\,dx$.
+      - >-
+        Es integración por partes cíclica, como en la 08: la $I$ regresó, así que le conviene pasarla al otro lado y despejarla.
+      - >-
+        Ni $I$ ni $\int\sqrt{25-x^2}\,dx$ tienen antiderivada elemental; le conviene aproximar $I$ numéricamente.
+    correcta: 1
+    verificar: { revision: "manual" }
+    pistas:
+      - >-
+        ¿Qué te piden: terminar la integral o explicar qué le pasó a Ana? Si pasas $I$ al otro lado de $I=I$, ¿qué ecuación te queda y qué información te da?
+      - >-
+        Compara las dos rondas: ¿qué papel tenía $\sqrt{25-x^2}$ en la primera y cuál tiene en la segunda? ¿Qué le hace una ronda a la otra?
+      - >-
+        En la cíclica de la 08, ¿con qué coeficiente regresaba la integral original? ¿Y aquí? Con eso, ¿qué pregunta del triaje revisarías para $\int\sqrt{25-x^2}\,dx$?
+    explicacion: >-
+      **Tipo.** Monitorear un plan. Las cuentas de Ana están bien. En la primera ronda, $v=-\sqrt{25-x^2}$, e $I=-x\sqrt{25-x^2}+\int\sqrt{25-x^2}\,dx$. En la segunda, $u=\sqrt{25-x^2}$ es, salvo el signo, la $v$ de antes, y $dv=dx$ devuelve la $x$: $\int\sqrt{25-x^2}\,dx=x\sqrt{25-x^2}+I$, así que esa ronda deshace la primera. Al pasar $I$ al otro lado queda $0=0$: es verdad, pero no da información. No es como la cíclica de la 08, donde la original regresaba con otro coeficiente y se podía despejar; aquí las dos $u$ son algebraicas, así que «el mismo tipo de $u$» no basta: lo que importa es que la nueva $u$ no sea la $v$ de antes; tampoco hay un signo mal, y la integral sí tiene antiderivada elemental (no hace falta aproximarla). **Qué conviene.** Cambiar de plan en $\int\sqrt{25-x^2}\,dx$ (pregunta 5 del triaje), o desde el principio en $I$. Con $x=5\operatorname{sen}\theta$: $\int\frac{25\operatorname{sen}^2\theta}{5\cos\theta}\cdot5\cos\theta\,d\theta=25\int\operatorname{sen}^2\theta\,d\theta=\frac{25}{2}\left(\theta-\operatorname{sen}\theta\cos\theta\right)$. Otra salida: $\sqrt{25-x^2}=\frac{25-x^2}{\sqrt{25-x^2}}$, así que $\int\sqrt{25-x^2}\,dx=25\operatorname{arcsen}\frac x5-I$; ahora $I$ regresa con signo menos y se despeja, como en la cíclica, pero eso sale de reescribir, no de la segunda ronda de Ana: $2I=25\operatorname{arcsen}\frac x5-x\sqrt{25-x^2}$. Por cualquiera de las dos, $I=\frac{25}{2}\operatorname{arcsen}\frac x5-\frac x2\sqrt{25-x^2}+C$. Revisa: la derivada es $\frac{25}{2\sqrt{25-x^2}}-\frac12\sqrt{25-x^2}+\frac{x^2}{2\sqrt{25-x^2}}=\frac{25-(25-x^2)+x^2}{2\sqrt{25-x^2}}=\frac{x^2}{\sqrt{25-x^2}}$.
+    tiempo_estimado_s: 120
+
+  # razonamiento: deductivo (construir todos los contraejemplos) · R4
+  # Textos de arquitecto-razonamiento. verificar: recorre c entero o medio entero en [-20, 20]; c es contraejemplo si
+  # apart deja un solo término (se cancela un factor: pregunta 1) o si x + c es un múltiplo constante de 2x + 4 (la
+  # derivada del denominador: pregunta 2). Para todos los reales (argumento, no verificado por código): los coeficientes
+  # de 1/(x - 1) y 1/(x + 5) son (1 + c)/6 y (5 - c)/6; sin fracciones parciales solo se puede si uno es 0 (c = -1 o
+  # c = 5) o si son iguales (c = 2). Con otro c hacen falta dos ln con coeficientes distintos: al completar el cuadrado
+  # queda ∫du/(u² - 9), y la tabla de la 08 no trae ∫du/(u² - a²) ni arctanh (confirmado en la lección de la 08).
+  - id: calc-09-024
+    tipo: conjunto
+    dificultad: 5
+    conceptos: [eleccion-tecnica-integracion]
+    enunciado: >-
+      Un compañero afirma: «si el denominador se factoriza en dos lineales distintos, hacen falta fracciones parciales». Encuentra todos los contraejemplos de la forma $\int\frac{x+c}{x^2+4x-5}\,dx$: los valores reales de $c$ con los que no hace falta descomponer, porque al simplificar la fracción, o con una sola sustitución (sin partir el numerador), la integral ya sale con la tabla de la 08. Escribe los valores separados por comas, entre llaves.
+    respuesta: ["-1", "2", "5"]
+    verificar: { sympy: "{c for c in [Rational(k, 2) for k in range(-40, 41)] if len(Add.make_args(apart((x + c)/(x**2 + 4*x - 5), x))) == 1 or simplify((x + c)/(2*x + 4)).is_number}" }
+    pistas:
+      - >-
+        Recorre el triaje con $c$ como incógnita: ¿qué tendría que cumplir $c$ para que la pregunta 1 diga «sí»? ¿Y para que lo diga la 2?
+      - >-
+        ¿En qué factores se descompone el denominador? ¿Puede el numerador compartir alguno con él? ¿Qué le pasa entonces a la fracción?
+      - >-
+        ¿Cuál es la derivada del denominador? ¿Para qué $c$ es $x+c$ un múltiplo de ella? Revisa cada valor de tu conjunto: con él, ¿de verdad sale sin descomponer? ¿Te faltó alguno de los dos caminos?
+    explicacion: >-
+      **Tipo.** Contraejemplos: se recorre el triaje con $c$ como incógnita. El denominador es $(x-1)(x+5)$. **Pregunta 1 (simplificar).** Si $x+c$ comparte un factor con el denominador, se cancela: $c=-1$ da $\frac{1}{x+5}$, y $c=5$ da $\frac{1}{x-1}$; cada una es un ln. **Pregunta 2 (sustitución).** La derivada del denominador es $2x+4=2(x+2)$, y $x+c$ es un múltiplo de ella solo con $c=2$: $\int\frac{x+2}{x^2+4x-5}\,dx=\frac12\ln\lvert x^2+4x-5\rvert+C$. **Con cualquier otro $c$.** Tapando, $\frac{x+c}{(x-1)(x+5)}=\frac{(1+c)/6}{x-1}+\frac{(5-c)/6}{x+5}$. Solo se evita descomponer si un coeficiente es 0 ($c=-1$ o $c=5$) o si los dos son iguales ($c=2$, y entonces su suma es la mitad de $\frac{2x+4}{x^2+4x-5}$); con cualquier otro valor no basta: al completar el cuadrado, con $u=x+2$, queda $\int\frac{u+(c-2)}{u^2-9}\,du$, y el término $\frac{c-2}{u^2-9}$ no está en la tabla de la 08 (no trae $\int\frac{du}{u^2-a^2}$ ni arctanh), así que hacen falta las dos fracciones. El conjunto es $\{-1,2,5\}$. Revisa: con $c=2$, $\frac{1/2}{x-1}+\frac{1/2}{x+5}=\frac{x+2}{x^2+4x-5}$; con $c=5$, $\frac{x+5}{(x-1)(x+5)}=\frac{1}{x-1}$.
+    tiempo_estimado_s: 150
+
+  # razonamiento: algorítmico (combinar sustitución y fracciones parciales) · R1
+  # verificar: la integral de sympy (los argumentos, e^x + 2 y e^x + 3, siempre son positivos; no hace falta muestreo).
+  - id: calc-09-025
+    tipo: simbolico
+    dificultad: 5
+    conceptos: [eleccion-tecnica-integracion]
+    enunciado: >-
+      Calcula $\int\frac{e^x}{e^{2x}+5e^x+6}\,dx$. Escribe solo la expresión, sin $+C$ (si la pones, con $C$ mayúscula). Cada producto lleva `*`, también entre un número y una función (`12*sen(x)`), y cada argumento va entre paréntesis (`cos(4*x)`, `sqrt(w)`, `ln(abs(w))`). Las trigonométricas inversas se escriben con su nombre, como `arcsen(w)` o `arctan(w)`, nunca con `^(-1)`.
+    respuesta: "ln(exp(x) + 2) - ln(exp(x) + 3)"
+    variables: [x]
+    salvo_constante: true
+    verificar: { sympy: "integrate(exp(x)/(exp(2*x) + 5*exp(x) + 6), x)" }
+    pistas:
+      - >-
+        Recorre el triaje en orden y detente en la primera pregunta que diga «sí»: ¿ya está en la tabla, o llega a ella al reescribir? ¿Hay una función de adentro con su derivada multiplicando? ¿Es polinomio entre polinomio? ¿Solo potencias trigonométricas? ¿Una raíz de $a^2-x^2$, $a^2+x^2$ o $x^2-a^2$? ¿Un producto de dos tipos de función?
+      - >-
+        Con $u=e^x$, ¿en qué se convierten $e^x\,dx$ y $e^{2x}$? La integral en $u$, ¿en qué pregunta del triaje se detiene?
+      - >-
+        ¿Cómo se factoriza $u^2+5u+6$? Al regresar a $x$, ¿hace falta valor absoluto? Revisa: deriva tu resultado.
+    explicacion: >-
+      **Tipo.** Pregunta 2 del triaje: la función de adentro es $e^x$, y su derivada, $e^x$, multiplica. **Sustituye.** $u=e^x$, $du=e^x\,dx$ y $e^{2x}=u^2$: $\int\frac{du}{u^2+5u+6}$. **Vuelve a empezar.** Esa integral se detiene en la pregunta 3: polinomio entre polinomio, con $u^2+5u+6=(u+2)(u+3)$. **Tapa.** En $u=-2$, $A=\frac{1}{-2+3}=1$; en $u=-3$, $B=\frac{1}{-3+2}=-1$. **Integra.** $\ln\lvert u+2\rvert-\ln\lvert u+3\rvert$. **Regresa.** $\ln(e^x+2)-\ln(e^x+3)+C=\ln\frac{e^x+2}{e^x+3}+C$, sin barras porque $e^x>0$. Revisa: la derivada es $\frac{e^x}{e^x+2}-\frac{e^x}{e^x+3}=\frac{e^x\left[(e^x+3)-(e^x+2)\right]}{(e^x+2)(e^x+3)}=\frac{e^x}{e^{2x}+5e^x+6}$. El error típico es $\ln(e^{2x}+5e^x+6)$: su derivada tiene $2e^{2x}+5e^x$ arriba, no $e^x$.
+    tiempo_estimado_s: 120

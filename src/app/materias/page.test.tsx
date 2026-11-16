@@ -10,9 +10,10 @@ describe("materias", () => {
     expect(html.match(/data-has-content="(true|false)"/g)).toHaveLength(45);
   });
 
-  it("solo cálculo y programación están marcadas con contenido y enlazadas", () => {
-    expect(html.match(/data-has-content="true"/g)).toHaveLength(2);
+  it("solo cálculo, discretas y programación están marcadas con contenido y enlazadas", () => {
+    expect(html.match(/data-has-content="true"/g)).toHaveLength(3);
     expect(html).toContain('href="/materias/calculo"');
+    expect(html).toContain('href="/materias/matematicas-discretas"');
     expect(html).toContain('href="/materias/programacion"');
     expect(html).not.toContain('href="/materias/algebra-lineal"');
   });

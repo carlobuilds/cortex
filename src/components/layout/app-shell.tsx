@@ -17,7 +17,7 @@ export function AppShell({ children, hud }: { children: ReactNode; hud?: ReactNo
       </a>
       <header className="sticky top-0 z-40 border-b bg-[color-mix(in_srgb,var(--bg)_85%,transparent)] backdrop-blur">
         <div className="mx-auto flex h-[var(--header-h)] max-w-6xl items-center gap-3 px-4 sm:gap-6 sm:px-6">
-          <Link href="/" className="flex shrink-0 items-center gap-2.5 rounded-md font-semibold tracking-tight">
+          <Link href="/" className="flex shrink-0 items-center gap-2.5 rounded-md font-semibold tracking-tight touch:min-h-11">
             <span aria-hidden className="grid size-7 place-items-center rounded-md border border-brand/30 bg-brand-soft text-sm font-bold text-brand">
               C
             </span>
@@ -38,11 +38,11 @@ export function AppShell({ children, hud }: { children: ReactNode; hud?: ReactNo
       <footer className="mx-auto w-full max-w-6xl px-4 pt-4 pb-10 sm:px-6">
         <p className="eyebrow">
           Tus datos viven solo en este navegador ·{" "}
-          <Link href="/ajustes" className="underline underline-offset-2 hover:text-ink">
+          <Link href="/ajustes" className="underline underline-offset-2 hover:text-ink touch:inline-flex touch:min-h-11 touch:items-center">
             Ajustes y respaldo
           </Link>{" "}
           ·{" "}
-          <Link href="/estilo" className="underline underline-offset-2 hover:text-ink">
+          <Link href="/estilo" className="underline underline-offset-2 hover:text-ink touch:inline-flex touch:min-h-11 touch:items-center">
             Sistema visual
           </Link>
         </p>

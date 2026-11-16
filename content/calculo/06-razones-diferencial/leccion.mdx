@@ -1,0 +1,128 @@
+---
+titulo: "Razones relacionadas y diferencial: cuando todo cambia a la vez"
+materia: calculo
+unidad: 06-razones-diferencial
+duracion_min: 25
+prerrequisitos: [derivacion-implicita, regla-cadena, recta-tangente, razon-cambio-instantanea]
+conceptos: [razones-relacionadas, diferencial, aproximacion-lineal, error-con-diferenciales]
+programa_ref: "Cálculo, Unidad III, 3.3 (razones de cambio relacionadas) y 3.4 (diferencial de una función, con sus aplicaciones: aproximación lineal y estimación de errores)"
+---
+
+## El problema
+
+Supón que un dron despega a 12 m de ti y sube en vertical, siempre a 5 m/s, mientras lo miras sin moverte. La altura y la distancia entre tú y el dron crecen las dos, amarradas por un triángulo rectángulo. Aquí verás razones de cambio amarradas entre sí y la diferencial, que estima cambios con la derivada.
+
+<Predice pregunta="Sin hacer cuentas: ¿la distancia entre tú y el dron crece a 5 m/s, más rápido o más lento? ¿Y cuando el dron ya va muy alto?" revela="Más lento. Al despegar, el dron sube casi en perpendicular a tu línea de vista y la distancia apenas cambia; cuando va muy alto, tu línea de vista es casi vertical y la distancia crece casi a 5 m/s, sin llegar. Lo calcularás más abajo." />
+
+## Razones relacionadas
+
+<Concepto titulo="El método">
+Si una ecuación amarra varias cantidades que cambian con el tiempo, al derivarla respecto a $t$ quedan amarradas sus razones. Se supone que cada cantidad es una función derivable de $t$ y que la ecuación vale en un intervalo de tiempo, no solo en un instante.
+
+1. **Dibuja y nombra:** una letra para cada cantidad que cambia y su número para cada constante.
+2. **Datos y meta como razones:** «sé $\frac{dh}{dt}=\dots$; busco $\frac{ds}{dt}$ cuando $h=\dots$».
+3. **Ecuación para todo instante:** Pitágoras, semejanza, o una fórmula de área o volumen; si sobra una variable, elimínala con otra relación que también valga siempre.
+4. **Deriva respecto a $t$** los dos lados; cada variable deja su derivada, por la cadena (como la $y$ de la 05).
+5. **Ahora sí, el instante:** calcula con la ecuación del paso 3 lo que falte, sustituye y despeja.
+6. **Responde y revisa:** el signo (negativa si disminuye), las unidades y si tiene sentido.
+</Concepto>
+
+**Las dos sustituciones.** Antes de derivar puedes sustituir lo que vale en **todo** instante: las constantes y las relaciones fijas (por semejanza, por ejemplo). Lo que vale **solo en el instante** va después; si lo sustituyes antes, esa cantidad se congela y su razón sale 0.
+
+## Ejemplo: la artesa
+
+<Ejemplo titulo="La artesa que se llena">
+Supón que una artesa (un bebedero alargado) mide 4 m de largo y que su sección es un triángulo con la punta hacia abajo, de 0.6 m de ancho arriba y 0.4 m de profundidad. Le entra agua a razón de 0.03 m³/min. ¿A qué razón sube el agua en el instante en que su profundidad es de 0.2 m?
+
+1. **Dibuja y nombra.** $h$ es la profundidad del agua y $w$ el ancho de su superficie, en m; $V$ es el volumen de agua, en m³. El largo y las medidas de la artesa son constantes.
+2. **Datos y meta.** Sé $\frac{dV}{dt}=0.03$ m³/min; busco $\frac{dh}{dt}$ cuando $h=0.2$.
+3. **Ecuación.** El agua es un prisma de sección triangular: $V=\frac12wh\cdot4=2wh$. Sobra $w$. Por semejanza, el triángulo del agua tiene la forma del de la artesa: $\frac wh=\frac{0.6}{0.4}$, es decir, $w=1.5h$. Esa relación vale en **todo** instante (la forma no cambia), así que se puede sustituir antes de derivar: $V=3h^2$.
+4. **Deriva.** $h$ depende de $t$, así que por la cadena deja su $\frac{dh}{dt}$: $\frac{dV}{dt}=6h\frac{dh}{dt}$.
+5. **El instante.** Con $h=0.2$: $0.03=1.2\frac{dh}{dt}$, así que $\frac{dh}{dt}=0.025$.
+6. **Responde.** El agua sube a 0.025 m/min, es decir, 2.5 cm/min; la razón es positiva porque la profundidad aumenta.
+
+Revisa con un cociente de diferencias: en 1 min entran 0.03 m³, $V$ pasa de 0.12 a 0.15 y $h=\sqrt{V/3}$ pasa de 0.2 a unos 0.2236 m. Son unos 0.024 m/min, un poco menos que 0.025, porque la artesa se ensancha al subir.
+</Ejemplo>
+
+<Desvanecido titulo="Ahora tú: el dron del principio" pasos={[
+  "¿A qué razón crece la distancia $s$ entre tú y el dron en el instante en que está a 16 m de altura?",
+  "Pasos 1 y 2: $h$ es la altura y $s$ la distancia, en m; los 12 m son constantes. Sé $\\frac{dh}{dt}=5$ m/s; busco $\\frac{ds}{dt}$ cuando $h=16$.",
+  "Paso 3, para todo instante (Pitágoras): $s^2=h^2+12^2$.",
+  "Paso 4: $2s\\frac{ds}{dt}=2h\\frac{dh}{dt}$, así que $\\frac{ds}{dt}=\\frac hs\\cdot\\frac{dh}{dt}$.",
+  "Paso 5: en el instante, $s=$ ___ m, así que $\\frac{ds}{dt}=$ ___ m/s.",
+  "Paso 6: cuando el dron va muy alto, $\\frac hs$ se acerca a 1, así que $\\frac{ds}{dt}$ tiende a ___ m/s, sin llegar: más lento de lo que sube el dron."
+]} respuestas={["20", "4", "5"]} />
+
+## La diferencial
+
+Cerca de un punto, una curva derivable casi se confunde con su tangente; la diferencial mide el cambio **sobre la tangente**.
+
+<Concepto titulo="Diferencial y aproximación lineal">
+Sea $y=f(x)$ derivable. La **diferencial** $dx$ es una variable independiente: un incremento cualquiera de $x$, así que $dx=\Delta x$ (en la app, $h$). La **diferencial de $y$** es
+
+$$dy=f'(x)\,dx,$$
+
+que depende de $x$ y de $dx$. El cambio real es $\Delta y=f(x+dx)-f(x)$, y en general $\Delta y\neq dy$.
+
+La **linealización** de $f$ en $a$ es esa tangente (la de la 03), $L(x)=f(a)+f'(a)(x-a)$, y cerca de $a$, $f(x)\approx L(x)$. Es lo mismo dicho de otra forma: $f(a+dx)\approx f(a)+dy$.
+</Concepto>
+
+En el visual, la secante entre $a=8$ y $8+h$ tiene pendiente $\frac{\Delta y}{dx}$, y la tangente, $\frac{dy}{dx}=f'(8)$. Al encoger $h$, las dos pendientes se juntan, y la diferencia $\Delta y-dy$ se encoge más rápido que el propio $h$.
+
+<Visual id="secante-tangente" f="cbrt(x)" a="8" dominio="5, 10" rango="1.6, 2.25" titulo="La raíz cúbica cerca de 8" />
+
+<Ejemplo titulo="Estimar la raíz cúbica de 8.3">
+1. **Qué $f$, qué $a$ y qué $dx$.** Se pide un valor de $f(x)=\sqrt[3]{x}$. Conviene un $a$ cercano a 8.3 donde $f(a)$ y $f'(a)$ salgan a mano: $a=8$, porque $\sqrt[3]{8}=2$. Entonces $dx=8.3-8=0.3$.
+2. **La derivada en $a$.** $f'(x)=\frac{1}{3\sqrt[3]{x^2}}$, así que $f'(8)=\frac{1}{3\cdot4}=\frac1{12}$.
+3. **Estima.** $dy=\frac{0.3}{12}=0.025$ y $\sqrt[3]{8.3}\approx L(8.3)=2.025$. La calculadora da $2.024694\ldots$
+
+| $dx$ | $\Delta y$ | $dy$ | $\Delta y-dy$ |
+|---|---|---|---|
+| $0.3$ | $0.0246939$ | $0.025$ | $-3.06\times10^{-4}$ |
+| $0.03$ | $0.00249688$ | $0.0025$ | $-3.12\times10^{-6}$ |
+| $0.003$ | $0.000249969$ | $0.00025$ | $-3.12\times10^{-8}$ |
+
+Cuando $dx$ se divide entre 10, $\Delta y-dy$ se divide entre unos 100: el error es del orden de $(dx)^2$ (si $f''$ está acotada cerca de $a$). Su signo lo da $f''$: si $f''>0$ en todo el tramo (convexa, ∪), la curva queda arriba de la tangente y $L$ se queda corta; si $f''<0$ (cóncava, ∩), se pasa, como en la 07. Decimos que $L$ **sobreestima** a $f$ en $x$ si $L(x)>f(x)$. Aquí $f''(x)=-\frac{2}{9\sqrt[3]{x^5}}<0$ en todo el tramo de 8 a 8.3: $L$ sobreestima, y $2.025>2.024694$.
+</Ejemplo>
+
+## Errores con diferenciales
+
+<Concepto titulo="Estimar errores">
+Si mides $x$ con un error de $\pm dx$ y calculas $y=f(x)$, el error que llega a $y$ es $\Delta y$, y se estima con $dy=f'(x)\,dx$, evaluada en el valor medido:
+
+- error **absoluto** ≈ $\lvert dy\rvert$, en las unidades de $y$;
+- error **relativo** ≈ $\left\lvert\frac{dy}{y}\right\rvert$, sin unidades;
+- error **porcentual** = 100 × relativo.
+
+Para $y=kx^n$: $\frac{dy}{y}=\frac{knx^{n-1}\,dx}{kx^n}=n\frac{dx}{x}$ (si $k,x>0$, sale igual con $\ln y=\ln k+n\ln x$, como en la logarítmica de la 05). El error relativo de $y$ es ≈ $\lvert n\rvert$ veces el de $x$.
+</Concepto>
+
+<Desvanecido titulo="Ahora tú: una caja medida" pasos={[
+  "Supón que una caja tiene base cuadrada y que su altura es el doble del lado $x$ de la base, así que $V=2x^3$. Mides $x=10$ cm con un error de $\\pm0.1$ cm. Estima con diferenciales los errores del volumen.",
+  "$V(10)=2000$ cm³ y $\\frac{dV}{dx}=6x^2$, que en $x=10$ vale 600.",
+  "Error absoluto: $\\lvert dV\\rvert=600\\cdot0.1=$ ___ cm³.",
+  "Error relativo, como decimal: $\\frac{\\lvert dV\\rvert}{V}=$ ___ . Con la regla de las potencias, $3\\cdot\\frac{0.1}{10}$ da lo mismo.",
+  "Error porcentual: ___ %."
+]} respuestas={["60", "0.03", "3"]} />
+
+## Errores comunes
+
+<Ojo>
+- **Sustituir el instante antes de derivar.** Si en el dron pones $h=16$ antes, $s^2=16^2+12^2$ es un número y $\frac{ds}{dt}$ sale 0.
+- **No eliminar con la semejanza.** En la artesa, si dejas $w$, te sobra $\frac{dw}{dt}$; si lo congelas en $w=0.3$, la razón sale al doble.
+- **El signo contra la rapidez.** «Disminuye a razón de 3 cm/s» es $-3$ cm/s; la rapidez es 3 cm/s.
+- **Los ángulos van en radianes.** $(\tan\theta)'=\sec^2\theta$ solo vale en radianes: convierte con $1^\circ=\frac{\pi}{180}$ rad.
+- **$dy$ no es $\Delta y$.** $dy=f'(x)\,dx$ depende de $x$ y de $dx$, y aproxima a $\Delta y$ sin ser $\Delta y$ (salvo si $f$ es afín, $f(x)=mx+b$).
+</Ojo>
+
+<Conexion materia="Inteligencia artificial">
+Un paso del descenso de gradiente mueve un peso $w$ en $\Delta w=-\eta J'(w)$, con $J$ la pérdida (en la 05 y la 07 se llama $L$, pero aquí $L$ ya es la linealización) y $\eta$ la tasa de aprendizaje. La linealización estima cuánto cambia $J$: $\Delta J\approx J'(w)\,\Delta w$, y solo es buena con pasos chicos. Y la sensibilidad $\Delta y\approx f'(x)\,dx$, cuánto cambia la salida si mueves un poco una entrada, es la idea de un mapa de saliencia (*saliency map*) en visión por computadora.
+</Conexion>
+<Resumen>
+- Razones relacionadas: una ecuación que vale en todo instante, derivada respecto a $t$; el instante se sustituye después de derivar, y las relaciones fijas, cuando quieras.
+- La diferencial $dy=f'(x)\,dx$ es el cambio sobre la tangente: $f(a+dx)\approx f(a)+dy$, con un error del orden de $(dx)^2$ (si $f''$ está acotada) cuyo signo da $f''$ en el tramo.
+- Errores: absoluto ≈ $\lvert dy\rvert$ y relativo ≈ $\left\lvert\frac{dy}{y}\right\rvert$; para $kx^n$, el relativo se multiplica por $\lvert n\rvert$.
+</Resumen>
+<Feynman>
+Explícale a un amigo por qué en la artesa puedes sustituir la semejanza antes de derivar, pero no la profundidad del instante, y por qué la estimación de $\sqrt[3]{8.3}$ se pasa un poco. Si te trabas, vuelve al método o al ejemplo de la raíz cúbica.
+</Feynman>

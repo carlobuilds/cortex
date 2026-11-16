@@ -30,8 +30,8 @@ describe("loadContent sobre el repo real", () => {
     expect(idsOnDisk.length).toBeGreaterThanOrEqual(31);
   });
 
-  it("solo cálculo y programación tienen contenido", () => {
-    expect(index?.subjects.filter((s) => s.hasContent).map((s) => s.id)).toEqual(["programacion", "calculo"]);
+  it("solo cálculo, discretas y programación tienen contenido", () => {
+    expect(index?.subjects.filter((s) => s.hasContent).map((s) => s.id)).toEqual(["programacion", "matematicas-discretas", "calculo"]);
   });
 
   it("lista las 45 entradas del mapa (41 materias + 4 espacios de optativa) y las 14 optativas", () => {

@@ -1,0 +1,138 @@
+---
+titulo: "Búsqueda en grafos y camino más corto"
+materia: matematicas-discretas
+unidad: 20-recorridos-camino-corto
+duracion_min: 25
+prerrequisitos: [grafo-tipos, representacion-grafos, caminos-conexidad]
+conceptos: [busqueda-amplitud, busqueda-profundidad, distancia-bfs, grafo-ponderado, dijkstra]
+programa_ref: "Matemáticas discretas, Unidad IV, 4.5.3 (algoritmo del camino más corto) y 4.5.4 (recorridos en profundidad y amplitud), y práctica 8, «Recorridos»"
+---
+
+## El problema
+
+Supón un barrio $G$ de seis esquinas. Cada calle, o **tramo**, une dos esquinas y tarda los mismos minutos en los dos sentidos; «$a$: $c$ 4» dice que el tramo de $a$ a $c$ tarda 4:
+
+$a$: $c$ 4, $e$ 2 · $b$: $c$ 1, $g$ 5 · $c$: $a$ 4, $b$ 1, $f$ 7 · $e$: $a$ 2, $g$ 3 · $f$: $c$ 7, $g$ 3 · $g$: $b$ 5, $e$ 3, $f$ 3.
+
+<Visual id="grafo" vertices="a, e, g, b, c, f" aristas="a-c, a-e, b-c, b-g, c-f, e-g, f-g" titulo="El barrio G" />
+
+<Predice pregunta="De $a$ a $f$: ¿qué ruta usa menos tramos y cuál tarda menos? ¿Son la misma?" revela="No. $a,c,f$ usa 2 tramos y tarda 11 min; $a,e,g,f$ usa 3 y tarda 8. BFS encuentra la primera; Dijkstra, la segunda." />
+
+## Búsqueda en amplitud
+
+<Concepto titulo="Búsqueda en amplitud (BFS)">
+El programa dice «recorrido en amplitud» y «recorrido en profundidad», y otros libros, «búsqueda en anchura»; aquí es **búsqueda**, porque en la unidad 19 un recorrido es otra cosa. Da un **orden**: una lista de vértices, en la que dos seguidos pueden no ser vecinos.
+
+La **búsqueda en amplitud** (BFS) desde $s$ avanza por capas: primero los vecinos de $s$, luego los vecinos de esos. Usa una **cola**: se saca por el frente y se encola al final. Marca y encola $s$. Mientras la cola no esté vacía, saca al vértice $u$ del frente y marca y encola, en orden alfabético, a sus vecinos sin marcar (en un dirigido, los $v$ con $u\to v$).
+
+Como se **marca al encolar**, nadie entra dos veces. El **orden BFS** es el orden en que entran. Si $v$ se marca cuando sale $u$, $u$ es su **padre**, y el **árbol BFS** está formado por las aristas que unen cada vértice con su padre. El **nivel** de $s$ es 0; el de $v$, el de su padre más 1.
+
+En la cola, del frente al final, los niveles no bajan y difieren a lo más en 1. Con eso se demuestra que el nivel de $v$ es su **distancia en aristas** $\mathrm{dist}(s,v)$: el menor número de aristas de un camino de $s$ a $v$. Demostrar ambas te toca en la práctica.
+</Concepto>
+
+<Ejemplo titulo="BFS en el barrio G, desde a">
+Sin los minutos, los vecinos son $a$: $c,e$ · $b$: $c,g$ · $c$: $a,b,f$ · $e$: $a,g$ · $f$: $c,g$ · $g$: $b,e,f$.
+
+| Saco | Encolo y marco | Cola |
+|---|---|---|
+| (inicio) | $a$ | $a$ |
+| $a$ | $c$ y $e$ | $c,e$ |
+| $c$ | $b$ y $f$ | $e,b,f$ |
+| $e$ | $g$ | $b,f,g$ |
+| $b$ | ninguno: $c$ y $g$ ya están marcados | $f,g$ |
+| $f$ | ninguno | $g$ |
+| $g$ | ninguno | vacía |
+
+1. **Orden BFS:** $a,c,e,b,f,g$.
+2. **Niveles:** $a$ en el 0; $c$ y $e$ en el 1; $b$, $f$ y $g$ en el 2.
+3. **Árbol BFS:** $ac$, $ae$, $cb$, $cf$ y $eg$. Siguiendo a los padres desde $f$ se llega a $c$ y luego a $a$: al revés, $a,c,f$, la ruta con menos tramos.
+4. **Revisa:** cada arista une niveles iguales o consecutivos; $bg$ y $fg$ unen dos vértices del nivel 2.
+</Ejemplo>
+
+## Búsqueda en profundidad
+
+<Concepto titulo="Búsqueda en profundidad (DFS)">
+Una **búsqueda en profundidad** (DFS) desde $s$ avanza lo más que puede antes de regresar. En cada vértice entra al primer vecino sin visitar, en orden alfabético; si no hay, regresa al vértice del que llegó. Termina al volver a $s$ sin vecinos por visitar. El **orden DFS** es el orden en que se descubren los vértices, y si se entra a $v$ desde $u$, $u$ es su **padre** en el árbol DFS.
+</Concepto>
+
+<Ejemplo titulo="DFS en el barrio G, desde a">
+1. De $a$ entra a $c$, de $c$ a $b$ y de $b$ a $g$, cada vez al primer vecino sin visitar.
+2. De $g$ entra a $e$. Los vecinos de $e$, $a$ y $g$, ya están visitados: **regresa** a $g$.
+3. De $g$ entra a $f$; de ahí regresa a $g$, $b$, $c$ y $a$ sin hallar vecinos sin visitar. Termina.
+4. **Orden DFS:** $a,c,b,g,e,f$. **Árbol DFS:** $ac$, $cb$, $bg$, $ge$ y $gf$.
+5. **Revisa:** el árbol tiene 5 aristas, una por vértice salvo $a$; $ae$ y $cf$ quedan fuera porque, cuando se revisaron, su otro extremo ya estaba visitado.
+</Ejemplo>
+
+<Desvanecido titulo="Ahora tú: DFS en el grafo H" pasos={[
+  "El grafo $H$ tiene vértices $a$ a $g$ y aristas $ab$, $ad$, $ae$, $bc$, $bg$, $cd$ y $ef$. Desde $a$, DFS entra a $b$, de $b$ a $c$ y de $c$ a $d$, cada vez al primer vecino sin visitar.",
+  "En $d$ ya no queda vecino sin visitar. El quinto vértice que se descubre, contando a $a$ como el primero, es ___ , y se llega a él desde ___ .",
+  "El sexto, con la misma cuenta, es ___ .",
+  "La única arista que no queda en el árbol DFS une a $a$ con ___ ."
+]} respuestas={["g", "b", "e", "d"]} />
+
+## Grafos ponderados
+
+<Concepto titulo="Grafos ponderados">
+En un **grafo ponderado**, cada arista $uv$ tiene un **peso** $w(u,v)$; el de un camino es la suma de los de sus aristas. Un **camino más corto** de $s$ a $v$ es uno de peso mínimo, y ese peso es la **distancia ponderada**; el de menos aristas se dice «con menos aristas». En $G$, $a,c,f$ tiene menos aristas, pero pesa 11, y $a,e,g,f$, 8. Con pesos $\ge0$, al menos un camino más corto es trayectoria: quitar una vuelta no sube el peso.
+</Concepto>
+
+## Dijkstra
+
+<Concepto titulo="Algoritmo de Dijkstra">
+Pide pesos $\ge0$ (el 0 se vale) y lleva una **distancia tentativa** $d(v)$ por vértice: $d(s)=0$ y las demás, $\infty$. Por eso ningún grafo con pesos de esta unidad tiene vértices $d$ ni $w$. En cada ronda:
+
+1. **Fija** al no fijado de menor $d$; en un empate, al primero en orden alfabético. Fijar $u$ es declarar que $d(u)$ ya no cambia.
+2. **Relaja** cada arista $uv$ hacia un vecino $v$ no fijado (en un dirigido, las flechas que salen de $u$): si $d(u)+w(u,v)<d(v)$, cambia $d(v)$ por ese valor y anota a $u$ como **predecesor** de $v$. Si no es menor, nada cambia.
+
+Termina cuando todos están fijados o los que faltan tienen $d=\infty$: a esos no llega ningún camino desde $s$, y no se fijan. Al final, para cada $v$ alcanzable, $d(v)$ es la distancia ponderada, y los predecesores, leídos de $v$ hacia atrás, dan un camino más corto. El porqué es el reto del final.
+</Concepto>
+
+<Ejemplo titulo="Dijkstra en el barrio G, desde a">
+Con los minutos de $G$. En cada fila se fija un vértice y se relajan sus aristas hacia los no fijados; entre paréntesis va el predecesor.
+
+| Se fija | Cambios al relajar | No fijados, con su $d$ |
+|---|---|---|
+| $a$, con 0 | $d(c)=4$ y $d(e)=2$ ($a$) | $b$ $\infty$, $c$ 4, $e$ 2, $f$ $\infty$, $g$ $\infty$ |
+| $e$, con 2 | $d(g)=2+3=5$ ($e$) | $b$ $\infty$, $c$ 4, $f$ $\infty$, $g$ 5 |
+| $c$, con 4 | $d(b)=4+1=5$ y $d(f)=4+7=11$ ($c$) | $b$ 5, $f$ 11, $g$ 5 |
+| $b$, con 5 | ninguno: por $bg$, $5+5=10$ no mejora 5 | $f$ 11, $g$ 5 |
+| $g$, con 5 | $d(f)=5+3=8$ ($g$) | $f$ 8 |
+| $f$, con 8 | ninguno | ninguno |
+
+1. **$c$ se fija después de $e$ sin ser su vecino:** se fija el de menor $d$ entre todos los no fijados, no el vecino más barato del último.
+2. **Empate:** $b$ y $g$ tienen 5, y se fija $b$, por orden alfabético.
+3. **Mejora:** al fijar $g$, $d(f)$ baja de 11 a 8, con predecesor $g$.
+4. **El gancho:** de $f$ hacia atrás, los predecesores dan $g$, $e$ y $a$; el camino más corto es $a,e,g,f$, de 8 minutos.
+5. **Revisa:** $2+3+3=8=d(f)$.
+</Ejemplo>
+
+<Desvanecido titulo="Ahora tú: Dijkstra en el grafo P" pasos={[
+  "El grafo $P$ tiene estos pesos, por vértice: $a$: $b$ 1, $c$ 4 · $b$: $a$ 1, $e$ 5, $f$ 6 · $c$: $a$ 4, $f$ 1 · $e$: $b$ 5, $f$ 2 · $f$: $b$ 6, $c$ 1, $e$ 2. Corre Dijkstra desde $a$.",
+  "Se fija $a$, y quedan $d(b)=1$ y $d(c)=4$.",
+  "Se fija $b$, y sus vecinos sin fijar quedan en $d(e)=6$ y $d(f)=7$, con predecesor $b$.",
+  "El siguiente vértice que se fija es ___ .",
+  "Al relajar sus aristas hacia los no fijados, $d(f)=$ ___ (número), con predecesor ___ ."
+]} respuestas={["c", "5", "c"]} />
+
+## Errores comunes
+
+<Ojo>
+- **Se marca al encolar.** Marcando al sacar, un vértice puede encolarse varias veces: el orden de marcado sale igual, pero si anotas un padre en cada entrada, el árbol puede salir mal.
+- **Se fija el de menor $d$ entre todos los no fijados,** no el vecino más barato del último fijado.
+- **Con un peso negativo, Dijkstra puede fallar:** en el dirigido con $a\to b$ de peso 2, $a\to c$ de 3 y $c\to b$ de $-2$, fija $b$ con 2, y la distancia ponderada de $a$ a $b$ es 1. Sin dirección, una arista negativa $uv$ deja sin mínimo: $u,v,u,v,\dots$ baja sin fin.
+- **No confundas la distancia en aristas con la ponderada:** en $G$, $\mathrm{dist}(a,f)=2$, y la distancia ponderada es 8.
+</Ojo>
+
+<Conexion materia="Inteligencia artificial">
+BFS, DFS y la búsqueda de costo uniforme, variante de Dijkstra, son búsquedas **no informadas**. A* suma a $d(v)$ una heurística que estima cuánto falta hasta la meta, y explora primero hacia ella.
+</Conexion>
+
+<Resumen>
+- BFS: cola y marca al encolar; nivel = distancia en aristas.
+- DFS: entra al primer vecino sin visitar; si no hay, regresa.
+- Dijkstra, con pesos $\ge0$: fija al no fijado de menor $d$ y relaja; al final, $d(v)$ es la distancia ponderada de cada alcanzable.
+</Resumen>
+
+<Feynman>
+¿Por qué Dijkstra puede fijar un vértice para siempre si no hay pesos negativos? Si te trabas: al fijar $u$, toma un camino de $s$ a $u$ y su primer vértice $y$ sin fijar; ¿puede pesar menos que $d(y)$, o $d(y)$ menos que $d(u)$?
+</Feynman>

@@ -114,7 +114,7 @@ export function CommandPalette() {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger className="tactile flex h-8 shrink-0 items-center gap-2 rounded-md border bg-surface-2 px-2 text-sm text-ink-2 hover:border-border-strong hover:text-ink xl:px-2.5">
+      <DialogTrigger className="tactile flex h-8 touch:h-11 touch:min-w-11 touch:justify-center shrink-0 items-center gap-2 rounded-md border bg-surface-2 px-2 text-sm text-ink-2 hover:border-border-strong hover:text-ink xl:px-2.5">
         <Search aria-hidden className="size-4" />
         <span className="hidden xl:inline">Buscar</span>
         <span className="sr-only xl:hidden">Buscar</span>
@@ -157,7 +157,7 @@ export function CommandPalette() {
                     aria-selected={i === current}
                     onMouseMove={() => setActive(i)}
                     onClick={() => run(cmd)}
-                    className={cn("flex cursor-pointer items-center justify-between gap-3 rounded-md px-3 py-2 text-sm", i === current && "bg-brand-soft text-ink")}
+                    className={cn("flex cursor-pointer items-center justify-between gap-3 rounded-md px-3 py-2 touch:min-h-11 text-sm", i === current && "bg-brand-soft text-ink")}
                   >
                     <span className="min-w-0">
                       <span className="block truncate">
@@ -174,7 +174,7 @@ export function CommandPalette() {
           {flat.length === 0 ? <p className="px-3 py-8 text-center text-sm text-muted-foreground">Nada coincide con «{query}».</p> : null}
           {catalogFailed ? <p className="px-3 pb-2 text-caption text-warning">No pude cargar las unidades; las páginas sí están.</p> : null}
         </div>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t px-4 py-2 text-caption text-muted-foreground [@media(pointer:coarse)]:hidden">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t px-4 py-2 text-caption text-muted-foreground touch:hidden">
           <span>
             <Kbd>↑</Kbd> <Kbd>↓</Kbd> moverte
           </span>

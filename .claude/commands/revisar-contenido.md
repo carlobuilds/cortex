@@ -1,14 +1,42 @@
 ---
-description: Revisión adversarial a ciegas de una unidad o materia de contenido
+description: Revisión adversarial a ciegas de una unidad o materia de contenido, con el equipo
 argument-hint: <ruta>   (p. ej. content/calculo/01-limites)
 ---
 
 Revisa el contenido en `$ARGUMENTS` en tres pasos.
 
-**1. Verificación automática.** Corre `pnpm content:check $ARGUMENTS` (incluye `verify_content.py`) y repórtame los resultados.
+**1. Verificación automática.** Lanza a `verificador` con `pnpm content:check $ARGUMENTS` (incluye `verify_content.py`) y repórtame su resumen. Mientras corre, ya puedes preparar los enunciados del paso 2.
 
-**2. Resolución a ciegas.** Lanza un subagente (Agent) **que no lea las respuestas**. Debe recibir únicamente, por cada ejercicio de `ejercicios.yaml` con tipo `numerico`, `simbolico`, `opcion_multiple`, `seleccion_multiple`, `completar`, `ordenar`, `predecir_salida`, `tabla_verdad` o `conjunto`: el `id`, el `enunciado`, las `opciones`, el `texto` o la `formula` si los hay, y el `visual` si lo hay (sus parámetros son parte del enunciado). Nada de `respuesta`, `correcta`, `correctas`, `valores`, `respuestas`, `explicacion`, `pistas` ni `verificar`. En `seleccion_multiple` avísale que puede haber varias correctas; en `tabla_verdad`, que conteste la columna final en orden canónico (VV, VF, FV, FF…). El subagente resuelve cada uno por su cuenta (puede usar Python/sympy) y devuelve una tabla `id → respuesta`. Después tú compara con las respuestas oficiales y lista **toda discrepancia**, investigando si es un error del enunciado, una ambigüedad o una respuesta mal escrita. Para los ejercicios `codigo`, el subagente escribe su propia solución desde el enunciado y se ejecuta contra los tests.
+**2. Resolución a ciegas con `resolutor-a-ciegas`.**
 
-**3. Checklist de lección.** Revisa `leccion.mdx` con la checklist de `docs/07-calidad-y-verificacion.md` (capa 4): precisión de cada afirmación, notación, cobertura del programa, ejemplos justificados, ≥ 3 ejercicios por concepto nuevo, originalidad, datos con fuente.
+- **Qué le pasas.** Tú lees `ejercicios.yaml` y le pasas **únicamente** los ejercicios de tipo `numerico`, `simbolico`, `opcion_multiple`, `seleccion_multiple`, `completar`, `ordenar`, `predecir_salida`, `tabla_verdad`, `conjunto` y `codigo`. De cada uno:
+  - `id` y `tipo`;
+  - `enunciado`;
+  - `opciones`, y `texto` o `formula` si los hay;
+  - el `visual` si lo hay, porque sus parámetros son parte del enunciado;
+  - en `ordenar`, los `elementos` **barajados** y con letra (en el YAML ya vienen en el orden correcto, que es la respuesta; guarda tú la clave);
+  - en `predecir_salida`, el `lenguaje` y el `codigo` que hay que leer (es parte del enunciado);
+  - en `codigo`, también el lenguaje y la firma pedida.
+- **Qué nunca le pasas:** `respuesta`, `correcta`, `correctas`, `valores`, `respuestas`, `explicacion`, `pistas`, `verificar`, `solucion` ni `tests`.
+- **Avisos que le das:**
+  - en `seleccion_multiple`, que puede haber varias correctas;
+  - en `tabla_verdad`, que conteste la columna final en orden canónico (VV, VF, FV, FF…).
+- **Qué hace él:** resuelve por su cuenta (su cerca le impide leer el repo) y devuelve una tabla `id → respuesta` con su confianza.
+- **Qué haces después:**
+  - compara con las respuestas oficiales;
+  - lista **toda discrepancia** e investiga si es un error del enunciado, una ambigüedad o una respuesta mal escrita;
+  - en `codigo`, corre su solución contra los tests de la unidad.
 
-Entrega: tabla de discrepancias (si hay), lista de problemas de lección con severidad (error, mejora) y los arreglos que propones. No modifiques archivos hasta que yo apruebe, salvo errores objetivos de respuesta que el verificador ya confirme.
+**3. Checklist de lección en paralelo**, en un solo mensaje:
+- el experto de la materia (ver la tabla de `/nueva-unidad`): precisión, notación y cobertura del programa;
+- `linguista`: claridad y ambigüedad, incluidos los enunciados con discrepancias del paso 2;
+- `pedagogo`: anatomía, ejemplos justificados, al menos 3 ejercicios por concepto nuevo y escalera.
+
+Todos usan la capa 4 de `docs/07-calidad-y-verificacion.md`, más originalidad y datos con fuente.
+
+**Entrega:**
+- tabla de discrepancias, si hay;
+- problemas de la lección con su severidad (error o mejora) y quién lo encontró;
+- los arreglos que propones.
+
+No modifiques archivos hasta que yo apruebe, salvo errores objetivos de respuesta que el verificador ya confirme.

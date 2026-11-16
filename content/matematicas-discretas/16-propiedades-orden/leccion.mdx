@@ -1,0 +1,150 @@
+---
+titulo: "Propiedades y orden: quién va antes"
+materia: matematicas-discretas
+unidad: 16-propiedades-orden
+duracion_min: 25
+prerrequisitos: [representaciones-relacion, relacion-inversa, composicion-relaciones, negacion-cuantificadores, contencion-igualdad, divisibilidad]
+conceptos: [propiedades-relaciones, verificar-propiedades, orden-parcial, diagrama-hasse, orden-total, extremos-orden]
+programa_ref: "Matemáticas discretas, Unidad IV, 4.2.4 (relaciones reflexivas, irreflexivas, simétricas, antisimétricas y transitivas), 4.3.1 (orden total y orden parcial) y 4.3.2 (mínimos, máximos, minimales y maximales)"
+---
+
+## El problema
+
+Supón un plan con seis materias y estos prerrequisitos directos, hipotéticos: Lógica antes de Discretas, Discretas antes de Algoritmos, Programación antes de Algoritmos y Cálculo antes de Ecuaciones. Compáralas con la relación «$a\preceq b$ si $a=b$, o si $a$ va antes que $b$, directa o indirectamente». Así, Lógica $\preceq$ Algoritmos, por Discretas. El «$a=b$» y el «indirectamente» importan: «va antes», sola, no relaciona a nadie consigo mismo, y «es prerrequisito directo» no lleva de Lógica a Algoritmos.
+
+<Predice pregunta="¿Toda pareja de materias se compara con $\preceq$? ¿Con cuántas materias puedes empezar?" revela="No: Lógica y Programación no se comparan. Puedes empezar con tres (Lógica, Programación y Cálculo), y ninguna va antes que todas: hay varias «primeras», pero no «la primera». Esa diferencia la verás en «Extremos»." />
+
+## Las cinco propiedades
+
+<Concepto titulo="Reflexiva, irreflexiva, simétrica, antisimétrica y transitiva">
+Sea $R$ una relación sobre un conjunto $A$, con su matriz $M_R$ (filas y columnas en el mismo orden).
+
+- **Reflexiva:** $\forall a\in A,\ aRa$. La diagonal, toda en 1.
+- **Irreflexiva:** $\forall a\in A,\ \lnot(aRa)$. La diagonal, toda en 0.
+- **Simétrica:** $\forall a,b\in A,\ aRb\to bRa$. La matriz es igual a su transpuesta: $R=R^{-1}$.
+- **Antisimétrica:** $\forall a,b\in A,\ (aRb\wedge bRa)\to a=b$. Fuera de la diagonal, dos casillas espejo nunca valen 1 a la vez.
+- **Transitiva:** $\forall a,b,c\in A,\ (aRb\wedge bRc)\to aRc$. Donde $M_R\odot M_R$ vale 1, $M_R$ también.
+
+Las cinco son un «para todo», así que para refutar una basta un **testigo**: un caso concreto que la incumple (un contraejemplo).
+
+| Propiedad | Se refuta con |
+|---|---|
+| Reflexiva | un $a$ sin $(a,a)$ |
+| Irreflexiva | un $(a,a)$ |
+| Simétrica | un $(a,b)$ sin $(b,a)$ |
+| Antisimétrica | $(a,b)$ y $(b,a)$, con $a\neq b$ |
+| Transitiva | $(a,b)$ y $(b,c)$, sin $(a,c)$ |
+
+Para verificarla, en cambio, hay que revisar todos los pares. La transitividad puede cumplirse por vacuidad: sobre $\{1,2\}$, $\{(1,2)\}$ es transitiva, porque no tiene dos pares encadenados. Y los nombres engañan: «antisimétrica» no es «no simétrica», ni «irreflexiva» es «no reflexiva».
+</Concepto>
+
+<Ejemplo titulo="Propiedad por propiedad">
+Sea $R$ la relación $\lvert x-y\rvert=1$ sobre $\{1,2,3,4\}$: $R=\{(1,2),(2,1),(2,3),(3,2),(3,4),(4,3)\}$.
+
+1. **Reflexiva.** ¿Todo $a$ cumple $aRa$? Se mira la diagonal: $\lvert1-1\rvert=0$, así que falta $(1,1)$. El 1 es el testigo: no es reflexiva.
+2. **Irreflexiva.** Toda la diagonal vale 0, porque $\lvert a-a\rvert=0\neq1$: sí lo es.
+3. **Simétrica.** $\lvert x-y\rvert=\lvert y-x\rvert$, así que cada par trae su inverso: sí.
+4. **Antisimétrica.** ¿Hay un par con su inverso y coordenadas distintas? $(1,2)$ y $(2,1)$: no lo es.
+5. **Transitiva.** ¿Hay dos pares encadenados que no cierren? $(1,2)$ y $(2,1)$ piden $(1,1)$, que no está: no lo es. Aquí $c=a$: $a$, $b$ y $c$ no tienen que ser distintos.
+
+Las mismas preguntas, para $<$ y $\mid$ sobre $\{1,2,3,4\}$:
+
+| | Reflexiva | Irreflexiva | Simétrica | Antisimétrica | Transitiva |
+|---|---|---|---|---|---|
+| $\lvert x-y\rvert=1$ | no | sí | sí | no | no |
+| $<$ | no | sí | no | sí | sí |
+| $\mid$ | sí | no | no | sí | sí |
+
+$<$ es antisimétrica por vacuidad: nunca pasan $a<b$ y $b<a$ a la vez.
+</Ejemplo>
+
+<Desvanecido titulo="Ahora tú: buscar el testigo" pasos={[
+  "Sobre $\\{1,2,3,4\\}$, sea $R=\\{(2,1),(1,4),(2,4),(4,3),(1,3)\\}$. ¿Es transitiva? Se buscan pares encadenados, $(a,b)$ y $(b,c)$, y se revisa si está $(a,c)$.",
+  "$(2,1)$ y $(1,4)$ piden $(2,4)$, que está.",
+  "$(1,4)$ y $(4,3)$ piden (1, ___), que también está.",
+  "$(2,4)$ y $(4,3)$ piden (___, ___), que no está.",
+  "Esos pares que no cierran son **un** testigo: $R$ no es transitiva, y ya no hace falta revisar los demás."
+]} respuestas={["3", "2", "3"]} />
+
+## Orden parcial y total
+
+<Concepto titulo="Orden parcial y orden total">
+Un **orden parcial** sobre un conjunto $A$ es una relación reflexiva, antisimétrica y transitiva. Se escribe $\preceq$, y $(A,\preceq)$ es un **conjunto parcialmente ordenado**; si $a\preceq b$ y $a\neq b$, se escribe $a\prec b$. Dos elementos son **comparables** si $a\preceq b$ o $b\preceq a$. Ejemplos:
+
+- $\le$ en $\mathbb Z$;
+- $\mid$ en $\mathbb Z^+$, donde $a\mid b$ si existe $k\in\mathbb Z$ con $b=ak$. En $\mathbb Z$ falla la antisimetría: $2\mid-2$ y $-2\mid2$;
+- $\subseteq$ en $\mathcal P(S)$, el conjunto de los subconjuntos de $S$;
+- el $\preceq$ de las materias.
+
+Que $\subseteq$ lo es se demuestra con conjuntos cualesquiera: **reflexiva**, $X\subseteq X$; **antisimétrica**, si $X\subseteq Y$ y $Y\subseteq X$, entonces $X=Y$ por doble contención; **transitiva**, si $X\subseteq Y$ y $Y\subseteq Z$, cada elemento de $X$ está en $Y$ y, por eso, en $Z$.
+
+Un **orden total** es un orden parcial en el que todo par es comparable. $\le$ lo es. $\mid$ y $\subseteq$, en general, no: 2 y 3 no se comparan con $\mid$, ni $\{1\}$ y $\{2\}$ con $\subseteq$. Pero $\mid$ en $\{1,2,4,8\}$ sí es total. Un subconjunto en el que todo par se compara es una **cadena**.
+</Concepto>
+
+## Diagrama de Hasse
+
+<Concepto titulo="Diagrama de Hasse">
+En un orden parcial, $b$ **cubre** a $a$ si $a\prec b$ y no hay ningún $c$ con $a\prec c\prec b$. El **diagrama de Hasse** dibuja solo las coberturas: del digrafo se quitan los lazos, las flechas que salen por transitividad y las puntas, porque todo sube. En una **lista de cobertura**, $(a,b)$ significa que $b$ cubre a $a$: $a$ va abajo.
+
+En papel se dibuja por niveles: abajo, los que no tienen a nadie debajo; cada elemento, más arriba que todos los que cubre; y una línea por cobertura.
+
+Siempre vale en conjuntos finitos: ahí, $a\preceq b$ si y solo si se sube de $a$ a $b$ por líneas. En los infinitos puede fallar: en $(\mathbb Q,\le)$ nadie cubre a nadie, porque entre dos racionales siempre hay otro.
+
+**Revisa** al terminar: en cada línea de $a$ a $b$, ¿hay un $c$ con $a\prec c\prec b$? Si lo hay, la línea sobra. ¿Falta alguna cobertura?
+</Concepto>
+
+<Ejemplo titulo="El Hasse de la divisibilidad">
+Sea $A=\{2,3,4,6,9,12,18\}$ con $\mid$.
+
+1. **Los pares**, sin los lazos: el 2 divide a 4, 6, 12 y 18; el 3, a 6, 9, 12 y 18; el 4, a 12; el 6, a 12 y 18; y el 9, a 18.
+2. **Quitar los que salen por transitividad:** $(2,12)$, porque $2\mid4\mid12$; $(2,18)$ y $(3,12)$, por el 6; y $(3,18)$, por el 6 o el 9.
+3. **La lista de cobertura:** $\{(2,4),(2,6),(3,6),(3,9),(4,12),(6,12),(6,18),(9,18)\}$.
+4. **Por niveles**, el de arriba primero:
+
+$$\begin{array}{ccccccccc} & & 12 & & & & 18 & & \\ & \diagup & & \diagdown & & \diagup & & \diagdown & \\ 4 & & & & 6 & & & & 9\\ & \diagdown & & \diagup & & \diagdown & & \diagup & \\ & & 2 & & & & 3 & & \end{array}$$
+
+5. **Revisa:** ninguna línea tiene intermedio (entre 6 y 18 iría un múltiplo de 6 que divida a 18, y el 12 no lo hace), y cada par del paso 1 se recupera subiendo.
+</Ejemplo>
+
+## Extremos
+
+<Concepto titulo="Mínimo, máximo, minimales y maximales">
+En $(A,\preceq)$:
+
+- $m$ es **mínimo** si $m\preceq x$ para todo $x\in A$: se compara con todos y queda abajo. El **máximo**, al revés: $x\preceq m$ para todo $x\in A$.
+- $m$ es **minimal** si ningún $x\in A$ distinto de $m$ cumple $x\preceq m$: nadie queda debajo, aunque haya elementos con los que no se compara. **Maximal**, al revés.
+
+En el diagrama, los minimales no tienen líneas hacia abajo, y los maximales, hacia arriba. En el Hasse de la divisibilidad, el conjunto de los minimales es $\{2,3\}$ y el de los maximales, $\{12,18\}$; no hay mínimo, porque 2 y 3 no se comparan, ni máximo, porque 12 y 18 tampoco. En las materias, Lógica, Programación y Cálculo son minimales, y ninguna es mínimo.
+</Concepto>
+
+<Desvanecido titulo="Ahora tú: minimales y mínimo" pasos={[
+  "Sea $A=\\{4,6,12,36,60\\}$ con $\\mid$.",
+  "Minimales: los que no tienen a nadie debajo. Son el 4 y el ___ .",
+  "Un mínimo tendría que dividir a todos. El 4 no lo es, porque no divide al ___ ; y el otro minimal tampoco, porque no divide al 4. No hay mínimo.",
+  "Maximales: los que no dividen a ningún otro. Son el ___ y el 60, que no se comparan: no hay máximo.",
+  "Aquí $A$ es finito y no vacío. En $\\varnothing$ no hay minimales, y en $(\\mathbb Z,\\le)$ tampoco."
+]} respuestas={["6", "6", "36"]} />
+
+## Errores comunes
+
+<Ojo>
+- **Antisimétrica no es «no simétrica».** $\le$ es antisimétrica y no simétrica; la igualdad es las dos a la vez; y hay relaciones que no son ninguna.
+- **Mínimo no es minimal.** Puede haber varios minimales y ningún mínimo.
+- **El Hasse no lleva lazos, ni líneas por transitividad, ni puntas**, y siempre se revisa: ninguna línea con intermedio y ninguna cobertura de menos.
+- **Un contraejemplo es concreto:** «no es transitiva» se prueba con $(a,b)$, $(b,c)$ y el $(a,c)$ que falta, con sus valores.
+- **$\mid$ en $\mathbb Z$ no es un orden:** $2\mid-2$ y $-2\mid2$.
+</Ojo>
+
+<Conexion materia="Inteligencia artificial">
+Si cada modelo se resume en su par (exactitud, costo), un par es mejor o igual que otro si no pierde en ninguno: igual o más exactitud, e igual o menos costo. Es un orden parcial. Los «mejores» son los maximales, el **frente de Pareto**, y a menudo no hay máximo: el más exacto suele costar más.
+</Conexion>
+
+<Resumen>
+- Las cinco propiedades son un «para todo»: se verifican con todos los pares y se refutan con un testigo.
+- Un orden parcial es reflexivo, antisimétrico y transitivo, y total si todo par se compara; en un conjunto finito, el Hasse guarda solo las coberturas.
+- El mínimo se compara con todos y queda abajo; a un minimal solo se le pide que nadie quede debajo.
+</Resumen>
+
+<Feynman>
+Explícale a un amigo por qué un orden parcial sobre un conjunto finito no vacío puede no tener mínimo, pero siempre tiene al menos un minimal. Si te trabas: empieza en cualquier elemento y baja mientras haya alguien debajo. ¿Por qué tienes que detenerte?
+</Feynman>
