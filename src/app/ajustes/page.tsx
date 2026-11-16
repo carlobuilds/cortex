@@ -8,6 +8,7 @@ import { OfflineStatus } from "@/components/pwa/offline-status";
 import { StorageStatus } from "@/components/settings/storage-status";
 import { APP_NAME } from "@/lib/app";
 import { PageHeader } from "@/components/layout/page-header";
+import { CuartelPanel } from "@/components/settings/cuartel-panel";
 
 export const metadata: Metadata = { title: `Ajustes · ${APP_NAME}` };
 
@@ -49,6 +50,11 @@ export default function SettingsPage() {
             </div>
           </div>
         </Panel>
+        {process.env.NEXT_PUBLIC_CORTEX_PWA !== "1" ? (
+          <Panel id="cuartel" title="Cuartel">
+            <CuartelPanel />
+          </Panel>
+        ) : null}
       </div>
     </div>
   );

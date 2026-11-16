@@ -23,6 +23,20 @@ describe("findOutProblems", () => {
       expect(run({ "_next/static/a.js": `x ${marker} y` }).join()).toContain(marker);
     },
   );
+  it.each(["api/ingest/study", "cortex-token", "personalos.carlogarza.dev", "/api/cuartel"])(
+    "detecta el marcador de Cuartel %s en .js y .html",
+    (marker) => {
+      expect(run({ "_next/static/a.js": `x ${marker} y` }).join()).toContain(marker);
+      expect(run({ "pagina.html": `<a>${marker}</a>` }).join()).toContain(marker);
+    },
+  );
+  it.each(["api/ingest/study", "cortex-token", "personalos.carlogarza.dev", "/api/cuartel"])(
+    "la excepción de Pyodide no exime el marcador de Cuartel %s",
+    (marker) => {
+      expect(run({ "vendor/pyodide/pyodide.mjs": `child_process ${marker}` }, () => true).join()).toContain(marker);
+      expect(run({ "vendor/pyodide/pyodide.asm.mjs": `spawnSync ${marker}` }, () => true).join()).toContain(marker);
+    },
+  );
   it("no marca gcc ni x-cortex-runner", () => {
     expect(run({ "_next/static/a.js": "gcc x-cortex-runner" })).toEqual([]);
   });

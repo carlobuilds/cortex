@@ -1,7 +1,7 @@
 # ESTADO · Tablero vivo de Cortex
 
 **Fase actual:** 3 · Cálculo + Matemáticas discretas, en curso en la rama `fase-3-calculo-discretas` (plan aprobado por Carlo el 2026-10-13). Las Fases 0, 1 y 2 están implementadas y verificadas; sigue pendiente su cierre formal: sesión real de Carlo de ~20 min por fase, `/cerrar-fase` y etiquetas `fase-0`, `fase-1`, `fase-2` (no bloquea la Fase 3). **Orden acordado el 2026-11-10:** v1 (equipo y coach, hecho) → CP1 → sprint del parcial de Cálculo (contenido completo el 2026-11-13: unidades 01 a 09) → Fase 3.5 (v1.1: iPad PWA, pizarra, sync y coach vivo) → resto de Cálculo y Discretas.
-**Última actualización:** 2026-11-16 · **iPad mínimo listo en la Mac** (Parte B: `build:pwa` sin runner de C, PWA sin conexión, uso táctil, puente de respaldo con aviso y `deploy/` probado con Docker local; ADR-028 y ADR-029). Falta lo de Carlo: levantar el VPS con `deploy/README.md`, la regla de `decideImportRisk` y el CP-iPad (`docs/09`). Antes: flujo más barato (ADR-027), el sprint del parcial de Cálculo (unidades 01 a 09, 2026-11-13) y la Unidad IV de Discretas (13 a 21, 2026-11-15); ver la bitácora.
+**Última actualización:** 2026-11-16 · Resumen de estudio a Cuartel desde la Mac (ADR-030): ruta local, interruptor en Ajustes y token propio `cortex-mac`; falta que Carlo cree el token y haga el envío real de prueba. Antes: **iPad mínimo listo en la Mac** (Parte B: `build:pwa` sin runner de C, PWA sin conexión, uso táctil, puente de respaldo con aviso y `deploy/` probado con Docker local; ADR-028 y ADR-029). Falta lo de Carlo: levantar el VPS con `deploy/README.md`, la regla de `decideImportRisk` y el CP-iPad (`docs/09`). Antes: flujo más barato (ADR-027), el sprint del parcial de Cálculo (unidades 01 a 09, 2026-11-13) y la Unidad IV de Discretas (13 a 21, 2026-11-15); ver la bitácora.
 
 ## Decisiones tomadas (Carlo, 2026-10-01)
 - Plataforma: **web app** (Next.js).
@@ -144,6 +144,13 @@ Plan aprobado el mismo día (`~/.claude/plans/quiero-hacer-algunos-cambios-sprig
 - **Acceso:** sitio **público sin indexar** (solo archivos estáticos; los datos viven en el dispositivo).
 - **Entrada en el iPad:** solo pantalla y Pencil → teclado matemático en pantalla y botón visible para cada atajo.
 - **Progreso:** puente con el respaldo que ya existe (reemplaza todo), **con aviso** antes de pisar actividad más reciente (ADR-028, temporal hasta el relay).
+
+## Decisiones tomadas (Carlo, 2026-11-16 · resumen de estudio a Cuartel)
+Decidido en Cuartel (sus ADR-027 y ADR-028, Fase 5 · S2); en Cortex es el **ADR-030**, con los requisitos R1–R13 de `experto-ciberseguridad`.
+- Cortex manda a Cuartel solo 7 cifras por día (`day`, `activeMs`, `answered`, `correct`, `reviews`, `lessons`, `minimumMet`) de los últimos 7 días, al cerrar una sesión. Con eso Cuartel marca su hábito Estudio el día en que se cumple la misión mínima.
+- Va desde la Mac, por la ruta local `/api/cuartel`, y solo desde `localhost:3000` con el interruptor de Ajustes prendido (apagado por defecto). Nunca sale desde la PWA ni desde los puertos 3100 o 3200.
+- El token es propio, `cortex-mac`, solo con `ingest`, en `~/.cuartel/cortex-token` (0600), sin plan B hacia `mac-carlo`. El destino queda fijo en el código.
+- Riesgo aceptado: Cuartel guarda en Supabase y su Coach manda a Gemini el hábito Estudio (ver ADR-030).
 
 ## Decisiones tomadas (Carlo, 2026-11-10 · sprint del parcial de Cálculo)
 - **Examen:** 3.er parcial de Cálculo, **semana del 23 al 27 de noviembre de 2026** (no está en Google Calendar; la dio Carlo). Faltan unos 13 días.
@@ -331,6 +338,12 @@ Esqueleto en `docs/01`; plan detallado al arrancarla, después del sprint del pa
 - [ ] Relay en el VPS y cliente de sync
 - [ ] Coach vivo: MCP sobre el relay, `ink_page`, KPIs en la app, recomendador con catálogo de la Ruta IA
 - [ ] Deploy, simulacro de restauración y cierre
+
+### Cuartel · resumen de estudio (ADR-030, 2026-11-16)
+- [x] Proxy local `/api/cuartel`, cliente con interruptor por perfil, panel en Ajustes y marcadores en `check-out` (revisión del guardián: apoyo, sin bloqueo)
+- [ ] Token `cortex-mac` solo con `ingest` en `~/.cuartel/cortex-token` (lo crea Carlo; pasos en ADR-030)
+- [ ] Envío real de prueba con el OK de Carlo: prender el interruptor en Ajustes de `localhost:3000` y «Enviar ahora». El log de Next debe decir `cuartel: estudio HTTP 200`, y en Cuartel, Semana → Cobertura debe decir «Cortex: último envío hace … (cortex-local)».
+- [ ] Antes del relay (Fase 3.5): decidir una sola fuente por día (la Mac o el relay)
 
 ### Fase 4 · Mecánica y electromagnetismo
 ### Fase 5 · Fundamentos económicos

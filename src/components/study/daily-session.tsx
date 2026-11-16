@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { findUnit, type StudyCatalog } from "@/content/core/study-catalog";
 import { factsFor } from "@/content/facts";
 import type { CortexDb } from "@/db/db";
+import { pushStudySummary } from "@/sync/study-push";
 import { type ChestResult, ensureToday, finishDailySession, openDailyChest } from "@/db/progress";
 import type { ProfileRecord } from "@/db/types";
 import { CONFIG } from "@/engine/config";
@@ -183,7 +184,7 @@ function CloseScreen({ db, catalog, profile, status }: { db: CortexDb; catalog: 
   const [chest, setChest] = useState<ChestResult | null>(null);
   const [opened, setOpened] = useState(status.dayRecord.chestOpened);
   useEffect(() => {
-    void finishDailySession(db, Date.now());
+    void finishDailySession(db, Date.now()).finally(() => pushStudySummary(db));
   }, [db]);
   const d = status.dayRecord;
   const tomorrow = useMemo(() => {

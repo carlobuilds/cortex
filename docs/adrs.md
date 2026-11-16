@@ -132,3 +132,51 @@ Complementan los ADR-001 a 008 de `docs/02`. Cada uno se escribe en el commit de
   - El puerto 80 depende del redirect del Traefik compartido, y HSTS solo aplica después de la primera visita (no hay preload). Si Traefik guarda logs de acceso, quedan las IP de los dispositivos.
   - Quien tenga la llave SSH de publicación de la Mac, el usuario del VPS, el grupo `docker` o la capacidad de poner labels en el Traefik compartido (otro contenedor con `Host(cortex…)` puede secuestrar la ruta) controla el JS que lee la IndexedDB del iPad. Se recomienda una llave con passphrase y un usuario sin root para publicar.
   - Si el VPS, su Docker (o cualquier contenedor con acceso al socket), o el Traefik compartido se comprometen, alguien puede servir JS que lea, exfiltre o altere la IndexedDB del iPad. Un XSS podría escribir en CacheStorage hasta la siguiente build o el kill switch. Las respuestas en caché guardan los encabezados de su precarga: un cambio solo del `Caddyfile` no llega al iPad hasta una build nueva.
+
+**ADR-030 · Resumen de estudio a Cuartel desde la Mac** (2026-11-16; decisión de Carlo en Cuartel, sus ADR-027 y ADR-028 de la Fase 5 · S2; revisa ADR-010 y ADR-025; requisitos R1–R13 de `experto-ciberseguridad`). Los números 028 y 029 son del puente de respaldo y del despliegue estático.
+- **Qué sale:** solo cifras por día local, de como máximo 7 días por envío (hoy y los 6 anteriores): `day`, `activeMs`, `answered`, `correct`, `reviews`, `lessons` y `minimumMet`.
+  - Nada más: ni respuestas, ni ids de ejercicio, ni materias, ni XP, ni notas. La proyección copia campo por campo (`src/sync/study-summary.ts`), como `coachInputFrom` del MCP.
+  - Los días sin actividad no se mandan, para no escribir ceros encima de cifras reales.
+  - Cualquier campo nuevo pide un ADR nuevo.
+- **A dónde:** solo `https://personalos.carlogarza.dev/api/ingest/study`, fijo en el código (`src/sync/cuartel-server.ts`). Cortex no lee `~/.cuartel/config`: un parser menos y ningún host equivocado posible. Si Cuartel cambia de dominio, se cambia la constante con un ADR.
+- **Quién ve las cifras:**
+  - Cuartel corre en el VPS de Hostinger de Carlo (Docker + Traefik), pero su base es **Supabase**, una nube de terceros. Las cifras quedan ahí en claro.
+  - El Coach de Cuartel ya manda a **Google (Gemini)** el hábito Estudio como días hechos / meta. Desde su S3 también mandará minutos, ejercicios y repasos.
+  - ADR-025 descartó una «nube de terceros» para la sync del progreso completo. Para estas 7 cifras por día, Carlo la acepta con la decisión de Cuartel (ADR-027 y ADR-028 de Cuartel).
+- **Cuándo:** solo se manda si se cumplen las cuatro condiciones:
+  - desde la Mac (`CORTEX_LOCAL=1`);
+  - desde el origen con los datos reales, `http://localhost:3000` (ADR-010). Nunca desde la PWA (la ruta es `route.local.ts` y la build del iPad la excluye) ni desde los puertos 3100 (e2e) o 3200 (verificación);
+  - con el interruptor de ese perfil prendido en Ajustes (`localStorage`, apagado por defecto, fuera del respaldo);
+  - al cerrar una sesión de estudio o con «Enviar ahora».
+  - El interruptor existe porque un perfil vacío en `localhost:3000` (p. ej. el navegador integrado de Claude) tiene su propia IndexedDB y pisaría las cifras reales del día.
+- **Cómo:**
+  - el navegador manda `{v:1, days}` a `POST /api/cuartel`, sin esperar la respuesta en la UI;
+  - la ruta revisa los candados, el cuerpo y la tasa, y reenvía a Cuartel con el token:
+    - **candados:** `Host` y `Origin` exactos, `Sec-Fetch-Site`, encabezado propio y `application/json`. La ruta solo exporta POST y no tiene CORS;
+    - **cuerpo:** tope de 4 KB mientras se lee, Zod estricto con 1 a 7 días reales en [hoy−7, hoy+1], y se serializa de nuevo desde lo validado con `source: "cortex-local"` puesto por el servidor;
+    - **tasa:** un envío en vuelo y ≥ 15 s entre envíos en el servidor; en el navegador, uno en vuelo y uno pendiente;
+    - **reenvío:** `redirect: "error"`, tope de 5 s y el cuerpo de la respuesta de Cuartel se descarta.
+- **Dirección:** de un solo sentido. Cuartel nunca escribe en Cortex, y Cortex ignora la respuesta de Cuartel salvo su código HTTP.
+- **Credencial:** un token propio `cortex-mac` **solo con `ingest`**, en `~/.cuartel/cortex-token`:
+  - el archivo debe ser regular, del mismo usuario y sin permisos de grupo ni otros (0600), con ≤ 256 B y una línea `cu_…` sin CRLF;
+  - se abre con `O_NOFOLLOW` y se revisa con `fstat` sobre el mismo descriptor;
+  - se lee en cada envío y nunca llega al navegador, a un log ni al repo;
+  - **sin plan B** hacia `mac-carlo` (scopes `ingest,read,write`): si falta el archivo, no se manda;
+  - lo crea Carlo desde el repo de Cuartel y guarda **solo la última línea** de la salida, con `umask 077`: `(umask 077; DATABASE_URL=… pnpm --silent token:create cortex-mac --scopes ingest | tail -n 1 > ~/.cuartel/cortex-token)`. Luego `pnpm token:create --list` debe mostrar `cortex-mac` solo con `{ingest}`. Ojo:
+    - sin `--scopes`, el script da `ingest,read`;
+    - su mensaje dice «Guárdalo en ~/.cuartel/token»: seguirlo pisaría `mac-carlo`;
+    - guardar toda la salida da `token inválido`.
+- **Logs:** una línea fija por petición. Cuando se intenta enviar, va el código HTTP de Cuartel o una causa fija (`sin token`, `token inválido`, `tiempo agotado`, `red`). Cuando la ruta rechaza, va su código y su causa (`prohibido`, `tipo`, `cuerpo grande`, `cuerpo inválido`, `en curso`, `muy pronto`). Nunca el token, el cuerpo, el mensaje de un error ni la respuesta de Cuartel. Ajustes muestra el último estado, para que una falla no pase en silencio.
+- **Riesgos aceptados:**
+  - Supabase y Cuartel ven las cifras en claro.
+  - `minimumMet` no se desmarca en Cuartel: un envío erróneo se corrige a mano allá.
+  - Gana la última versión: otro perfil con el interruptor prendido o un respaldo viejo pueden pisar cifras.
+  - Cualquier proceso local con el usuario de Carlo (p. ej. una dependencia npm maliciosa) puede leer el token o falsificar envíos. Se mitiga con ADR-009 y `pnpm audit`, y el daño queda acotado a `ingest`.
+- **Cómo se apaga:** el interruptor de Ajustes, borrar `~/.cuartel/cortex-token` o revocar `cortex-mac` en Cuartel (`pnpm token:create --revoke cortex-mac`).
+- **Antes del relay (Fase 3.5):** el relay mandará al mismo endpoint con `source: "cortex-relay"`. Antes hay que decidir una sola fuente por día (p. ej. apagar esta ruta cuando el relay envíe), para que la Mac y el relay no se pisen.
+- *Descartado:*
+  - el token en el navegador o un `fetch` directo con CORS: expondría el token y obligaría a cambiar Cuartel;
+  - usar `mac-carlo`, que abre todo Cuartel (lectura y escritura);
+  - reusar la cola del CLI de Cuartel (`~/.cuartel/queue`): Cortex no escribe en `~/.cuartel/`;
+  - leer `CUARTEL_URL` de `~/.cuartel/config`;
+  - envíos por temporizador: se manda solo al cerrar una sesión, y el siguiente cierre reenvía los 7 días (no hace falta cola).

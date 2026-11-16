@@ -44,6 +44,8 @@ cortex/
     db/              (además) migrations.ts (v1→v2) · progress.ts (reglas del motor en una transacción)
     runners/         python-worker.mjs + python-client.ts (Pyodide local), c-runner.ts (servidor) + c-client.ts
     app/api/run-c/   ruta local del runner de C (ADR-005)
+    sync/            resumen de estudio a Cuartel: proyección y esquema, cliente, proxy del servidor (ADR-030)
+    app/api/cuartel/ ruta local del proxy a Cuartel (ADR-030)
     lib/  styles/
   tests/             pruebas con Python (paridad, content:check) y stubs
   e2e/               Playwright (smoke)
@@ -110,5 +112,6 @@ Guardián: `experto-ciberseguridad` revisa todo cambio a estas superficies; su b
 - **MCP de Cortex** (ADR-026): local por stdio; solo devuelve agregados (prueba de privacidad con marcadores); solo lee `respaldos/` y escribe `diario/resultados.yaml` con validación.
 - **Cercas de los agentes** (`.claude/hooks/`): fallan cerradas y tienen pruebas; son barreras contra accidentes, no un sandbox.
 - **Desde la v1.1:** relay en el VPS (TLS y HSTS, tokens con hash y revocables por dispositivo, límites de tamaño y tasa; sin E2EE, el VPS ve el progreso en claro: riesgo aceptado en ADR-025) y PWA (CSP, el service worker nunca cachea `/api` ni la sync).
+- **Proxy a Cuartel** (ADR-030): `POST /api/cuartel` (`route.local.ts`) solo con `CORTEX_LOCAL=1` y `Host` y `Origin` exactos de `localhost:3000` (en el navegador, además, el interruptor del perfil, que evita accidentes pero no es un candado de la ruta); reenvía 7 cifras por día a un destino fijo con un token propio solo con `ingest` (`~/.cuartel/cortex-token`, 0600, sin plan B), que nunca llega al navegador ni a los logs. La build del iPad la excluye.
 - El contenido MDX es de confianza (lo escribimos nosotros), pero no se habilita HTML arbitrario de fuentes externas.
-- Sin telemetría. Hoy ningún dato sale de la máquina, salvo los agregados que el coach lee en Claude Code y, desde la v1.1, la sync con el relay propio.
+- Sin telemetría. Hoy ningún dato sale de la máquina, salvo los agregados que el coach lee en Claude Code, el resumen de estudio por día a Cuartel (opcional, desde la Mac; ADR-030) y, desde la v1.1, la sync con el relay propio.

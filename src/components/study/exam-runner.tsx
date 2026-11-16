@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/state";
 import { type CatalogSubject, findUnit, type StudyCatalog } from "@/content/core/study-catalog";
 import type { CortexDb } from "@/db/db";
+import { pushStudySummary } from "@/sync/study-push";
 import { type ExamOutcome, finishExam, scheduleNow } from "@/db/progress";
 import type { ProfileRecord } from "@/db/types";
 import { CONFIG } from "@/engine/config";
@@ -117,6 +118,7 @@ export function ExamRunner({
           return ex && unit ? [{ exercise: exerciseRef(ex), unit: unitRef(unit), answer }] : [];
         });
         const outcome = await finishExam(db, { subjectId: subject.id, subjectName: subject.name, run: finalRun, answers, now: t, ctx: await missionContext(db, catalog, t) });
+        pushStudySummary(db);
         playSound(outcome.result.passed ? "level" : "wrong", profile.preferences.sound);
         fromOutcome(outcome);
         setSaved({ kind: "saved", outcome });

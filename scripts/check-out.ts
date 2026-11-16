@@ -27,6 +27,14 @@ export const RUNNER_MARKERS: readonly string[] = [
   "Solo desde localhost",
 ];
 
+/** ADR-030: el envío a Cuartel solo existe en la Mac; nada de ese proxy puede llegar a la build del iPad. */
+export const CUARTEL_MARKERS: readonly string[] = [
+  "api/ingest/study",
+  "cortex-token",
+  "personalos.carlogarza.dev",
+  "/api/cuartel",
+];
+
 /**
  * Pyodide (emscripten, de terceros) trae ramas para Node que mencionan estos marcadores; es código
  * inerte en el navegador y no es el runner de C. La excepción es por PAR EXACTO archivo+marcador y
@@ -93,6 +101,9 @@ export function findOutProblems(
       for (const marker of RUNNER_MARKERS) {
         if (allowed.includes(marker)) continue;
         if (text.includes(marker)) problems.push(`Marcador del runner «${marker}» en out/${file}`);
+      }
+      for (const marker of CUARTEL_MARKERS) {
+        if (text.includes(marker)) problems.push(`Marcador de Cuartel «${marker}» en out/${file}`);
       }
     }
   }
