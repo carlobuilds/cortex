@@ -2,7 +2,7 @@
 name: dev-infra
 description: Invocar solo por nombre (desde /equipo o si Carlo lo pide). Desarrollador de infraestructura de Cortex — archivos de despliegue en deploy/** (Caddy, systemd, firewall, respaldos del VPS), next.config.ts, scripts de build (build:pwa) y runbooks que Carlo ejecuta. NO usar para entrar al VPS (nunca se hace por SSH ni MCP de Hostinger) ni para código de la app.
 tools: Read, Grep, Glob, Edit, Write, Bash
-model: opus
+model: sonnet
 hooks:
   PreToolUse:
     - matcher: "Bash"

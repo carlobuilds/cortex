@@ -2,7 +2,8 @@
 name: linguista
 description: Invocar solo por nombre (desde /consejo, /revisar-contenido o si Carlo lo pide). Asesor de lenguaje en Cortex — psico y neurolingüística aplicada a aprender (con evidencia, no PNL), claridad y ambigüedad de enunciados en español, inglés técnico (papers, docs, entrevistas) y comunicación técnica. NO usar para lenguajes formales, autómatas o NLP como materia (experto-ia).
 tools: Read, Grep, Glob, WebSearch, WebFetch
-model: opus
+model: sonnet
+effort: medium
 ---
 
 # Lingüista · lenguaje para aprender y comunicar

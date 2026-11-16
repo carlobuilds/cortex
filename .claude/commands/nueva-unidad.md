@@ -34,7 +34,7 @@ Pasos:
 
    Si el prefijo de ids es nuevo, regístralo tú en `ESTADO.md`.
 
-4. **Verificación.** Corre tú `pnpm content:check content/<materia>` y confirma que quedó en verde. No te quedes solo con lo que reportó el autor.
+4. **Verificación.** Lanza a `verificador` con `pnpm content:check content/<materia>` y confirma con su resumen que quedó en verde. No te quedes solo con lo que reportó el autor.
 
 5. **Resumen corto:** ejercicios por tipo, dificultad y tipo de razonamiento, lo que quedó en revisión manual y, si faltan unidades previas para el repaso del jefe, cuáles. Sugiéreme correr `/revisar-contenido content/$ARGUMENTS`.
 

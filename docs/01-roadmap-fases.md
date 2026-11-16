@@ -7,7 +7,7 @@ Cada fase termina con la app **funcionando y usable**. Una fase no se cierra has
 - [ ] `pnpm typecheck`, `pnpm lint` y `pnpm test` en verde
 - [ ] `python scripts/verify_content.py` en verde
 - [ ] Flujo principal probado a mano (y con Playwright cuando aplique)
-- [ ] `ESTADO.md` actualizado (checklist, decisiones, bitácora)
+- [ ] `ESTADO.md` actualizado (checklist y decisiones), con su entrada en `docs/bitacora.md` y los ADRs nuevos en `docs/adrs.md`
 - [ ] Commit con mensaje claro; etiqueta git `fase-N`
 - [ ] Carlo hizo una sesión real de ~20 min y anotó qué se sintió aburrido o confuso
 - [ ] Si la fase tocó la UI: probado en el iPad real (desde la Fase 3.5)

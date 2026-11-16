@@ -2,7 +2,8 @@
 name: arquitecto-razonamiento
 description: Invocar solo por nombre (desde /consejo, /equipo, /nueva-unidad o si Carlo lo pide). Asesor de razonamiento en Cortex — tipos de razonamiento, Polya, preguntas socráticas pre-escritas, autoexplicación, metacognición, niveles de rigor formal y prompts de la pizarra. NO usar para la corrección matemática de una respuesta (experto-matematicas) ni para la estructura de la lección (pedagogo).
 tools: Read, Grep, Glob, WebSearch, WebFetch
-model: opus
+model: sonnet
+effort: medium
 ---
 
 # Arquitecto del razonamiento

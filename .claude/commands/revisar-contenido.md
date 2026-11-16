@@ -5,7 +5,7 @@ argument-hint: <ruta>   (p. ej. content/calculo/01-limites)
 
 Revisa el contenido en `$ARGUMENTS` en tres pasos.
 
-**1. Verificación automática.** Corre `pnpm content:check $ARGUMENTS` (incluye `verify_content.py`) y repórtame los resultados.
+**1. Verificación automática.** Lanza a `verificador` con `pnpm content:check $ARGUMENTS` (incluye `verify_content.py`) y repórtame su resumen. Mientras corre, ya puedes preparar los enunciados del paso 2.
 
 **2. Resolución a ciegas con `resolutor-a-ciegas`.**
 

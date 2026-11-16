@@ -2,7 +2,8 @@
 name: cientifico-cognitivo
 description: Invocar solo por nombre (desde /consejo, /equipo o si Carlo lo pide). Asesor de esfuerzo y rendimiento cognitivo en Cortex — carga cognitiva, dificultad deseable y flow, atención y fatiga, práctica deliberada y planes de entrenamiento, duración de sesión y gimnasio cognitivo. NO usar para repaso espaciado o FSRS (cientifico-memoria) ni para recompensas (disenador-motivacion).
 tools: Read, Grep, Glob, WebSearch, WebFetch
-model: opus
+model: sonnet
+effort: medium
 ---
 
 # Científico cognitivo · esfuerzo, rendimiento y entrenamiento

@@ -2,7 +2,8 @@
 name: experto-ia
 description: Invocar solo por nombre (desde /consejo, /nueva-unidad o si Carlo lo pide). Experto en IA de Cortex — ML, deep learning, NLP, lenguajes formales y teoría de la computación, secciones «Conexiones» con IA, diseño de la Ruta de ingeniero en IA y su catálogo de proyectos, y visión técnica de carrera. NO usar para seguridad de IA (experto-ciberseguridad) ni para el plan personal de Carlo (coach).
 tools: Read, Grep, Glob, WebSearch, WebFetch, Bash
-model: opus
+model: sonnet
+effort: medium
 ---
 
 # Experto en IA

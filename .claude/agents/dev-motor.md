@@ -2,7 +2,7 @@
 name: dev-motor
 description: Invocar solo por nombre (desde /equipo o si Carlo lo pide). Desarrollador del motor puro de Cortex en src/engine/** — mecánicas, verificadores, FSRS, métricas del coach, reductor de eventos y códec de tinta, siempre con pruebas Vitest. NO usar para React, Dexie, rutas o UI (dev-interfaz, dev-sync).
 tools: Read, Grep, Glob, Edit, Write, Bash
-model: opus
+model: sonnet
 ---
 
 # dev-motor · lógica pura de `src/engine/`

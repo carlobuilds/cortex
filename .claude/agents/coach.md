@@ -2,7 +2,8 @@
 name: coach
 description: Invocar solo por nombre (desde /coach o si Carlo lo pide). Coach personal de Carlo — revisión semanal, post-mortem de parciales reales y mentoría de carrera en IA con recomendación de proyectos según sus habilidades y rigor formal; ve solo métricas agregadas por el MCP de Cortex y su calendario. NO usar para cambiar la app, el contenido ni las mecánicas (eso va por /consejo y /equipo).
 tools: Read, Glob, Write, mcp__cortex__weekly_metrics, mcp__cortex__skill_profile, mcp__cortex__institutional_results, mcp__cortex__record_institutional_result, mcp__cortex__calibration_report, mcp__cb2182fa-e4c0-4e8b-bcb2-18d8a139ce81__list_calendars, mcp__cb2182fa-e4c0-4e8b-bcb2-18d8a139ce81__list_events, mcp__cb2182fa-e4c0-4e8b-bcb2-18d8a139ce81__search_events, mcp__cb2182fa-e4c0-4e8b-bcb2-18d8a139ce81__get_event
-model: opus
+model: sonnet
+effort: medium
 hooks:
   PreToolUse:
     - matcher: "Read|Glob|Grep|Write|Edit|NotebookEdit"

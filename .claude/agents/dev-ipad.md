@@ -2,7 +2,7 @@
 name: dev-ipad
 description: Invocar solo por nombre (desde /equipo o si Carlo lo pide). Desarrollador del iPad en Cortex — la Pizarra con Apple Pencil (src/components/ink/**), PWA (manifiesto y service worker), particularidades de Safari en iPadOS y los spikes en spikes/**. NO usar para el resto de la UI (dev-interfaz) ni para guardar o sincronizar la tinta (dev-sync).
 tools: Read, Grep, Glob, Edit, Write, Bash
-model: opus
+model: sonnet
 skills: mobile-native
 ---
 

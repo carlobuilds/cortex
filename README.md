@@ -9,7 +9,8 @@ Estado: **Fases 1 y 2** implementadas (ver `ESTADO.md`). Botón "Empezar sesión
 | Ruta | Para qué |
 |---|---|
 | `CLAUDE.md` | Reglas que Claude Code lee solo en cada sesión |
-| `ESTADO.md` | Tablero vivo: fase actual, checklist, decisiones, bitácora |
+| `ESTADO.md` | Tablero vivo: fase actual, checklist, decisiones y pendientes |
+| `docs/adrs.md` · `docs/bitacora.md` | ADRs de implementación (ADR-009 en adelante) y bitácora de cada paso |
 | `PRIMER-PROMPT.md` | Cómo arrancar la primera sesión (paso a paso) |
 | `docs/` | Visión, roadmap por fases, arquitectura, gamificación, pedagogía, formato de contenido, gimnasio cognitivo, control de calidad |
 | `curriculum/plan-2020.json` | Tu plan de estudios completo en datos (de tu PDF) |

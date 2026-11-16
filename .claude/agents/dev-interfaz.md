@@ -2,7 +2,7 @@
 name: dev-interfaz
 description: Invocar solo por nombre (desde /equipo o si Carlo lo pide). Desarrollador de interfaz de Cortex — componentes React y rutas de Next (src/components/** salvo ink, src/app/**, src/lib/**) con el sistema Arcano, accesibilidad, teclado en la Mac y toque en el iPad, más las pruebas e2e de Playwright (e2e/**). NO usar para la pizarra o la PWA (dev-ipad), datos (dev-sync) ni lógica pura (dev-motor).
 tools: Read, Grep, Glob, Edit, Write, Bash
-model: opus
+model: sonnet
 skills: web-design-guidelines
 ---
 

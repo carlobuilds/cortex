@@ -3,7 +3,7 @@
 Cortex es una app web **local-first** de un solo usuario (Carlo) para estudiar toda la carrera de Ingeniería en IA del IPN (plan 2020) con lecciones, práctica, repaso espaciado, jefes, gamificación y un gimnasio cognitivo, más una Ruta de ingeniero en IA en paralelo. Corre en la Mac (con el runner de C) y, desde la v1.1, en el iPad como PWA con pizarra para el Apple Pencil (`docs/09`). El objetivo es que sea difícil de soltar **sin** manipular.
 
 ## Antes de hacer cualquier cosa
-1. Lee `ESTADO.md` (fase actual, decisiones pendientes, bitácora).
+1. Lee `ESTADO.md` (fase actual, decisiones pendientes, checklist). Los ADRs viven en `docs/adrs.md` y la bitácora en `docs/bitacora.md`: léelos solo en la parte que la tarea necesite (busca por número de ADR o por fecha), no completos.
 2. Lee los docs que apliquen a la tarea: `docs/00` a `docs/09` (el equipo de agentes está en `docs/08`). Son la fuente de verdad. Si el código y los docs se contradicen, para y pregúntale a Carlo cuál manda.
 3. Trabaja **una fase a la vez**, según `docs/01-roadmap-fases.md`. No adelantes entregables de fases posteriores salvo que Carlo lo pida.
 
@@ -28,7 +28,7 @@ Cortex es una app web **local-first** de un solo usuario (Carlo) para estudiar t
 - Los datos viven en el navegador (Dexie/IndexedDB) y la app funciona completa sin red. La única salida permitida será la sincronización opcional con el relay propio de Carlo en su VPS (HTTPS + token por dispositivo, desde la v1.1; ADR-025). Sin telemetría, CDNs ni servicios de terceros. Toda migración de Dexie lleva prueba.
 - El runner de C compila con `gcc` solo si `CORTEX_LOCAL=1` y el host es `localhost`, con directorio temporal, `timeout` y límite de salida (ver ADR-005). Nunca lo expongas fuera de local: la build del iPad (PWA) lo excluye y jamás se despliega en el VPS.
 - Teclado primero en la Mac; lápiz y toque primero en el iPad (todo atajo tiene botón visible, objetivos ≥ 44 pt). Retroalimentación < 100 ms, respetar `prefers-reduced-motion`, sonido apagado por defecto.
-- Antes de añadir una dependencia: ¿ya hay una en el stack de `docs/02`? Si no, justifica y registra un ADR en `ESTADO.md`.
+- Antes de añadir una dependencia: ¿ya hay una en el stack de `docs/02`? Si no, justifica y registra un ADR en `docs/adrs.md` (con su línea en las decisiones de `ESTADO.md`).
 
 ## Equipo de agentes (detalle en `docs/08`)
 - Abre Claude Code en `cortex/`: ahí viven `.claude/agents/`, `.claude/commands/`, `.claude/hooks/` y `.mcp.json`.

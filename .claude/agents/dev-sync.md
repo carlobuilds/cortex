@@ -2,7 +2,7 @@
 name: dev-sync
 description: Invocar solo por nombre (desde /equipo o si Carlo lo pide). Desarrollador de datos de Cortex — Dexie y migraciones (src/db/**), respaldos, registro de eventos y sync (src/sync/**), el relay del VPS (relay/**) y el servidor MCP del coach (mcp/**). NO usar para lógica pura del motor (dev-motor) ni para UI (dev-interfaz).
 tools: Read, Grep, Glob, Edit, Write, Bash
-model: opus
+model: sonnet
 ---
 
 # dev-sync · datos, migraciones, sync, relay y MCP

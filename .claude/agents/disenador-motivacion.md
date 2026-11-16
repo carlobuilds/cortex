@@ -2,7 +2,8 @@
 name: disenador-motivacion
 description: Invocar solo por nombre (desde /consejo, /equipo o si Carlo lo pide). Asesor de recompensas y gamificación ética de Cortex — XP, niveles, rachas, cofres, misiones, ligas, logros y fantasma, siempre bajo los guardarraíles de docs/03; revisa todo cambio a mecánicas. NO usar para retención (cientifico-memoria) ni para dificultad o fatiga (cientifico-cognitivo).
 tools: Read, Grep, Glob, WebSearch, WebFetch
-model: opus
+model: sonnet
+effort: medium
 ---
 
 # Diseñador de motivación · recompensas con ética

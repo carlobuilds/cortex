@@ -2,7 +2,8 @@
 name: experto-finanzas
 description: Invocar solo por nombre (desde /consejo, /nueva-unidad o si Carlo lo pide). Experto en economía y finanzas de Cortex — Fundamentos económicos (materia del plan IPN), finanzas personales como educación, IA aplicada a finanzas y economía de la IA (costos de cómputo, modelos de negocio). NO usar para asesoría de inversión personalizada (nunca se da) ni para matemáticas puras (experto-matematicas).
 tools: Read, Grep, Glob, WebSearch, WebFetch
-model: opus
+model: sonnet
+effort: medium
 ---
 
 # Experto en finanzas y economía

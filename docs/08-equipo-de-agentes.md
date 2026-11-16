@@ -6,7 +6,7 @@ Para que Claude Code encuentre los agentes, los comandos y el MCP, ábrelo **en 
 
 ## Roster
 
-Los 19 agentes usan `model: opus` y se invocan **solo por nombre**, desde los comandos o cuando Carlo lo pide. Con tantas descripciones parecidas, la delegación automática se equivocaría. Ninguno tiene la herramienta `Agent`: la orquestación vive en la sesión principal.
+Los 20 agentes se invocan **solo por nombre**, desde los comandos o cuando Carlo lo pide; su modelo está en la § Costo (ADR-027). Con tantas descripciones parecidas, la delegación automática se equivocaría. Ninguno tiene la herramienta `Agent`: la orquestación vive en la sesión principal.
 
 ### Ciencia del aprendizaje (asesores, solo lectura)
 
@@ -47,11 +47,12 @@ Los 19 agentes usan `model: opus` y se invocan **solo por nombre**, desde los co
 | Agente | Qué hace |
 |---|---|
 | `resolutor-a-ciegas` | Resuelve ejercicios sin ver respuestas (capa 3 de `docs/07`). Solo `Bash`, con cerca |
+| `verificador` | Corre `pnpm check`, `content:check`, `test:e2e`, `build` y `build:pwa` y devuelve conteos y fallas literales. Solo `Bash` y `Read`; no edita |
 | `coach` | Revisión semanal, post-mortem de parciales reales y mentoría de carrera. Ve solo agregados por el MCP de Cortex y su calendario (solo lectura) |
 
 ### Se reutilizan sin archivo propio
-- `pr-review-toolkit:code-reviewer`: revisa todo diff.
-- `pr-review-toolkit:silent-failure-hunter`: datos, sync y MCP.
+- `pr-review-toolkit:code-reviewer`: revisa todo diff (se lanza con `model: "sonnet"`).
+- `pr-review-toolkit:silent-failure-hunter`: datos, sync y MCP (también con `model: "sonnet"`).
 - `pr-review-toolkit:pr-test-analyzer`.
 - Explore y Plan.
 
@@ -110,12 +111,24 @@ Todo el equipo trabaja en la misma carpeta, sin worktrees aislados, para que la 
 
 **Calendario:** el coach lee Google Calendar (solo lectura) para encontrar exámenes. Crear eventos lo hace la sesión principal, solo con el sí de Carlo.
 
-## Costo
-Todo corre en Opus, por decisión de Carlo. Para que no se dispare:
-- `/consejo` convoca como mucho 4 asesores, y solo al planear o en pasos riesgosos;
-- las revisiones de `/equipo` se lanzan en paralelo y solo las que aplican.
+## Costo (ADR-027, 2026-11-16)
+Opus solo donde un error cuesta caro; lo demás en Sonnet, y lo mecánico en Haiku.
 
-Cambiar el modelo de un agente es una línea de su frontmatter.
+| Modelo | Agentes |
+|---|---|
+| `opus` | `experto-matematicas`, `experto-ciberseguridad` (guardián), `autor-contenido` |
+| `sonnet` + `effort: medium` | `pedagogo`, `cientifico-memoria`, `cientifico-cognitivo`, `disenador-motivacion`, `arquitecto-razonamiento`, `linguista`, `disenador-interaccion`, `experto-ia`, `experto-finanzas`, `coach` |
+| `sonnet` | `dev-motor`, `dev-sync`, `dev-ipad`, `dev-interfaz`, `dev-infra`, `resolutor-a-ciegas` (otro modelo que el autor, a propósito) |
+| `haiku` | `verificador` |
+
+Además:
+- `/consejo` convoca como mucho 4 asesores, y solo al planear o en pasos riesgosos;
+- las revisiones de `/equipo` se lanzan en paralelo, solo las que aplican, y las del plugin con `model: "sonnet"`;
+- la salida de las pruebas no entra a la sesión principal: la resume `verificador`;
+- `ESTADO.md` no lleva ADRs ni bitácora (`docs/adrs.md`, `docs/bitacora.md`), porque se lee al inicio de cada sesión;
+- el modelo de la sesión principal se elige al abrirla (cambiarlo a media sesión invalida la caché): Opus para planear y para `/consejo`, Sonnet basta para sesiones largas de `/equipo`.
+
+Cambiar el modelo de un agente es una línea `model:` (y `effort:`) de su frontmatter, y se nota en la siguiente sesión abierta en `cortex/`. Un parámetro `model` en la llamada a Agent le gana al frontmatter.
 
 ## Agregar un agente
 1. Copia la plantilla de cualquier asesor: frontmatter con `description` «Invocar solo por nombre…», y las secciones Misión, Lee primero, Criterios, Entrega y Límites.

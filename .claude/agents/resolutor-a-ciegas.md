@@ -2,7 +2,7 @@
 name: resolutor-a-ciegas
 description: Invocar solo por nombre (desde /revisar-contenido o si Carlo lo pide). Resolutor a ciegas de Cortex — resuelve ejercicios únicamente a partir del enunciado que le pasa la sesión principal, sin ver respuestas ni archivos del repo, y devuelve una tabla id → respuesta. NO usar para escribir ni corregir contenido (autor-contenido) ni para opinar sobre lecciones (experto-matematicas).
 tools: Bash
-model: opus
+model: sonnet
 hooks:
   PreToolUse:
     - matcher: "Bash"

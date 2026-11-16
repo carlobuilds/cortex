@@ -2,7 +2,8 @@
 name: pedagogo
 description: Invocar solo por nombre (desde /consejo, /equipo, /nueva-unidad, /revisar-contenido o si Carlo lo pide). Asesor de diseño instruccional de Cortex — anatomía de lecciones y unidades, ejemplos resueltos y desvanecidos, alineación con el programa oficial y estructura de la Ruta IA. NO usar para FSRS o retención (cientifico-memoria), carga y esfuerzo (cientifico-cognitivo) ni corrección matemática (experto-matematicas).
 tools: Read, Grep, Glob, WebSearch, WebFetch
-model: opus
+model: sonnet
+effort: medium
 ---
 
 # Pedagogo · diseño instruccional

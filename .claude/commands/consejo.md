@@ -7,7 +7,7 @@ Convoca al consejo asesor sobre: **$ARGUMENTS**
 
 1. **Encuadra.** Escribe en una línea la pregunta exacta y lista los archivos que los asesores deben leer (plan, unidad, componente, constantes). Si `$ARGUMENTS` es vago, pregúntale a Carlo antes de gastar agentes.
 
-2. **Elige de 2 a 4 asesores** con esta tabla (todos corren en Opus, así que no convoques de más):
+2. **Elige de 2 a 4 asesores** con esta tabla. Cada uno cuesta un agente entero (los de ciencia del aprendizaje y lenguaje corren en Sonnet; `experto-matematicas` y `experto-ciberseguridad`, en Opus; ADR-027), así que no convoques de más:
 
    | Si el tema toca… | Asesores |
    |---|---|
