@@ -1,0 +1,71 @@
+# Cortex PWA (ADR-029): sirve el export estático de `pnpm build:pwa` en :8080 DENTRO del contenedor.
+# El TLS lo termina el Traefik compartido del VPS; este Caddy no abre puertos al exterior.
+# Esta es la fuente de verdad de los encabezados (CSP, HSTS, etc.).
+{
+	admin off
+	auto_https off
+	persist_config off
+}
+
+(seguridad) {
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer"
+		X-Robots-Tag "noindex, nofollow, noarchive"
+		Cross-Origin-Opener-Policy "same-origin"
+		Cross-Origin-Resource-Policy "same-origin"
+		# web-share NO se bloquea a propósito: B4 usa navigator.share (AirDrop) y su lista por defecto ya es self.
+		# Tampoco se nombra: Chromium avisa «Unrecognized feature: 'web-share'» en consola.
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+		-Server
+	}
+}
+
+:8080 {
+	root * /srv
+	import seguridad
+
+	# Solo lo versionado por hash es inmutable; todo lo demás (HTML, vendor/, sw.js, manifiesto,
+	# version.json) se revalida siempre. NUNCA se manda Service-Worker-Allowed.
+	@dinamico not path /_next/static/*
+	header @dinamico Cache-Control "no-cache"
+	header /_next/static/* Cache-Control "public, max-age=31536000, immutable"
+
+	@metodo not method GET HEAD
+	header @metodo Allow "GET, HEAD"
+	respond @metodo 405
+
+	# Para el healthcheck de Docker: no depende de que haya contenido en /srv.
+	respond /healthz 200
+
+	# Sin backend: el runner de C no existe aquí (ADR-005). 404 explícito también para /api/ solo.
+	@api path /api /api/*
+	error @api 404
+
+	@manifiesto path /manifest.webmanifest
+	header @manifiesto Content-Type "application/manifest+json"
+
+	# Con trailingSlash=false existen out/x.html y out/x/: .html va ANTES que la carpeta.
+	try_files {path}.html {path} {path}/index.html
+
+	file_server {
+		hide .*
+	}
+
+	handle_errors {
+		import seguridad
+		# Con el sitio vacío no existe /404.html: se responde igual, con los encabezados de seguridad.
+		@hay404 file /404.html
+		handle @hay404 {
+			rewrite * /404.html
+			file_server {
+				status {err.status_code}
+			}
+		}
+		handle {
+			respond "No encontrado" {err.status_code}
+		}
+	}
+}

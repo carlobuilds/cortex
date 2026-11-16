@@ -1,7 +1,7 @@
 # ESTADO · Tablero vivo de Cortex
 
 **Fase actual:** 3 · Cálculo + Matemáticas discretas, en curso en la rama `fase-3-calculo-discretas` (plan aprobado por Carlo el 2026-10-13). Las Fases 0, 1 y 2 están implementadas y verificadas; sigue pendiente su cierre formal: sesión real de Carlo de ~20 min por fase, `/cerrar-fase` y etiquetas `fase-0`, `fase-1`, `fase-2` (no bloquea la Fase 3). **Orden acordado el 2026-11-10:** v1 (equipo y coach, hecho) → CP1 → sprint del parcial de Cálculo (contenido completo el 2026-11-13: unidades 01 a 09) → Fase 3.5 (v1.1: iPad PWA, pizarra, sync y coach vivo) → resto de Cálculo y Discretas.
-**Última actualización:** 2026-11-16 · Flujo más barato (ADR-027): modelos por agente, `verificador` en Haiku y este tablero sin ADRs ni bitácora (ahora en `docs/adrs.md` y `docs/bitacora.md`). Sigue el **iPad mínimo antes del parcial** (decisiones del 2026-11-16). Antes: el sprint del parcial de Cálculo quedó completo el 2026-11-13 (unidades 01 a 09) y la Unidad IV de Discretas el 2026-11-15 (13 a 21); ver la bitácora.
+**Última actualización:** 2026-11-16 · **iPad mínimo listo en la Mac** (Parte B: `build:pwa` sin runner de C, PWA sin conexión, uso táctil, puente de respaldo con aviso y `deploy/` probado con Docker local; ADR-028 y ADR-029). Falta lo de Carlo: levantar el VPS con `deploy/README.md`, la regla de `decideImportRisk` y el CP-iPad (`docs/09`). Antes: flujo más barato (ADR-027), el sprint del parcial de Cálculo (unidades 01 a 09, 2026-11-13) y la Unidad IV de Discretas (13 a 21, 2026-11-15); ver la bitácora.
 
 ## Decisiones tomadas (Carlo, 2026-10-01)
 - Plataforma: **web app** (Next.js).
@@ -140,7 +140,7 @@ Brainstorm con Claude en modo plan; plan aprobado el mismo día.
 Plan aprobado el mismo día (`~/.claude/plans/quiero-hacer-algunos-cambios-sprightly-dolphin.md`).
 - **Modelos por agente** (ADR-027, recorte balanceado): Opus en `experto-matematicas`, `experto-ciberseguridad` y `autor-contenido`; Sonnet en los demás (asesores y `coach` con `effort: medium`); `resolutor-a-ciegas` en Sonnet; `verificador` nuevo en Haiku. ADRs y bitácora fuera de este archivo (`docs/adrs.md`, `docs/bitacora.md`).
 - **iPad mínimo antes del parcial** (23 al 27 de noviembre): se adelantan de la Fase 3.5 el paso 1 (`build:pwa` sin runner de C), el spike C (PWA en el iPad real), lo táctil mínimo del paso 4 y un despliegue mínimo. Pizarra, eventos, relay, sync y coach vivo siguen después del parcial, en su orden.
-- **Dominio:** `cortex.carlogarza.dev`, detrás del Traefik compartido del VPS (mismo patrón que Hanami: red `traefik-public`, certresolver `letsencrypt`). DNS en Hostinger.
+- **Dominio:** `cortex.carlogarza.dev`, detrás del Traefik compartido del VPS (mismo patrón que Hanami: red `traefik-public`, certresolver `letsencrypt`). DNS en Hostinger. Despliegue estático con Caddy, encabezados y CSP inicial con deuda que caduca antes del token (ADR-029).
 - **Acceso:** sitio **público sin indexar** (solo archivos estáticos; los datos viven en el dispositivo).
 - **Entrada en el iPad:** solo pantalla y Pencil → teclado matemático en pantalla y botón visible para cada atajo.
 - **Progreso:** puente con el respaldo que ya existe (reemplaza todo), **con aviso** antes de pisar actividad más reciente (ADR-028, temporal hasta el relay).
@@ -153,6 +153,8 @@ Plan aprobado el mismo día (`~/.claude/plans/quiero-hacer-algunos-cambios-sprig
 - **Cuántas:** todas las del orden, una tras otra. Según `cientifico-memoria`, a fondo solo se estudian las 3 o 4 primeras: la última nueva en D−12 (≈ 11 a 15 de noviembre) y el simulacro en D−6 (≈ 17 a 21 de noviembre). Las demás sirven para práctica y para el simulacro.
 
 ## Decisiones pendientes (preguntar a Carlo)
+- [ ] **Regla del aviso al importar** (aporte de Carlo, ADR-028): `decideImportRisk` en `src/db/backup.ts` sigue como `TODO(Carlo)`; mientras tanto el aviso sale siempre. Al escribirla, convertir los `it.todo` de `src/db/backup.test.ts`.
+- [ ] **Subir dependencias con avisos de seguridad** (guardián, 2026-11-16): `next` a ≥ 16.4.1 (GHSA-2464-fhr4-w9xw, GHSA-673q-mjm6-r5xr, GHSA-p3m5-59mp-jv5r; no aplican al export estático) y `zod` a ≥ 4.6.6 (GHSA-mrhx-c7xc-m3w5: un respaldo manipulado podría agotar la memoria al importarlo). Paso aparte con `pnpm check` y e2e.
 - [ ] Programas sintéticos que faltan: programacion, mecanica-electromagnetismo, fundamentos-economicos (los de Cálculo y Discretas ya están; la carpeta oficial es `escom.ipn.mx/docs/oferta/uaIIA2020/`). Versionar o no los PDF: el `.gitignore` deja la decisión en Carlo; por ahora no se versionan.
 - [ ] Confirmar el semestre actual (se asumió 1º; Carlo cursa Cálculo este semestre).
 - [x] Sprint del parcial: temas, fecha y orden de escritura decididos por Carlo el 2026-11-10 (ver «Decisiones tomadas · sprint del parcial de Cálculo»).
@@ -318,10 +320,11 @@ Esqueleto en `docs/01`; plan detallado al arrancarla, después del sprint del pa
   - [x] PWA instalable y sin conexión: manifiesto, íconos, `appleWebApp`, service worker solo en la build del iPad (2026-11-16; la prueba con Caddy, Safari y Python sin red queda para B5)
   - [x] Uso táctil: teclado matemático en pantalla con puntero grueso, botón visible por atajo, objetivos ≥ 44 pt, e2e WebKit de iPad (2026-11-16; interruptor «Modo de entrada» en Ajustes; lo que solo se ve en el iPad, en el CP-iPad)
   - [ ] Puente de respaldo con aviso (ADR-028, `importRisk` es aporte de Carlo): estructura, chequeos que fallan cerrado, diálogo y «Compartir (AirDrop)» hechos el 2026-11-16; falta la regla de Carlo en `decideImportRisk` (`src/db/backup.ts`), y mientras tanto el aviso sale siempre
-  - [ ] `deploy/` (compose con Caddy detrás de Traefik, encabezados, `publicar.sh`, runbook) probado con Docker local; Carlo lo levanta en el VPS
-  - [ ] CP-iPad de Carlo: instalar, importar, sesión de 20 min, modo avión, al día siguiente
+  - [x] `deploy/` (compose con Caddy detrás de Traefik, encabezados, `publicar.sh`, runbook) probado con Docker local (2026-11-16, ADR-029; `test:e2e:pwa` 6/6 en Chromium y WebKit: sin violaciones de CSP, sin conexión, Python, kill switch)
+  - [ ] Carlo levanta el contenedor en el VPS y publica con `bash deploy/publicar.sh --primera` (runbook en `deploy/README.md`)
+  - [ ] CP-iPad de Carlo: instalar, importar, sesión de 20 min, modo avión, al día siguiente (lista con criterios en `docs/09` § CP-iPad)
 - **Después del parcial, en su orden:**
-- [ ] VPS base y `pnpm build:pwa` sin runner de C
+- [x] VPS base y `pnpm build:pwa` sin runner de C (adelantado el 2026-11-16: el sitio estático vive detrás del Traefik compartido, ADR-029)
 - [ ] Spikes A (tinta), B (respuesta) y C (PWA) en el iPad real → CP-A de Carlo
 - [ ] Eventos, Dexie v3 y respaldo formato 2
 - [ ] Pizarra web, UI para iPad, manifiesto y service worker; tinta en el cuaderno y la autopsia

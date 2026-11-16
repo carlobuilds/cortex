@@ -13,6 +13,13 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["exec", "sh", "-c", "tsx scripts/vendor-assets.ts && NEXT_TELEMETRY_DISABLED=1 CORTEX_LOCAL=1 next dev -H localhost -p 3200"],
       "port": 3200
+    },
+    {
+      "name": "cortex-pwa",
+      "runtimeExecutable": "docker",
+      "runtimeArgs": ["compose", "-f", "deploy/docker-compose.yml", "-f", "deploy/docker-compose.local.yml", "up"],
+      "port": 3300,
+      "autoPort": false
     }
   ]
 }

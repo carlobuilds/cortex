@@ -20,6 +20,7 @@
     "test": "vitest run --project unit",
     "test:watch": "vitest --project unit",
     "test:e2e": "playwright test",
+    "test:e2e:pwa": "CORTEX_E2E_PWA=1 playwright test --project=pwa-chromium --project=pwa-webkit",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:content",
     "content:check": "tsx scripts/content-check.ts",
     "test:content": "vitest run --project content",

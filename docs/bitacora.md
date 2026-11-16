@@ -4,6 +4,23 @@ Se movió desde `ESTADO.md` el 2026-11-16 (ADR-027), sin cambiar su texto. Lo m�
 
 **Regla desde el 2026-11-16:** una entrada por paso, de **máximo unas 8 líneas**: qué se hizo, evidencia (comandos y conteos) y hallazgos. El detalle largo va al mensaje del commit. Las entradas anteriores se quedan como están.
 
+- 2026-11-16 · **B5 · `deploy/` para `cortex.carlogarza.dev` (ADR-029)** (`dev-infra`; revisión de código y guardián: objeción sin bloqueo, con visto bueno para el primer `publicar.sh` tras C1).
+  - *Qué:*
+    - compose `cortex` con `caddy:2.11.7-alpine` fijado por digest: `user 1000`, `read_only`, sin capacidades salvo `NET_BIND_SERVICE`, 64 MB, sin puertos y solo `traefik-public`, con healthcheck en `/healthz`;
+    - `Caddyfile` con los encabezados de E6, `/api/*` → 404, 405 con `Allow`, `try_files` con `.html` primero y 404 con encabezados aunque el sitio esté vacío;
+    - `publicar.sh` con árbol limpio, build desde cero, E1, `version.json`, guarda de esquema por HTTPS (`--primera`, `--forzar`), permisos 644/755, `--kill-sw` y `--solo-preparar`;
+    - runbook en `deploy/README.md`; override local en 3300 (`cortex-pwa` en `launch.json`).
+  - *Evidencia:*
+    - `test:e2e:pwa` 6/6 en Chromium y WebKit: encabezados, sin violaciones de CSP, sin conexión, Python y kill switch sin tocar IndexedDB;
+    - en el navegador integrado, consola limpia;
+    - con el contenedor apagado, la lección abre y Python da 4/4.
+    - `pnpm check` en verde (1429 unitarias, 313 de contenido), `test:e2e` 34/34 (sin los `pwa-*`) y `publicar.sh --solo-preparar` completo;
+    - dos veces se colgó `test:content` (un Python de la paridad YAML se queda esperando en `read()` el EOF de stdin y Node espera en `spawnSync`); la segunda corrida pasó. Es intermitente y anterior a la Parte B: queda como seguimiento.
+  - *Hallazgos:*
+    - el `rsync` de macOS (openrsync) rechaza `--chmod`, y Turbopack deja chunks en 664: `chmod` y `find` antes de subir;
+    - con el sitio vacío, el healthcheck sobre `robots.txt` dejaba el contenedor `unhealthy`, y Traefik lo ignora (sin router ni certificado);
+    - Chromium avisa con `web-share` en `Permissions-Policy`, así que se quitó (por defecto es `self`);
+    - `pnpm audit` marca `next` y `zod` (pendiente en ESTADO).
 - 2026-11-16 · **B4 · Puente de respaldo con aviso (ADR-028)** (`dev-sync` + `dev-interfaz`; revisión de código, `silent-failure-hunter` y guardián: objeción sin bloqueo, arreglos incluidos).
   - *Qué:* `lastActivity` y `summarizeDevice` (por índices, con las filas sin índice contadas como ilegibles); `importRisk` en dos capas. La capa fija falla cerrado de los dos lados (fechas ilegibles, `exportedAt` ilegible o futuro, actividad posterior a la exportación, actividad local sin fecha) y la otra es la regla de Carlo (`decideImportRisk`, `TODO(Carlo)`), que mientras tanto siempre da «aviso». El diálogo muestra hechos en dos columnas, bloque de aviso, foco en Cancelar y «Guardar primero una copia». «Compartir (AirDrop)» usa un archivo preparado antes del toque y que nunca queda viejo. Zod con `jitless` (CSP); errores de importación acotados a 20 × 200 caracteres. ADR-029 (despliegue) redactado.
   - *Evidencia:* lint, typecheck, 1429 unitarias (4 `todo` de la regla), 313 de contenido y `test:e2e` 34/34 (chromium 26, ipad 4, ipad-landscape 4); la e2e 9 exporta, importa y ve el aviso y los hechos. Un `test:content` corrido en paralelo con el e2e se colgó: un Python de la paridad YAML se quedó dormido. Solo, pasó (313 en 649 s).

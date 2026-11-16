@@ -94,3 +94,41 @@ Complementan los ADR-001 a 008 de `docs/02`. Cada uno se escribe en el commit de
   - fusionar respaldos: necesita eventos y Dexie v3, que llegan después del parcial;
   - bloquear la importación: sin salida si el aviso se equivoca;
   - el relay antes del parcial: no da tiempo, y exige antes la CSP estricta y el token.
+
+**ADR-029 · Despliegue estático en `cortex.carlogarza.dev` detrás del Traefik compartido** (2026-11-16; decisión de Carlo; precisa el paso 1 de la Fase 3.5 y ADR-025; lo pidió el guardián en el `/consejo` B0).
+- **Qué se sirve:** solo el export estático de `pnpm build:pwa` (`out/`), sin runner de C (ADR-005) y revisado por `scripts/check-out-cli.ts` (E1). No hay backend, token ni datos de Carlo en el servidor: todo vive en la IndexedDB del dispositivo.
+- **Cómo:**
+  - un contenedor `caddy:<versión>-alpine` fijado por digest, en `/docker/cortex/` del VPS de Hostinger;
+  - sirve `./sitio` en solo lectura;
+  - endurecido: `read_only`, sin capacidades salvo `NET_BIND_SERVICE`, `no-new-privileges`, límites de memoria, PIDs y CPU, y sin puertos publicados;
+  - solo en la red externa `traefik-public`.
+- **TLS:** no lo termina Caddy sino el **Traefik compartido** del VPS (entrypoint `websecure`, certresolver `letsencrypt`), con router, servicio y middlewares propios (`cortex-pwa*`). Esto cambia el «Caddy, TLS y firewall» del paso 1 de la Fase 3.5: el firewall y Traefik son del VPS y no se tocan.
+- **Acceso:** sitio **público sin indexar** (decisión de Carlo): `robots.txt` bloquea todo, más `X-Robots-Tag` y `<meta name="robots">`. No hay basic auth, porque rompe la instalación de la PWA en iOS y el service worker. El nombre aparece en los registros públicos de Certificate Transparency, así que llegarán escáneres; con un sitio estático y sin datos, se acepta.
+- **Encabezados** (en el `Caddyfile`):
+  - HSTS, `nosniff`, `Referrer-Policy: no-referrer`;
+  - `frame-ancestors 'none'`, COOP y CORP `same-origin`, `Permissions-Policy` cerrada salvo `web-share`, que queda en su valor por defecto (`self`) porque el puente de respaldo usa `navigator.share` (ADR-028);
+  - métodos distintos de GET y HEAD → 405 con `Allow`;
+  - `/healthz` para el healthcheck: Traefik **ignora el contenedor mientras no esté healthy** (sin router ni certificado), así que no puede depender del contenido;
+  - `/api/*` → 404;
+  - `/_next/static/*` inmutable y lo demás `no-cache`.
+- **CSP inicial** (la completa, de E6, vive en `deploy/Caddyfile`, que es la fuente de verdad): `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'` y `style-src 'self' 'unsafe-inline'`. El `'unsafe-inline'` lo exigen los scripts en línea del export de Next y `THEME_BOOT`; el `'wasm-unsafe-eval'`, Pyodide. Se acepta **hoy** porque no hay token ni datos en el servidor y los únicos sumideros de HTML reciben contenido de la build.
+- **Deuda con caducidad** (obligatoria **antes del token de sync**, paso 5 de la Fase 3.5):
+  - CSP sin `'unsafe-inline'` en scripts, con hashes por página generados tras la build (el export no tiene nonces);
+  - Trusted Types si WebKit los soporta;
+  - `connect-src` exacto al relay;
+  - un token que JS no pueda leer;
+  - `Clear-Site-Data: "cache", "cookies"` al revocar; **nunca** `"storage"` ni `"*"`, que borran la IndexedDB (la única copia de los datos).
+- **DNS:** `A cortex.carlogarza.dev → 76.13.106.210`, TTL 300, creado el 2026-11-16 con el OK de Carlo, sin tocar el resto de la zona. Un registro CAA para `letsencrypt.org` es opcional.
+- **Publicar:** `deploy/publicar.sh` lo corre Carlo en su Mac:
+  - árbol limpio;
+  - build desde cero y E1;
+  - `version.json` con `{sha, buildId, schemaVersion}`;
+  - `rsync` a una ruta fija del VPS.
+
+  Claude nunca entra al VPS. La guarda de esquema lee el `version.json` publicado (es público) por HTTPS: un 404 solo se acepta con `--primera`, porque Traefik también da 404 si el contenedor no está healthy. `--forzar` sigue si la consulta falla (red, TLS, 404 u otro código), y entonces el esquema publicado **no** se comprueba; nunca salta un `version.json` inválido ni un esquema publicado mayor. La primera vez se publica antes de levantar el contenedor.
+- **Rollback:** republicar la build anterior, **solo con el mismo `SCHEMA_VERSION`**: una build vieja con esquema menor lanza `FutureSchemaError`, y entonces se arregla hacia adelante. Si un service worker queda mal, `publicar.sh --kill-sw` publica `scripts/sw-kill.js` (borra cachés, se da de baja y nunca toca IndexedDB). Nunca se le pide a Carlo «eliminar la app» ni «Borrar datos del sitio».
+- **Imagen:** `caddy:<versión>-alpine` fijada por digest; se actualiza a una versión con al menos dos semanas de publicada, con la prueba local (`test:e2e:pwa`) y revisión del guardián antes de subirla.
+- **Riesgo residual:**
+  - El puerto 80 depende del redirect del Traefik compartido, y HSTS solo aplica después de la primera visita (no hay preload). Si Traefik guarda logs de acceso, quedan las IP de los dispositivos.
+  - Quien tenga la llave SSH de publicación de la Mac, el usuario del VPS, el grupo `docker` o la capacidad de poner labels en el Traefik compartido (otro contenedor con `Host(cortex…)` puede secuestrar la ruta) controla el JS que lee la IndexedDB del iPad. Se recomienda una llave con passphrase y un usuario sin root para publicar.
+  - Si el VPS, su Docker (o cualquier contenedor con acceso al socket), o el Traefik compartido se comprometen, alguien puede servir JS que lea, exfiltre o altere la IndexedDB del iPad. Un XSS podría escribir en CacheStorage hasta la siguiente build o el kill switch. Las respuestas en caché guardan los encabezados de su precarga: un cambio solo del `Caddyfile` no llega al iPad hasta una build nueva.
