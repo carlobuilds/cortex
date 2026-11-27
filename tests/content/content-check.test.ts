@@ -100,6 +100,36 @@ describe("pnpm content:check", () => {
       expect(r.out).toContain("[calc-01-087]: la verificación da 2 valor(es) y hay 1 hueco(s)");
     });
 
+    it("acepta tablas de verdad, conjuntos y selección múltiple bien verificados", () => {
+      const root = makeRoot();
+      add(root, "calc-01-070", "tabla_verdad", '    formula: "(p → q) ↔ (¬q → ¬p)"\n    respuesta: [V, V, V, V]\n');
+      add(root, "calc-01-071", "tabla_verdad", '    formula: "p -> q -> r"\n    respuesta: [V, F, V, V, V, V, V, V]\n');
+      add(root, "calc-01-072", "conjunto", '    respuesta: ["1", "-1"]\n    verificar: { sympy: "solveset(x**2 - 1, x)" }\n');
+      add(root, "calc-01-073", "conjunto", '    respuesta: ["(1, 2)", "(2, 3)"]\n    verificar: { python: "{(a, a + 1) for a in range(1, 3)}" }\n');
+      add(root, "calc-01-074", "conjunto", '    respuesta: []\n    verificar: { sympy: "solveset(x**2 + 1, x, S.Reals)" }\n');
+      add(root, "calc-01-075", "conjunto", '    respuesta: ["1/2", "a"]\n    verificar: { python: "[0.5, \'a\']" }\n');
+      // Los índices de las opciones correctas, contados uno por uno (primos entre 2, 4, 7 y 9).
+      add(root, "calc-01-076", "seleccion_multiple", '    opciones: ["2", "4", "7", "9"]\n    correctas: [0, 2]\n    verificar: { python: "[i for i, n in enumerate([2, 4, 7, 9]) if all(n % d for d in range(2, n))]" }\n');
+      add(root, "calc-01-077", "seleccion_multiple", '    opciones: ["a", "b"]\n    correctas: [1]\n');
+      const r = contentCheck(root, [CALC]);
+      expect(r.out).not.toMatch(/ERROR/);
+      expect(r.status).toBe(0);
+    });
+
+    it("rechaza tablas, conjuntos y selecciones que no coinciden con su verificación", () => {
+      const root = makeRoot();
+      add(root, "calc-01-070", "tabla_verdad", '    formula: "p → q"\n    respuesta: [V, F, V, F]\n');
+      add(root, "calc-01-072", "conjunto", '    respuesta: ["1", "2"]\n    verificar: { python: "{1, 3}" }\n');
+      add(root, "calc-01-073", "conjunto", '    respuesta: ["0"]\n    verificar: { sympy: "Interval(0, 1)" }\n');
+      add(root, "calc-01-076", "seleccion_multiple", '    opciones: ["2", "4", "7", "9"]\n    correctas: [0]\n    verificar: { python: "[i for i, n in enumerate([2, 4, 7, 9]) if all(n % d for d in range(2, n))]" }\n');
+      const r = contentCheck(root, [CALC]);
+      expect(r.status).toBe(1);
+      expect(r.out).toContain("[calc-01-070]: la fila 4 vale V según la fórmula");
+      expect(r.out).toContain("[calc-01-072]: el conjunto no coincide: la respuesta trae ['2'] que la verificación no da; la verificación da ['3'] que la respuesta no trae");
+      expect(r.out).toContain("[calc-01-073]: excepción al verificar: ValueError: la verificación no da un conjunto finito sino Interval");
+      expect(r.out).toContain("[calc-01-076]: 'correctas' es [0] pero la verificación da [0, 2]");
+    });
+
     it("una verificación que no termina se corta y se reporta (no cuelga todo)", () => {
       const root = makeRoot();
       add(root, "calc-01-088", "numerico", '    respuesta: 1\n    verificar: { python: "sum(1 for _ in itertools.count())" }\n');

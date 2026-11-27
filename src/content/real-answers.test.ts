@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { type Answer, checkAnswer } from "@/engine/answers/check";
+import { formatSet } from "@/engine/answers/sets";
 import { loadContent } from "./loader";
 import type { Exercise } from "./schema";
 
@@ -28,6 +29,13 @@ function officialAnswer(ex: Exercise): Answer | null {
       return { kind: "blanks", values: ex.respuestas };
     case "ordenar":
       return { kind: "order", items: ex.elementos };
+    case "seleccion_multiple":
+      return { kind: "choices", indexes: ex.correctas };
+    case "tabla_verdad":
+      return { kind: "truth", values: ex.respuesta.map((v) => v === "V") };
+    case "conjunto":
+      // Escrita como la muestra la app al fallar (`{1, 2}`): esa forma también se tiene que poder leer.
+      return { kind: "text", value: formatSet(ex.respuesta) };
     default:
       // Código, Debug Dojo, Parsons, rastreo (los corre `code-runners.test.ts`) y autoevaluación (la califica el usuario).
       return null;
