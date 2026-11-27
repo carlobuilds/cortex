@@ -1,11 +1,15 @@
 "use client";
 
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, X } from "lucide-react";
 import { codeModule, debugModule, parsonsModule, traceModule } from "@/components/code/code-types";
-import { type ComponentType, Fragment, useEffect, useRef } from "react";
+import { type ComponentType, Fragment, type KeyboardEvent as ReactKeyboardEvent, useEffect, useId, useMemo, useRef, useState } from "react";
 import type { CatalogExercise } from "@/content/core/study-catalog";
 import { splitBlanks } from "@/content/core/blanks";
 import type { Answer } from "@/engine/answers/check";
+import { parseSet, SetError, setKeys } from "@/engine/answers/sets";
+import { describeColumn, displayOrder, TRUTH_STYLE, truthSymbol } from "@/engine/logic/convention";
+import { parseFormula } from "@/engine/logic/formula";
+import { type TruthTable, truthTable } from "@/engine/logic/truth-table";
 import { createRng, seedFrom, shuffle } from "@/engine/rng";
 import { cn } from "@/lib/utils";
 import { MathField } from "./math-field";
@@ -24,6 +28,8 @@ export interface InputProps<D> {
   readonly disabled: boolean;
   /** Enviar (Enter en un campo de una línea). */
   readonly onEnter: () => void;
+  /** Ya se vio el resultado: el componente puede marcar qué partes estaban bien (p. ej. filas de una tabla). */
+  readonly revealed?: boolean;
 }
 
 export interface TypeModule<D> {
@@ -277,6 +283,270 @@ const order: TypeModule<string[]> = {
   describe: (_ex, d) => d.join(" → "),
 };
 
+// ---------------------------------------------------------------- selección múltiple
+/** Marca o desmarca la opción `i`; los índices quedan ordenados. */
+export function toggled(marked: readonly number[], i: number): number[] {
+  return marked.includes(i) ? marked.filter((j) => j !== i) : [...marked, i].sort((a, b) => a - b);
+}
+
+function MultiSelectInput({ exercise, draft, setDraft, disabled }: InputProps<number[]>) {
+  const ex = exercise as Extract<CatalogExercise, { tipo: "seleccion_multiple" }>;
+  const toggle = (i: number) => setDraft(toggled(draft, i));
+  // Mismo patrón que la opción múltiple: la letra marca o desmarca esa opción.
+  useEffect(() => {
+    if (disabled) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target)) return;
+      const i = LETTERS.indexOf(e.key.toUpperCase());
+      if (i >= 0 && i < ex.opciones.length) {
+        e.preventDefault();
+        setDraft(toggled(draft, i));
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [disabled, draft, ex.opciones.length, setDraft]);
+  return (
+    <div className="grid gap-2">
+      <p className="text-caption text-muted-foreground">Marca todas las correctas: puede ser más de una. Cada letra marca o desmarca su opción.</p>
+      <div role="group" aria-label="Opciones (marca todas las correctas)" className="grid gap-2">
+        {ex.opciones.map((o, i) => {
+          const on = draft.includes(i);
+          return (
+            <button
+              key={i}
+              type="button"
+              role="checkbox"
+              aria-checked={on}
+              disabled={disabled}
+              onClick={() => toggle(i)}
+              className={cn(
+                "tactile flex items-center gap-3 rounded-md border bg-surface px-3 py-2.5 text-left hover:border-brand/60 disabled:opacity-80",
+                on ? "border-brand bg-surface-2" : "border-border-strong",
+              )}
+            >
+              <span className="kbd" aria-hidden>
+                {LETTERS[i]}
+              </span>
+              <span aria-hidden className={cn("grid size-4 shrink-0 place-items-center rounded-sm border", on ? "border-brand bg-brand text-brand-ink" : "border-border-strong")}>
+                {on ? <Check className="size-3" strokeWidth={3} /> : null}
+              </span>
+              <RichText text={o} inline />
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+const multiSelect: TypeModule<number[]> = {
+  initial: () => [],
+  Input: MultiSelectInput,
+  toAnswer: (_ex, d) => (d.length === 0 ? "Marca al menos una opción (teclas A, B, C...)." : { kind: "choices", indexes: d }),
+  describe: (ex, d) => (ex.tipo === "seleccion_multiple" ? d.map((i) => ex.opciones[i] ?? String(i)).join(" · ") : ""),
+};
+
+// ---------------------------------------------------------------- tabla de verdad
+type TruthDraft = (boolean | null)[];
+
+/** Teclas que ponen verdadero o falso: los símbolos de la convención y, siempre, V/F, T y 1/0. */
+const TRUE_KEYS = new Set([TRUTH_STYLE.symbols[0].toLowerCase(), "v", "t", "1"]);
+const FALSE_KEYS = new Set([TRUTH_STYLE.symbols[1].toLowerCase(), "f", "0"]);
+
+function useTruthTable(formula: string): TruthTable | null {
+  return useMemo(() => {
+    try {
+      return truthTable(parseFormula(formula));
+    } catch {
+      // El esquema ya exige una fórmula legible.
+      return null;
+    }
+  }, [formula]);
+}
+
+function TruthInput({ exercise, draft, setDraft, disabled, revealed }: InputProps<TruthDraft>) {
+  const ex = exercise as Extract<CatalogExercise, { tipo: "tabla_verdad" }>;
+  const table = useTruthTable(ex.formula);
+  const cells = useRef<(HTMLButtonElement | null)[]>([]);
+  // Una sola celda en el orden de Tab (la activa); ↑ ↓ se mueven entre filas.
+  const [active, setActive] = useState(0);
+  if (!table) return <p className="text-sm text-danger">No se pudo leer la fórmula de este ejercicio. Repórtalo con el botón de reporte.</p>;
+  const order = displayOrder(table.rows.length);
+  const label = table.columns.at(-1)?.label ?? ex.formula;
+  const [yes, no] = TRUTH_STYLE.symbols;
+
+  const focusAt = (position: number) => {
+    const next = Math.max(0, Math.min(order.length - 1, position));
+    setActive(next);
+    cells.current[next]?.focus();
+  };
+  const set = (row: number, value: boolean | null) => setDraft(draft.map((v, i) => (i === row ? value : v)));
+  const onKey = (e: ReactKeyboardEvent, position: number, row: number) => {
+    if (disabled || e.metaKey || e.ctrlKey || e.altKey) return;
+    const key = e.key.toLowerCase();
+    if (TRUE_KEYS.has(key) || FALSE_KEYS.has(key)) {
+      e.preventDefault();
+      set(row, TRUE_KEYS.has(key));
+      focusAt(position + 1);
+    } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      focusAt(position + (e.key === "ArrowDown" ? 1 : -1));
+    } else if (e.key === "Home" || e.key === "End") {
+      e.preventDefault();
+      focusAt(e.key === "Home" ? 0 : order.length - 1);
+    } else if (e.key === "Backspace" || e.key === "Delete") {
+      e.preventDefault();
+      set(row, null);
+    }
+  };
+  const filled = draft.filter((v) => v !== null).length;
+
+  return (
+    <div className="grid gap-2">
+      <p className="text-caption text-muted-foreground">
+        Llena la columna de la fórmula: enfoca una fila y escribe <span className="kbd">{yes}</span> o <span className="kbd">{no}</span> (pasa sola a la siguiente), o haz clic para alternar. <span className="kbd">↑</span>{" "}
+        <span className="kbd">↓</span> para moverte.
+      </p>
+      <div className="truth-scroll">
+        <table className="truth-table">
+          <caption className="sr-only">Tabla de verdad de {label}: llena la última columna</caption>
+          <thead>
+            <tr>
+              {table.variables.map((v) => (
+                <th key={v} scope="col">
+                  {v}
+                </th>
+              ))}
+              <th scope="col" data-final="true">
+                {label}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {order.map((row, position) => {
+              const value = draft[row] ?? null;
+              const assignment = table.rows[row] ?? {};
+              const names = table.variables.map((v) => `${v} ${truthSymbol(assignment[v] ?? false)}`).join(", ");
+              const expected = ex.respuesta[row] === "V";
+              const ok = value === expected;
+              return (
+                <tr key={row}>
+                  {table.variables.map((v) => {
+                    const cell = assignment[v] ?? false;
+                    return (
+                      <td key={v} data-true={cell}>
+                        {truthSymbol(cell)}
+                      </td>
+                    );
+                  })}
+                  <td data-final="true" className="!p-1">
+                    <span className="flex items-center justify-center gap-1.5">
+                      <button
+                        ref={(el) => {
+                          cells.current[position] = el;
+                        }}
+                        type="button"
+                        disabled={disabled}
+                        tabIndex={position === active ? 0 : -1}
+                        onFocus={() => setActive(position)}
+                        onClick={() => set(row, value === null ? true : !value)}
+                        onKeyDown={(e) => onKey(e, position, row)}
+                        aria-label={`Fila ${position + 1} (${names}): ${value === null ? "sin llenar" : truthSymbol(value)}`}
+                        className={cn(
+                          "tactile h-8 min-w-10 rounded-sm border px-2 font-mono text-base font-semibold disabled:opacity-90",
+                          value === null ? "border-dashed border-border-strong text-muted-foreground" : "border-brand bg-surface text-ink",
+                        )}
+                      >
+                        {value === null ? "?" : truthSymbol(value)}
+                      </button>
+                      {revealed ? (
+                        ok ? (
+                          <Check aria-label="bien" className="size-4 text-success" />
+                        ) : (
+                          <span className="inline-flex items-center gap-0.5 text-danger" aria-label={`era ${truthSymbol(expected)}`}>
+                            <X aria-hidden className="size-4" />
+                            <span aria-hidden className="text-sm">{truthSymbol(expected)}</span>
+                          </span>
+                        )
+                      ) : null}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p className="text-caption text-muted-foreground tabular-nums">
+        {filled} de {order.length} {order.length === 1 ? "fila" : "filas"}
+      </p>
+    </div>
+  );
+}
+
+const truth: TypeModule<TruthDraft> = {
+  initial: (ex) => (ex.tipo === "tabla_verdad" ? ex.respuesta.map(() => null) : []),
+  Input: TruthInput,
+  toAnswer: (_ex, d) => (d.some((v) => v === null) ? `Llena todas las filas de la tabla (teclas ${TRUTH_STYLE.symbols[0]} y ${TRUTH_STYLE.symbols[1]}).` : { kind: "truth", values: d }),
+  describe: (ex, d) => {
+    if (ex.tipo !== "tabla_verdad") return "";
+    try {
+      const table = truthTable(parseFormula(ex.formula));
+      return describeColumn(table.variables, table.rows, d);
+    } catch {
+      return d.map((v) => (v === null ? "?" : truthSymbol(v))).join(" ");
+    }
+  },
+};
+
+// ---------------------------------------------------------------- conjunto
+/** Cómo se leyó lo escrito, mientras se escribe (sin calificar). */
+function readSet(text: string): string {
+  if (!text.trim()) return "";
+  try {
+    const count = setKeys(parseSet(text)).size;
+    if (count === 0) return "Leí el conjunto vacío.";
+    return count === 1 ? "Leí 1 elemento." : `Leí ${count} elementos (los repetidos cuentan una vez).`;
+  } catch (e) {
+    return e instanceof SetError ? e.message : "No entendí el conjunto.";
+  }
+}
+
+function SetInput({ draft, setDraft, disabled, onEnter }: InputProps<string>) {
+  const helpId = useId();
+  const reading = readSet(draft);
+  return (
+    <div className="grid gap-1.5">
+      <input
+        aria-label="Tu conjunto"
+        aria-describedby={helpId}
+        autoFocus
+        autoComplete="off"
+        autoCapitalize="off"
+        spellCheck={false}
+        disabled={disabled}
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            onEnter();
+          }
+        }}
+        className={inputClass}
+        placeholder="{1, 2, 3}"
+      />
+      <p id={helpId} className="text-caption text-muted-foreground">
+        Elementos separados por comas, en cualquier orden; las llaves son opcionales. Pares ordenados como <code>(1, 2)</code>; el vacío es <code>{"{}"}</code> o <code>∅</code>.
+      </p>
+      {reading ? <p className="text-caption text-ink-2">{reading}</p> : null}
+    </div>
+  );
+}
+
+const setModule: TypeModule<string> = { ...numeric, Input: SetInput, toAnswer: (_ex, d) => (d.trim() ? { kind: "text", value: d } : "Escribe el conjunto (usa {} para el vacío).") };
+
 // ---------------------------------------------------------------- autoevaluación
 export interface SelfDraft {
   readonly text: string;
@@ -328,6 +598,9 @@ export const TYPE_MODULES: Record<string, TypeModule<never>> = {
   ordenar: order as unknown as TypeModule<never>,
   predecir_salida: output as unknown as TypeModule<never>,
   autoevaluacion: self as unknown as TypeModule<never>,
+  seleccion_multiple: multiSelect as unknown as TypeModule<never>,
+  tabla_verdad: truth as unknown as TypeModule<never>,
+  conjunto: setModule as unknown as TypeModule<never>,
 };
 
 /** ¿La app ya sabe jugar este tipo de ejercicio? Los que no, se omiten de práctica, repaso y jefes. */

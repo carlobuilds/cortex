@@ -9,6 +9,7 @@ import { XpBar } from "@/components/hud/xp-bar";
 import { PageHeader } from "@/components/layout/page-header";
 import { InlineMarkdown } from "@/components/lessons/inline-markdown";
 import { ConceptBox, FadedExample, Pitfall, PredictPrompt, VisualBlock } from "@/components/lessons/lesson-blocks";
+import { ExerciseDemo } from "@/components/study/exercise-demo";
 import { FormulaDemo } from "@/components/study/formula-demo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -239,6 +240,12 @@ export default function StylePage() {
             <VisualBlock id="grafo" vertices="a, b, c, d, e" aristas="a-b, b-c, c-d, d-e, e-a, a-c" />
             <VisualBlock id="grafo" vertices="a, b, c" aristas="a-b, b-c, c-a" dirigido="si" titulo="Un ciclo dirigido" />
           </div>
+        </div>
+      </Section>
+
+      <Section id="ejercicios" title="Tipos de ejercicio de la Fase 3 · selección múltiple, tabla de verdad, conjunto y visual en el enunciado">
+        <div className="max-w-3xl">
+          <ExerciseDemo />
         </div>
       </Section>
 

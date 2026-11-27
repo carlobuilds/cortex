@@ -11,6 +11,7 @@ import type { XpBreakdown, Confidence } from "@/engine/xp";
 import { cn } from "@/lib/utils";
 import { ConfidencePicker } from "./confidence-picker";
 import { TYPE_MODULES, type SelfDraft } from "./exercise-types";
+import { ExerciseVisual } from "@/components/visuals/exercise-visual";
 import { ReportButton } from "./report-button";
 import { RichText } from "./rich-text";
 import { CONFIG } from "@/engine/config";
@@ -55,6 +56,9 @@ const TYPE_LABELS: Record<string, string> = {
   depurar: "Debug Dojo",
   parsons: "Parsons",
   rastreo_memoria: "Rastreo de memoria",
+  tabla_verdad: "Tabla de verdad",
+  conjunto: "Conjunto",
+  seleccion_multiple: "Selección múltiple",
 };
 
 const CODE_TYPES = new Set(["codigo", "depurar", "parsons", "rastreo_memoria"]);
@@ -192,7 +196,7 @@ export function ExerciseCard({
     );
   }
 
-  const Input = mod.Input as unknown as React.ComponentType<{ exercise: CatalogExercise; draft: unknown; setDraft: (d: unknown) => void; disabled: boolean; onEnter: () => void }>;
+  const Input = mod.Input as unknown as React.ComponentType<{ exercise: CatalogExercise; draft: unknown; setDraft: (d: unknown) => void; disabled: boolean; revealed: boolean; onEnter: () => void }>;
   const answering = phase.kind === "answering";
 
   return (
@@ -218,9 +222,10 @@ export function ExerciseCard({
       </header>
 
       <RichText text={exercise.enunciado} className="text-lg" />
+      {exercise.visual ? <ExerciseVisual params={exercise.visual} /> : null}
 
       <div className="mt-5">
-        <Input exercise={exercise} draft={draft} setDraft={setDraft} disabled={!answering} onEnter={() => void submit()} />
+        <Input exercise={exercise} draft={draft} setDraft={setDraft} disabled={!answering} revealed={phase.kind === "feedback"} onEnter={() => void submit()} />
       </div>
 
       {allowHints && hints > 0 ? (
@@ -293,7 +298,7 @@ export function ExerciseCard({
               {exercise.tipo === "predecir_salida" || CODE_TYPES.has(exercise.tipo) ? (
                 <pre className="code-view mt-1">{phase.expected}</pre>
               ) : (
-                <RichText text={exercise.tipo === "simbolico" || exercise.tipo === "numerico" ? `\`${phase.expected}\`` : phase.expected} inline />
+                <RichText text={exercise.tipo === "simbolico" || exercise.tipo === "numerico" || exercise.tipo === "conjunto" ? `\`${phase.expected}\`` : phase.expected} inline />
               )}
             </div>
           ) : null}
