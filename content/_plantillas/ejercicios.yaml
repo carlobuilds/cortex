@@ -199,3 +199,35 @@ ejercicios:
         expr: "*q"
         formato: "%d"
     explicacion: '...'
+
+  # --- seleccion_multiple (Fase 3): marcar todas las correctas y solo esas ---
+  - id: pref-NN-013
+    tipo: seleccion_multiple
+    dificultad: 2
+    conceptos: [concepto-uno]
+    enunciado: '¿Cuáles de estos números son primos?'
+    opciones: ["$2$", "$9$", "$11$", "$15$"]
+    correctas: [0, 2]
+    verificar: { sympy: "[isprime(m) for m in [2, 9, 11, 15]]" }   # opcional: verdadero/falso por opción
+    explicacion: '...'
+
+  # --- tabla_verdad (Fase 3): el usuario llena la columna de la fórmula ---
+  - id: pref-NN-014
+    tipo: tabla_verdad
+    dificultad: 2
+    conceptos: [concepto-uno]
+    enunciado: 'Llena la tabla de verdad de $(p \to q) \land \lnot q$.'
+    formula: "(p → q) ∧ ¬q"
+    respuesta: [F, F, F, V]          # orden canónico: VV, VF, FV, FF (se verifica sola)
+    explicacion: '...'
+
+  # --- conjunto (Fase 3): elementos sin orden, entre comillas ---
+  - id: pref-NN-015
+    tipo: conjunto
+    dificultad: 2
+    conceptos: [concepto-uno]
+    enunciado: 'Escribe el conjunto de soluciones reales de $x^2 = 4$.'
+    respuesta: ["-2", "2"]           # [] es el vacío; un par ordenado es "(1, 2)"
+    verificar: { sympy: "solveset(x**2 - 4, x, S.Reals)" }
+    # visual: { id: grafica, f: "x^2 - 4", dominio: "-3, 3" }   # opcional en cualquier tipo: grafica o grafo, fijo
+    explicacion: '...'

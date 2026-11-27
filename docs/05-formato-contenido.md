@@ -150,6 +150,9 @@ ejercicios:
 | `autoevaluacion` | `rubrica` (lista de criterios), `respuesta_modelo` | Exige rúbrica y respuesta modelo |
 | `depurar` (Debug Dojo) | `lenguaje` (`python` o `c`), `codigo` (con el error), `linea_bug` (número o lista, 1-based), `solucion`, `tests` | La `solucion` pasa los tests; el `codigo` NO los pasa; la solución cambia exactamente las líneas de `linea_bug` (sin agregar líneas) |
 | `parsons` | `lenguaje`, `lineas` (orden correcto; en Python con sangría de 4 espacios), `distractores` (opcional), `tests` (opcional) | ≥ 3 líneas; ningún distractor igual a una línea; si hay `tests`, las líneas unidas en orden los pasan |
+| `seleccion_multiple` | `opciones` (lista), `correctas` (lista de índices, al menos uno) | ≥ 2 opciones sin repetir; `correctas` sin repetir y en rango. Si hay `verificar.sympy` o `verificar.python`, debe dar una lista de verdadero/falso, una por opción, y las verdaderas deben ser exactamente `correctas`. Sin `verificar`, revisión manual |
+| `tabla_verdad` | `formula` (con la sintaxis de `<Visual id="tabla-verdad">`), `respuesta` (lista de `V`/`F`, una por fila, en orden canónico) | Vuelve a calcular la tabla con su propio lector de fórmulas y `sympy.logic` y la compara fila por fila. No necesita `verificar` |
+| `conjunto` | `respuesta` (lista de elementos entre comillas; `[]` es el vacío), `verificar` (obligatorio) | Elementos sin repetir. `verificar` da un conjunto, una lista o un `FiniteSet` de sympy y se compara sin orden (`"1/2"` y `0.5` son el mismo elemento; `"(1, 2)"` es un par ordenado). Con `revision: manual`, revisión manual |
 | `rastreo_memoria` (solo C) | `lenguaje: c`, `codigo` (programa completo), `pasos`: lista de `{ linea, pila, heap?, nota?, pregunta?, respuesta?, expr?, formato?, vez? }`; cada celda `{ nombre, valor, expr?, formato? }` | Al menos una pregunta. Inserta `printf(formato, expr)` justo después de `linea` (en su `vez`-ésima ejecución), compila, ejecuta y compara con `respuesta`/`valor` |
 
 **Tests de `codigo` en Python:** lista de `{ expr: "f(2)", esperado: 4, tolerancia: 0 }`. `expr` se evalúa después de ejecutar la solución.
@@ -159,11 +162,31 @@ ejercicios:
 
 **Rastreo de memoria:** `linea` es la línea (1-based) que se acaba de ejecutar en ese paso. Las direcciones no se muestran: un apuntador se dibuja como `→ nombre`; un valor sin inicializar, como `basura`. Solo se permiten formatos deterministas (`%d %i %u %c %s %f %.2f %g %x %ld %lu %lf %zu`; nunca `%p`). Si la línea está dentro de un ciclo, `vez` dice cuál de sus ejecuciones se mira. No pongas `linea` en una línea `if`/`for` sin llaves (el `printf` quedaría como su cuerpo).
 
-**Texto de los ejercicios.** `enunciado`, `explicacion`, `pistas`, `opciones`, `elementos`, `rubrica`, `respuesta_modelo` y los tramos de `texto` (en `completar`) son Markdown con fórmulas `$...$`, sin HTML ni imágenes; `pnpm content:check` los dibuja con el mismo KaTeX estricto de las lecciones (capa 2). Un hueco `___` puede ir dentro de código (`` `7 ___ 2` ``) o de una fórmula.
+**Tabla de verdad:** el usuario llena solo la columna de la fórmula (las intermedias regalarían la respuesta). Las filas de `respuesta` van en **orden canónico**: variables en orden alfabético, la primera cambia más despacio y la fila con todas verdaderas va primero (para `p` y `q`: VV, VF, FV, FF). Ese orden no cambia aunque la app muestre la tabla con otra convención (`src/engine/logic/convention.ts`). Hasta 6 variables (64 filas), pero más de 3 ya es una tabla larga para un ejercicio. `V` y `F` pueden ir sin comillas.
 
-**Textos exactos van entre comillas.** `opciones`, `elementos`, `respuestas` (de `completar`), la `respuesta` de `predecir_salida` y la `salida` de los tests de C se muestran o se comparan tal cual: escríbelos entre comillas (`respuesta: "3.0"`). Sin comillas, YAML los lee como número y se pierde la forma (`3.0` → 3). Los enteros (`dificultad`, `correcta`, `vidas`, `tiempo_segundos`, `xp`, `duracion_min`) van sin decimales (`4`, no `4.0`).
+```yaml
+  - id: disc-01-004
+    tipo: tabla_verdad
+    formula: "(p → q) ∧ ¬q"
+    respuesta: [F, F, F, V]      # VV, VF, FV, FF
+```
 
-Campos comunes: `id`, `tipo`, `dificultad`, `conceptos` (al menos uno), `enunciado`, `explicacion` (obligatoria), `pistas` (opcional, máx. 3), `tarjeta` (opcional), `tiempo_estimado_s` (opcional), `verificar` (opcional en general; obligatorio en `numerico` y `simbolico`), `retirado` (opcional). Un campo que no esté en esta lista ni en la de su tipo es error (atrapa errores de dedo como `tolerancai`).
+**Conjunto:** el usuario escribe los elementos separados por comas, con o sin llaves, en cualquier orden; `{}`, `∅` o `vacío` es el vacío. Un elemento es un número (`1/2` = `0.5`), un par ordenado `(a, b)` o un texto (sin distinguir espacios: `a b` = `ab`). Usa `conjunto` cuando el orden no importa; si importa, usa `completar`.
+
+**Selección múltiple:** hay que marcar todas las correctas y solo esas; no hay crédito parcial. Si solo una es correcta, usa `opcion_multiple`.
+
+**Visual en el enunciado (`visual`, opcional, cualquier tipo):** un dibujo fijo que acompaña al enunciado, con los mismos parámetros de texto que `<Visual>` (ver "Visuales"). Solo `grafica` y `grafo`: los demás dicen su conclusión ("se acerca a 6", "es una tautología") y regalarían la respuesta. En un ejercicio el grafo no deja elegir vértices ni lee grados. Debajo del dibujo va la frase que lo describe, que es lo que lee un lector de pantalla, y **incluye la fórmula de `f` y la lista de aristas**: no uses un visual para preguntar justo eso ("¿qué función es?").
+
+```yaml
+    visual: { id: grafo, vertices: "a, b, c, d", aristas: "a-b, b-c, c-a, c-d" }
+    visual: { id: grafica, f: "floor(x)", dominio: "-2.5, 3.5" }
+```
+
+**Texto de los ejercicios.** `enunciado`, `explicacion`, `pistas`, `opciones` (también en `seleccion_multiple`), `elementos`, `rubrica`, `respuesta_modelo` y los tramos de `texto` (en `completar`) son Markdown con fórmulas `$...$`, sin HTML ni imágenes; `pnpm content:check` los dibuja con el mismo KaTeX estricto de las lecciones (capa 2). Un hueco `___` puede ir dentro de código (`` `7 ___ 2` ``) o de una fórmula.
+
+**Textos exactos van entre comillas.** `opciones`, `elementos`, `respuestas` (de `completar`), los elementos de un `conjunto`, la `respuesta` de `predecir_salida` y la `salida` de los tests de C se muestran o se comparan tal cual: escríbelos entre comillas (`respuesta: "3.0"`). Sin comillas, YAML los lee como número y se pierde la forma (`3.0` → 3). Los enteros (`dificultad`, `correcta`, `vidas`, `tiempo_segundos`, `xp`, `duracion_min`) van sin decimales (`4`, no `4.0`).
+
+Campos comunes: `id`, `tipo`, `dificultad`, `conceptos` (al menos uno), `enunciado`, `explicacion` (obligatoria), `pistas` (opcional, máx. 3), `tarjeta` (opcional), `tiempo_estimado_s` (opcional), `verificar` (opcional en general; obligatorio en `numerico`, `simbolico` y `conjunto`), `visual` (opcional), `retirado` (opcional). Un campo que no esté en esta lista ni en la de su tipo es error (atrapa errores de dedo como `tolerancai`).
 
 ### Respuestas numéricas y simbólicas: qué entiende la app
 
@@ -180,6 +203,8 @@ La `respuesta` oficial debe poder leerla el verificador de la app, no solo sympy
 - `sympy`: expresión que se evalúa con `from sympy import *` y símbolos `x, y, z, t, n, k` predefinidos. Debe producir el valor correcto **por una vía independiente** a la que usaste para escribir la respuesta (no copies el valor: calcúlalo con la función de sympy).
 - `python`: expresión de Python puro que produce el valor (para estadística, finanzas, conteo). Tiene `math`, `statistics`, `itertools`, `Fraction` y funciones sin efectos (`sum`, `len`, `range`, `sorted`, `set`, `all`, `any`…). En combinatoria, la vía independiente es **enumerar** los casos, no repetir la fórmula: `sum(1 for p in itertools.permutations('ABCDE') if p[0] != 'A')`.
 - En `completar`, `verificar` devuelve una lista con un valor por hueco, en orden: `verificar: { sympy: "sorted(solve(diff(3*x - x**3, x), x))" }`. Sin `verificar`, el ejercicio cuenta como revisión manual.
+- En `seleccion_multiple`, `verificar` devuelve una lista de verdadero/falso, una por opción, calculada **opción por opción**: `verificar: { sympy: "[isprime(m) for m in [2, 9, 11, 15]]" }`.
+- En `conjunto`, `verificar` devuelve el conjunto: `{ sympy: "solveset(x**2 - 4, x, S.Reals)" }` o, enumerando, `{ python: "{(a, b) for a in range(1, 7) for b in range(1, 7) if a + b == 7}" }`.
 - Cada expresión tiene un tope de 30 s; una que no termina se reporta como error en lugar de detener toda la verificación.
 - Si un ejercicio no se puede verificar por código (conceptual), se marca `verificar: { revision: "manual" }` y entra a la lista de revisión humana/adversarial (ver `07-calidad-y-verificacion.md`).
 
