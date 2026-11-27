@@ -100,6 +100,38 @@ describe("pnpm content:check", () => {
       expect(r.out).toContain("[calc-01-087]: la verificación da 2 valor(es) y hay 1 hueco(s)");
     });
 
+    it("acepta tablas de verdad, conjuntos y selección múltiple bien escritos", () => {
+      const root = makeRoot();
+      // Modus tollens sin la conclusión: solo es verdadera cuando p y q son falsas (fila FF).
+      add(root, "calc-01-070", "tabla_verdad", '    formula: "(p → q) ∧ ¬q"\n    respuesta: [F, F, F, V]\n');
+      // Con palabras y precedencia: `→` asocia a la derecha.
+      add(root, "calc-01-071", "tabla_verdad", '    formula: "p -> q -> no p"\n    respuesta: [F, V, V, V]\n');
+      add(root, "calc-01-072", "conjunto", '    respuesta: ["2", "-2"]\n    verificar: { sympy: "solve(x**2 - 4, x)" }\n');
+      add(root, "calc-01-073", "conjunto", '    respuesta: ["-1", "1"]\n    verificar: { sympy: "solveset(x**2 - 1, x)" }\n');
+      add(root, "calc-01-074", "conjunto", '    respuesta: []\n    verificar: { sympy: "solveset(x**2 + 1, x, S.Reals)" }\n');
+      add(root, "calc-01-075", "conjunto", '    respuesta: ["(1, 2)", "(2, 1)"]\n    verificar: { python: "{(a, b) for a in range(1, 3) for b in range(1, 3) if a + b == 3}" }\n');
+      add(root, "calc-01-076", "conjunto", '    respuesta: ["1/2", "a"]\n    verificar: { python: "[Fraction(1, 2), \'a\']" }\n');
+      add(root, "calc-01-077", "seleccion_multiple", '    opciones: ["2", "9", "11", "15"]\n    correctas: [0, 2]\n    verificar: { sympy: "[isprime(m) for m in [2, 9, 11, 15]]" }\n');
+      add(root, "calc-01-078", "seleccion_multiple", '    opciones: ["$p$", "$q$"]\n    correctas: [1]\n');
+      const r = contentCheck(root, [CALC]);
+      expect(r.out).not.toMatch(/ERROR/);
+      expect(r.status).toBe(0);
+    });
+
+    it("rechaza tablas, conjuntos y selecciones que no coinciden con su verificación", () => {
+      const root = makeRoot();
+      add(root, "calc-01-070", "tabla_verdad", '    formula: "(p → q) ∧ ¬q"\n    respuesta: [F, F, V, V]\n');
+      add(root, "calc-01-072", "conjunto", '    respuesta: ["2", "3"]\n    verificar: { sympy: "solve(x**2 - 4, x)" }\n');
+      add(root, "calc-01-077", "seleccion_multiple", '    opciones: ["2", "9", "11", "15"]\n    correctas: [0]\n    verificar: { sympy: "[isprime(m) for m in [2, 9, 11, 15]]" }\n');
+      add(root, "calc-01-079", "seleccion_multiple", '    opciones: ["2", "9"]\n    correctas: [0]\n    verificar: { sympy: "[True]" }\n');
+      const r = contentCheck(root, [CALC]);
+      expect(r.status).toBe(1);
+      expect(r.out).toContain("[calc-01-070]: la fila 3 vale F según la fórmula");
+      expect(r.out).toContain("[calc-01-072]: el conjunto no coincide con la verificación; faltan: -2; sobran: 3");
+      expect(r.out).toContain("[calc-01-077]: según la verificación las correctas son [0, 2], no [0]");
+      expect(r.out).toContain("[calc-01-079]: la verificación debe dar una lista de 2 verdadero/falso (una por opción)");
+    });
+
     it("una verificación que no termina se corta y se reporta (no cuelga todo)", () => {
       const root = makeRoot();
       add(root, "calc-01-088", "numerico", '    respuesta: 1\n    verificar: { python: "sum(1 for _ in itertools.count())" }\n');

@@ -114,6 +114,8 @@ const planWith = (mutate: (p: typeof PLAN) => void) => (b: Files): Files => {
   mutate(p);
   return { ...b, "curriculum/plan-2020.json": JSON.stringify(p, null, 1) };
 };
+/** Un ejercicio de los tipos de la Fase 3 con los campos comunes; `body` trae los propios. */
+const newType = (tipo: string, body: string) => `  - id: calc-01-007\n    tipo: ${tipo}\n    dificultad: 2\n    conceptos: [a]\n    enunciado: "¿?"\n    explicacion: "x"\n${body}`;
 const EX = `${U}/ejercicios.yaml`;
 const BOSS_FILE = `${U}/jefe.yaml`;
 const LESSON_FILE = `${U}/leccion.mdx`;
@@ -230,6 +232,18 @@ const CASES: readonly Case[] = [
     files: exercisesWith(`  - id: calc-01-007\n    tipo: opcion_multiple\n    dificultad: 1\n    conceptos: [a]\n    enunciado: "¿?"\n    opciones: ["1", "2"]\n    correcta: 0.0\n    explicacion: "x"\n`),
   },
   { name: "lección con BOM", rules: ["sin-front-matter"], python: /sin front matter/, files: (b) => ({ ...b, [LESSON_FILE]: `\uFEFF${LESSON}` }) },
+  // Fase 3: tabla de verdad, conjunto y selección múltiple.
+  { name: "tabla de verdad con una fila mal", rules: ["esquema"], python: /la fila 4 vale V según la fórmula/, files: exercisesWith(newType("tabla_verdad", '    formula: "p ∨ ¬q"\n    respuesta: [V, V, F, F]\n')) },
+  { name: "tabla de verdad con filas de menos", rules: ["esquema"], python: /la tabla tiene 4 filas y la respuesta trae 3/, files: exercisesWith(newType("tabla_verdad", '    formula: "p ∧ q"\n    respuesta: [V, F, F]\n')) },
+  { name: "tabla de verdad con un valor que no es V ni F", rules: ["esquema"], python: /cada valor de la tabla es "V" o "F"/, files: exercisesWith(newType("tabla_verdad", '    formula: "p"\n    respuesta: [V, X]\n')) },
+  { name: "fórmula que no se puede leer", rules: ["esquema"], python: /no se puede leer la fórmula/, files: exercisesWith(newType("tabla_verdad", '    formula: "p ∧ (q"\n    respuesta: [V, F, F, F]\n')) },
+  { name: "conjunto sin verificar", rules: ["esquema"], python: /conjunto sin 'verificar'/, files: exercisesWith(newType("conjunto", '    respuesta: ["1"]\n')) },
+  { name: "conjunto con un elemento repetido", rules: ["esquema"], python: /el elemento «0\.5» está repetido/, files: exercisesWith(newType("conjunto", '    respuesta: ["1/2", "0.5"]\n    verificar: { revision: manual }\n')) },
+  { name: "conjunto con un número sin comillas", rules: ["esquema"], python: /va entre comillas/, files: exercisesWith(newType("conjunto", '    respuesta: ["1", 2]\n    verificar: { revision: manual }\n')) },
+  { name: "selección múltiple con correctas fuera de rango", rules: ["esquema"], python: /'correctas' fuera de rango/, files: exercisesWith(newType("seleccion_multiple", '    opciones: ["a", "b"]\n    correctas: [0, 2]\n')) },
+  { name: "selección múltiple sin correctas", rules: ["esquema"], python: /'correctas' necesita al menos una opción/, files: exercisesWith(newType("seleccion_multiple", '    opciones: ["a", "b"]\n    correctas: []\n')) },
+  { name: "selección múltiple con un índice repetido", rules: ["esquema"], python: /'correctas' tiene índices repetidos/, files: exercisesWith(newType("seleccion_multiple", '    opciones: ["a", "b"]\n    correctas: [1, 1]\n')) },
+  { name: "selección múltiple con opciones repetidas", rules: ["esquema"], python: /opciones repetidas/, files: exercisesWith(newType("seleccion_multiple", '    opciones: ["a", "a", "b"]\n    correctas: [2]\n')) },
 
   // ---------------------------------------------------------------- reglas solo TS (D5)
   { name: "campo con error de dedo", rules: ["clave-desconocida"], files: replace(EX, "    tolerancia: 0\n", "    tolerancai: 0\n") },
@@ -247,6 +261,8 @@ const CASES: readonly Case[] = [
     files: replace(EX, /  - id: calc-01-005[\s\S]*?explicacion: "Es 5."\n/, `  - id: calc-01-005\n    tipo: autoevaluacion\n    dificultad: 2\n    conceptos: [a]\n    enunciado: "Explica."\n    rubrica: ["Idea"]\n    respuesta_modelo: "Así."\n    explicacion: "Es 5."\n`),
   },
   { name: "jefe con retirado", rules: ["jefe-retirado"], files: replace(EX, /  - id: calc-01-005[\s\S]*?explicacion: "Es 5."\n/, "  - { id: calc-01-005, retirado: true }\n") },
+  { name: "visual que regala la respuesta en un ejercicio", rules: ["esquema"], files: exercisesWith(newType("seleccion_multiple", '    opciones: ["a", "b"]\n    correctas: [0]\n    visual: { id: "limite", f: "x", a: "1", dominio: "0, 2" }\n')) },
+  { name: "visual de ejercicio con un parámetro inválido", rules: ["esquema"], files: exercisesWith(newType("seleccion_multiple", '    opciones: ["a", "b"]\n    correctas: [0]\n    visual: { id: "grafo", vertices: "a, b", aristas: "a-c" }\n')) },
   { name: "texto comparado sin comillas (respuesta: 3.0)", rules: ["esquema"], files: exercisesWith(`  - id: calc-01-007\n    tipo: predecir_salida\n    lenguaje: python\n    dificultad: 1\n    conceptos: [a]\n    enunciado: "¿Qué imprime?"\n    codigo: "print(6/2)"\n    respuesta: 3.0\n    explicacion: "x"\n`) },
   { name: "clave desconocida en el encabezado", rules: ["clave-desconocida"], files: replace(EX, "unidad: calculo/01-limites\n", "unidad: calculo/01-limites\nnotas: borrador\n") },
   {

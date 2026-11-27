@@ -25,6 +25,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import unicodedata
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -39,6 +40,7 @@ TIPOS = {
     "opcion_multiple", "numerico", "simbolico", "completar", "ordenar",
     "codigo", "predecir_salida", "autoevaluacion",
     "depurar", "parsons", "rastreo_memoria",
+    "tabla_verdad", "conjunto", "seleccion_multiple",
 }
 # printf con salida determinista (sin %p). Igual que TRACE_FORMAT_RE de la app.
 TRACE_FORMAT_RE = re.compile(r"^%(?:\.\d+)?(?:d|i|u|c|s|f|g|x|ld|lu|lf|zu)$")
@@ -186,6 +188,209 @@ def parse_expr(s: str):
     )
     tr = standard_transformations + (implicit_multiplication_application, convert_xor)
     return pe(str(s), transformations=tr, local_dict={s_.name: s_ for s_ in _SYMS})
+
+
+# ---------------------------------------------------------------- lógica (tabla_verdad)
+# Lector propio de fórmulas, escrito aparte del de la app (src/engine/logic/formula.ts) con la
+# gramática de docs/05: misma sintaxis, pero los valores salen de sympy.logic y las filas de
+# itertools.product. Así una tabla mal calculada en la app no se "confirma" a sí misma.
+class LogicError(ValueError):
+    pass
+
+
+LOGIC_MAX_VARS = 6
+_LOGIC_SYMBOLS = sorted([
+    ("<->", "iff"), ("<=>", "iff"), ("↔", "iff"), ("⇔", "iff"),
+    ("->", "implies"), ("=>", "implies"), ("→", "implies"), ("⇒", "implies"),
+    ("&&", "and"), ("&", "and"), ("∧", "and"), ("^", "and"),
+    ("||", "or"), ("|", "or"), ("∨", "or"),
+    ("⊕", "xor"), ("⊻", "xor"),
+    ("¬", "not"), ("~", "not"), ("!", "not"),
+    ("(", "("), (")", ")"),
+    ("⊤", True), ("⊥", False), ("1", True), ("0", False),
+], key=lambda pair: -len(pair[0]))
+_LOGIC_WORDS = {"no": "not", "not": "not", "and": "and", "or": "or", "xor": "xor"}
+# Una `y`, `o` o `v` suelta es conector donde va un conector y variable donde va una variable.
+_LETTER_CONNECTIVES = {"y": "and", "o": "or", "v": "or"}
+# De la más débil a la más fuerte; `→` asocia a la derecha.
+_LOGIC_LEVELS = (("iff",), ("implies",), ("or", "xor"), ("and",))
+_LOGIC_BUILD = {"and": sp.And, "or": sp.Or, "xor": sp.Xor, "implies": sp.Implies, "iff": sp.Equivalent}
+
+
+def _logic_tokens(text: str) -> list[tuple]:
+    text = unicodedata.normalize("NFKC", text)
+    out, i = [], 0
+    while i < len(text):
+        if text[i].isspace():
+            i += 1
+            continue
+        hit = next((pair for pair in _LOGIC_SYMBOLS if text.startswith(pair[0], i)), None)
+        if hit:
+            sym, val = hit
+            out.append(("const", val) if isinstance(val, bool) else ("(",) if val == "(" else (")",) if val == ")" else ("op", val))
+            i += len(sym)
+            continue
+        m = re.match(r"[A-Za-z]+", text[i:])
+        if not m:
+            raise LogicError(f"símbolo desconocido «{text[i]}»")
+        word = m.group(0)
+        i += len(word)
+        if word in ("V", "F"):
+            out.append(("const", word == "V"))
+        elif len(word) == 1 and word.islower():
+            out.append(("var", word))
+        elif word.lower() in _LOGIC_WORDS:
+            out.append(("op", _LOGIC_WORDS[word.lower()]))
+        else:
+            raise LogicError(f"palabra desconocida «{word}»")
+    return out
+
+
+def parse_logic(text: str):
+    """La fórmula como expresión de sympy.logic y sus variables en orden alfabético."""
+    tokens = _logic_tokens(text)
+    if not tokens:
+        raise LogicError("la fórmula está vacía")
+    pos = 0
+    names: set[str] = set()
+
+    def peek():
+        return tokens[pos] if pos < len(tokens) else None
+
+    def connective():
+        t = peek()
+        if t and t[0] == "op" and t[1] != "not":
+            return t[1]
+        if t and t[0] == "var":
+            return _LETTER_CONNECTIVES.get(t[1])
+        return None
+
+    def atom():
+        nonlocal pos
+        t = peek()
+        pos += 1
+        if t is None:
+            raise LogicError("la fórmula termina antes de tiempo")
+        if t[0] == "var":
+            names.add(t[1])
+            return sp.Symbol(t[1])
+        if t[0] == "const":
+            return sp.true if t[1] else sp.false
+        if t == ("op", "not"):
+            return sp.Not(atom())
+        if t[0] == "(":
+            inner = level(0)
+            if peek() != (")",):
+                raise LogicError("falta cerrar un paréntesis")
+            pos += 1
+            return inner
+        raise LogicError("falta una variable antes de un conector")
+
+    def level(n: int):
+        nonlocal pos
+        if n == len(_LOGIC_LEVELS):
+            return atom()
+        left = level(n + 1)
+        while (kind := connective()) in _LOGIC_LEVELS[n]:
+            pos += 1
+            right = level(n) if kind == "implies" else level(n + 1)
+            left = _LOGIC_BUILD[kind](left, right)
+        return left
+
+    expr = level(0)
+    if peek() is not None:
+        raise LogicError("sobra un paréntesis de cierre" if peek() == (")",) else "falta un conector")
+    if len(names) > LOGIC_MAX_VARS:
+        raise LogicError(f"son {len(names)} variables; el máximo es {LOGIC_MAX_VARS}")
+    return expr, sorted(names)
+
+
+def truth_column(text: str) -> list[bool]:
+    """Valor de la fórmula en cada fila: la primera variable cambia más despacio y todas verdaderas va primero."""
+    expr, names = parse_logic(text)
+    symbols = [sp.Symbol(n) for n in names]
+    column = []
+    for row in itertools.product((True, False), repeat=len(names)):
+        value = expr.subs({s: (sp.true if v else sp.false) for s, v in zip(symbols, row)})
+        column.append(bool(value))
+    return column
+
+
+# ---------------------------------------------------------------- conjuntos
+def _split_top(text: str) -> list[str]:
+    parts, depth, start = [], 0, 0
+    for i, ch in enumerate(text):
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+            if depth < 0:
+                raise ValueError("sobra un paréntesis de cierre")
+        elif ch == "," and depth == 0:
+            parts.append(text[start:i])
+            start = i + 1
+    if depth:
+        raise ValueError("falta cerrar un paréntesis")
+    parts.append(text[start:])
+    return [p.strip() for p in parts]
+
+
+def _number_key(v):
+    try:
+        f = to_float(v)
+    except TimeoutError:
+        raise
+    except Exception:  # noqa: BLE001 (no es un número)
+        return None
+    # 12 cifras significativas: 0.1 + 0.2 y 0.3 son el mismo elemento.
+    return ("num", float(f"{f:.12g}")) if math.isfinite(f) else None
+
+
+def set_key(v):
+    """Clave de un elemento de conjunto: número (1/2 = 0.5), par ordenado o texto sin espacios."""
+    if isinstance(v, (tuple, list, sp.Tuple)):
+        return ("par", tuple(set_key(c) for c in v))
+    if isinstance(v, str):
+        t = unicodedata.normalize("NFKC", v).strip()
+        if not t:
+            raise ValueError("hay un elemento vacío")
+        if t.startswith("(") and t.endswith(")"):
+            parts = _split_top(t[1:-1])
+            if len(parts) > 1:
+                return ("par", tuple(set_key(p) for p in parts))
+        try:
+            parsed = parse_expr(t)
+        except TimeoutError:
+            raise
+        except Exception:  # noqa: BLE001 (no es una expresión: es texto)
+            parsed = None
+        key = _number_key(parsed) if getattr(parsed, "is_number", False) else None
+        return key or ("txt", re.sub(r"\s+", "", t))
+    if not isinstance(v, bool):
+        key = _number_key(v)
+        if key:
+            return key
+    return ("txt", re.sub(r"\s+", "", str(v)))
+
+
+def set_elements(got) -> list:
+    """Los elementos de lo que dio `verificar`: un set, una lista, una tupla o un FiniteSet de sympy."""
+    if isinstance(got, (set, frozenset, list, tuple)):
+        return list(got)
+    if got == sp.S.EmptySet:
+        return []
+    if isinstance(got, sp.FiniteSet):
+        return list(got.args)
+    raise ValueError(f"la verificación debe dar un conjunto finito o una lista, no {type(got).__name__}")
+
+
+def show_key(key) -> str:
+    kind, val = key
+    if kind == "par":
+        return "(" + ", ".join(show_key(k) for k in val) + ")"
+    if kind == "num":
+        return f"{val:g}"
+    return val
 
 
 # ---------------------------------------------------------------- ejecución
@@ -459,6 +664,83 @@ def check_exercise(where: str, ex: dict, conceptos_ok: set[str] | None) -> None:
                 for i in malos:
                     err(w, f"hueco {i + 1}: respuesta {resp[i]!r} pero la verificación da {got[i]}")
                 if not malos:
+                    stats["verificados"] += 1
+            else:
+                stats["manuales"] += 1
+
+        elif tipo == "tabla_verdad":
+            formula, resp = ex.get("formula"), ex.get("respuesta")
+            if not isinstance(formula, str) or not formula.strip():
+                return err(w, "tabla_verdad requiere 'formula'")
+            if not isinstance(resp, list) or not resp or any(v not in ("V", "F") for v in resp):
+                return err(w, 'cada valor de la tabla es "V" o "F"')
+            try:
+                column = truth_column(formula)
+            except LogicError as e:
+                return err(w, f"no se puede leer la fórmula: {e}")
+            if len(resp) != len(column):
+                return err(w, f"la tabla tiene {len(column)} filas y la respuesta trae {len(resp)}")
+            malas = [i for i, (v, r) in enumerate(zip(column, resp)) if ("V" if v else "F") != r]
+            for i in malas:
+                err(w, f"la fila {i + 1} vale {'V' if column[i] else 'F'} según la fórmula")
+            if not malas:
+                stats["verificados"] += 1
+
+        elif tipo == "conjunto":
+            resp = ex.get("respuesta")
+            if not isinstance(resp, list):
+                return err(w, "conjunto requiere 'respuesta' (lista de elementos)")
+            if any(not isinstance(e, str) for e in resp):
+                return err(w, "cada elemento del conjunto va entre comillas (texto exacto)")
+            keys = []
+            for e in resp:
+                try:
+                    key = set_key(e)
+                except ValueError as problem:
+                    return err(w, f"elemento «{e}»: {problem}")
+                if key in keys:
+                    err(w, f"el elemento «{e}» está repetido")
+                keys.append(key)
+            if "sympy" in ver or "python" in ver:
+                got = eval_sympy(ver["sympy"]) if "sympy" in ver else eval_python(ver["python"])
+                got_keys = {set_key(g) for g in set_elements(got)}
+                faltan = sorted(show_key(k) for k in got_keys - set(keys))
+                sobran = sorted(show_key(k) for k in set(keys) - got_keys)
+                if faltan or sobran:
+                    err(w, "el conjunto no coincide con la verificación"
+                        + (f"; faltan: {', '.join(faltan)}" if faltan else "")
+                        + (f"; sobran: {', '.join(sobran)}" if sobran else ""))
+                else:
+                    stats["verificados"] += 1
+            elif ver.get("revision") == "manual":
+                stats["manuales"] += 1
+            else:
+                err(w, "conjunto sin 'verificar' (sympy|python|revision: manual)")
+
+        elif tipo == "seleccion_multiple":
+            ops, cor = ex.get("opciones"), ex.get("correctas")
+            if not isinstance(ops, list) or len(ops) < 2:
+                return err(w, "opciones inválidas")
+            if not isinstance(cor, list) or not cor or any(not isinstance(i, int) or isinstance(i, bool) for i in cor):
+                return err(w, "'correctas' necesita al menos una opción (lista de índices)")
+            if any(not 0 <= i < len(ops) for i in cor):
+                return err(w, "'correctas' fuera de rango")
+            if len(set(cor)) != len(cor):
+                err(w, "'correctas' tiene índices repetidos")
+            if len(set(map(str, ops))) != len(ops):
+                err(w, "opciones repetidas")
+            if "sympy" in ver or "python" in ver:
+                # `verificar` dice, opción por opción, si es correcta: una lista de verdadero/falso.
+                got = eval_sympy(ver["sympy"]) if "sympy" in ver else eval_python(ver["python"])
+                got = list(got) if isinstance(got, (list, tuple)) else None
+                if got is None or len(got) != len(ops):
+                    return err(w, f"la verificación debe dar una lista de {len(ops)} verdadero/falso (una por opción)")
+                if any(not isinstance(g, (bool, sp.logic.boolalg.BooleanAtom)) for g in got):
+                    return err(w, "la verificación debe dar verdadero/falso en cada opción")
+                marcadas = sorted(i for i, g in enumerate(got) if bool(g))
+                if marcadas != sorted(set(cor)):
+                    err(w, f"según la verificación las correctas son {marcadas}, no {sorted(set(cor))}")
+                else:
                     stats["verificados"] += 1
             else:
                 stats["manuales"] += 1
