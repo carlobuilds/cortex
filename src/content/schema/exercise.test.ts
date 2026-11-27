@@ -147,4 +147,45 @@ describe("parseExercise · por tipo", () => {
     const { respuesta_modelo: _omit, ...sinModelo } = a;
     expect(messages(sinModelo).length).toBeGreaterThan(0);
   });
+
+  describe("tipos de la Fase 3", () => {
+    const has = (raw: unknown, text: string) => expect(messages(raw).join("\n")).toContain(text);
+
+    it("tabla de verdad: la respuesta se comprueba contra el intérprete de la app", () => {
+      const t = { ...base, tipo: "tabla_verdad", formula: "p → q", respuesta: ["V", "F", "V", "V"] };
+      expect(messages(t)).toEqual([]);
+      expect(messages({ ...t, formula: "p -> q" })).toEqual([]);
+      has({ ...t, respuesta: ["V", "V", "V", "V"] }, "la fila 2 vale F según la fórmula");
+      has({ ...t, respuesta: ["V", "F"] }, "la tabla tiene 4 filas y la respuesta trae 2");
+      has({ ...t, respuesta: ["V", "F", "V", "X"] }, 'cada valor de la tabla es "V" o "F"');
+      has({ ...t, formula: "p → (q" }, "paréntesis");
+    });
+
+    it("conjunto: exige verificar y no admite elementos repetidos (aunque se escriban distinto)", () => {
+      const s = { ...base, tipo: "conjunto", respuesta: ["1", "(1, 2)", "a"], verificar: { python: "{1, (1, 2), 'a'}" } };
+      expect(messages(s)).toEqual([]);
+      expect(messages({ ...s, respuesta: [] })).toEqual([]);
+      has({ ...s, respuesta: ["1", "2/2"] }, "el elemento «2/2» está repetido");
+      has({ ...s, respuesta: ["1", ""] }, "elemento vacío");
+      const { verificar: _omit, ...sinVerificar } = s;
+      expect(messages(sinVerificar).length).toBeGreaterThan(0);
+    });
+
+    it("selección múltiple: al menos una correcta, sin repetir y dentro del rango", () => {
+      const m = { ...base, tipo: "seleccion_multiple", opciones: ["2", "3", "4"], correctas: [0, 2] };
+      expect(messages(m)).toEqual([]);
+      has({ ...m, correctas: [] }, "'correctas' necesita al menos una opción");
+      has({ ...m, correctas: [0, 0] }, "'correctas' tiene índices repetidos");
+      has({ ...m, correctas: [3] }, "'correctas' fuera de rango");
+      has({ ...m, opciones: ["2", "2"], correctas: [0] }, "opciones repetidas");
+    });
+
+    it("visual: solo una gráfica o un grafo fijos, con parámetros válidos", () => {
+      expect(messages({ ...numeric, visual: { id: "grafo", vertices: "a, b, c", aristas: "a-b, b-c" } })).toEqual([]);
+      expect(messages({ ...numeric, visual: { id: "grafica", f: "x^2", dominio: "-2, 2" } })).toEqual([]);
+      has({ ...numeric, visual: { id: "limite", f: "x", a: "0", dominio: "-1, 1" } }, "en un ejercicio el visual debe ser grafica o grafo");
+      has({ ...numeric, visual: { id: "grafo", vertices: "a, b", aristas: "a-b", color: "rojo" } }, "visual no tiene 'color'");
+      has({ ...numeric, visual: { id: "grafica", f: "x", dominio: 2 } }, "entre comillas");
+    });
+  });
 });

@@ -11,6 +11,7 @@ import type { XpBreakdown, Confidence } from "@/engine/xp";
 import { cn } from "@/lib/utils";
 import { ConfidencePicker } from "./confidence-picker";
 import { TYPE_MODULES, type SelfDraft } from "./exercise-types";
+import { ExerciseVisual } from "./exercise-visual";
 import { ReportButton } from "./report-button";
 import { RichText } from "./rich-text";
 import { CONFIG } from "@/engine/config";
@@ -55,7 +56,13 @@ const TYPE_LABELS: Record<string, string> = {
   depurar: "Debug Dojo",
   parsons: "Parsons",
   rastreo_memoria: "Rastreo de memoria",
+  tabla_verdad: "Tabla de verdad",
+  conjunto: "Conjunto",
+  seleccion_multiple: "Selección múltiple",
 };
+
+/** La respuesta esperada se muestra como código (texto exacto), no como Markdown. */
+const LITERAL_EXPECTED = new Set(["simbolico", "numerico", "conjunto"]);
 
 const CODE_TYPES = new Set(["codigo", "depurar", "parsons", "rastreo_memoria"]);
 
@@ -96,6 +103,15 @@ export function ExerciseCard({
   const nextRef = useRef<HTMLButtonElement>(null);
   const submitting = useRef(false);
   const pistas = useMemo(() => exercise.pistas ?? [], [exercise.pistas]);
+  // Un aviso como «faltan 3 filas» deja de ser cierto en cuanto cambia la respuesta. En los de código
+  // se queda: ahí el aviso puede venir con «Saltar este ejercicio».
+  const changeDraft = useCallback(
+    (d: unknown) => {
+      setDraft(d);
+      if (!CODE_TYPES.has(exercise.tipo)) setPhase((p) => (p.kind === "answering" && p.error ? { kind: "answering", error: null } : p));
+    },
+    [exercise.tipo],
+  );
 
   const finish = useCallback(
     async (answer: Answer, result: CheckResult, timeMs: number, confidence: Confidence | null) => {
@@ -219,8 +235,10 @@ export function ExerciseCard({
 
       <RichText text={exercise.enunciado} className="text-lg" />
 
+      {exercise.visual ? <ExerciseVisual props={exercise.visual} /> : null}
+
       <div className="mt-5">
-        <Input exercise={exercise} draft={draft} setDraft={setDraft} disabled={!answering} onEnter={() => void submit()} />
+        <Input exercise={exercise} draft={draft} setDraft={changeDraft} disabled={!answering} onEnter={() => void submit()} />
       </div>
 
       {allowHints && hints > 0 ? (
@@ -293,7 +311,7 @@ export function ExerciseCard({
               {exercise.tipo === "predecir_salida" || CODE_TYPES.has(exercise.tipo) ? (
                 <pre className="code-view mt-1">{phase.expected}</pre>
               ) : (
-                <RichText text={exercise.tipo === "simbolico" || exercise.tipo === "numerico" ? `\`${phase.expected}\`` : phase.expected} inline />
+                <RichText text={LITERAL_EXPECTED.has(exercise.tipo) ? `\`${phase.expected}\`` : phase.expected} inline />
               )}
             </div>
           ) : null}

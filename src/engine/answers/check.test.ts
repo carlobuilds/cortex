@@ -252,4 +252,31 @@ describe("checkAnswer", () => {
     const e = ex({ tipo: "opcion_multiple", opciones: ["1", "3"], correcta: 1 });
     expect(checkAnswer(e, { kind: "text", value: "3" }).status).toBe("invalid");
   });
+
+  it("selección múltiple: todas las correctas y solo esas, en cualquier orden", () => {
+    const e = ex({ tipo: "seleccion_multiple", opciones: ["2", "4", "7", "9"], correctas: [0, 2] });
+    expect(checkAnswer(e, { kind: "choices", indexes: [2, 0] }).status).toBe("correct");
+    expect(checkAnswer(e, { kind: "choices", indexes: [0] })).toEqual({ status: "wrong", expected: "2 · 7" });
+    expect(checkAnswer(e, { kind: "choices", indexes: [0, 2, 3] }).status).toBe("wrong");
+    expect(checkAnswer(e, { kind: "choices", indexes: [] }).status).toBe("invalid");
+  });
+
+  it("tabla de verdad: la columna en orden canónico; la esperada se dice como se ve", () => {
+    // p → q en orden canónico (VV, VF, FV, FF): V F V V.
+    const e = ex({ tipo: "tabla_verdad", formula: "p → q", respuesta: ["V", "F", "V", "V"] });
+    expect(checkAnswer(e, { kind: "truth", values: [true, false, true, true] }).status).toBe("correct");
+    expect(checkAnswer(e, { kind: "truth", values: [true, true, true, true] })).toEqual({ status: "wrong", expected: "V F V V (de arriba abajo)" });
+    expect(checkAnswer(e, { kind: "truth", values: [true, false, null, true] }).status).toBe("invalid");
+    expect(checkAnswer(e, { kind: "truth", values: [true, false, true] }).status).toBe("invalid");
+  });
+
+  it("conjunto: sin orden, con llaves o sin ellas, y lo ilegible no cuenta como intento", () => {
+    const e = ex({ tipo: "conjunto", respuesta: ["1", "2", "3"], verificar: { python: "{1, 2, 3}" } });
+    expect(checkAnswer(e, { kind: "text", value: "{3, 2, 1}" }).status).toBe("correct");
+    expect(checkAnswer(e, { kind: "text", value: "1, 2" })).toEqual({ status: "wrong", expected: "{1, 2, 3}" });
+    expect(checkAnswer(e, { kind: "text", value: "1, , 2" }).status).toBe("invalid");
+    const empty = ex({ tipo: "conjunto", respuesta: [], verificar: { python: "set()" } });
+    expect(checkAnswer(empty, { kind: "text", value: "∅" }).status).toBe("correct");
+    expect(checkAnswer(empty, { kind: "text", value: "0" })).toEqual({ status: "wrong", expected: "∅" });
+  });
 });

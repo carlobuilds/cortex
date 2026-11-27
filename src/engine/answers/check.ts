@@ -1,4 +1,5 @@
 import type { Exercise } from "@/content/schema";
+import { displayOrder, truthSymbol } from "@/engine/logic/convention";
 import { closeEnough, evaluateNumber, ExpressionError } from "./math";
 import { formatSet, sameSet, SetError } from "./sets";
 import { symbolicMatch } from "./symbolic";
@@ -106,7 +107,9 @@ export function checkAnswer(ex: Exercise, answer: Answer): CheckResult {
       if (answer.kind !== "truth") return mismatch(answer, "truth");
       if (answer.values.length !== ex.respuesta.length || answer.values.some((v) => v === null)) return invalid("Llena todas las filas de la tabla.");
       const ok = ex.respuesta.every((v, i) => (v === "V") === answer.values[i]);
-      return ok ? { status: "correct" } : wrong(ex.respuesta.join(" "));
+      // Se dice como se ve: en el orden y con los símbolos de la tabla en pantalla (convention.ts).
+      const shown = displayOrder(ex.respuesta.length).map((i) => truthSymbol(ex.respuesta[i] === "V"));
+      return ok ? { status: "correct" } : wrong(`${shown.join(" ")} (de arriba abajo)`);
     }
     case "conjunto": {
       if (answer.kind !== "text") return mismatch(answer, "text");

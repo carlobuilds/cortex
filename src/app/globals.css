@@ -515,6 +515,30 @@
   .truth-table th[data-final="true"] {
     color: var(--brand);
   }
+  /* Ejercicio de tabla de verdad: la casilla por llenar ocupa toda la celda (blanco de clic grande). */
+  .truth-table td[data-input] {
+    padding: 0;
+  }
+  .truth-cell {
+    display: block;
+    width: 100%;
+    min-width: 3rem;
+    min-height: 2.25rem;
+    padding: 0.35rem 0.75rem;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+  .truth-cell:hover:not(:disabled) {
+    background: color-mix(in oklch, var(--brand) 12%, transparent);
+  }
+  .truth-cell:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: -2px;
+  }
+  .truth-cell:disabled {
+    cursor: default;
+  }
 
   /* Grafo: aristas y vértices con tokens; lo elegido toma el acento. */
   .graph-svg {
