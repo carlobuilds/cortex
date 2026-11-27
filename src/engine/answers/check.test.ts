@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Exercise } from "@/content/schema";
+import { describeColumn, truthSymbol } from "../logic/convention";
+import { assignments } from "../logic/truth-table";
 import { checkAnswer } from "./check";
 import { closeEnough, compileExpression, evaluateNumber, ExpressionError } from "./math";
 import { symbolicMatch } from "./symbolic";
@@ -246,6 +248,37 @@ describe("checkAnswer", () => {
     expect(checkAnswer(s, { kind: "self", text: "mi idea", met: [true, true, true] }).status).toBe("correct");
     expect(checkAnswer(s, { kind: "self", text: "mi idea", met: [true, true, false] }).status).toBe("wrong");
     expect(checkAnswer(s, { kind: "self", text: " ", met: [true, true, true] }).status).toBe("invalid");
+  });
+
+  it("selección múltiple: todas las correctas y solo esas, en cualquier orden", () => {
+    const e = ex({ tipo: "seleccion_multiple", opciones: ["2", "9", "11", "15"], correctas: [0, 2] });
+    expect(checkAnswer(e, { kind: "choices", indexes: [2, 0] }).status).toBe("correct");
+    expect(checkAnswer(e, { kind: "choices", indexes: [0] })).toEqual({ status: "wrong", expected: "2 · 11" });
+    expect(checkAnswer(e, { kind: "choices", indexes: [0, 1, 2] }).status).toBe("wrong");
+    expect(checkAnswer(e, { kind: "choices", indexes: [] }).status).toBe("invalid");
+  });
+
+  it("tabla de verdad: compara en orden canónico y muestra lo esperado fila por fila", () => {
+    const e = ex({ tipo: "tabla_verdad", formula: "(p → q) ∧ ¬q", respuesta: ["F", "F", "F", "V"] });
+    expect(checkAnswer(e, { kind: "truth", values: [false, false, false, true] }).status).toBe("correct");
+    // Lo esperado sale con la convención de la app (símbolos y orden de filas), sea cual sea.
+    expect(checkAnswer(e, { kind: "truth", values: [false, false, true, true] })).toEqual({ status: "wrong", expected: describeColumn(["p", "q"], assignments(["p", "q"]), [false, false, false, true]) });
+    expect(checkAnswer(e, { kind: "truth", values: [false, null, false, true] }).status).toBe("invalid");
+    expect(checkAnswer(e, { kind: "truth", values: [false, false, false] }).status).toBe("invalid");
+    // Sin variables, una sola fila.
+    const c = ex({ tipo: "tabla_verdad", formula: "V ∧ F", respuesta: ["F"] });
+    expect(checkAnswer(c, { kind: "truth", values: [true] })).toEqual({ status: "wrong", expected: truthSymbol(false) });
+  });
+
+  it("conjunto: sin orden, con o sin llaves; lo ilegible no cuenta como intento", () => {
+    const e = ex({ tipo: "conjunto", respuesta: ["-2", "2"], verificar: { sympy: "solve(x**2 - 4, x)" } });
+    expect(checkAnswer(e, { kind: "text", value: "{2, -2}" }).status).toBe("correct");
+    expect(checkAnswer(e, { kind: "text", value: "2, -2" }).status).toBe("correct");
+    expect(checkAnswer(e, { kind: "text", value: "{2}" })).toEqual({ status: "wrong", expected: "{-2, 2}" });
+    expect(checkAnswer(e, { kind: "text", value: "{2,, -2}" }).status).toBe("invalid");
+    const empty = ex({ tipo: "conjunto", respuesta: [], verificar: { revision: "manual" } });
+    expect(checkAnswer(empty, { kind: "text", value: "∅" }).status).toBe("correct");
+    expect(checkAnswer(empty, { kind: "text", value: "{}" }).status).toBe("correct");
   });
 
   it("no acepta una respuesta del tipo equivocado", () => {

@@ -1,6 +1,6 @@
 import katex from "katex";
 import { describe, expect, it } from "vitest";
-import { displayOrder, TRUTH_STYLE, truthSymbol } from "./convention";
+import { describeColumn, displayOrder, TRUTH_STYLE, truthSymbol } from "./convention";
 import { evaluate, type Formula, FormulaError, formatFormula, formulaToTex, MAX_VARIABLES, parseFormula, variablesOf } from "./formula";
 import { assignments, classify, equivalent, finalColumn, truthTable } from "./truth-table";
 
@@ -194,5 +194,16 @@ describe("convención para mostrar la tabla", () => {
     // Con filas al revés, (p, q) se lee 00, 01, 10, 11: contar en binario.
     const rows = assignments(["p", "q"]);
     expect(displayOrder(4, binary).map((i) => `${truthSymbol(rows[i]?.p ?? false, binary)}${truthSymbol(rows[i]?.q ?? false, binary)}`)).toEqual(["00", "01", "10", "11"]);
+  });
+
+  it("una columna se escribe fila por fila en el orden y con los símbolos del estilo", () => {
+    const rows = assignments(["p", "q"]);
+    const column = [false, false, false, true];
+    const rosen = { symbols: ["V", "F"], firstRow: "all-true" } as const;
+    const binary = { symbols: ["1", "0"], firstRow: "all-false" } as const;
+    expect(describeColumn(["p", "q"], rows, column, rosen)).toBe("(p, q): VV → F · VF → F · FV → F · FF → V");
+    expect(describeColumn(["p", "q"], rows, column, binary)).toBe("(p, q): 00 → 1 · 01 → 0 · 10 → 0 · 11 → 0");
+    expect(describeColumn(["p", "q"], rows, [true, null, false, false], rosen)).toBe("(p, q): VV → V · VF → ? · FV → F · FF → F");
+    expect(describeColumn([], [{}], [true], binary)).toBe("1");
   });
 });

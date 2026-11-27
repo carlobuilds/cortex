@@ -1,4 +1,7 @@
 import type { Exercise } from "@/content/schema";
+import { describeColumn, truthSymbol } from "../logic/convention";
+import { parseFormula } from "../logic/formula";
+import { truthTable } from "../logic/truth-table";
 import { closeEnough, evaluateNumber, ExpressionError } from "./math";
 import { formatSet, sameSet, SetError } from "./sets";
 import { symbolicMatch } from "./symbolic";
@@ -31,6 +34,18 @@ export const SELF_ASSESSMENT_SHARE = 0.8;
 
 const wrong = (expected: string): CheckResult => ({ status: "wrong", expected });
 const invalid = (message: string): CheckResult => ({ status: "invalid", message });
+
+/** La columna oficial fila por fila, en el orden y con los símbolos con que la ve el usuario. */
+function expectedColumn(formula: string, respuesta: readonly ("V" | "F")[]): string {
+  const values = respuesta.map((v) => v === "V");
+  try {
+    const table = truthTable(parseFormula(formula));
+    return describeColumn(table.variables, table.rows, values);
+  } catch {
+    // El esquema ya exige una fórmula legible; esto solo evita tronar si no lo fuera.
+    return values.map((v) => truthSymbol(v)).join(" ");
+  }
+}
 
 function mismatch(answer: Answer, expected: Answer["kind"]): CheckResult {
   return invalid(`Respuesta de tipo «${answer.kind}» para un ejercicio que espera «${expected}».`);
@@ -106,7 +121,7 @@ export function checkAnswer(ex: Exercise, answer: Answer): CheckResult {
       if (answer.kind !== "truth") return mismatch(answer, "truth");
       if (answer.values.length !== ex.respuesta.length || answer.values.some((v) => v === null)) return invalid("Llena todas las filas de la tabla.");
       const ok = ex.respuesta.every((v, i) => (v === "V") === answer.values[i]);
-      return ok ? { status: "correct" } : wrong(ex.respuesta.join(" "));
+      return ok ? { status: "correct" } : wrong(expectedColumn(ex.formula, ex.respuesta));
     }
     case "conjunto": {
       if (answer.kind !== "text") return mismatch(answer, "text");

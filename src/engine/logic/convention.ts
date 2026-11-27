@@ -31,3 +31,19 @@ export function displayOrder(rowCount: number, style: TruthStyle = TRUTH_STYLE):
   const canonical = Array.from({ length: rowCount }, (_, i) => i);
   return style.firstRow === "all-true" ? canonical : canonical.reverse();
 }
+
+/**
+ * Una columna (en orden canónico) escrita fila por fila en el orden en que se muestra:
+ * `(p, q): VV → F · VF → F · FV → F · FF → V`. `null` es una fila sin llenar (`?`).
+ */
+export function describeColumn(
+  variables: readonly string[],
+  rows: readonly Readonly<Record<string, boolean>>[],
+  values: readonly (boolean | null)[],
+  style: TruthStyle = TRUTH_STYLE,
+): string {
+  const show = (value: boolean | null | undefined) => (value === null || value === undefined ? "?" : truthSymbol(value, style));
+  if (variables.length === 0) return show(values[0]);
+  const lines = displayOrder(rows.length, style).map((i) => `${variables.map((v) => show(rows[i]?.[v])).join("")} → ${show(values[i])}`);
+  return `(${variables.join(", ")}): ${lines.join(" · ")}`;
+}
