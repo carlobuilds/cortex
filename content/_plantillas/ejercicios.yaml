@@ -199,3 +199,46 @@ ejercicios:
         expr: "*q"
         formato: "%d"
     explicacion: '...'
+
+  # --- tabla_verdad (Fase 3): se llena la columna de la fórmula; respuesta en orden canónico (VV, VF, FV, FF) ---
+  - id: pref-NN-013
+    tipo: tabla_verdad
+    dificultad: 2
+    conceptos: [concepto-uno]
+    enunciado: 'Llena la tabla de $(p \to q) \land \neg q$.'
+    formula: "(p → q) ∧ ¬q"           # pon paréntesis siempre que mezcles conectores
+    respuesta: [F, F, F, V]
+    explicacion: '...'
+
+  # --- conjunto (Fase 3): verificar devuelve los elementos; sin orden ni repetidos ---
+  - id: pref-NN-014
+    tipo: conjunto
+    dificultad: 2
+    conceptos: [concepto-uno]
+    enunciado: '¿Cuál es el conjunto de soluciones reales de $x^2 = 1$?'
+    respuesta: ["-1", "1"]            # pares ordenados: "(1, 2)"; vacío: []
+    verificar: { sympy: "solveset(x**2 - 1, x, S.Reals)" }
+    explicacion: '...'
+
+  # --- seleccion_multiple (Fase 3): marcar todas las correctas y solo esas ---
+  - id: pref-NN-015
+    tipo: seleccion_multiple
+    dificultad: 2
+    conceptos: [concepto-uno]
+    enunciado: '¿Cuáles de estos números son primos?'
+    opciones: ["$2$", "$4$", "$7$", "$9$"]
+    correctas: [0, 2]
+    verificar: { python: "[i for i, n in enumerate([2, 4, 7, 9]) if all(n % d for d in range(2, n))]" }   # opcional: índices correctos
+    explicacion: '...'
+
+  # --- visual (Fase 3, cualquier tipo): una gráfica o un grafo fijos junto al enunciado ---
+  - id: pref-NN-016
+    tipo: numerico
+    dificultad: 1
+    conceptos: [concepto-uno]
+    enunciado: '¿Cuál es el grado del vértice $a$?'
+    visual: { id: grafo, vertices: "a, b, c, d", aristas: "a-b, a-c, a-d, b-c" }   # o { id: grafica, f: "x^2", dominio: "-2, 2" }
+    respuesta: 3
+    tolerancia: 0
+    verificar: { python: "sum(1 for e in ['a-b', 'a-c', 'a-d', 'b-c'] if 'a' in e.split('-'))" }
+    explicacion: '...'

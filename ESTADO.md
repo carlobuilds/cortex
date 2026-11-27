@@ -1,7 +1,7 @@
 # ESTADO · Tablero vivo de Cortex
 
 **Fase actual:** 3 · Cálculo + Matemáticas discretas, en curso en la rama `fase-3-calculo-discretas` (plan aprobado por Carlo el 2026-10-13). Las Fases 0, 1 y 2 están implementadas y verificadas; sigue pendiente su cierre formal: sesión real de Carlo de ~20 min por fase, `/cerrar-fase` y etiquetas `fase-0`, `fase-1`, `fase-2` (no bloquea la Fase 3).
-**Última actualización:** 2026-10-13 · Fase 3 en curso: listos los pasos 1 y 2 (Mafs aceptado en ADR-021 y cuatro visuales de Cálculo). También el paso 3 (lógica, tablas de verdad y grafos). Y el paso 4 (respuestas ampliadas). Sigue el paso 5 (tipos nuevos de ejercicio); después el simulacro y el contenido. Aporte de Carlo pendiente en esta fase: la convención de la tabla de verdad en `src/engine/logic/convention.ts`. Quedan los tres aportes opcionales de Carlo del rediseño marcados `TODO(Carlo)`.
+**Última actualización:** 2026-11-27 · Fase 3 en curso: listos los pasos 1 a 5 (visuales con Mafs, lógica y grafos, respuestas ampliadas y los tipos `tabla_verdad`, `conjunto`, `seleccion_multiple` con `visual` en ejercicios). Sigue el paso 6 (simulacro de examen) y con él el CP1. El contenido de Cálculo y Discretas espera los programas oficiales (ya ubicados en el sitio de ESCOM; ver Decisiones pendientes). Aporte de Carlo pendiente en esta fase: la convención de la tabla de verdad en `src/engine/logic/convention.ts`. Quedan los tres aportes opcionales de Carlo del rediseño marcados `TODO(Carlo)`.
 
 ## Decisiones tomadas (Carlo, 2026-10-01)
 - Plataforma: **web app** (Next.js).
@@ -65,6 +65,8 @@ Carlo aprobó el plan de la Fase 3 con estas tres decisiones, que el plan propon
 
 ## Decisiones pendientes (preguntar a Carlo)
 - [ ] Programas sintéticos oficiales: Carlo debe colocarlos en `curriculum/programas/` (prioridad: **calculo y matematicas-discretas, que son la puerta de los pasos 7 y 9 de la Fase 3**; después programacion, mecanica-electromagnetismo, fundamentos-economicos).
+  - 2026-11-27: están publicados en el sitio de ESCOM (plan IIA 2020): `https://www.escom.ipn.mx/docs/oferta/uaIIA2020/calculo_IIA2020.pdf`, `.../matematicasDiscretas_IIA2020.pdf` y `.../algebraLineal_IIA2020.pdf`. Desde la sesión en la nube no se pudieron descargar (se permitió `www.escom.ipn.mx` en la red del entorno, pero el clasificador de permisos bloqueó la descarga y el lector web no resolvió el host). Carlo los baja y los pone como `calculo.pdf`, `matematicas-discretas.pdf` y `algebra-lineal.pdf`.
+- [ ] ¿Adelantar Álgebra lineal (hoy Fase 6, 2.º semestre)? Carlo lo preguntó el 2026-11-26. Depende de si la cursa ahora (ver el semestre, abajo). Pide plataforma nueva: respuestas de tipo matriz/vector, visual de transformaciones 2D (Mafs) y NumPy local en Pyodide (hoy solo se copia el núcleo).
 - [ ] Confirmar el semestre actual (se asumió 1º).
 
 ## Prefijos de ids de ejercicio
@@ -120,7 +122,7 @@ Plan (2026-10-13, rama `fase-3-calculo-discretas`): 0) rama y registro · 1) pru
 - [x] `<Visual>` real y visuales de Cálculo (`grafica`, `limite`, `secante-tangente`, `riemann`); la lección de límites ya lleva uno
 - [x] Motor de lógica, simulador de tablas de verdad y dibujo de grafos (`<Visual id="tabla-verdad">` y `<Visual id="grafo">`)
 - [x] Respuestas ampliadas y prueba de ida y vuelta (`src/content/real-answers.test.ts`)
-- [ ] Tipos `tabla_verdad`, `conjunto`, `seleccion_multiple` y `visual` en ejercicios
+- [x] Tipos `tabla_verdad`, `conjunto`, `seleccion_multiple` y `visual` en ejercicios
 - [ ] Simulacro de examen
 - [ ] Cálculo (la unidad 1, `01-limites`, ya está completa como piloto de la Fase 1)
 - [ ] Matemáticas discretas
